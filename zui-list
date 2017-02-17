@@ -68,18 +68,18 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 -zui_list_cursor_visibility() {
     # If $1 = plain, then just output the
     # codes without any state management
-    if [ "$1" != "plain" ]; then
+    if [[ "$1" != "plain" ]]; then
         # Don't change already set cursor state
-        [ "$cursor_state[$1]" = "$2" ] && return
+        [[ "$cursor_state[$1]" = "$2" ]] && return
         cursor_state[$1]="$2"
     fi
 
     if [[ -n "${terminfo[cvvis]}" && -n ${terminfo[cnorm]} ]]; then
-        [ "$2" = "1" ] && { echo -En $terminfo[cvvis]; echo -En $terminfo[cnorm]; }
-        [ "$2" = "0" ] && echo -n $terminfo[civis]
+        [[ "$2" = "1" ]] && { echo -En $terminfo[cvvis]; echo -En $terminfo[cnorm]; }
+        [[ "$2" = "0" ]] && echo -n $terminfo[civis]
     elif type tput 2>/dev/null 1>&2; then
-        [ "$2" = "1" ] && { tput cvvis; tput cnorm; }
-        [ "$2" = "0" ] && tput civis
+        [[ "$2" = "1" ]] && { tput cvvis; tput cnorm; }
+        [[ "$2" = "0" ]] && tput civis
     fi 
 }
 
@@ -106,7 +106,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
 # List was processed, check if variables aren't off range
 -zui_list_verify_vars() {
-    [ "$ZUILIST_CURRENT_IDX" -gt "$last_element" ] && ZUILIST_CURRENT_IDX="$last_element"
+    [[ "$ZUILIST_CURRENT_IDX" -gt "$last_element" ]] && ZUILIST_CURRENT_IDX="$last_element"
     [[ "$ZUILIST_CURRENT_IDX" -eq 0 && "$last_element" -ne 0 ]] && ZUILIST_CURRENT_IDX=1
 
     # Verify that element is just visible, if not then compute exact page
@@ -119,7 +119,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
 # Compute the variables which are shown to the user
 -zui_list_setup_user_vars() {
-    if [ "$1" = "1" ]; then
+    if [[ "$1" = "1" ]]; then
         # Basic values when there are no non-selectables
         ZUILIST_USER_CURRENT_IDX="$ZUILIST_CURRENT_IDX"
         ZUILIST_USER_LAST_ELEMENT="$last_element"
@@ -137,10 +137,10 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 #
 -zui_list_colorify_disp_list() {
     local col=$'\6' reset=$'\31'
-    [ -n "$ZUILIST_COLORING_COLOR" ] && col="$ZUILIST_COLORING_COLOR"
-    [ -n "$ZUILIST_COLORING_END_COLOR" ] && reset="$ZUILIST_COLORING_END_COLOR"
+    [[ -n "$ZUILIST_COLORING_COLOR" ]] && col="$ZUILIST_COLORING_COLOR"
+    [[ -n "$ZUILIST_COLORING_END_COLOR" ]] && reset="$ZUILIST_COLORING_END_COLOR"
 
-    if [ "$ZUILIST_COLORING_MATCH_MULTIPLE" -eq 1 ]; then
+    if [[ "$ZUILIST_COLORING_MATCH_MULTIPLE" -eq 1 ]]; then
         disp_list=( "${(@)disp_list//(#mi)$~ZUILIST_COLORING_PATTERN/$col${MATCH}$reset}" )
     else
         disp_list=( "${(@)disp_list/(#mi)$~ZUILIST_COLORING_PATTERN/$col${MATCH}$reset}" )
@@ -196,7 +196,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     buf=${buf//$'\6'/$target_mark}
 
     # No existing replaced marks – then just add the mark
-    if [ "${buf/$target_mark/}" = "$buf" ]; then
+    if [[ "${buf/$target_mark/}" = "$buf" ]]; then
         buf="${target_mark}${buf}"$'\31'
     fi
 
@@ -240,7 +240,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # Main code
 #
 
-if [ "$#" -lt 1 ]; then
+if [[ "$#" -lt 1 ]]; then
     echo "Usage: zui-list element_1 ..."
     return 1
 fi
@@ -316,7 +316,7 @@ if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" = 0 || "$ZUILIST
     ZUILIST_USER_LAST_ELEMENT=$(( last_element - $#ZUILIST_NONSELECTABLE_ELEMENTS ))
 
     # 2 is init once, then remember
-    [ "$ZUILIST_REMEMBER_STATE" -eq 2 ] && ZUILIST_REMEMBER_STATE=1
+    [[ "$ZUILIST_REMEMBER_STATE" -eq 2 ]] && ZUILIST_REMEMBER_STATE=1
 else
     # Recompute ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN in case
     # it was manually altered outside the list. Together with
@@ -324,17 +324,17 @@ else
     -zui_list_verify_vars
 fi
 
-if [ "$ZUILIST_START_IN_SEARCH_MODE" -eq 1 ]; then
+if [[ "$ZUILIST_START_IN_SEARCH_MODE" -eq 1 ]]; then
     ZUILIST_START_IN_SEARCH_MODE=0
     ZUILIST_IS_SEARCH_MODE=1
 fi
 
-if [ -n "$ZUILIST_SET_SEARCH_TO" ]; then
+if [[ -n "$ZUILIST_SET_SEARCH_TO" ]]; then
     ZUILIST_SEARCH_BUFFER="$ZUILIST_SET_SEARCH_TO"
     ZUILIST_SET_SEARCH_TO=""
 fi
 
-if [ "$ZUILIST_START_IN_UNIQ_MODE" -eq 1 ]; then
+if [[ "$ZUILIST_START_IN_UNIQ_MODE" -eq 1 ]]; then
     ZUILIST_START_IN_UNIQ_MODE=0
     ZUILIST_IS_UNIQ_MODE=1
 fi
@@ -362,7 +362,7 @@ last_element="$#list"
 
 while (( 1 )); do
     # Do searching?
-    if [ -n "$ZUILIST_SEARCH_BUFFER" ]; then
+    if [[ -n "$ZUILIST_SEARCH_BUFFER" ]]; then
         # Compute new list?
         if [[ "$ZUILIST_SEARCH_BUFFER" != "$prev_search_buffer" || "$ZUILIST_IS_UNIQ_MODE" -ne "$prev_uniq_mode" || "$ZUILIST_REGENERATE_DISP_LIST" = "1" ]]
         then
@@ -378,12 +378,12 @@ while (( 1 )); do
             done
 
             # Remove non-selectable elements
-            [ "$#ZUILIST_NONSELECTABLE_ELEMENTS" -gt 0 ] && for i in "${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
+            [[ "$#ZUILIST_NONSELECTABLE_ELEMENTS" -gt 0 ]] && for i in "${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
                 list[$i]=()
             done
 
             # Remove duplicates
-            [ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ] && typeset -U list
+            [[ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ]] && typeset -U list
 
             last_element="$#list"
 
@@ -393,7 +393,7 @@ while (( 1 )); do
             search_buffer="${search_buffer//(#m)[][*?|#~^()><\\]/\\$MATCH}"
             local search_pattern=""
             local colsearch_pattern=""
-            if [ -n "$search_buffer" ]; then
+            if [[ -n "$search_buffer" ]]; then
                 # The base bit of this pattern is ((#s)[^$'\1']#THEWORD*|*$'\2'[^$'\1']#THEWORD*) - the word
                 # occuring not inside hyper link
                 # Pattern will be ((#s)[^$'\1']#FOO*|*$'\2'[^$'\1']#FOO*)~^((#s)[^$'\1']#BAR*|*$'\2'[^$'\1']#BAR*...)
@@ -421,13 +421,13 @@ while (( 1 )); do
         nseg="$#segments"
 
         integer end_idx=$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))
-        [ "$end_idx" -gt "$last_element" ] && end_idx=last_element
+        [[ "$end_idx" -gt "$last_element" ]] && end_idx=last_element
 
-        if [ "$prev_start_idx" -ne "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ]; then
+        if [[ "$prev_start_idx" -ne "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ]]; then
             prev_start_idx="$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN"
             disp_list=( "${(@)list[ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN, end_idx]}" )
 
-            if [ -n "$colsearch_pattern" ]; then
+            if [[ -n "$colsearch_pattern" ]]; then
                 local col=$'\5' reset=$'\31'
                 # The repeat will make the matching work on a fresh heap
                 repeat 1; do
@@ -437,7 +437,7 @@ while (( 1 )); do
                     while (( 1 )); do
                         match=()
                         disp_list=( ${(@)disp_list//(#b)([$'\3'$'\4'$'\5'$'\6'])([^$'\31']#)$'\5'([^$'\31']#)$'\31'/$match[1]$match[2]$'\31'$'\5'$match[3]$'\31'$match[1]} )
-                        [ -z "${match[1]}" ] && break
+                        [[ -z "${match[1]}" ]] && break
                     done
                 done
             fi
@@ -451,7 +451,7 @@ while (( 1 )); do
         # We need second disp_list to be able to disable colorifying for particular elements
         disp_list2=( "${(@)disp_list}" )
 
-        [ "$#disp_list2" -gt 0 ] && -zui_list_mark_current_segment_in_current_element
+        [[ "$#disp_list2" -gt 0 ]] && -zui_list_mark_current_segment_in_current_element
 
         # Remove hyperlinks before displaying
         disp_list2=( "${disp_list2[@]//$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\2'/}" )
@@ -479,13 +479,13 @@ while (( 1 )); do
             done
 
             # Remove non-selectable elements only when in uniq mode
-            [ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ] && [ "$#ZUILIST_NONSELECTABLE_ELEMENTS" -gt 0 ] &&
+            [[ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ]] && [[ "$#ZUILIST_NONSELECTABLE_ELEMENTS" -gt 0 ]] &&
             for i in "${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
                 list[$i]=()
             done
 
             # Remove duplicates when in uniq mode
-            [ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ] && typeset -U list
+            [[ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ]] && typeset -U list
 
             last_element="$#list"
             # Called after processing list
@@ -498,9 +498,9 @@ while (( 1 )); do
         nseg="$#segments"
 
         integer end_idx=$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))
-        [ "$end_idx" -gt "$last_element" ] && end_idx=last_element
+        [[ "$end_idx" -gt "$last_element" ]] && end_idx=last_element
 
-        if [ "$prev_start_idx" -ne "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ]; then
+        if [[ "$prev_start_idx" -ne "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ]]; then
             prev_start_idx="$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN"
             disp_list=( "${(@)list[ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN, end_idx]}" )
 
@@ -510,14 +510,14 @@ while (( 1 )); do
             # segment
             -zui_list_translate_color_marks_in_disp_list
 
-            [ -n "$ZUILIST_COLORING_PATTERN" ] && -zui_list_colorify_disp_list
+            [[ -n "$ZUILIST_COLORING_PATTERN" ]] && -zui_list_colorify_disp_list
         fi
 
         # We need second disp_list to be able to disable colorifying for particular elements
         # (this is rather unused currently)
         disp_list2=( "${(@)disp_list}" )
 
-        [ "$#disp_list2" -gt 0 ] && -zui_list_mark_current_segment_in_current_element
+        [[ "$#disp_list2" -gt 0 ]] && -zui_list_mark_current_segment_in_current_element
 
         # Remove hyperlinks before displaying
         disp_list2=( "${disp_list2[@]//$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\2'/}" )
@@ -531,7 +531,7 @@ while (( 1 )); do
     # The check for "white/black" means: mark header
     # only when default color isn't special
     [[ "$mark_header" = "1" && "$colorpair" = "white/black" ]] && zcurses attr "$wname_main" "$bold" "magenta/$background"
-    [ "$border" = "1" ] && zcurses border "$wname_main"
+    [[ "$border" = "1" ]] && zcurses border "$wname_main"
     zcurses move "$wname_main" 0 2
     zcurses string "$wname_main" "$header"
     [[ "$mark_header" = "1" && "$colorpair" = "white/black" ]] && zcurses attr "$wname_main" "$bold" "$colorpair"
@@ -539,7 +539,7 @@ while (( 1 )); do
     zcurses refresh "$wname_main"
 
     # Status window is optional (1/2)
-    [ -n "$wname_status" ] && {
+    [[ -n "$wname_status" ]] && {
         reply=( )
         if -zui_stdlib_decode_hyperlink "${segments[$ZUILIST_CURRENT_SEGMENT]}"; then
             (( ${+functions[-zui-standard-status-callback]} )) && -zui-standard-status-callback "${reply[@]}"
@@ -551,7 +551,7 @@ while (( 1 )); do
         [[ -n "${ZUI[GENERATION_TIME]}" ]] && _gen="GENERATED IN ${ZUI[GENERATION_TIME]}s"
         ZUI[GENERATION_TIME]=""
 
-        if [ "$ZUILIST_IS_SEARCH_MODE" = "1" ]; then
+        if [[ "$ZUILIST_IS_SEARCH_MODE" = "1" ]]; then
             -zui_list_status_msg "$_uniq" "Filtering with: ${ZUILIST_SEARCH_BUFFER// /+}"
         elif [[ ${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]} != $ZUILIST_CURRENT_IDX || -n "$ZUILIST_SEARCH_BUFFER" || "$ZUILIST_IS_UNIQ_MODE" -eq 1 ]]; then
             _text="Current #$ZUILIST_USER_CURRENT_IDX (of #$ZUILIST_USER_LAST_ELEMENT entries)"
@@ -561,26 +561,26 @@ while (( 1 )); do
             -zui_list_status_msg "" "" "" "$_gen"
         fi
 
-        [ "$border" = "1" ] && zcurses border "$wname_status"
+        [[ "$border" = "1" ]] && zcurses border "$wname_status"
         # status_msg_strlen is being set in -zui_list_status_msg()
         zcurses move "$wname_status" 1 $(( status_msg_strlen + 2 ))
-        [ "$ZUILIST_IS_SEARCH_MODE" -ne 1 ] && -zui_list_cursor_visibility "status" "0" || -zui_list_cursor_visibility "status" "1"
+        [[ "$ZUILIST_IS_SEARCH_MODE" -ne 1 ]] && -zui_list_cursor_visibility "status" "0" || -zui_list_cursor_visibility "status" "1"
         zcurses refresh "$wname_status" 
     }
 
     # Draw only?
-    [ "$ZUILIST_DRAW_ONLY" = "1" ] && return
+    [[ "$ZUILIST_DRAW_ONLY" = "1" ]] && return
 
     # Wait for input
     zcurses input main key keypad
 
     # Get the special (i.e. "keypad") key or regular key
-    if [ -n "$key" ]; then
+    if [[ -n "$key" ]]; then
         final_key="$key"
-    elif [ -n "$keypad" ]; then
+    elif [[ -n "$keypad" ]]; then
         final_key="$keypad"
     else
-        [ -n "$wname_status" ] && {
+        [[ -n "$wname_status" ]] && {
             -zui_list_status_msg "" "Inproper input detected"
             zcurses refresh "$wname_status"
             sleep 1
@@ -607,7 +607,7 @@ while (( 1 )); do
     # (functionality)
     #
 
-    if [ "$ZUILIST_TRACK_SEGMENTS" = "1" ]; then
+    if [[ "$ZUILIST_TRACK_SEGMENTS" = "1" ]]; then
         # Remember segment change (element change and
         # segment change cannot occur at the same time)
         ZUILIST_ACTIVE_SEGMENTS[$track_cur_idx]="$ZUILIST_CURRENT_SEGMENT"
@@ -626,7 +626,7 @@ while (( 1 )); do
     # Main input action examination
     #
 
-    if [ "$action" = "SELECT" ]; then
+    if [[ "$action" = "SELECT" ]]; then
         REPLY="$selection"
         reply=( "$list[@]" )
         break
@@ -638,14 +638,14 @@ while (( 1 )); do
         REPLY="$action"
         reply=( "$list[@]" )
         break
-    elif [ "$action" = "QUIT" ]; then
+    elif [[ "$action" = "QUIT" ]]; then
         REPLY=-1
         reply=( "$list[@]" )
         break
-    elif [ "$action" = "REDRAW" ]; then
+    elif [[ "$action" = "REDRAW" ]]; then
         zcurses clear "$wname_main" redraw
         # Status window is optional (2/2)
-        [ -n "$wname_status" ] && zcurses clear "$wname_status" redraw
+        [[ -n "$wname_status" ]] && zcurses clear "$wname_status" redraw
     else
         if [[ -n "$ZUILIST_REPLY_LIST_PART_SIZE" && "$ZUILIST_REPLY_LIST_PART_SIZE" -ge "1" ]]; then
             set "${(@)@[1,ZUILIST_REPLY_HEADER_IDX-1]}" "${ZUILIST_REPLY_LIST_PART[@]}" "${(@)@[ZUILIST_REPLY_HEADER_IDX+ZUILIST_REPLY_TO_OVERWRITE_SIZE,-1]}"
