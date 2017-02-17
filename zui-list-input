@@ -64,6 +64,7 @@ integer search="$9"
 local buffer="$10"
 integer uniq_mode="$11"
 integer disable_search="$12"
+local list_var_name="$13"
 
 #
 # Listening for input
@@ -150,8 +151,10 @@ case "$key" in
             ${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$current_idx]} != $current_idx ]]
         then
             # Check if we are at hyperlink. Only then allow selection
+            list_var_name="${list_var_name}[$current_idx]"
+            local orig_element="${(P)list_var_name}"
             local -a segs
-            segs=( "${(z@)list[$current_idx]}" )
+            segs=( "${(z@)orig_element}" )
 
             local -a replybkp
             replybkp=( "${reply[@]}" )

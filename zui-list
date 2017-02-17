@@ -594,7 +594,7 @@ while (( 1 )); do
     zui-list-input "$ZUILIST_CURRENT_IDX" "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" \
                     "$page_height" "$page_width" "$last_element" "$nseg" "$ZUILIST_TEXT_OFFSET" \
                     "$final_key" "$ZUILIST_IS_SEARCH_MODE" "$ZUILIST_SEARCH_BUFFER" \
-                    "$ZUILIST_IS_UNIQ_MODE" "$ZUILIST_DISABLE_SEARCH"
+                    "$ZUILIST_IS_UNIQ_MODE" "$ZUILIST_DISABLE_SEARCH" "list"
 
     selection="$reply[1]"
     action="$reply[2]"
