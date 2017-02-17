@@ -202,7 +202,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         [[ -z "$ZUILIST_SEARCH_BUFFER" && "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]}" = "$ZUILIST_CURRENT_IDX" ]] && return
 
         # There will be no colorifying for current element
-        integer ZUILIST_CURRENT_PAGE_IDX=$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))
+        integer current_page_idx=$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))
         local element="$list[ZUILIST_CURRENT_IDX]"
         local output=""
 
@@ -225,7 +225,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         buf+="$ZUI_PB_SPACES[i]"
 
         -zui_list_translate_color_marks "$buf"
-        disp_list2[ZUILIST_CURRENT_PAGE_IDX]="$REPLY"
+        disp_list2[current_page_idx]="$REPLY"
 }
 
 #
