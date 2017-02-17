@@ -83,19 +83,25 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     fi 
 }
 
+# current_difference - how many to subtract from current
+# element index, last_element_difference - how many to
+# subtract from element total count. These values allow
+# to provide navigation information when non-selectables
+# (non-real elements) are present.
 -zui_list_compute_user_vars_difference() {
-        if [[ "${(t)ZUILIST_NONSELECTABLE_ELEMENTS}" != *array* ]]
-        then
-            last_element_difference=0
-            current_difference=0
-        else
-            last_element_difference=$#ZUILIST_NONSELECTABLE_ELEMENTS
-            current_difference=0
-            local idx
-            for idx in "${(n)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
-                [ "$idx" -le "$ZUILIST_CURRENT_IDX" ] && current_difference+=1 || break
-            done
-        fi
+    # No non-selectables -> no job to do
+    if [[ "${(t)ZUILIST_NONSELECTABLE_ELEMENTS}" != *array* ]]
+    then
+        last_element_difference=0
+        current_difference=0
+    else
+        last_element_difference=${#ZUILIST_NONSELECTABLE_ELEMENTS}
+        current_difference=0
+        local idx
+        for idx in "${(n)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
+            [[ "$idx" -le "$ZUILIST_CURRENT_IDX" ]] && current_difference+=1 || break
+        done
+    fi
 }
 
 # List was processed, check if variables aren't off range
