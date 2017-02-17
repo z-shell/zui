@@ -1,0 +1,505 @@
+emulate -L zsh
+
+zmodload zsh/curses
+
+setopt typesetsilent extendedglob
+
+# Compute first to show index - exact page
+-zcmdrlist_compute_first_to_show_idx() {
+    from_what_idx_list_is_shown=0+((current_idx-1)/page_height)*page_height+1
+}
+
+# Conditional, fully robust page-to-show computation
+-zcmdrlist_compute_exact_page_if_needed() {
+    # Fallback: in case of any problems compute exact page
+    if [[ "$from_what_idx_list_is_shown" -lt "1" ||
+        "$from_what_idx_list_is_shown" -gt "$last_element" ]]
+    then
+        from_what_idx_list_is_shown=0+((current_idx-1)/page_height)*page_height+1
+    fi
+}
+
+# Compute first to show index - page
+# scrolled to center to show index
+-zcmdrlist_compute_first_to_show_idx_center() {
+    from_what_idx_list_is_shown=current_idx-page_height/2
+    -zcmdrlist_compute_exact_page_if_needed
+}
+
+# Calling this function means passing information
+# that we move up in the list (to lower index)
+# This means we can move page start as few as one
+# element up.
+-zcmdrlist_compute_first_to_show_idx_up_many() {
+    if [[ "$current_idx" -lt "$from_what_idx_list_is_shown" ||
+        "$current_idx" -gt "$(( from_what_idx_list_is_shown + page_height -1 ))" ]]
+    then
+        from_what_idx_list_is_shown=from_what_idx_list_is_shown-7
+        -zcmdrlist_compute_exact_page_if_needed
+    fi
+}
+
+# Like above, but in opposite direction
+-zcmdrlist_compute_first_to_show_idx_down_many() {
+    if [[ "$current_idx" -lt "$from_what_idx_list_is_shown" ||
+        "$current_idx" -gt "$(( from_what_idx_list_is_shown + page_height -1 ))" ]]
+    then
+        from_what_idx_list_is_shown=from_what_idx_list_is_shown+7
+        -zcmdrlist_compute_exact_page_if_needed
+    fi
+}
+
+
+typeset -ga reply
+reply=( -1 '' )
+integer current_idx="$1"
+integer from_what_idx_list_is_shown="$2"
+integer page_height="$3"
+integer page_width="$4"
+integer last_element="$5"
+integer nseg="$6"
+integer hscroll="$7"
+local key="$8"
+integer search="$9"
+local buffer="$10"
+integer uniq_mode="$11"
+integer disable_search="$12"
+
+#
+# Listening for input
+#
+
+if [ "$search" = "0" ]; then
+
+case "$key" in
+    (UP|k)
+        # Are there any elements before the current one?
+        [ "$current_idx" -gt 1 ] && {
+            current_idx=current_idx-1
+            -zcmdrlist_compute_first_to_show_idx_up_many
+        }
+        [[ -z "${list[$current_idx]}" && "$current_idx" -gt 1 ]] && {
+            current_idx=current_idx-1
+            -zcmdrlist_compute_first_to_show_idx_up_many
+        }
+        ;;
+    (DOWN|j)
+        # Are there any elements after the current one?
+        [ "$current_idx" -lt "$last_element" ] && {
+            current_idx=current_idx+1
+            -zcmdrlist_compute_first_to_show_idx_down_many
+        }
+        [[ -z "${list[$current_idx]}" && "$current_idx" -lt "$last_element" ]] && {
+            current_idx=current_idx+1
+            -zcmdrlist_compute_first_to_show_idx_down_many
+        }
+        ;;
+    ($'\C-P')
+        [ "$current_idx" -gt 1 ] && {
+            current_idx=current_idx-1
+            -zcmdrlist_compute_first_to_show_idx_center
+        }
+        [[ -z "${list[$current_idx]}" && "$current_idx" -gt 1 ]] && {
+            current_idx=current_idx-1
+            -zcmdrlist_compute_first_to_show_idx_center
+        }
+        ;;
+    ($'\C-N')
+        # Are there any elements after the current one?
+        [ "$current_idx" -lt "$last_element" ] && {
+            current_idx=current_idx+1
+            -zcmdrlist_compute_first_to_show_idx_center
+        }
+        [[ -z "${list[$current_idx]}" && "$current_idx" -lt "$last_element" ]] && {
+            current_idx=current_idx+1
+            -zcmdrlist_compute_first_to_show_idx_center
+        }
+        ;;
+    (PPAGE|$'\b'|$'\C-?'|BACKSPACE)
+        current_idx=current_idx-page_height
+        [ "$current_idx" -lt 1 ] && current_idx=1;
+        -zcmdrlist_compute_first_to_show_idx
+        ;;
+    (NPAGE|" ")
+        current_idx=current_idx+page_height
+        [ "$current_idx" -gt "$last_element" ] && current_idx=last_element;
+        -zcmdrlist_compute_first_to_show_idx
+        ;;
+    ($'\C-U')
+        current_idx=current_idx-page_height/2
+        [ "$current_idx" -lt 1 ] && current_idx=1;
+        -zcmdrlist_compute_first_to_show_idx
+        ;;
+    ($'\C-D')
+        current_idx=current_idx+page_height/2
+        [ "$current_idx" -gt "$last_element" ] && current_idx=last_element;
+        -zcmdrlist_compute_first_to_show_idx
+        ;;
+    (HOME|g)
+        current_idx=1
+        -zcmdrlist_compute_first_to_show_idx
+        ;;
+    (END|G)
+        current_idx=last_element
+        -zcmdrlist_compute_first_to_show_idx
+        ;;
+    ($'\n'|ENTER)
+        # Is that element selectable?
+        # Check for this only when there is no search
+        if [[ "$ZCMDRLIST_SEARCH_BUFFER" != "" || "$ZCMDRLIST_IS_UNIQ_MODE" -eq 1 ||
+            ${ZCMDRLIST_NONSELECTABLE_ELEMENTS[(r)$current_idx]} != $current_idx ]]
+        then
+            # Check if we are at hyperlink. Only then allow selection
+            local -a segs
+            segs=( "${(z@)list[$current_idx]}" )
+
+            local -a replybkp
+            replybkp=( "${reply[@]}" )
+            reply=( )
+            if -zcmdr_stdlib_decode_hyperlink "${segs[ZCMDRLIST_CURRENT_SEGMENT]}"; then
+                local id="${reply[1]}" idx="${reply[2]}" cmd="${reply[3]}" active_path="${reply[4]}" section_size="${reply[5]}"
+                reply=( "${replybkp[@]}" )
+
+                if [[ "$id" = *zcmdr_anchor* ]]; then
+                    current_idx="$idx"
+                    ZCMDRLIST_CURRENT_SEGMENT=1
+                    -zcmdrlist_compute_first_to_show_idx_center
+
+                    # Is there additional hook?
+                    if [[ -n "${ZCMDR_ACTION_IDS_TO_HANDLERS[$id]}" ]]; then
+                        "${ZCMDR_ACTION_IDS_TO_HANDLERS[$id]}" "$id" "$idx" "$cmd" "$active_path" "$section_size"
+                        reply=( "${replybkp[@]}" )
+                    fi
+                elif [[ "$id" = *zcmdr_checkbox* ]]; then
+                    if [[ -n "${ZCMDR_ACTION_IDS_TO_HANDLERS[$id]}" ]]; then
+                        "${ZCMDR_ACTION_IDS_TO_HANDLERS[$id]}" "$id" "$idx" "$cmd" "$active_path" "$section_size"
+                        reply=( "${replybkp[@]}" )
+                    fi
+                else
+                    # Save current element in the result variable
+                    reply=( $current_idx SELECT )
+                fi
+            else
+                reply=( "${replybkp[@]}" )
+            fi
+        fi
+        ;;
+    (q|Q)
+        reply=( -1 QUIT )
+        ;;
+    (/)
+        if [ "$disable_search" = "0" ]; then
+            search=1
+            -zcmdrlist_cursor_visibility 1
+        fi
+        ;;
+    ($'\C-L')
+        reply=( -1 REDRAW )
+        ;;
+    (\])
+        if [[ "${ZCMDRLIST_ENABLED_EVENTS[(r)BR_MOVE_RIGHT]}" = "BR_MOVE_RIGHT" ]]; then
+            reply=( "$ZCMDRLIST_CURRENT_SEGMENT" "BR_MOVE_RIGHT" )
+        else
+
+        [[ "${(t)ZCMDRLIST_HOP_INDEXES}" = "array" || "${(t)ZCMDRLIST_HOP_INDEXES}" = "array-local" ]] &&
+        [ -z "$ZCMDRLIST_SEARCH_BUFFER" ] && [ "$ZCMDRLIST_IS_UNIQ_MODE" -eq 0 ] &&
+        for idx in "${(n)ZCMDRLIST_HOP_INDEXES[@]}"; do
+            if [ "$idx" -gt "$current_idx" ]; then
+                current_idx=$idx
+                -zcmdrlist_compute_first_to_show_idx_center
+                break
+            fi
+        done
+
+        fi
+        ;;
+    (\[)
+        if [[ "${ZCMDRLIST_ENABLED_EVENTS[(r)BR_MOVE_LEFT]}" = "BR_MOVE_LEFT" ]]; then
+            reply=( "$ZCMDRLIST_CURRENT_SEGMENT" "BR_MOVE_LEFT" )
+        else
+
+        [[ "${(t)ZCMDRLIST_HOP_INDEXES}" = "array" || "${(t)ZCMDRLIST_HOP_INDEXES}" = "array-local" ]] &&
+        [ -z "$ZCMDRLIST_SEARCH_BUFFER" ] && [ "$ZCMDRLIST_IS_UNIQ_MODE" -eq 0 ] &&
+        for idx in "${(nO)ZCMDRLIST_HOP_INDEXES[@]}"; do
+            if [ "$idx" -lt "$current_idx" ]; then
+                current_idx=$idx
+                -zcmdrlist_compute_first_to_show_idx_center
+                break
+            fi
+        done
+
+        fi
+        ;;
+    ('<'|'{')
+        hscroll=hscroll-7
+        [ "$hscroll" -lt 0 ] && hscroll=0
+        ;;
+    ('>'|'}')
+        hscroll+=7
+        ;;
+    (LEFT|'h'|BTAB)
+        if [[ "$key" = "BTAB" && ${ZCMDRLIST_NONSELECTABLE_ELEMENTS[(r)$current_idx]} = $current_idx ]]; then
+            [[ "$current_idx" -gt "1" ]] && {
+                current_idx=current_idx-1
+                ZCMDRLIST_CURRENT_SEGMENT="100"
+                -zcmdrlist_compute_first_to_show_idx_up_many
+            }
+            [[ -z "${list[$current_idx]}" && "$current_idx" -gt 1 ]] && {
+                current_idx=current_idx-1
+                -zcmdrlist_compute_first_to_show_idx_up_many
+            }
+        else
+            if [ "$ZCMDRLIST_CURRENT_SEGMENT" -gt "$nseg" ]; then
+                (( ZCMDRLIST_CURRENT_SEGMENT = nseg - 1 ))
+                [ "$ZCMDRLIST_CURRENT_SEGMENT" -le 0 ] && ZCMDRLIST_CURRENT_SEGMENT=1
+            else
+                if [[ "$key" = "BTAB" && "$ZCMDRLIST_CURRENT_SEGMENT" -eq "1" ]]; then
+                    [ "$current_idx" -gt "1" ] && {
+                        current_idx=current_idx-1
+                        ZCMDRLIST_CURRENT_SEGMENT="100"
+                        -zcmdrlist_compute_first_to_show_idx_up_many
+                    }
+                    [[ -z "${list[$current_idx]}" && "$current_idx" -gt 1 ]] && {
+                        current_idx=current_idx-1
+                        -zcmdrlist_compute_first_to_show_idx_up_many
+                    }
+                else
+                    (( ZCMDRLIST_CURRENT_SEGMENT = ZCMDRLIST_CURRENT_SEGMENT - 1 ))
+                fi
+            fi
+        fi
+        ;;
+    (RIGHT|'l'|$'\t')
+        if [[ "$key" = $'\t' && ${ZCMDRLIST_NONSELECTABLE_ELEMENTS[(r)$current_idx]} = $current_idx ]]; then
+            [ "$current_idx" -lt "$last_element" ] && {
+                current_idx=current_idx+1
+                ZCMDRLIST_CURRENT_SEGMENT=1
+                -zcmdrlist_compute_first_to_show_idx_down_many
+            }
+            [[ -z "${list[$current_idx]}" && "$current_idx" -lt "$last_element" ]] && {
+                current_idx=current_idx+1
+                -zcmdrlist_compute_first_to_show_idx_down_many
+            }
+        else
+            (( ZCMDRLIST_CURRENT_SEGMENT = ZCMDRLIST_CURRENT_SEGMENT + 1 ))
+            if [ "$key" = $'\t' ]; then
+                if [[ "$ZCMDRLIST_CURRENT_SEGMENT" -gt "$nseg" ]]; then
+                    [ "$current_idx" -lt "$last_element" ] && {
+                        current_idx=current_idx+1
+                        ZCMDRLIST_CURRENT_SEGMENT="1"
+                        -zcmdrlist_compute_first_to_show_idx_down_many
+                    }
+                    [[ -z "${list[$current_idx]}" && "$current_idx" -lt "$last_element" ]] && {
+                        current_idx=current_idx+1
+                        -zcmdrlist_compute_first_to_show_idx_down_many
+                    }
+                fi
+            fi
+            [ "$ZCMDRLIST_CURRENT_SEGMENT" -gt "$nseg" ] && ZCMDRLIST_CURRENT_SEGMENT="$nseg"
+        fi
+        ;;
+    (F1|F2|F3|F4)
+        reply=( -1 "$key" )
+        ;;
+    ($'\E')
+        buffer=""
+        ;;
+    (o|$'\C-O')
+        uniq_mode=1-uniq_mode
+        ;;
+    (*)
+        ;;
+esac
+
+else
+
+case "$key" in
+    ($'\n'|ENTER)
+        search=0
+        -zcmdrlist_cursor_visibility 0
+        ;;
+    ($'\C-L')
+        reply=( -1 REDRAW )
+        ;;
+
+    #
+    # Slightly limited navigation
+    #
+
+    (UP)
+        [ "$current_idx" -gt 1 ] && {
+            current_idx=current_idx-1
+            -zcmdrlist_compute_first_to_show_idx_up_many
+        }
+        [[ -z "${list[$current_idx]}" && "$current_idx" -gt 1 ]] && {
+            current_idx=current_idx-1
+            -zcmdrlist_compute_first_to_show_idx_up_many
+        }
+        ;;
+    (DOWN)
+        [ "$current_idx" -lt "$last_element" ] && {
+            current_idx=current_idx+1;
+            -zcmdrlist_compute_first_to_show_idx_down_many
+        }
+        [[ -z "${list[$current_idx]}" && "$current_idx" -lt "$last_element" ]] && {
+            current_idx=current_idx+1
+            -zcmdrlist_compute_first_to_show_idx_down_many
+        }
+        ;;
+    ($'\C-P')
+        [ "$current_idx" -gt 1 ] && {
+            current_idx=current_idx-1
+            -zcmdrlist_compute_first_to_show_idx_center
+        }
+        [[ -z "${list[$current_idx]}" && "$current_idx" -gt 1 ]] && {
+            current_idx=current_idx-1
+            -zcmdrlist_compute_first_to_show_idx_center
+        }
+        ;;
+    ($'\C-N')
+        # Are there any elements after the current one?
+        [ "$current_idx" -lt "$last_element" ] && {
+            current_idx=current_idx+1
+            -zcmdrlist_compute_first_to_show_idx_center
+        }
+        [[ -z "${list[$current_idx]}" && "$current_idx" -lt "$last_element" ]] && {
+            current_idx=current_idx+1
+            -zcmdrlist_compute_first_to_show_idx_center
+        }
+        ;;
+    (PPAGE)
+        current_idx=current_idx-page_height
+        [ "$current_idx" -lt 1 ] && current_idx=1;
+        -zcmdrlist_compute_first_to_show_idx
+        ;;
+    (NPAGE)
+        current_idx=current_idx+page_height
+        [ "$current_idx" -gt "$last_element" ] && current_idx=last_element;
+        -zcmdrlist_compute_first_to_show_idx
+        ;;
+    ($'\C-U')
+        current_idx=current_idx-page_height/2
+        [ "$current_idx" -lt 1 ] && current_idx=1;
+        -zcmdrlist_compute_first_to_show_idx
+        ;;
+    ($'\C-D')
+        current_idx=current_idx+page_height/2
+        [ "$current_idx" -gt "$last_element" ] && current_idx=last_element;
+        -zcmdrlist_compute_first_to_show_idx
+        ;;
+    (HOME)
+        current_idx=1
+        -zcmdrlist_compute_first_to_show_idx
+        ;;
+    (END)
+        current_idx=last_element
+        -zcmdrlist_compute_first_to_show_idx
+        ;;
+    (LEFT|BTAB)
+        if [[ "$key" = "BTAB" && ${ZCMDRLIST_NONSELECTABLE_ELEMENTS[(r)$current_idx]} = $current_idx ]]; then
+            [[ "$current_idx" -gt "1" ]] && {
+                current_idx=current_idx-1
+                ZCMDRLIST_CURRENT_SEGMENT="100"
+                -zcmdrlist_compute_first_to_show_idx_up_many
+            }
+            [[ -z "${list[$current_idx]}" && "$current_idx" -gt 1 ]] && {
+                current_idx=current_idx-1
+                -zcmdrlist_compute_first_to_show_idx_up_many
+            }
+        else
+            if [ "$ZCMDRLIST_CURRENT_SEGMENT" -gt "$nseg" ]; then
+                (( ZCMDRLIST_CURRENT_SEGMENT = nseg - 1 ))
+                [ "$ZCMDRLIST_CURRENT_SEGMENT" -le 0 ] && ZCMDRLIST_CURRENT_SEGMENT=1
+            else
+                if [[ "$key" = BTAB && "$ZCMDRLIST_CURRENT_SEGMENT" -eq "1" ]]; then
+                    [ "$current_idx" -gt "1" ] && {
+                        current_idx=current_idx-1
+                        ZCMDRLIST_CURRENT_SEGMENT="100"
+                        -zcmdrlist_compute_first_to_show_idx_up_many
+                    }
+                    [[ -z "${list[$current_idx]}" && "$current_idx" -gt 1 ]] && {
+                        current_idx=current_idx-1
+                        -zcmdrlist_compute_first_to_show_idx_up_many
+                    }
+                else
+                    (( ZCMDRLIST_CURRENT_SEGMENT = ZCMDRLIST_CURRENT_SEGMENT - 1 ))
+                fi
+            fi
+        fi
+        ;;
+    (RIGHT|$'\t')
+        if [[ "$key" = $'\t' && ${ZCMDRLIST_NONSELECTABLE_ELEMENTS[(r)$current_idx]} = $current_idx ]]; then
+            [ "$current_idx" -lt "$last_element" ] && {
+                current_idx=current_idx+1
+                ZCMDRLIST_CURRENT_SEGMENT=1
+                -zcmdrlist_compute_first_to_show_idx_down_many
+            }
+            [[ -z "${list[$current_idx]}" && "$current_idx" -lt "$last_element" ]] && {
+                current_idx=current_idx+1
+                -zcmdrlist_compute_first_to_show_idx_down_many
+            }
+        else
+            (( ZCMDRLIST_CURRENT_SEGMENT = ZCMDRLIST_CURRENT_SEGMENT + 1 ))
+            if [ "$key" = $'\t' ]; then
+                if [[ "$ZCMDRLIST_CURRENT_SEGMENT" -gt "$nseg" ]]; then
+                    [ "$current_idx" -lt "$last_element" ] && {
+                        current_idx=current_idx+1
+                        ZCMDRLIST_CURRENT_SEGMENT="1"
+                        -zcmdrlist_compute_first_to_show_idx_down_many
+                    }
+                    [[ -z "${list[$current_idx]}" && "$current_idx" -lt "$last_element" ]] && {
+                        current_idx=current_idx+1
+                        -zcmdrlist_compute_first_to_show_idx_down_many
+                    }
+                fi
+            fi
+            [ "$ZCMDRLIST_CURRENT_SEGMENT" -gt "$nseg" ] && ZCMDRLIST_CURRENT_SEGMENT="$nseg"
+        fi
+        ;;
+    (F1|F2|F3|F4)
+        reply=( -1 "$key" )
+        ;;
+    (F4|F5|F6|F7|F8|F9|F10)
+        # ignore
+        ;;
+
+    #
+    # The input
+    #
+
+    ($'\b'|$'\C-?'|BACKSPACE)
+        buffer="${buffer%?}"
+        ;;
+    ($'\C-W')
+        [ "$buffer" = "${buffer% *}" ] && buffer="" || buffer="${buffer% *}"
+        ;;
+    ($'\C-K')
+        buffer=""
+        ;;
+    ($'\E')
+        buffer=""
+        search=0
+        -zcmdrlist_cursor_visibility 0
+        ;;
+    ($'\C-O')
+        uniq_mode=1-uniq_mode
+        ;;
+    (*)
+        if [[ $#key == 1 && $((#key)) -lt 31 ]]; then
+            # ignore all other control keys
+        else
+            buffer+="$key"
+        fi
+        ;;
+esac
+
+fi
+
+reply[3]="$current_idx"
+reply[4]="$from_what_idx_list_is_shown"
+reply[5]="$hscroll"
+reply[6]="$search"
+reply[7]="$buffer"
+reply[8]="$uniq_mode"
+
+# vim: set filetype=zsh:

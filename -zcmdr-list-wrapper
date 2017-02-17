@@ -1,0 +1,81 @@
+emulate -LR zsh
+setopt extendedglob
+
+_zcmdr_wrapper_has_terminfo=0
+
+zmodload zsh/curses
+zmodload zsh/terminfo 2>/dev/null && _zcmdr_wrapper_has_terminfo=1
+
+trap "-zcmdr_wrapper_on_exit" EXIT
+
+integer term_height="$LINES"
+integer term_width="$COLUMNS"
+
+# Reason for this function is that on some systems
+# smcup and rmcup are not knowing why left empty
+-zcmdr_wrapper_alternate_screen() {
+    if [ "$_zcmdr_wrapper_has_terminfo" = "1" ]; then
+        [[ "$1" = "1" && -n "$terminfo[smcup]" ]] && return
+        [[ "$1" = "0" && -n "$terminfo[rmcup]" ]] && return
+    fi
+
+    case "$TERM" in
+        *rxvt*)
+            [ "$1" = "1" ] && echo -n $'\x1b7\x1b[?47h'
+            [ "$1" = "0" ] && echo -n $'\x1b[2J\x1b[?47l\x1b8'
+            ;;
+        *)
+            [ "$1" = "1" ] && echo -n $'\x1b[?1049h'
+            [ "$1" = "0" ] && echo -n $'\x1b[?1049l'
+            # just to remember two other that work: $'\x1b7\x1b[r\x1b[?47h', $'\x1b[?47l\x1b8'
+            ;;
+    esac
+}
+
+# Cleanup before any exit
+-zcmdr_wrapper_on_exit() {
+    -zcmdr_wrapper_end
+    -zcmdr_wrapper_alternate_screen 0
+    -zcmdrlist_cursor_visibility "plain" 1
+    unset _zcmdrlist_has_terminfo
+}
+
+-zcmdr_wrapper_init_windows() {
+    -zcmdr_wrapper_alternate_screen 1
+    zcurses init
+    zcurses delwin cmd 2>/dev/null
+    zcurses delwin main 2>/dev/null
+    zcurses delwin status 2>/dev/null
+    zcurses addwin main $(( term_height - 3 )) "$term_width" 0 0
+    zcurses addwin status "3" "$term_width" $(( term_height - 3 )) 0
+
+    zcurses bg main "+bold" white/black
+    zcurses bg status "+bold" white/black
+}
+
+-zcmdr_wrapper_end() {
+    zcurses init
+    zcurses delwin cmd 2>/dev/null
+    zcurses delwin main 2>/dev/null
+    zcurses end
+}
+
+-zcmdr_wrapper_init_windows
+
+[ "$ZCMDRLIST_REMEMBER_STATE" != 1 ] && ZCMDRLIST_REMEMBER_STATE=2
+
+[[ "${ZCMDR[stdlib_sourced]}" != "1" ]] && source "${ZCMDR_REPO_DIR}/lib/stdlib.lcmdr"
+-zcmdr_stdlib_get_time
+
+-zcmdr-list "main" $(( term_height-3 )) $term_width "status" "3" "$term_width" "  Welcome to Zcommodore $REPLY " "1" "$@"
+
+if [[ "$REPLY" != "-1" && "$REPLY" = -(#c0,1)[0-9]## ]]; then
+    answer=${reply[REPLY]}
+    tmp=( "${(z)answer}" )
+    [[ "$ZCMDRLIST_CURRENT_SEGMENT" -gt "${#tmp}" ]] && ZCMDRLIST_CURRENT_SEGMENT="${#tmp}"
+    ZCMDRLIST_WRAPPER_BIT=$tmp[ZCMDRLIST_CURRENT_SEGMENT]
+else
+    ZCMDRLIST_WRAPPER_BIT=""
+fi
+
+# vim:ft=zsh
