@@ -40,7 +40,9 @@ local -F start_seconds
 #
 
 -zui_test_module1_generator() {
-    reply=( "Hello World" "Hello [there]" "Third line" )
+    reply=( )
+    -zui_stdlib_get_button "there" "" "/Jump/" "" "" "${ZUI_MAGENTA}there${ZUI_MAGENTA_E}" ""
+    reply=( "Hello World" "Hello ${reply[1]}" "Third line" )
     reply2=3
     reply3=( 1 )
     reply4=( 1 3 )
