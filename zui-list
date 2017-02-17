@@ -287,7 +287,7 @@ zcurses bg "$wname_status" "$colorpair"
 [[ "$bold" = "1" || "$bold" = "+bold" ]] && bold="+bold" || bold="-bold"
 
 # Ability to remember the list between calls
-if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" -eq 0 || "$ZUILIST_REMEMBER_STATE" -eq 2 ]]; then
+if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" = 0 || "$ZUILIST_REMEMBER_STATE" = 2 ]]; then
     ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN=1
     ZUILIST_CURRENT_IDX=1
     ZUILIST_IS_SEARCH_MODE=0
