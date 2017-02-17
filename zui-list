@@ -258,7 +258,8 @@ integer current_difference=0
 local prev_search_buffer=""
 integer prev_uniq_mode=0
 integer prev_start_idx=-1
-local MBEGIN MEND MATCH mbegin mend match
+local MBEGIN MEND MATCH
+local -a mbegin mend match
 integer nseg
 typeset -A "cursor_state"
 cursor_state=( "main" 1 "status" 1 )
