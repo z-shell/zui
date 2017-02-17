@@ -11,7 +11,7 @@
 #
 # This function outputs a list of elements that can be navigated with keyboard.
 # Besides vertical navigation, it does horizontal navigation over elements of line.
-# Uses curses library
+# Uses curses library.
 
 emulate -LR zsh
 
@@ -34,7 +34,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     zcurses move "$wname_status" 1 2
     zcurses clear "$wname_status" eol
     zcurses string "$wname_status" "$1"
-    #status_msg_strlen is localized in caller
+    # status_msg_strlen is localized in caller
     status_msg_strlen=$#1
 
     if [ -n "$2" ]; then
@@ -117,8 +117,8 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
 # Functionality inherited from n-list: ability to colorify
 # selected keywords (via ZUILIST_COLORING_PATTERN). Here
-# it uses color mark (\6) inseted of direct usage of ANSI
-# color codes
+# it uses color mark (default: \6) instead of direct usage
+# of ANSI color codes. \6 is cyan by default (ZUI_CYAN).
 #
 -zui_list_colorify_disp_list() {
     local col=$'\6' reset=$'\31'
@@ -132,7 +132,9 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     fi
 }
 
-# Changes color marks (\3, \4, \5, \6, \7) into ANSI color codes (green, yellow, magenta, cyan, red)
+# Changes color marks (\3, \4, \5, \6, \7) into ANSI color
+# codes (default: green, yellow, magenta, cyan, red).
+# Operates on disp_list array.
 -zui_list_translate_color_marks_in_disp_list() {
     local ACC_RESET=$'\e[0m' ACC_RED=$'\e[0;31m' ACC_GREEN=$'\e[0;32m'
     local ACC_YELLOW=$'\e[1;33m' ACC_MAGENTA=$'\e[0;35m' ACC_CYAN=$'\e[0;36m'
@@ -144,11 +146,11 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     disp_list=( "${disp_list[@]//(#b)$'\7'([^$'\31']#)$'\31'/$ACC_RED$match[1]$ACC_RESET}" )
 }
 
-# Changes color marks (\3, \4, \5, \6, \7) into ANSI color codes (green, yellow, magenta, cyan, red)
+# Changes color marks (\3, \4, \5, \6, \7) into ANSI color
+# codes (default: green, yellow, magenta, cyan, red).
 #
 # $1 - buffer to operate on
 # $REPLY - modified buffer
-#
 -zui_list_translate_color_marks() {
     local ACC_RESET=$'\e[0m' ACC_RED=$'\e[0;31m' ACC_GREEN=$'\e[0;32m'
     local ACC_YELLOW=$'\e[1;33m' ACC_MAGENTA=$'\e[0;35m' ACC_CYAN=$'\e[0;36m'
@@ -164,10 +166,13 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     REPLY="$buf"
 }
 
+# Replaces existing color marks to given color mark,
+# or adds (wrapps with) given color mark. Used to
+# highlight text.
+#
 # $1 - buffer to operate on
 # $2 - target color mark
 # $REPLY - modified buffer
-#
 -zui_list_replace_color_marks_with() {
     local buf="$1" target_mark="$2"
     buf=${buf//$'\3'/$target_mark}
@@ -185,7 +190,8 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
 -zui_list_mark_current_segment_in_current_element() {
         # Check if current element is in ZUILIST_NONSELECTABLE_ELEMENTS
-        # If yes, don't mark current segment
+        # If yes, don't mark current segment. Highlight anyway when
+        # searching.
         [[ -z "$ZUILIST_SEARCH_BUFFER" && "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]}" = "$ZUILIST_CURRENT_IDX" ]] && return
 
         # There will be no colorifying for current element
@@ -201,8 +207,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         local ZUI_PB_WORDS="" ZUI_PB_WORDS_BEGINNINGS="" ZUI_PB_SPACES=""
         local ZUI_PB_SELECTED_WORD="" ZUI_PB_LEFT="" ZUI_PB_RIGHT=""
 
-        # Lets find interesting segment and mark it with bells (\7),
-        # that are translated to red color
+        # Lets find interesting segment and mark it with \7...\31
         zui-process-buffer "$element"
         integer size="${#ZUI_PB_WORDS}" i
         local buf=""
@@ -224,9 +229,8 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # Main code
 #
 
-# Check if there is proper input
 if [ "$#" -lt 1 ]; then
-    echo "Usage: -zui-list element_1 ..."
+    echo "Usage: zui-list element_1 ..."
     return 1
 fi
 
@@ -262,7 +266,10 @@ integer nseg
 typeset -A "cursor_state"
 cursor_state=( "main" 1 "status" 1 )
 
+#
 # Load configuration
+#
+
 local colorpair border bold
 zstyle -s ":plugin:zcommodore" colorpair colorpair
 zstyle -b ":plugin:zcommodore" border border
@@ -275,6 +282,7 @@ local backuptheme="$colorpair/$bold"
 zcurses bg "$wname_main" "$colorpair"
 zcurses bg "$wname_status" "$colorpair"
 
+# Settle down to +bold or -bold. Second one is the default.
 [[ "$bold" = "1" || "$bold" = "+bold" ]] && bold="+bold" || bold="-bold"
 
 # Ability to remember the list between calls
@@ -297,9 +305,9 @@ if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" -eq 0 || "$ZUILI
     # 2 is init once, then remember
     [ "$ZUILIST_REMEMBER_STATE" -eq 2 ] && ZUILIST_REMEMBER_STATE=1
 else
-    # Recompute ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN
-    # in case it was manually altered outside the list
-    # Together with this verify variables
+    # Recompute ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN in case
+    # it was manually altered outside the list. Together with
+    # this verify variables.
     -zui_list_verify_vars
 fi
 
@@ -331,6 +339,7 @@ zcurses timeout main -1
 key=""
 keypad=""
 
+# Initial list. $@ later still serves as verbatim input.
 # This loop makes script faster on some Zsh's (e.g. 5.0.8)
 repeat 1; do
     list=( "$@" )
@@ -339,7 +348,7 @@ done
 last_element="$#list"
 
 while (( 1 )); do
-    # Do searching (filtering with string)
+    # Do searching?
     if [ -n "$ZUILIST_SEARCH_BUFFER" ]; then
         # Compute new list?
         if [[ "$ZUILIST_SEARCH_BUFFER" != "$prev_search_buffer" || "$ZUILIST_IS_UNIQ_MODE" -ne "$prev_uniq_mode" || "$ZUILIST_REGENERATE_DISP_LIST" = "1" ]]
@@ -382,7 +391,7 @@ while (( 1 )); do
                 # Pattern will be (foo|bar)
                 colsearch_pattern="${search_buffer// ##/|}"
 
-                # The repeat will make the matching work on a fresh heap
+                # The repeat will make the matching work on a fresh heap arena
                 repeat 1; do
                     list=( "${(@M)list:#(#i)$~search_pattern}" )
                 done
@@ -471,7 +480,7 @@ while (( 1 )); do
             -zui_list_verify_vars
         fi
 
-        # "1" - shouldn't bother with non-selectables
+        # If the argument is 1, then: don't bother with non-selectables
         -zui_list_setup_user_vars "$ZUILIST_IS_UNIQ_MODE"
         typeset -a tmp
         tmp=( "${(z)list[ZUILIST_CURRENT_IDX]}" )
@@ -494,6 +503,7 @@ while (( 1 )); do
         fi
 
         # We need second disp_list to be able to disable colorifying for particular elements
+        # (this is rather unused currently)
         disp_list2=( "${(@)disp_list}" )
 
         [ "$#disp_list2" -gt 0 ] && -zui_list_mark_current_segment_in_current_element
@@ -507,6 +517,8 @@ while (( 1 )); do
             "$disp_list2[@]"
     fi
 
+    # The check for "white/black" means: mark header
+    # only when default color isn't special
     [[ "$mark_header" = "1" && "$colorpair" = "white/black" ]] && zcurses attr "$wname_main" "$bold" "magenta/$background"
     [ "$border" = "1" ] && zcurses border "$wname_main"
     zcurses move "$wname_main" 0 2
@@ -583,7 +595,7 @@ while (( 1 )); do
         [ -n "$wname_status" ] && {
             -zui_list_status_msg "Inproper input detected"
             zcurses refresh "$wname_status"
-            sleep 2
+            sleep 1
         }
     fi
 
@@ -602,9 +614,14 @@ while (( 1 )); do
     ZUILIST_SEARCH_BUFFER="$reply[7]"
     ZUILIST_IS_UNIQ_MODE="$reply[8]"
 
+    #
+    # Remember selected segment at each line?
+    # (functionality)
+    #
+
     if [ "$ZUILIST_TRACK_SEGMENTS" = "1" ]; then
-        # Remember segment change (element change and segment
-        # change cannot occur at the same time)
+        # Remember segment change (element change and
+        # segment change cannot occur at the same time)
         ZUILIST_ACTIVE_SEGMENTS[$track_cur_idx]="$ZUILIST_CURRENT_SEGMENT"
 
         if [[ "$track_cur_idx" != "$ZUILIST_CURRENT_IDX" ]]; then
@@ -616,6 +633,10 @@ while (( 1 )); do
             fi
         fi
     fi
+
+    #
+    # Main input action examination
+    #
 
     if [ "$action" = "SELECT" ]; then
         REPLY="$selection"

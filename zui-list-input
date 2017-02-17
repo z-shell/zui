@@ -28,8 +28,8 @@ setopt typesetsilent extendedglob
 
 # Calling this function means passing information
 # that we move up in the list (to lower index)
-# This means we can move page start as few as one
-# element up.
+# This means we can move page start as few as 7
+# elements up.
 -zui_list_compute_first_to_show_idx_up_many() {
     if [[ "$current_idx" -lt "$from_what_idx_list_is_shown" ||
         "$current_idx" -gt "$(( from_what_idx_list_is_shown + page_height -1 ))" ]]
