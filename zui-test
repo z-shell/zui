@@ -12,6 +12,8 @@ setopt extendedglob typesetsilent warncreateglobal
 
 [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
 
+ZUI[app]="zui-test"
+
 ##
 ## Main code
 ##
