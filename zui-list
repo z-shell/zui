@@ -16,6 +16,7 @@
 emulate -LR zsh
 
 setopt typesetsilent extendedglob noshortloops
+[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
 
 _zui_list_has_terminfo=0
 
