@@ -280,20 +280,16 @@ local YELLOW=$'\e[1;33m' MAGENTA=$'\e[0;35m' CYAN=$'\e[0;36m'
 # Load configuration
 #
 
-local colorpair border bold
-zstyle -s ":plugin:zcommodore" colorpair colorpair
-zstyle -b ":plugin:zcommodore" border border
-zstyle -b ":plugin:zcommodore" bold bold
-[ "$colorpair" = "" ] && colorpair="white/black"
-[ "$border" = "no" ] && border="0" || border="1"
-[ "$bold" = "yes" ] && bold="1" || bold="0"
-local background="${colorpair#*/}"
-local backuptheme="$colorpair/$bold"
+local colorpair border bold background backuptheme
+zstyle -s ":plugin:zui" "colorpair" colorpair || colorpair="white/black"
+zstyle -t ":plugin:zui" "border" && border="1" || border="0"
+zstyle -t ":plugin:zui" "bold" && bold="+bold" || bold="-bold"
+background="${colorpair#*/}"
+backuptheme="$colorpair/$bold"
+
+# Set background
 zcurses bg "$wname_main" "$colorpair"
 zcurses bg "$wname_status" "$colorpair"
-
-# Settle down to +bold or -bold. Second one is the default.
-[[ "$bold" = "1" || "$bold" = "+bold" ]] && bold="+bold" || bold="-bold"
 
 # Ability to remember the list between calls
 if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" = 0 || "$ZUILIST_REMEMBER_STATE" = 2 ]]; then
