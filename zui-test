@@ -157,12 +157,12 @@ if [[ -z "$REGENERATE" || "$REGENERATE" = *,module2,* || "$REGENERATE" = *,all,*
 fi
 
 #
-# Store all results into OUTPUT, ZUILIST_NONSELECTABLE_ELEMENTS, ZUILIST_HOP_INDEXES
+# Store all results into OUTPUT, ZUILIST_NONSELECTABLE_ELEMENTS, ZUILIST_HOP_INDICES
 #
 
-typeset -ga ZUILIST_NONSELECTABLE_ELEMENTS ZUILIST_HOP_INDEXES
+typeset -ga ZUILIST_NONSELECTABLE_ELEMENTS ZUILIST_HOP_INDICES
 ZUILIST_NONSELECTABLE_ELEMENTS=()
-ZUILIST_HOP_INDEXES=()
+ZUILIST_HOP_INDICES=()
 
 local -a OUTPUT output nonselectables hops
 local -a prev_nonselectables prev_hops
@@ -213,7 +213,7 @@ for n in "module1" "module2"; do
 
     # Add translated, current hops and nonselectables
     ZUILIST_NONSELECTABLE_ELEMENTS+=( "${nonselectables[@]}" )
-    ZUILIST_HOP_INDEXES+=( "${hops[@]}" )
+    ZUILIST_HOP_INDICES+=( "${hops[@]}" )
 
     # Alter current index if size of section was changed
     # - using *_size, prev_*_size parameters
@@ -256,13 +256,13 @@ REGENERATE_ARG=""
 #
 
 local generation_time="$(( SECONDS - start_seconds ))"
-ZUI[GENERATION_TIME]="${generation_time[1,5]}"
+ZUI[GENERATION_TIME]="${generation_time[1,4]}"
 
 #
 # Invoke the list, handle outcome
 #
 
-ZUILIST_HOP_INDEXES+=( 1 ) # jump to anchors
+ZUILIST_HOP_INDICES+=( 1 ) # jump to anchors
 local ZUILIST_WRAPPER_BIT=""
 zui-usetty-wrapper zui-list-wrapper "${anchors[*]}" "${OUTPUT[@]}"
 
