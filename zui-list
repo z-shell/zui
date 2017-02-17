@@ -237,6 +237,7 @@ if [[ "$#" -lt 1 ]]; then
     return 1
 fi
 
+typeset -g REPLY
 REPLY="-1"
 typeset -ga reply
 reply=()
