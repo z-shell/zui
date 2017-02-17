@@ -260,6 +260,7 @@ integer prev_uniq_mode=0
 integer prev_start_idx=-1
 local MBEGIN MEND MATCH
 local -a mbegin mend match
+local -a segments
 integer nseg
 typeset -A "cursor_state"
 cursor_state=( "main" 1 "status" 1 )
@@ -402,9 +403,8 @@ while (( 1 )); do
         fi
 
         -zui_list_setup_user_vars 1
-        typeset -a tmp
-        tmp=( "${(z)list[ZUILIST_CURRENT_IDX]}" )
-        nseg="$#tmp"
+        segments=( "${(z)list[ZUILIST_CURRENT_IDX]}" )
+        nseg="$#segments"
 
         integer end_idx=$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))
         [ "$end_idx" -gt "$last_element" ] && end_idx=last_element
@@ -480,9 +480,8 @@ while (( 1 )); do
 
         # If the argument is 1, then: don't bother with non-selectables
         -zui_list_setup_user_vars "$ZUILIST_IS_UNIQ_MODE"
-        typeset -a tmp
-        tmp=( "${(z)list[ZUILIST_CURRENT_IDX]}" )
-        nseg="$#tmp"
+        segments=( "${(z)list[ZUILIST_CURRENT_IDX]}" )
+        nseg="$#segments"
 
         integer end_idx=$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))
         [ "$end_idx" -gt "$last_element" ] && end_idx=last_element
@@ -528,7 +527,7 @@ while (( 1 )); do
     # Status window is optional (1/2)
     [ -n "$wname_status" ] && {
         local st_path="" st_cmd=""
-        if -zui_stdlib_decode_hyperlink "${tmp[$ZUILIST_CURRENT_SEGMENT]}"; then
+        if -zui_stdlib_decode_hyperlink "${segments[$ZUILIST_CURRENT_SEGMENT]}"; then
             st_cmd="${(Q)reply[3]}"
             [[ -n "${(Q)reply[1]}" ]] && st_path="${(Q)reply[4]}"
 
