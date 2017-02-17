@@ -18,10 +18,8 @@ emulate -LR zsh
 setopt typesetsilent extendedglob noshortloops
 [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
 
-_zui_list_has_terminfo=0
-
 zmodload zsh/curses
-zmodload zsh/terminfo 2>/dev/null && _zui_list_has_terminfo=1
+zmodload zsh/terminfo 2>/dev/null
 
 trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
@@ -66,7 +64,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 }
 
 # $1 is window name, $2 is the expected cursor state (0 invisible, 1 visible)
-# Prefer tput, then module terminfo
+# Prefer module terminfo, then tput
 -zui_list_cursor_visibility() {
     # If $1 = plain, then just output the
     # codes without any state management
@@ -76,13 +74,12 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         cursor_state[$1]="$2"
     fi
 
-    if type tput 2>/dev/null 1>&2; then
-        [ "$2" = "1" ] && { tput cvvis; tput cnorm }
+    if [[ -n "${terminfo[cvvis]}" && -n ${terminfo[cnorm]} ]]; then
+        [ "$2" = "1" ] && { echo -En $terminfo[cvvis]; echo -En $terminfo[cnorm]; }
+        [ "$2" = "0" ] && echo -n $terminfo[civis]
+    elif type tput 2>/dev/null 1>&2; then
+        [ "$2" = "1" ] && { tput cvvis; tput cnorm; }
         [ "$2" = "0" ] && tput civis
-    elif [ "$_zui_list_has_terminfo" = "1" ]; then
-        [ "$2" = "1" ] && { [ -n $terminfo[cvvis] ] && echo -n $terminfo[cvvis];
-                           [ -n $terminfo[cnorm] ] && echo -n $terminfo[cnorm] }
-        [ "$2" = "0" ] && [ -n $terminfo[civis] ] && echo -n $terminfo[civis]
     fi 
 }
 

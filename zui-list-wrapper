@@ -37,7 +37,6 @@ integer term_width="$COLUMNS"
     -zui_wrapper_end
     -zui_wrapper_alternate_screen 0
     -zui_list_cursor_visibility "plain" 1
-    unset _zui_list_has_terminfo
 }
 
 -zui_wrapper_init_windows() {
