@@ -255,8 +255,8 @@ REGENERATE_ARG=""
 # Generation time
 #
 
-local ZUI_GENERATION_TIME="$(( SECONDS - start_seconds ))"
-ZUI_GENERATION_TIME="${ZUI_GENERATION_TIME[1,5]}"
+local generation_time="$(( SECONDS - start_seconds ))"
+ZUI[GENERATION_TIME]="${generation_time[1,5]}"
 
 #
 # Invoke the list, handle outcome
@@ -264,7 +264,7 @@ ZUI_GENERATION_TIME="${ZUI_GENERATION_TIME[1,5]}"
 
 ZUILIST_HOP_INDEXES+=( 1 ) # jump to anchors
 local ZUILIST_WRAPPER_BIT=""
-zui-usetty-wrapper zui-list-wrapper "${anchors[*]}" "${OUTPUT[@]}" "$ZUI_GENERATION_TIME"
+zui-usetty-wrapper zui-list-wrapper "${anchors[*]}" "${OUTPUT[@]}"
 
 if [ -z "$ZUILIST_WRAPPER_BIT" ]; then
     zle && { zle .redisplay; zle .reset-prompt; }
