@@ -4,6 +4,8 @@
 # $5, $6 - width and height of the window
 #
 # $ZUILIST_NONSELECTABLE_ELEMENTS - array of indexes (1-based) that cannot be selected
+# $ZUILIST_HOP_INDICES - array of indexes (1-based) jumpable with [, ]
+#
 # $REPLY is the output variable - contains index (1-based) or -1 when no selection
 # $reply (array) is the second part of the output - use the index (REPLY) to get selected element
 #
@@ -674,25 +676,25 @@ while (( 1 )); do
 
             # Remove indices that lay inside the block being overwritten
             # HOPS
-            mysize="${#ZUILIST_HOP_INDEXES[@]}"
+            mysize="${#ZUILIST_HOP_INDICES[@]}"
             for (( index = 1; index <= mysize; index ++ )); do
-                el="${ZUILIST_HOP_INDEXES[index]}"
+                el="${ZUILIST_HOP_INDICES[index]}"
                 if [[ "$el" -ge "$ZUILIST_REPLY_HEADER_IDX" &&
                         "$el" -le "$(( ZUILIST_REPLY_HEADER_IDX + ZUILIST_REPLY_TO_OVERWRITE_SIZE - 1 ))" ]]
                 then
-                    ZUILIST_HOP_INDEXES[index]=()
+                    ZUILIST_HOP_INDICES[index]=()
                 fi
             done
 
             # Push down (up) elements that are after the growed (shrinked) section
             # HOPS
-            mysize="${#ZUILIST_HOP_INDEXES[@]}"
+            mysize="${#ZUILIST_HOP_INDICES[@]}"
             for (( index = 1; index <= mysize; index ++ )); do
-                el="${ZUILIST_HOP_INDEXES[index]}"
+                el="${ZUILIST_HOP_INDICES[index]}"
                 # No need to check if it lays inside the range
                 # as ones that did have been removed above
                 if [[ "$el" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
-                    (( ZUILIST_HOP_INDEXES[index] += size_diff ))
+                    (( ZUILIST_HOP_INDICES[index] += size_diff ))
                 fi
             done
 
@@ -711,7 +713,7 @@ while (( 1 )); do
             ZUILIST_REPLY_HOPS=( "${ZUILIST_REPLY_HOPS[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUILIST_REPLY_HEADER_IDX - 1 ))}" )
 
             ZUILIST_NONSELECTABLE_ELEMENTS+=( "${ZUILIST_REPLY_NONSELECTABLES[@]}" )
-            ZUILIST_HOP_INDEXES+=( "${ZUILIST_REPLY_HOPS[@]}" )
+            ZUILIST_HOP_INDICES+=( "${ZUILIST_REPLY_HOPS[@]}" )
 
             # Last thing: update anchors
             local -a asegs

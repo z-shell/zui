@@ -201,9 +201,9 @@ case "$key" in
             reply=( "$ZUILIST_CURRENT_SEGMENT" "BR_MOVE_RIGHT" )
         else
 
-        [[ "${(t)ZUILIST_HOP_INDEXES}" = "array" || "${(t)ZUILIST_HOP_INDEXES}" = "array-local" ]] &&
+        [[ "${(t)ZUILIST_HOP_INDICES}" = "array" || "${(t)ZUILIST_HOP_INDICES}" = "array-local" ]] &&
         [ -z "$ZUILIST_SEARCH_BUFFER" ] && [ "$ZUILIST_IS_UNIQ_MODE" -eq 0 ] &&
-        for idx in "${(n)ZUILIST_HOP_INDEXES[@]}"; do
+        for idx in "${(n)ZUILIST_HOP_INDICES[@]}"; do
             if [ "$idx" -gt "$current_idx" ]; then
                 current_idx=$idx
                 -zui_list_compute_first_to_show_idx_center
@@ -218,9 +218,9 @@ case "$key" in
             reply=( "$ZUILIST_CURRENT_SEGMENT" "BR_MOVE_LEFT" )
         else
 
-        [[ "${(t)ZUILIST_HOP_INDEXES}" = "array" || "${(t)ZUILIST_HOP_INDEXES}" = "array-local" ]] &&
+        [[ "${(t)ZUILIST_HOP_INDICES}" = "array" || "${(t)ZUILIST_HOP_INDICES}" = "array-local" ]] &&
         [ -z "$ZUILIST_SEARCH_BUFFER" ] && [ "$ZUILIST_IS_UNIQ_MODE" -eq 0 ] &&
-        for idx in "${(nO)ZUILIST_HOP_INDEXES[@]}"; do
+        for idx in "${(nO)ZUILIST_HOP_INDICES[@]}"; do
             if [ "$idx" -lt "$current_idx" ]; then
                 current_idx=$idx
                 -zui_list_compute_first_to_show_idx_center
