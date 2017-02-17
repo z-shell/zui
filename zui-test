@@ -31,14 +31,32 @@ local -F start_seconds
 #
 # Internal actions
 #
+
 -zui_test_internal_action_1() {
     echo "Hello world!"
 }
 
 #
-# Generator for module 1
+# Other callbacks
 #
 
+# Optional, unset explicitly if unused
+# It generates additional status text, displayed after
+# "Current #...", from data of highlighted button
+-zui-standard-status-callback() {
+    local id data1 data2 data3 data4 text handler
+    id="$1"
+    data3="$3"
+    handler="$7"
+
+    reply=( " My id: $id" " My data: $data3" " My handler:" " $handler" )
+}
+
+#
+# Generators for module
+#
+
+# Generator for module 1
 -zui_test_module1_generator() {
     reply=( )
     -zui_stdlib_get_button "there" "" "/Jump/" "" "" "${ZUI_MAGENTA}there${ZUI_MAGENTA_E}" ""
@@ -48,6 +66,7 @@ local -F start_seconds
     reply4=( 1 3 )
 }
 
+# Generator for module 2
 -zui_test_module2_generator() {
     reply=( "Second Module" "I'm not selectable" "Last line" )
     reply2=3
@@ -123,7 +142,7 @@ if [[ -z "$REGENERATE" || "$REGENERATE" = *,module1,* || "$REGENERATE" = *,all,*
 fi
 
 #
-# Last N projects
+# Module 2
 #
 
 if [[ -z "$REGENERATE" || "$REGENERATE" = *,module2,* || "$REGENERATE" = *,all,* ]]; then

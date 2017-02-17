@@ -38,20 +38,19 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     # status_msg_strlen is localized in caller
     status_msg_strlen=$#1
 
-    if [ -n "$2" ]; then
-        local cmd=" Cmd: " wd=" Working dir: "
-        zcurses string "$wname_status" "$cmd"
-        zcurses attr "$wname_status" "red/$background"
-        zcurses string "$wname_status" "$2"
-        zcurses attr "$wname_status" "$colorpair"
-        if [[ -n "$3" ]]; then
-            zcurses string "$wname_status" "$wd"
-            zcurses attr "$wname_status" "green/$background"
-            zcurses string "$wname_status" "$3"
+    integer index=0
+    local -a colors
+    local txt
+    col=( cyan green red magenta yellow blue )
+    for txt in "$2" "$3" "$4" "$5" "$6" "$7"; do
+        (( ++ index ))
+        [[ -n "$txt" ]] && { 
+            zcurses attr "$wname_status" "${col[index]}/$background"
+            zcurses string "$wname_status" "$txt"
             zcurses attr "$wname_status" "$colorpair"
-        fi
-        (( status_msg_strlen += ${#cmd} + ${#2} + ${#wd} + ${#3} ))
-    fi
+            (( status_msg_strlen += ${#txt} ))
+        }
+    done
 }
 
 # $1 is window name, $2 is the expected cursor state (0 invisible, 1 visible)
@@ -526,30 +525,9 @@ while (( 1 )); do
 
     # Status window is optional (1/2)
     [ -n "$wname_status" ] && {
-        local st_path="" st_cmd=""
+        reply=( )
         if -zui_stdlib_decode_hyperlink "${segments[$ZUILIST_CURRENT_SEGMENT]}"; then
-            st_cmd="${(Q)reply[3]}"
-            [[ -n "${(Q)reply[1]}" ]] && st_path="${(Q)reply[4]}"
-
-            if [ "${reply[2]}" != "${reply[2]/-1/}" ]; then
-                local -a st_qopts_qpaths
-                st_qopts_qpaths=( "${(z@)reply[5]}" )
-
-                local st_opts_concat="${(Q)st_qopts_qpaths[1]}"
-                local st_paths_concat="${(Q)st_qopts_qpaths[2]}"
-
-                local -a st_opts st_paths
-                st_opts=( "${(z@)st_opts_concat}" )
-                st_opts=( "${(Q)st_opts[@]}" )
-                st_paths=( "${(z@)st_paths_concat}" )
-                st_paths=( "${(Q)st_paths[@]}" )
-
-                if [[ "${#st_opts}" = "0" || ( "${#st_opts}" = "1" && "${st_opts[1]}" = "" ) ]]; then
-                    st_cmd="${reply[3]} ${st_paths[*]}"
-                else
-                    st_cmd="${reply[3]} ${st_opts[*]} ${st_paths[*]}"
-                fi
-            fi
+            (( ${+functions[-zui-standard-status-callback]} )) && -zui-standard-status-callback "${reply[@]}"
         fi
 
         local status_msg_strlen
@@ -563,7 +541,7 @@ while (( 1 )); do
             [ -n "$ZUILIST_GREP_STRING" ] && _txt=" [$ZUILIST_GREP_STRING]"
             [ -n "$ZUILIST_GENERATION_TIME" ] && _txt="$_txt GENERATED IN ${ZUILIST_GENERATION_TIME}s" && ZUILIST_GENERATION_TIME=""
             [ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ] && _txt2="[-UNIQ-] "
-            -zui_list_status_msg "${_txt2}Current #$ZUILIST_USER_CURRENT_IDX (of #$ZUILIST_USER_LAST_ELEMENT entries)${_txt}" "${st_cmd}" "${st_path}"
+            -zui_list_status_msg "${_txt2}Current #$ZUILIST_USER_CURRENT_IDX (of #$ZUILIST_USER_LAST_ELEMENT entries)${_txt}" "${reply[@]}"
         else
             local _txt3
             [ -n "$ZUILIST_GENERATION_TIME" ] && _txt3="GENERATED IN ${ZUILIST_GENERATION_TIME}s" && ZUILIST_GENERATION_TIME=""
