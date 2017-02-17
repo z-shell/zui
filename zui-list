@@ -591,7 +591,7 @@ while (( 1 )); do
     fi
 
     integer track_cur_idx="$ZUILIST_CURRENT_IDX"
-    zui-list-input "$ZUILIST_CURRENT_IDX" "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" \
+    zui-list-input "$ZUILIST_CURRENT_IDX" "$ZUILIST_CURRENT_SEGMENT" "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" \
                     "$page_height" "$page_width" "$last_element" "$nseg" "$ZUILIST_TEXT_OFFSET" \
                     "$final_key" "$ZUILIST_IS_SEARCH_MODE" "$ZUILIST_SEARCH_BUFFER" \
                     "$ZUILIST_IS_UNIQ_MODE" "$ZUILIST_DISABLE_SEARCH" "list"
@@ -599,11 +599,12 @@ while (( 1 )); do
     selection="$reply[1]"
     action="$reply[2]"
     ZUILIST_CURRENT_IDX="$reply[3]"
-    ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN="$reply[4]"
-    ZUILIST_TEXT_OFFSET="$reply[5]"
-    ZUILIST_IS_SEARCH_MODE="$reply[6]"
-    ZUILIST_SEARCH_BUFFER="$reply[7]"
-    ZUILIST_IS_UNIQ_MODE="$reply[8]"
+    ZUILIST_CURRENT_SEGMENT="$reply[4]"
+    ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN="$reply[5]"
+    ZUILIST_TEXT_OFFSET="$reply[6]"
+    ZUILIST_IS_SEARCH_MODE="$reply[7]"
+    ZUILIST_SEARCH_BUFFER="$reply[8]"
+    ZUILIST_IS_UNIQ_MODE="$reply[9]"
 
     #
     # Remember selected segment at each line?
