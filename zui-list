@@ -649,6 +649,11 @@ while (( 1 )); do
         zcurses clear "$wname_main" redraw
         # Status window is optional (2/2)
         [[ -n "$wname_status" ]] && zcurses clear "$wname_status" redraw
+    elif [[ "$action" = "HYPERLINK" ]]; then
+        local -a hyplink
+        hyplink=( "${(@)reply[9,-1]}" )
+
+        # TODO handle hyperlinks
     else
         if [[ -n "$ZUILIST_REPLY_LIST_PART_SIZE" && "$ZUILIST_REPLY_LIST_PART_SIZE" -ge "1" ]]; then
             set "${(@)@[1,ZUILIST_REPLY_HEADER_IDX-1]}" "${ZUILIST_REPLY_LIST_PART[@]}" "${(@)@[ZUILIST_REPLY_HEADER_IDX+ZUILIST_REPLY_TO_OVERWRITE_SIZE,-1]}"
