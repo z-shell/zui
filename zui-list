@@ -75,8 +75,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 }
 
 -zui_list_compute_user_vars_difference() {
-        if [[ "${(t)ZUILIST_NONSELECTABLE_ELEMENTS}" != "array" &&
-                "${(t)ZUILIST_NONSELECTABLE_ELEMENTS}" != "array-local" ]]
+        if [[ "${(t)ZUILIST_NONSELECTABLE_ELEMENTS}" != *array* ]]
         then
             last_element_difference=0
             current_difference=0
