@@ -19,10 +19,13 @@ local MBEGIN MEND MATCH mbegin mend match
 local buf="${1:-$BUFFER}"
 local cursor="${2:-$CURSOR}"
 
+# All output variables are either overwritten or cleared
 ZUI_PB_WORDS=( "${(Z+n+)buf}" )
 ZUI_PB_SPACES=( )
 ZUI_PB_WORDS_BEGINNINGS=( )
 ZUI_PB_SELECTED_WORD="-1"
+ZUI_PB_LEFT=""
+ZUI_PB_RIGHT=""
 
 # (Z+n+) will return 1 element for buf that is empty or only whitespace
 if [[ "$buf" = ( |$'\t')# ]]; then

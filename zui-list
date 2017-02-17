@@ -204,10 +204,6 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         [[ "$ZUILIST_CURRENT_SEGMENT" -gt "$nseg" ]] && ZUILIST_CURRENT_SEGMENT="$nseg"
         integer active_segment="$ZUILIST_CURRENT_SEGMENT"
 
-        # Prepare output variables for zui-process-buffer
-        local ZUI_PB_WORDS="" ZUI_PB_WORDS_BEGINNINGS="" ZUI_PB_SPACES=""
-        local ZUI_PB_SELECTED_WORD="" ZUI_PB_LEFT="" ZUI_PB_RIGHT=""
-
         # Lets find interesting segment and mark it with \7...\31
         zui-process-buffer "$element"
         integer size="${#ZUI_PB_WORDS}" i
