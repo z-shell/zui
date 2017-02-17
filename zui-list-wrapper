@@ -1,20 +1,20 @@
 emulate -LR zsh
 setopt extendedglob
 
-_zcmdr_wrapper_has_terminfo=0
+_zui_wrapper_has_terminfo=0
 
 zmodload zsh/curses
-zmodload zsh/terminfo 2>/dev/null && _zcmdr_wrapper_has_terminfo=1
+zmodload zsh/terminfo 2>/dev/null && _zui_wrapper_has_terminfo=1
 
-trap "-zcmdr_wrapper_on_exit" EXIT
+trap "-zui_wrapper_on_exit" EXIT
 
 integer term_height="$LINES"
 integer term_width="$COLUMNS"
 
 # Reason for this function is that on some systems
 # smcup and rmcup are not knowing why left empty
--zcmdr_wrapper_alternate_screen() {
-    if [ "$_zcmdr_wrapper_has_terminfo" = "1" ]; then
+-zui_wrapper_alternate_screen() {
+    if [ "$_zui_wrapper_has_terminfo" = "1" ]; then
         [[ "$1" = "1" && -n "$terminfo[smcup]" ]] && return
         [[ "$1" = "0" && -n "$terminfo[rmcup]" ]] && return
     fi
@@ -33,15 +33,15 @@ integer term_width="$COLUMNS"
 }
 
 # Cleanup before any exit
--zcmdr_wrapper_on_exit() {
-    -zcmdr_wrapper_end
-    -zcmdr_wrapper_alternate_screen 0
-    -zcmdrlist_cursor_visibility "plain" 1
-    unset _zcmdrlist_has_terminfo
+-zui_wrapper_on_exit() {
+    -zui_wrapper_end
+    -zui_wrapper_alternate_screen 0
+    -zui_list_cursor_visibility "plain" 1
+    unset _zui_list_has_terminfo
 }
 
--zcmdr_wrapper_init_windows() {
-    -zcmdr_wrapper_alternate_screen 1
+-zui_wrapper_init_windows() {
+    -zui_wrapper_alternate_screen 1
     zcurses init
     zcurses delwin cmd 2>/dev/null
     zcurses delwin main 2>/dev/null
@@ -53,29 +53,29 @@ integer term_width="$COLUMNS"
     zcurses bg status "+bold" white/black
 }
 
--zcmdr_wrapper_end() {
+-zui_wrapper_end() {
     zcurses init
     zcurses delwin cmd 2>/dev/null
     zcurses delwin main 2>/dev/null
     zcurses end
 }
 
--zcmdr_wrapper_init_windows
+-zui_wrapper_init_windows
 
-[ "$ZCMDRLIST_REMEMBER_STATE" != 1 ] && ZCMDRLIST_REMEMBER_STATE=2
+[ "$ZUILIST_REMEMBER_STATE" != 1 ] && ZUILIST_REMEMBER_STATE=2
 
-[[ "${ZCMDR[stdlib_sourced]}" != "1" ]] && source "${ZCMDR_REPO_DIR}/lib/stdlib.lcmdr"
--zcmdr_stdlib_get_time
+[[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/stdlib.lzui"
+-zui_stdlib_get_time
 
--zcmdr-list "main" $(( term_height-3 )) $term_width "status" "3" "$term_width" "  Welcome to Zcommodore $REPLY " "1" "$@"
+-zui-list "main" $(( term_height-3 )) $term_width "status" "3" "$term_width" "  Welcome to Zcommodore $REPLY " "1" "$@"
 
 if [[ "$REPLY" != "-1" && "$REPLY" = -(#c0,1)[0-9]## ]]; then
     answer=${reply[REPLY]}
     tmp=( "${(z)answer}" )
-    [[ "$ZCMDRLIST_CURRENT_SEGMENT" -gt "${#tmp}" ]] && ZCMDRLIST_CURRENT_SEGMENT="${#tmp}"
-    ZCMDRLIST_WRAPPER_BIT=$tmp[ZCMDRLIST_CURRENT_SEGMENT]
+    [[ "$ZUILIST_CURRENT_SEGMENT" -gt "${#tmp}" ]] && ZUILIST_CURRENT_SEGMENT="${#tmp}"
+    ZUILIST_WRAPPER_BIT=$tmp[ZUILIST_CURRENT_SEGMENT]
 else
-    ZCMDRLIST_WRAPPER_BIT=""
+    ZUILIST_WRAPPER_BIT=""
 fi
 
 # vim:ft=zsh

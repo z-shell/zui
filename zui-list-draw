@@ -4,7 +4,7 @@ zmodload zsh/curses
 
 setopt typesetsilent extendedglob
 
--zcmdrlist_print_with_ansi() {
+-zui_list_print_with_ansi() {
     local win="$1" text="$2" out col chunk Xout
     integer text_offset="$3" max_text_len="$4" text_len=0 no_match=0 nochunk_text_len to_skip_from_chunk to_chop_off_from_chunk before_len
 
@@ -113,10 +113,10 @@ for (( i=1; i<=end_idx; i++ )); do
 
     if [ "$i" = "$highlight" ]; then
         zcurses attr "$win" +"$active_text"
-        -zcmdrlist_print_with_ansi "$win" "$@[i]" "$text_offset" "$max_text_len"
+        -zui_list_print_with_ansi "$win" "$@[i]" "$text_offset" "$max_text_len"
         zcurses attr "$win" -"$active_text"
     else
-        -zcmdrlist_print_with_ansi "$win" "$@[i]" "$text_offset" "$max_text_len"
+        -zui_list_print_with_ansi "$win" "$@[i]" "$text_offset" "$max_text_len"
     fi
     zcurses clear "$win" eol
 

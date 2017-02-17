@@ -3,7 +3,7 @@
 # $4 - optional status window name
 # $5, $6 - width and height of the window
 #
-# $ZCMDRLIST_NONSELECTABLE_ELEMENTS - array of indexes (1-based) that cannot be selected
+# $ZUILIST_NONSELECTABLE_ELEMENTS - array of indexes (1-based) that cannot be selected
 # $REPLY is the output variable - contains index (1-based) or -1 when no selection
 # $reply (array) is the second part of the output - use the index (REPLY) to get selected element
 #
@@ -15,17 +15,17 @@ emulate -LR zsh
 
 setopt typesetsilent extendedglob noshortloops
 
-_zcmdrlist_has_terminfo=0
+_zui_list_has_terminfo=0
 
 zmodload zsh/curses
-zmodload zsh/terminfo 2>/dev/null && _zcmdrlist_has_terminfo=1
+zmodload zsh/terminfo 2>/dev/null && _zui_list_has_terminfo=1
 
 trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
-[[ "${ZCMDR[stdlib_sourced]}" != "1" ]] && source "${ZCMDR_REPO_DIR}/lib/stdlib.lcmdr"
+[[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/stdlib.lzui"
 
 # Outputs a message in the bottom of the screen
--zcmdrlist_status_msg() {
+-zui_list_status_msg() {
     # -1 for border, -1 for 0-based indexing
     zcurses move "$wname_status" 2 0
     zcurses clear "$wname_status" eol
@@ -53,7 +53,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
 # $1 is window name, $2 is the expected cursor state (0 invisible, 1 visible)
 # Prefer tput, then module terminfo
--zcmdrlist_cursor_visibility() {
+-zui_list_cursor_visibility() {
     # If $1 = plain, then just output the
     # codes without any state management
     if [ "$1" != "plain" ]; then
@@ -65,74 +65,74 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     if type tput 2>/dev/null 1>&2; then
         [ "$2" = "1" ] && { tput cvvis; tput cnorm }
         [ "$2" = "0" ] && tput civis
-    elif [ "$_zcmdrlist_has_terminfo" = "1" ]; then
+    elif [ "$_zui_list_has_terminfo" = "1" ]; then
         [ "$2" = "1" ] && { [ -n $terminfo[cvvis] ] && echo -n $terminfo[cvvis];
                            [ -n $terminfo[cnorm] ] && echo -n $terminfo[cnorm] }
         [ "$2" = "0" ] && [ -n $terminfo[civis] ] && echo -n $terminfo[civis]
     fi 
 }
 
--zcmdrlist_compute_user_vars_difference() {
-        if [[ "${(t)ZCMDRLIST_NONSELECTABLE_ELEMENTS}" != "array" &&
-                "${(t)ZCMDRLIST_NONSELECTABLE_ELEMENTS}" != "array-local" ]]
+-zui_list_compute_user_vars_difference() {
+        if [[ "${(t)ZUILIST_NONSELECTABLE_ELEMENTS}" != "array" &&
+                "${(t)ZUILIST_NONSELECTABLE_ELEMENTS}" != "array-local" ]]
         then
             last_element_difference=0
             current_difference=0
         else
-            last_element_difference=$#ZCMDRLIST_NONSELECTABLE_ELEMENTS
+            last_element_difference=$#ZUILIST_NONSELECTABLE_ELEMENTS
             current_difference=0
             local idx
-            for idx in "${(n)ZCMDRLIST_NONSELECTABLE_ELEMENTS[@]}"; do
-                [ "$idx" -le "$ZCMDRLIST_CURRENT_IDX" ] && current_difference+=1 || break
+            for idx in "${(n)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
+                [ "$idx" -le "$ZUILIST_CURRENT_IDX" ] && current_difference+=1 || break
             done
         fi
 }
 
 # List was processed, check if variables aren't off range
--zcmdrlist_verify_vars() {
-    [ "$ZCMDRLIST_CURRENT_IDX" -gt "$last_element" ] && ZCMDRLIST_CURRENT_IDX="$last_element"
-    [[ "$ZCMDRLIST_CURRENT_IDX" -eq 0 && "$last_element" -ne 0 ]] && ZCMDRLIST_CURRENT_IDX=1
+-zui_list_verify_vars() {
+    [ "$ZUILIST_CURRENT_IDX" -gt "$last_element" ] && ZUILIST_CURRENT_IDX="$last_element"
+    [[ "$ZUILIST_CURRENT_IDX" -eq 0 && "$last_element" -ne 0 ]] && ZUILIST_CURRENT_IDX=1
 
     # Verify that element is just visible, if not then compute exact page
-    if [[ "$ZCMDRLIST_CURRENT_IDX" -lt "$ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ||
-        "$ZCMDRLIST_CURRENT_IDX" -gt "$(( ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height + 1 ))" ]]
+    if [[ "$ZUILIST_CURRENT_IDX" -lt "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ||
+        "$ZUILIST_CURRENT_IDX" -gt "$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height + 1 ))" ]]
     then
-        (( ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN = ((ZCMDRLIST_CURRENT_IDX-1)/page_height) * page_height + 1 ))
+        (( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN = ((ZUILIST_CURRENT_IDX-1)/page_height) * page_height + 1 ))
     fi
 }
 
 # Compute the variables which are shown to the user
--zcmdrlist_setup_user_vars() {
+-zui_list_setup_user_vars() {
     if [ "$1" = "1" ]; then
         # Basic values when there are no non-selectables
-        ZCMDRLIST_USER_CURRENT_IDX="$ZCMDRLIST_CURRENT_IDX"
-        ZCMDRLIST_USER_LAST_ELEMENT="$last_element"
+        ZUILIST_USER_CURRENT_IDX="$ZUILIST_CURRENT_IDX"
+        ZUILIST_USER_LAST_ELEMENT="$last_element"
     else
-        -zcmdrlist_compute_user_vars_difference
-        ZCMDRLIST_USER_CURRENT_IDX=$(( ZCMDRLIST_CURRENT_IDX - current_difference ))
-        ZCMDRLIST_USER_LAST_ELEMENT=$(( last_element - last_element_difference ))
+        -zui_list_compute_user_vars_difference
+        ZUILIST_USER_CURRENT_IDX=$(( ZUILIST_CURRENT_IDX - current_difference ))
+        ZUILIST_USER_LAST_ELEMENT=$(( last_element - last_element_difference ))
     fi
 }
 
 # Functionality inherited from n-list: ability to colorify
-# selected keywords (via ZCMDRLIST_COLORING_PATTERN). Here
+# selected keywords (via ZUILIST_COLORING_PATTERN). Here
 # it uses color mark (\6) inseted of direct usage of ANSI
 # color codes
 #
--zcmdrlist_colorify_disp_list() {
+-zui_list_colorify_disp_list() {
     local col=$'\6' reset=$'\31'
-    [ -n "$ZCMDRLIST_COLORING_COLOR" ] && col="$ZCMDRLIST_COLORING_COLOR"
-    [ -n "$ZCMDRLIST_COLORING_END_COLOR" ] && reset="$ZCMDRLIST_COLORING_END_COLOR"
+    [ -n "$ZUILIST_COLORING_COLOR" ] && col="$ZUILIST_COLORING_COLOR"
+    [ -n "$ZUILIST_COLORING_END_COLOR" ] && reset="$ZUILIST_COLORING_END_COLOR"
 
-    if [ "$ZCMDRLIST_COLORING_MATCH_MULTIPLE" -eq 1 ]; then
-        disp_list=( "${(@)disp_list//(#mi)$~ZCMDRLIST_COLORING_PATTERN/$col${MATCH}$reset}" )
+    if [ "$ZUILIST_COLORING_MATCH_MULTIPLE" -eq 1 ]; then
+        disp_list=( "${(@)disp_list//(#mi)$~ZUILIST_COLORING_PATTERN/$col${MATCH}$reset}" )
     else
-        disp_list=( "${(@)disp_list/(#mi)$~ZCMDRLIST_COLORING_PATTERN/$col${MATCH}$reset}" )
+        disp_list=( "${(@)disp_list/(#mi)$~ZUILIST_COLORING_PATTERN/$col${MATCH}$reset}" )
     fi
 }
 
 # Changes color marks (\3, \4, \5, \6, \7) into ANSI color codes (green, yellow, magenta, cyan, red)
--zcmdrlist_translate_color_marks_in_disp_list() {
+-zui_list_translate_color_marks_in_disp_list() {
     local ACC_RESET=$'\e[0m' ACC_RED=$'\e[0;31m' ACC_GREEN=$'\e[0;32m'
     local ACC_YELLOW=$'\e[1;33m' ACC_MAGENTA=$'\e[0;35m' ACC_CYAN=$'\e[0;36m'
 
@@ -148,7 +148,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # $1 - buffer to operate on
 # $REPLY - modified buffer
 #
--zcmdrlist_translate_color_marks() {
+-zui_list_translate_color_marks() {
     local ACC_RESET=$'\e[0m' ACC_RED=$'\e[0;31m' ACC_GREEN=$'\e[0;32m'
     local ACC_YELLOW=$'\e[1;33m' ACC_MAGENTA=$'\e[0;35m' ACC_CYAN=$'\e[0;36m'
 
@@ -167,7 +167,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # $2 - target color mark
 # $REPLY - modified buffer
 #
--zcmdrlist_replace_color_marks_with() {
+-zui_list_replace_color_marks_with() {
     local buf="$1" target_mark="$2"
     buf=${buf//$'\3'/$target_mark}
     buf=${buf//$'\4'/$target_mark}
@@ -182,41 +182,41 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     REPLY="$buf"
 }
 
--zcmdrlist_mark_current_segment_in_current_element() {
-        # Check if current element is in ZCMDRLIST_NONSELECTABLE_ELEMENTS
+-zui_list_mark_current_segment_in_current_element() {
+        # Check if current element is in ZUILIST_NONSELECTABLE_ELEMENTS
         # If yes, don't mark current segment
-        [[ -z "$ZCMDRLIST_SEARCH_BUFFER" && "${ZCMDRLIST_NONSELECTABLE_ELEMENTS[(r)$ZCMDRLIST_CURRENT_IDX]}" = "$ZCMDRLIST_CURRENT_IDX" ]] && return
+        [[ -z "$ZUILIST_SEARCH_BUFFER" && "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]}" = "$ZUILIST_CURRENT_IDX" ]] && return
 
         # There will be no colorifying for current element
-        integer ZCMDRLIST_CURRENT_PAGE_IDX=$(( ZCMDRLIST_CURRENT_IDX - ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))
-        local element="$list[ZCMDRLIST_CURRENT_IDX]"
+        integer ZUILIST_CURRENT_PAGE_IDX=$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))
+        local element="$list[ZUILIST_CURRENT_IDX]"
         local output=""
 
-        [[ "$ZCMDRLIST_CURRENT_SEGMENT" -lt 1 ]] && ZCMDRLIST_CURRENT_SEGMENT=1
-        [[ "$ZCMDRLIST_CURRENT_SEGMENT" -gt "$nseg" ]] && ZCMDRLIST_CURRENT_SEGMENT="$nseg"
-        integer active_segment="$ZCMDRLIST_CURRENT_SEGMENT"
+        [[ "$ZUILIST_CURRENT_SEGMENT" -lt 1 ]] && ZUILIST_CURRENT_SEGMENT=1
+        [[ "$ZUILIST_CURRENT_SEGMENT" -gt "$nseg" ]] && ZUILIST_CURRENT_SEGMENT="$nseg"
+        integer active_segment="$ZUILIST_CURRENT_SEGMENT"
 
-        # Prepare output variables for -zcmdr-process-buffer
-        local ZCMDR_PB_WORDS="" ZCMDR_PB_WORDS_BEGINNINGS="" ZCMDR_PB_SPACES=""
-        local ZCMDR_PB_SELECTED_WORD="" ZCMDR_PB_LEFT="" ZCMDR_PB_RIGHT=""
+        # Prepare output variables for -zui-process-buffer
+        local ZUI_PB_WORDS="" ZUI_PB_WORDS_BEGINNINGS="" ZUI_PB_SPACES=""
+        local ZUI_PB_SELECTED_WORD="" ZUI_PB_LEFT="" ZUI_PB_RIGHT=""
 
         # Lets find interesting segment and mark it with bells (\7),
         # that are translated to red color
-        -zcmdr-process-buffer "$element"
-        integer size="${#ZCMDR_PB_WORDS}" i
+        -zui-process-buffer "$element"
+        integer size="${#ZUI_PB_WORDS}" i
         local buf=""
         for (( i=1; i<=size; i++ )); do
             if [[ "$i" -eq "$active_segment" ]]; then
-                ZCMDR_PB_WORDS[i]=${ZCMDR_PB_WORDS[i]//$'\n'/\\n}
-                -zcmdrlist_replace_color_marks_with "${ZCMDR_PB_WORDS[i]}" $'\7'
-                ZCMDR_PB_WORDS[i]="$REPLY"
+                ZUI_PB_WORDS[i]=${ZUI_PB_WORDS[i]//$'\n'/\\n}
+                -zui_list_replace_color_marks_with "${ZUI_PB_WORDS[i]}" $'\7'
+                ZUI_PB_WORDS[i]="$REPLY"
             fi
-            buf+="$ZCMDR_PB_SPACES[i]$ZCMDR_PB_WORDS[i]"
+            buf+="$ZUI_PB_SPACES[i]$ZUI_PB_WORDS[i]"
         done
-        buf+="$ZCMDR_PB_SPACES[i]"
+        buf+="$ZUI_PB_SPACES[i]"
 
-        -zcmdrlist_translate_color_marks "$buf"
-        disp_list2[ZCMDRLIST_CURRENT_PAGE_IDX]="$REPLY"
+        -zui_list_translate_color_marks "$buf"
+        disp_list2[ZUILIST_CURRENT_PAGE_IDX]="$REPLY"
 }
 
 #
@@ -225,7 +225,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
 # Check if there is proper input
 if [ "$#" -lt 1 ]; then
-    echo "Usage: -zcmdr-list element_1 ..."
+    echo "Usage: -zui-list element_1 ..."
     return 1
 fi
 
@@ -277,44 +277,44 @@ zcurses bg "$wname_status" "$colorpair"
 [[ "$bold" = "1" || "$bold" = "+bold" ]] && bold="+bold" || bold="-bold"
 
 # Ability to remember the list between calls
-if [[ -z "$ZCMDRLIST_REMEMBER_STATE" || "$ZCMDRLIST_REMEMBER_STATE" -eq 0 || "$ZCMDRLIST_REMEMBER_STATE" -eq 2 ]]; then
-    ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN=1
-    ZCMDRLIST_CURRENT_IDX=1
-    ZCMDRLIST_IS_SEARCH_MODE=0
-    ZCMDRLIST_SEARCH_BUFFER=""
-    ZCMDRLIST_TEXT_OFFSET=0
-    ZCMDRLIST_IS_UNIQ_MODE=0
-    ZCMDRLIST_CURRENT_SEGMENT=1 # This variable is responsible for horizontal indexing
-    ZCMDRLIST_ACTIVE_SEGMENTS=()
+if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" -eq 0 || "$ZUILIST_REMEMBER_STATE" -eq 2 ]]; then
+    ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN=1
+    ZUILIST_CURRENT_IDX=1
+    ZUILIST_IS_SEARCH_MODE=0
+    ZUILIST_SEARCH_BUFFER=""
+    ZUILIST_TEXT_OFFSET=0
+    ZUILIST_IS_UNIQ_MODE=0
+    ZUILIST_CURRENT_SEGMENT=1 # This variable is responsible for horizontal indexing
+    ZUILIST_ACTIVE_SEGMENTS=()
 
     # Zero - because it isn't known, unless we
     # confirm that first element is selectable
-    ZCMDRLIST_USER_CURRENT_IDX=0
-    [[ ${ZCMDRLIST_NONSELECTABLE_ELEMENTS[(r)1]} != 1 ]] && ZCMDRLIST_USER_CURRENT_IDX=1
-    ZCMDRLIST_USER_LAST_ELEMENT=$(( last_element - $#ZCMDRLIST_NONSELECTABLE_ELEMENTS ))
+    ZUILIST_USER_CURRENT_IDX=0
+    [[ ${ZUILIST_NONSELECTABLE_ELEMENTS[(r)1]} != 1 ]] && ZUILIST_USER_CURRENT_IDX=1
+    ZUILIST_USER_LAST_ELEMENT=$(( last_element - $#ZUILIST_NONSELECTABLE_ELEMENTS ))
 
     # 2 is init once, then remember
-    [ "$ZCMDRLIST_REMEMBER_STATE" -eq 2 ] && ZCMDRLIST_REMEMBER_STATE=1
+    [ "$ZUILIST_REMEMBER_STATE" -eq 2 ] && ZUILIST_REMEMBER_STATE=1
 else
-    # Recompute ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN
+    # Recompute ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN
     # in case it was manually altered outside the list
     # Together with this verify variables
-    -zcmdrlist_verify_vars
+    -zui_list_verify_vars
 fi
 
-if [ "$ZCMDRLIST_START_IN_SEARCH_MODE" -eq 1 ]; then
-    ZCMDRLIST_START_IN_SEARCH_MODE=0
-    ZCMDRLIST_IS_SEARCH_MODE=1
+if [ "$ZUILIST_START_IN_SEARCH_MODE" -eq 1 ]; then
+    ZUILIST_START_IN_SEARCH_MODE=0
+    ZUILIST_IS_SEARCH_MODE=1
 fi
 
-if [ -n "$ZCMDRLIST_SET_SEARCH_TO" ]; then
-    ZCMDRLIST_SEARCH_BUFFER="$ZCMDRLIST_SET_SEARCH_TO"
-    ZCMDRLIST_SET_SEARCH_TO=""
+if [ -n "$ZUILIST_SET_SEARCH_TO" ]; then
+    ZUILIST_SEARCH_BUFFER="$ZUILIST_SET_SEARCH_TO"
+    ZUILIST_SET_SEARCH_TO=""
 fi
 
-if [ "$ZCMDRLIST_START_IN_UNIQ_MODE" -eq 1 ]; then
-    ZCMDRLIST_START_IN_UNIQ_MODE=0
-    ZCMDRLIST_IS_UNIQ_MODE=1
+if [ "$ZUILIST_START_IN_UNIQ_MODE" -eq 1 ]; then
+    ZUILIST_START_IN_UNIQ_MODE=0
+    ZUILIST_IS_UNIQ_MODE=1
 fi
 
 #
@@ -339,12 +339,12 @@ last_element="$#list"
 
 while (( 1 )); do
     # Do searching (filtering with string)
-    if [ -n "$ZCMDRLIST_SEARCH_BUFFER" ]; then
+    if [ -n "$ZUILIST_SEARCH_BUFFER" ]; then
         # Compute new list?
-        if [[ "$ZCMDRLIST_SEARCH_BUFFER" != "$prev_search_buffer" || "$ZCMDRLIST_IS_UNIQ_MODE" -ne "$prev_uniq_mode" || "$ZCMDRLIST_REGENERATE_DISP_LIST" = "1" ]]
+        if [[ "$ZUILIST_SEARCH_BUFFER" != "$prev_search_buffer" || "$ZUILIST_IS_UNIQ_MODE" -ne "$prev_uniq_mode" || "$ZUILIST_REGENERATE_DISP_LIST" = "1" ]]
         then
-            prev_search_buffer="$ZCMDRLIST_SEARCH_BUFFER"
-            prev_uniq_mode="$ZCMDRLIST_IS_UNIQ_MODE"
+            prev_search_buffer="$ZUILIST_SEARCH_BUFFER"
+            prev_uniq_mode="$ZUILIST_IS_UNIQ_MODE"
             # regenerating list -> regenerating disp_list
             prev_start_idx=-1
 
@@ -355,17 +355,17 @@ while (( 1 )); do
             done
 
             # Remove non-selectable elements
-            [ "$#ZCMDRLIST_NONSELECTABLE_ELEMENTS" -gt 0 ] && for i in "${(nO)ZCMDRLIST_NONSELECTABLE_ELEMENTS[@]}"; do
+            [ "$#ZUILIST_NONSELECTABLE_ELEMENTS" -gt 0 ] && for i in "${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
                 list[$i]=()
             done
 
             # Remove duplicates
-            [ "$ZCMDRLIST_IS_UNIQ_MODE" -eq 1 ] && typeset -U list
+            [ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ] && typeset -U list
 
             last_element="$#list"
 
             # Next do the filtering
-            local search_buffer="${ZCMDRLIST_SEARCH_BUFFER%% ##}"
+            local search_buffer="${ZUILIST_SEARCH_BUFFER%% ##}"
             search_buffer="${search_buffer## ##}"
             search_buffer="${search_buffer//(#m)[][*?|#~^()><\\]/\\$MATCH}"
             local search_pattern=""
@@ -390,20 +390,20 @@ while (( 1 )); do
             fi
 
             # Called after processing list
-            -zcmdrlist_verify_vars
+            -zui_list_verify_vars
         fi
 
-        -zcmdrlist_setup_user_vars 1
+        -zui_list_setup_user_vars 1
         typeset -a tmp
-        tmp=( "${(z)list[ZCMDRLIST_CURRENT_IDX]}" )
+        tmp=( "${(z)list[ZUILIST_CURRENT_IDX]}" )
         nseg="$#tmp"
 
-        integer end_idx=$(( ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))
+        integer end_idx=$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))
         [ "$end_idx" -gt "$last_element" ] && end_idx=last_element
 
-        if [ "$prev_start_idx" -ne "$ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ]; then
-            prev_start_idx="$ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN"
-            disp_list=( "${(@)list[ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN, end_idx]}" )
+        if [ "$prev_start_idx" -ne "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ]; then
+            prev_start_idx="$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN"
+            disp_list=( "${(@)list[ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN, end_idx]}" )
 
             if [ -n "$colsearch_pattern" ]; then
                 local col=$'\5' reset=$'\31'
@@ -420,33 +420,33 @@ while (( 1 )); do
                 done
             fi
             # We translate color marks into color codes. list still contains marks,
-            # and -zcmdrlist_mark_current_segment_in_current_element will be able
+            # and -zui_list_mark_current_segment_in_current_element will be able
             # to restore current element into marks, to switch colors of active
             # segment
-            -zcmdrlist_translate_color_marks_in_disp_list
+            -zui_list_translate_color_marks_in_disp_list
         fi
 
         # We need second disp_list to be able to disable colorifying for particular elements
         disp_list2=( "${(@)disp_list}" )
 
-        [ "$#disp_list2" -gt 0 ] && -zcmdrlist_mark_current_segment_in_current_element
+        [ "$#disp_list2" -gt 0 ] && -zui_list_mark_current_segment_in_current_element
 
         # Remove hyperlinks before displaying
         disp_list2=( "${disp_list2[@]//$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\2'/}" )
 
         # Output colored list
-        -zcmdr-list-draw "$(( ZCMDRLIST_CURRENT_IDX - ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
-            "$page_height" "$page_width" 1 2 "$ZCMDRLIST_TEXT_OFFSET" "$wname_main" \
+        -zui-list-draw "$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
+            "$page_height" "$page_width" 1 2 "$ZUILIST_TEXT_OFFSET" "$wname_main" \
             "$disp_list2[@]"
     else
         # There is no search, but there was in previous loop
         # OR
         # Uniq mode was entered or left out
         # -> compute new list
-        if [[ -n "$prev_search_buffer" || "$ZCMDRLIST_IS_UNIQ_MODE" -ne "$prev_uniq_mode" || "$ZCMDRLIST_REGENERATE_DISP_LIST" = "1" ]]
+        if [[ -n "$prev_search_buffer" || "$ZUILIST_IS_UNIQ_MODE" -ne "$prev_uniq_mode" || "$ZUILIST_REGENERATE_DISP_LIST" = "1" ]]
         then
             prev_search_buffer=""
-            prev_uniq_mode="$ZCMDRLIST_IS_UNIQ_MODE"
+            prev_uniq_mode="$ZUILIST_IS_UNIQ_MODE"
             # regenerating list -> regenerating disp_list
             prev_start_idx=-1
 
@@ -457,52 +457,52 @@ while (( 1 )); do
             done
 
             # Remove non-selectable elements only when in uniq mode
-            [ "$ZCMDRLIST_IS_UNIQ_MODE" -eq 1 ] && [ "$#ZCMDRLIST_NONSELECTABLE_ELEMENTS" -gt 0 ] &&
-            for i in "${(nO)ZCMDRLIST_NONSELECTABLE_ELEMENTS[@]}"; do
+            [ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ] && [ "$#ZUILIST_NONSELECTABLE_ELEMENTS" -gt 0 ] &&
+            for i in "${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
                 list[$i]=()
             done
 
             # Remove duplicates when in uniq mode
-            [ "$ZCMDRLIST_IS_UNIQ_MODE" -eq 1 ] && typeset -U list
+            [ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ] && typeset -U list
 
             last_element="$#list"
             # Called after processing list
-            -zcmdrlist_verify_vars
+            -zui_list_verify_vars
         fi
 
         # "1" - shouldn't bother with non-selectables
-        -zcmdrlist_setup_user_vars "$ZCMDRLIST_IS_UNIQ_MODE"
+        -zui_list_setup_user_vars "$ZUILIST_IS_UNIQ_MODE"
         typeset -a tmp
-        tmp=( "${(z)list[ZCMDRLIST_CURRENT_IDX]}" )
+        tmp=( "${(z)list[ZUILIST_CURRENT_IDX]}" )
         nseg="$#tmp"
 
-        integer end_idx=$(( ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))
+        integer end_idx=$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))
         [ "$end_idx" -gt "$last_element" ] && end_idx=last_element
 
-        if [ "$prev_start_idx" -ne "$ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ]; then
-            prev_start_idx="$ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN"
-            disp_list=( "${(@)list[ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN, end_idx]}" )
+        if [ "$prev_start_idx" -ne "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ]; then
+            prev_start_idx="$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN"
+            disp_list=( "${(@)list[ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN, end_idx]}" )
 
             # We translate color marks into color codes. list still contains marks,
-            # and -zcmdrlist_mark_current_segment_in_current_element will be able
+            # and -zui_list_mark_current_segment_in_current_element will be able
             # to restore current element into marks, to switch colors of active
             # segment
-            -zcmdrlist_translate_color_marks_in_disp_list
+            -zui_list_translate_color_marks_in_disp_list
 
-            [ -n "$ZCMDRLIST_COLORING_PATTERN" ] && -zcmdrlist_colorify_disp_list
+            [ -n "$ZUILIST_COLORING_PATTERN" ] && -zui_list_colorify_disp_list
         fi
 
         # We need second disp_list to be able to disable colorifying for particular elements
         disp_list2=( "${(@)disp_list}" )
 
-        [ "$#disp_list2" -gt 0 ] && -zcmdrlist_mark_current_segment_in_current_element
+        [ "$#disp_list2" -gt 0 ] && -zui_list_mark_current_segment_in_current_element
 
         # Remove hyperlinks before displaying
         disp_list2=( "${disp_list2[@]//$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\2'/}" )
 
         # Output the list
-        -zcmdr-list-draw "$(( ZCMDRLIST_CURRENT_IDX - ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
-            "$page_height" "$page_width" 1 2 "$ZCMDRLIST_TEXT_OFFSET" "$wname_main" \
+        -zui-list-draw "$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
+            "$page_height" "$page_width" 1 2 "$ZUILIST_TEXT_OFFSET" "$wname_main" \
             "$disp_list2[@]"
     fi
 
@@ -511,13 +511,13 @@ while (( 1 )); do
     zcurses move "$wname_main" 0 2
     zcurses string "$wname_main" "$header"
     [[ "$mark_header" = "1" && "$colorpair" = "white/black" ]] && zcurses attr "$wname_main" "$bold" "$colorpair"
-    -zcmdrlist_cursor_visibility "main" "0"
+    -zui_list_cursor_visibility "main" "0"
     zcurses refresh "$wname_main"
 
     # Status window is optional (1/2)
     [ -n "$wname_status" ] && {
         local st_path="" st_cmd=""
-        if -zcmdr_stdlib_decode_hyperlink "${tmp[$ZCMDRLIST_CURRENT_SEGMENT]}"; then
+        if -zui_stdlib_decode_hyperlink "${tmp[$ZUILIST_CURRENT_SEGMENT]}"; then
             st_cmd="${(Q)reply[3]}"
             [[ -n "${(Q)reply[1]}" ]] && st_path="${(Q)reply[4]}"
 
@@ -543,32 +543,32 @@ while (( 1 )); do
         fi
 
         local status_msg_strlen
-        if [ "$ZCMDRLIST_IS_SEARCH_MODE" = "1" ]; then
+        if [ "$ZUILIST_IS_SEARCH_MODE" = "1" ]; then
             local _txt2=""
-            [ "$ZCMDRLIST_IS_UNIQ_MODE" -eq 1 ] && _txt2="[-UNIQ-] "
-            -zcmdrlist_status_msg "${_txt2}Filtering with: ${ZCMDRLIST_SEARCH_BUFFER// /+}"
-        elif [[ ${ZCMDRLIST_NONSELECTABLE_ELEMENTS[(r)$ZCMDRLIST_CURRENT_IDX]} != $ZCMDRLIST_CURRENT_IDX ||
-                -n "$ZCMDRLIST_SEARCH_BUFFER" || "$ZCMDRLIST_IS_UNIQ_MODE" -eq 1 ]]; then
+            [ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ] && _txt2="[-UNIQ-] "
+            -zui_list_status_msg "${_txt2}Filtering with: ${ZUILIST_SEARCH_BUFFER// /+}"
+        elif [[ ${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]} != $ZUILIST_CURRENT_IDX ||
+                -n "$ZUILIST_SEARCH_BUFFER" || "$ZUILIST_IS_UNIQ_MODE" -eq 1 ]]; then
             local _txt="" _txt2=""
-            [ -n "$ZCMDRLIST_GREP_STRING" ] && _txt=" [$ZCMDRLIST_GREP_STRING]"
-            [ -n "$ZCMDRLIST_GENERATION_TIME" ] && _txt="$_txt GENERATED IN ${ZCMDRLIST_GENERATION_TIME}s" && ZCMDRLIST_GENERATION_TIME=""
-            [ "$ZCMDRLIST_IS_UNIQ_MODE" -eq 1 ] && _txt2="[-UNIQ-] "
-            -zcmdrlist_status_msg "${_txt2}Current #$ZCMDRLIST_USER_CURRENT_IDX (of #$ZCMDRLIST_USER_LAST_ELEMENT entries)${_txt}" "${st_cmd}" "${st_path}"
+            [ -n "$ZUILIST_GREP_STRING" ] && _txt=" [$ZUILIST_GREP_STRING]"
+            [ -n "$ZUILIST_GENERATION_TIME" ] && _txt="$_txt GENERATED IN ${ZUILIST_GENERATION_TIME}s" && ZUILIST_GENERATION_TIME=""
+            [ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ] && _txt2="[-UNIQ-] "
+            -zui_list_status_msg "${_txt2}Current #$ZUILIST_USER_CURRENT_IDX (of #$ZUILIST_USER_LAST_ELEMENT entries)${_txt}" "${st_cmd}" "${st_path}"
         else
             local _txt3
-            [ -n "$ZCMDRLIST_GENERATION_TIME" ] && _txt3="GENERATED IN ${ZCMDRLIST_GENERATION_TIME}s" && ZCMDRLIST_GENERATION_TIME=""
-            -zcmdrlist_status_msg "$_txt3"
+            [ -n "$ZUILIST_GENERATION_TIME" ] && _txt3="GENERATED IN ${ZUILIST_GENERATION_TIME}s" && ZUILIST_GENERATION_TIME=""
+            -zui_list_status_msg "$_txt3"
         fi
 
         [ "$border" = "1" ] && zcurses border "$wname_status"
-        # status_msg_strlen is set in -zcmdrlist_status_msg()
+        # status_msg_strlen is set in -zui_list_status_msg()
         zcurses move "$wname_status" 1 $(( status_msg_strlen + 2 ))
-        [ "$ZCMDRLIST_IS_SEARCH_MODE" -ne 1 ] && -zcmdrlist_cursor_visibility "status" "0" || -zcmdrlist_cursor_visibility "status" "1"
+        [ "$ZUILIST_IS_SEARCH_MODE" -ne 1 ] && -zui_list_cursor_visibility "status" "0" || -zui_list_cursor_visibility "status" "1"
         zcurses refresh "$wname_status" 
     }
 
     # Draw only?
-    [ "$ZCMDRLIST_DRAW_ONLY" = "1" ] && return
+    [ "$ZUILIST_DRAW_ONLY" = "1" ] && return
 
     # Wait for input
     zcurses input main key keypad
@@ -580,38 +580,38 @@ while (( 1 )); do
         final_key="$keypad"
     else
         [ -n "$wname_status" ] && {
-            -zcmdrlist_status_msg "Inproper input detected"
+            -zui_list_status_msg "Inproper input detected"
             zcurses refresh "$wname_status"
             sleep 2
         }
     fi
 
-    integer track_cur_idx="$ZCMDRLIST_CURRENT_IDX"
-    -zcmdr-list-input "$ZCMDRLIST_CURRENT_IDX" "$ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN" \
-                    "$page_height" "$page_width" "$last_element" "$nseg" "$ZCMDRLIST_TEXT_OFFSET" \
-                    "$final_key" "$ZCMDRLIST_IS_SEARCH_MODE" "$ZCMDRLIST_SEARCH_BUFFER" \
-                    "$ZCMDRLIST_IS_UNIQ_MODE" "$ZCMDRLIST_DISABLE_SEARCH"
+    integer track_cur_idx="$ZUILIST_CURRENT_IDX"
+    -zui-list-input "$ZUILIST_CURRENT_IDX" "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" \
+                    "$page_height" "$page_width" "$last_element" "$nseg" "$ZUILIST_TEXT_OFFSET" \
+                    "$final_key" "$ZUILIST_IS_SEARCH_MODE" "$ZUILIST_SEARCH_BUFFER" \
+                    "$ZUILIST_IS_UNIQ_MODE" "$ZUILIST_DISABLE_SEARCH"
 
     selection="$reply[1]"
     action="$reply[2]"
-    ZCMDRLIST_CURRENT_IDX="$reply[3]"
-    ZCMDRLIST_FROM_WHAT_IDX_LIST_IS_SHOWN="$reply[4]"
-    ZCMDRLIST_TEXT_OFFSET="$reply[5]"
-    ZCMDRLIST_IS_SEARCH_MODE="$reply[6]"
-    ZCMDRLIST_SEARCH_BUFFER="$reply[7]"
-    ZCMDRLIST_IS_UNIQ_MODE="$reply[8]"
+    ZUILIST_CURRENT_IDX="$reply[3]"
+    ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN="$reply[4]"
+    ZUILIST_TEXT_OFFSET="$reply[5]"
+    ZUILIST_IS_SEARCH_MODE="$reply[6]"
+    ZUILIST_SEARCH_BUFFER="$reply[7]"
+    ZUILIST_IS_UNIQ_MODE="$reply[8]"
 
-    if [ "$ZCMDRLIST_TRACK_SEGMENTS" = "1" ]; then
+    if [ "$ZUILIST_TRACK_SEGMENTS" = "1" ]; then
         # Remember segment change (element change and segment
         # change cannot occur at the same time)
-        ZCMDRLIST_ACTIVE_SEGMENTS[$track_cur_idx]="$ZCMDRLIST_CURRENT_SEGMENT"
+        ZUILIST_ACTIVE_SEGMENTS[$track_cur_idx]="$ZUILIST_CURRENT_SEGMENT"
 
-        if [[ "$track_cur_idx" != "$ZCMDRLIST_CURRENT_IDX" ]]; then
+        if [[ "$track_cur_idx" != "$ZUILIST_CURRENT_IDX" ]]; then
             # Restore segment or set to 1
-            if (( ${+ZCMDRLIST_ACTIVE_SEGMENTS[$ZCMDRLIST_CURRENT_IDX]} )); then
-                ZCMDRLIST_CURRENT_SEGMENT="${ZCMDRLIST_ACTIVE_SEGMENTS[$ZCMDRLIST_CURRENT_IDX]}"
+            if (( ${+ZUILIST_ACTIVE_SEGMENTS[$ZUILIST_CURRENT_IDX]} )); then
+                ZUILIST_CURRENT_SEGMENT="${ZUILIST_ACTIVE_SEGMENTS[$ZUILIST_CURRENT_IDX]}"
             else
-                ZCMDRLIST_CURRENT_SEGMENT=1
+                ZUILIST_CURRENT_SEGMENT=1
             fi
         fi
     fi
@@ -637,81 +637,81 @@ while (( 1 )); do
         # Status window is optional (2/2)
         [ -n "$wname_status" ] && zcurses clear "$wname_status" redraw
     else
-        if [[ -n "$ZCMDRLIST_REPLY_LIST_PART_SIZE" && "$ZCMDRLIST_REPLY_LIST_PART_SIZE" -ge "1" ]]; then
-            set "${(@)@[1,ZCMDRLIST_REPLY_HEADER_IDX-1]}" "${ZCMDRLIST_REPLY_LIST_PART[@]}" "${(@)@[ZCMDRLIST_REPLY_HEADER_IDX+ZCMDRLIST_REPLY_TO_OVERWRITE_SIZE,-1]}"
-            typeset -g ZCMDRLIST_REGENERATE_DISP_LIST
-            ZCMDRLIST_REGENERATE_DISP_LIST="1"
+        if [[ -n "$ZUILIST_REPLY_LIST_PART_SIZE" && "$ZUILIST_REPLY_LIST_PART_SIZE" -ge "1" ]]; then
+            set "${(@)@[1,ZUILIST_REPLY_HEADER_IDX-1]}" "${ZUILIST_REPLY_LIST_PART[@]}" "${(@)@[ZUILIST_REPLY_HEADER_IDX+ZUILIST_REPLY_TO_OVERWRITE_SIZE,-1]}"
+            typeset -g ZUILIST_REGENERATE_DISP_LIST
+            ZUILIST_REGENERATE_DISP_LIST="1"
 
             # How many elements push down (up if negative)
             # indices that are after the modified section
-            integer size_diff=$(( ZCMDRLIST_REPLY_LIST_PART_SIZE - ZCMDRLIST_REPLY_TO_OVERWRITE_SIZE ))
+            integer size_diff=$(( ZUILIST_REPLY_LIST_PART_SIZE - ZUILIST_REPLY_TO_OVERWRITE_SIZE ))
 
             # Remove indices that lay inside the block being overwritten
             # NONSELECTABLES
             local index el
             integer mysize
-            mysize="${#ZCMDRLIST_NONSELECTABLE_ELEMENTS[@]}"
+            mysize="${#ZUILIST_NONSELECTABLE_ELEMENTS[@]}"
             for (( index = 1; index <= mysize; index ++ )); do
-                el="${ZCMDRLIST_NONSELECTABLE_ELEMENTS[index]}"
-                if [[ "$el" -ge "$ZCMDRLIST_REPLY_HEADER_IDX" &&
-                        "$el" -le "$(( ZCMDRLIST_REPLY_HEADER_IDX + ZCMDRLIST_REPLY_TO_OVERWRITE_SIZE - 1 ))" ]]
+                el="${ZUILIST_NONSELECTABLE_ELEMENTS[index]}"
+                if [[ "$el" -ge "$ZUILIST_REPLY_HEADER_IDX" &&
+                        "$el" -le "$(( ZUILIST_REPLY_HEADER_IDX + ZUILIST_REPLY_TO_OVERWRITE_SIZE - 1 ))" ]]
                 then
-                    ZCMDRLIST_NONSELECTABLE_ELEMENTS[index]=()
+                    ZUILIST_NONSELECTABLE_ELEMENTS[index]=()
                 fi
             done
 
             # Push down (up) elements that are after the growed (shrinked) section
             # NONSELECTABLES
-            mysize="${#ZCMDRLIST_NONSELECTABLE_ELEMENTS[@]}"
+            mysize="${#ZUILIST_NONSELECTABLE_ELEMENTS[@]}"
             for (( index = 1; index <= mysize; index ++ )); do
-                el="${ZCMDRLIST_NONSELECTABLE_ELEMENTS[index]}"
+                el="${ZUILIST_NONSELECTABLE_ELEMENTS[index]}"
                 # No need to check if it lays inside the range
                 # as ones that did have been removed above
-                if [[ "$el" -gt "$ZCMDRLIST_REPLY_HEADER_IDX" ]]; then
-                    (( ZCMDRLIST_NONSELECTABLE_ELEMENTS[index] += size_diff ))
+                if [[ "$el" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
+                    (( ZUILIST_NONSELECTABLE_ELEMENTS[index] += size_diff ))
                 fi
             done
 
             # Remove indices that lay inside the block being overwritten
             # HOPS
-            mysize="${#ZCMDRLIST_HOP_INDEXES[@]}"
+            mysize="${#ZUILIST_HOP_INDEXES[@]}"
             for (( index = 1; index <= mysize; index ++ )); do
-                el="${ZCMDRLIST_HOP_INDEXES[index]}"
-                if [[ "$el" -ge "$ZCMDRLIST_REPLY_HEADER_IDX" &&
-                        "$el" -le "$(( ZCMDRLIST_REPLY_HEADER_IDX + ZCMDRLIST_REPLY_TO_OVERWRITE_SIZE - 1 ))" ]]
+                el="${ZUILIST_HOP_INDEXES[index]}"
+                if [[ "$el" -ge "$ZUILIST_REPLY_HEADER_IDX" &&
+                        "$el" -le "$(( ZUILIST_REPLY_HEADER_IDX + ZUILIST_REPLY_TO_OVERWRITE_SIZE - 1 ))" ]]
                 then
-                    ZCMDRLIST_HOP_INDEXES[index]=()
+                    ZUILIST_HOP_INDEXES[index]=()
                 fi
             done
 
             # Push down (up) elements that are after the growed (shrinked) section
             # HOPS
-            mysize="${#ZCMDRLIST_HOP_INDEXES[@]}"
+            mysize="${#ZUILIST_HOP_INDEXES[@]}"
             for (( index = 1; index <= mysize; index ++ )); do
-                el="${ZCMDRLIST_HOP_INDEXES[index]}"
+                el="${ZUILIST_HOP_INDEXES[index]}"
                 # No need to check if it lays inside the range
                 # as ones that did have been removed above
-                if [[ "$el" -gt "$ZCMDRLIST_REPLY_HEADER_IDX" ]]; then
-                    (( ZCMDRLIST_HOP_INDEXES[index] += size_diff ))
+                if [[ "$el" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
+                    (( ZUILIST_HOP_INDEXES[index] += size_diff ))
                 fi
             done
 
-            # Push down (up) entries of ZCMDR_SECTION_INDICES
+            # Push down (up) entries of ZUI_SECTION_INDICES
             local _key
-            for _key in "${(k)ZCMDR_SECTION_INDICES[@]}"; do
-                el="${ZCMDR_SECTION_INDICES[$_key]}"
-                if [[ -n "$el" && "$el" -gt "$ZCMDRLIST_REPLY_HEADER_IDX" ]]; then
-                    ZCMDR_SECTION_INDICES[$_key]=$(( ${ZCMDR_SECTION_INDICES[$_key]} + size_diff ))
+            for _key in "${(k)ZUI_SECTION_INDICES[@]}"; do
+                el="${ZUI_SECTION_INDICES[$_key]}"
+                if [[ -n "$el" && "$el" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
+                    ZUI_SECTION_INDICES[$_key]=$(( ${ZUI_SECTION_INDICES[$_key]} + size_diff ))
                 fi
             done
 
             # Now add new hops and nonselectables
             # first translating to global indices
-            ZCMDRLIST_REPLY_NONSELECTABLES=( "${ZCMDRLIST_REPLY_NONSELECTABLES[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZCMDRLIST_REPLY_HEADER_IDX - 1 ))}" )
-            ZCMDRLIST_REPLY_HOPS=( "${ZCMDRLIST_REPLY_HOPS[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZCMDRLIST_REPLY_HEADER_IDX - 1 ))}" )
+            ZUILIST_REPLY_NONSELECTABLES=( "${ZUILIST_REPLY_NONSELECTABLES[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUILIST_REPLY_HEADER_IDX - 1 ))}" )
+            ZUILIST_REPLY_HOPS=( "${ZUILIST_REPLY_HOPS[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUILIST_REPLY_HEADER_IDX - 1 ))}" )
 
-            ZCMDRLIST_NONSELECTABLE_ELEMENTS+=( "${ZCMDRLIST_REPLY_NONSELECTABLES[@]}" )
-            ZCMDRLIST_HOP_INDEXES+=( "${ZCMDRLIST_REPLY_HOPS[@]}" )
+            ZUILIST_NONSELECTABLE_ELEMENTS+=( "${ZUILIST_REPLY_NONSELECTABLES[@]}" )
+            ZUILIST_HOP_INDEXES+=( "${ZUILIST_REPLY_HOPS[@]}" )
 
             # Last thing: update anchors
             local -a asegs
@@ -721,14 +721,14 @@ while (( 1 )); do
             for (( index = 1; index <= mysize; index ++ )); do
                 aseg="${asegs[index]}"
                 [[ -z "$aseg" ]] && continue
-                -zcmdr_stdlib_decode_hyperlink "$aseg"
+                -zui_stdlib_decode_hyperlink "$aseg"
                 local _id="${reply[1]}" _idx="${reply[2]}" _cmd="${reply[3]}" _active_path="${reply[4]}" _section_size="${reply[5]}"
-                if [[ "$_idx" -gt "$ZCMDRLIST_REPLY_HEADER_IDX" ]]; then
+                if [[ "$_idx" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
                     # Plainly replace the hyperlink fragment
                     integer _new_idx
                     (( _new_idx = _idx + size_diff ))
                     asegs[index]="${aseg/(#b)($'\1')$_idx$'\1'/${match[1]}$_new_idx${match[1]}}"
-                elif [[ "$_idx" = "$ZCMDRLIST_REPLY_HEADER_IDX" ]]; then
+                elif [[ "$_idx" = "$ZUILIST_REPLY_HEADER_IDX" ]]; then
                     integer _new_section_size
                     (( _new_section_size = _section_size + size_diff ))
                     asegs[index]="${aseg/(#b)($'\1')$_section_size($'\2')/${match[1]}$_new_section_size${match[2]}}"
@@ -737,14 +737,14 @@ while (( 1 )); do
             1="${asegs[*]}"
 
             # Cleanup
-            unset ZCMDRLIST_REPLY_LIST_PART ZCMDRLIST_REPLY_LIST_PART_SIZE ZCMDRLIST_REPLY_NONSELECTABLES
-            unset ZCMDRLIST_REPLY_HOPS ZCMDRLIST_REPLY_HEADER_IDX ZCMDRLIST_REPLY_TO_OVERWRITE_SIZE
-        elif (( ${+ZCMDRLIST_REPLY_CHECKBOX_NUM} )); then
-            local new_line="${@[ZCMDRLIST_REPLY_CHECKBOX_NUM]}"
-            [[ "$ZCMDRLIST_REPLY_CHECKBOX_OP" = "set" ]] && new_line="${new_line/\[_\]/[x]}" || new_line="${new_line/\[x\]/[_]}"
-            set "${(@)@[1,ZCMDRLIST_REPLY_CHECKBOX_NUM-1]}" "$new_line" "${(@)@[ZCMDRLIST_REPLY_CHECKBOX_NUM+1,-1]}"
-            typeset -g ZCMDRLIST_REGENERATE_DISP_LIST="1"
-            unset ZCMDRLIST_REPLY_CHECKBOX_NUM ZCMDRLIST_REPLY_CHECKBOX_OP
+            unset ZUILIST_REPLY_LIST_PART ZUILIST_REPLY_LIST_PART_SIZE ZUILIST_REPLY_NONSELECTABLES
+            unset ZUILIST_REPLY_HOPS ZUILIST_REPLY_HEADER_IDX ZUILIST_REPLY_TO_OVERWRITE_SIZE
+        elif (( ${+ZUILIST_REPLY_CHECKBOX_NUM} )); then
+            local new_line="${@[ZUILIST_REPLY_CHECKBOX_NUM]}"
+            [[ "$ZUILIST_REPLY_CHECKBOX_OP" = "set" ]] && new_line="${new_line/\[_\]/[x]}" || new_line="${new_line/\[x\]/[_]}"
+            set "${(@)@[1,ZUILIST_REPLY_CHECKBOX_NUM-1]}" "$new_line" "${(@)@[ZUILIST_REPLY_CHECKBOX_NUM+1,-1]}"
+            typeset -g ZUILIST_REGENERATE_DISP_LIST="1"
+            unset ZUILIST_REPLY_CHECKBOX_NUM ZUILIST_REPLY_CHECKBOX_OP
         fi
     fi
 done

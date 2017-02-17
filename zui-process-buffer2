@@ -2,12 +2,12 @@
 # $1 - optional buffer to process (default is $BUFFER)
 #
 # Output:
-# ZCMDR_PB2_WORDS - split of "$1" into shell words; array
-# ZCMDR_PB2_QWORDS - shell words when [;|>&] didn't split
-# ZCMDR_PB2_WORDS_BEGINNINGS - indexes of first letters of corresponding words in ZCMDR_PB2_WORDS
-# ZCMDR_PB2_QWORDS_BEGINNINGS - the same, but in ZCMDR_PB2_QWORDS
-# ZCMDR_PB2_SPACES - white spaces before corresponding words in ZCMDR_PB2_WORDS
-# ZCMDR_PB2_QSPACES - the same, but in ZCMDR_PB2_QWORDS
+# ZUI_PB2_WORDS - split of "$1" into shell words; array
+# ZUI_PB2_QWORDS - shell words when [;|>&] didn't split
+# ZUI_PB2_WORDS_BEGINNINGS - indexes of first letters of corresponding words in ZUI_PB2_WORDS
+# ZUI_PB2_QWORDS_BEGINNINGS - the same, but in ZUI_PB2_QWORDS
+# ZUI_PB2_SPACES - white spaces before corresponding words in ZUI_PB2_WORDS
+# ZUI_PB2_QSPACES - the same, but in ZUI_PB2_QWORDS
 #
 
 emulate -LR zsh
@@ -17,22 +17,22 @@ local MBEGIN MEND MATCH mbegin mend match
 
 local buf="${1:-$BUFFER}"
 
-ZCMDR_PB2_WORDS=( "${(Z+n+)buf}" )
-ZCMDR_PB2_QWORDS=( )
-ZCMDR_PB2_SPACES=( )
-ZCMDR_PB2_QSPACES=( )
-ZCMDR_PB2_WORDS_BEGINNINGS=( )
-ZCMDR_PB2_QWORDS_BEGINNINGS=( )
+ZUI_PB2_WORDS=( "${(Z+n+)buf}" )
+ZUI_PB2_QWORDS=( )
+ZUI_PB2_SPACES=( )
+ZUI_PB2_QSPACES=( )
+ZUI_PB2_WORDS_BEGINNINGS=( )
+ZUI_PB2_QWORDS_BEGINNINGS=( )
 
 # (Z+n+) will return 1 element for buf that is empty or only whitespace
 if [[ "$buf" = ( |$'\t')# ]]; then
-    ZCMDR_PB2_WORDS=( )
+    ZUI_PB2_WORDS=( )
     integer nwords=0
 else
-    integer nwords="${#ZCMDR_PB2_WORDS}"
+    integer nwords="${#ZUI_PB2_WORDS}"
 fi
 
-# Remove ZCMDR_PB2_WORDS one by one, counting characters,
+# Remove ZUI_PB2_WORDS one by one, counting characters,
 # computing beginning of each word
 
 local i word wordlen
@@ -47,28 +47,28 @@ for (( i=1; i<=nwords; i++ )); do
     # input is an unbound '$(' (happens with zsh < 5.1)
     # and also real spaces gathered by an unbound '$(',
     # to handle them in a way normal to this loop
-    ZCMDR_PB2_WORDS[i]="${ZCMDR_PB2_WORDS[i]%% ##}"
-    word="${ZCMDR_PB2_WORDS[i]}"
+    ZUI_PB2_WORDS[i]="${ZUI_PB2_WORDS[i]%% ##}"
+    word="${ZUI_PB2_WORDS[i]}"
 
     # Remove white spaces
     buf="${buf##(#m)[^$word[1]]#}"
     # Count them
     char_count=char_count+"${#MATCH}"
     # The beginning of current word
-    ZCMDR_PB2_WORDS_BEGINNINGS[i]=$(( char_count + 1 ))
+    ZUI_PB2_WORDS_BEGINNINGS[i]=$(( char_count + 1 ))
     # Remember the spaces
-    ZCMDR_PB2_SPACES[i]="$MATCH"
+    ZUI_PB2_SPACES[i]="$MATCH"
 
     if [[ "$word" = [\;\>\&\|] && -z "$MATCH" && "$idx" -gt "1" ]]; then
         idx=idx-1
-        ZCMDR_PB2_QWORDS[idx]+="$word"
-    elif [[ -z "$MATCH" && "$idx" -gt "1" && "${ZCMDR_PB2_QWORDS[idx-1]}" = *[\;\>\&\|] ]]; then
+        ZUI_PB2_QWORDS[idx]+="$word"
+    elif [[ -z "$MATCH" && "$idx" -gt "1" && "${ZUI_PB2_QWORDS[idx-1]}" = *[\;\>\&\|] ]]; then
         idx=idx-1
-        ZCMDR_PB2_QWORDS[idx]+="$word"
+        ZUI_PB2_QWORDS[idx]+="$word"
     else
-        ZCMDR_PB2_QWORDS[idx]="$word"
-        ZCMDR_PB2_QWORDS_BEGINNINGS[idx]=$(( char_count + 1 ))
-        ZCMDR_PB2_QSPACES[idx]="$MATCH"
+        ZUI_PB2_QWORDS[idx]="$word"
+        ZUI_PB2_QWORDS_BEGINNINGS[idx]=$(( char_count + 1 ))
+        ZUI_PB2_QSPACES[idx]="$MATCH"
     fi
 
     # Remove the word
@@ -81,8 +81,8 @@ done
 
 # What's left in $buf can be only white spaces
 char_count=char_count+"${#buf}"
-ZCMDR_PB2_SPACES[i]="$buf"
-ZCMDR_PB2_QSPACES[idx+1]="$buf"
+ZUI_PB2_SPACES[i]="$buf"
+ZUI_PB2_QSPACES[idx+1]="$buf"
 
 # This function should be tested
 return 0

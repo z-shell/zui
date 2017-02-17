@@ -3,12 +3,12 @@
 # $2 - optional parameter containing cursor (default is $CURSOR)
 #
 # Output:
-# ZCMDR_PB_WORDS - split of "$1" into shell words; array
-# ZCMDR_PB_WORDS_BEGINNINGS - indexes of first letters of corresponding words in ZCMDR_PB_WORDS
-# ZCMDR_PB_SPACES - white spaces before corresponding words in ZCMDR_PB_WORDS
-# ZCMDR_PB_SELECTED_WORD - index in ZCMDR_PB_WORDS pointing to word activated by cursor position
-# ZCMDR_PB_LEFT - left part of active word
-# ZCMDR_PB_RIGHT - right part of active word
+# ZUI_PB_WORDS - split of "$1" into shell words; array
+# ZUI_PB_WORDS_BEGINNINGS - indexes of first letters of corresponding words in ZUI_PB_WORDS
+# ZUI_PB_SPACES - white spaces before corresponding words in ZUI_PB_WORDS
+# ZUI_PB_SELECTED_WORD - index in ZUI_PB_WORDS pointing to word activated by cursor position
+# ZUI_PB_LEFT - left part of active word
+# ZUI_PB_RIGHT - right part of active word
 #
 
 emulate -LR zsh
@@ -19,20 +19,20 @@ local MBEGIN MEND MATCH mbegin mend match
 local buf="${1:-$BUFFER}"
 local cursor="${2:-$CURSOR}"
 
-ZCMDR_PB_WORDS=( "${(Z+n+)buf}" )
-ZCMDR_PB_SPACES=( )
-ZCMDR_PB_WORDS_BEGINNINGS=( )
-ZCMDR_PB_SELECTED_WORD="-1"
+ZUI_PB_WORDS=( "${(Z+n+)buf}" )
+ZUI_PB_SPACES=( )
+ZUI_PB_WORDS_BEGINNINGS=( )
+ZUI_PB_SELECTED_WORD="-1"
 
 # (Z+n+) will return 1 element for buf that is empty or only whitespace
 if [[ "$buf" = ( |$'\t')# ]]; then
-    ZCMDR_PB_WORDS=( )
+    ZUI_PB_WORDS=( )
     integer nwords=0
 else
-    integer nwords="${#ZCMDR_PB_WORDS}"
+    integer nwords="${#ZUI_PB_WORDS}"
 fi
 
-# Remove ZCMDR_PB_WORDS one by one, counting characters,
+# Remove ZUI_PB_WORDS one by one, counting characters,
 # computing beginning of each word, to find
 # place to break the word into 2 halves (for
 # complete_in_word option)
@@ -47,8 +47,8 @@ for (( i=1; i<=nwords; i++ )); do
     # input is an unbound '$(' (happens with zsh < 5.1)
     # and also real spaces gathered by an unbound '$(',
     # to handle them in a way normal to this loop
-    ZCMDR_PB_WORDS[i]="${ZCMDR_PB_WORDS[i]%% ##}"
-    word="${ZCMDR_PB_WORDS[i]}"
+    ZUI_PB_WORDS[i]="${ZUI_PB_WORDS[i]%% ##}"
+    word="${ZUI_PB_WORDS[i]}"
 
     # In general, $buf can start with white spaces
     # We will not search for them, but instead for
@@ -61,9 +61,9 @@ for (( i=1; i<=nwords; i++ )); do
     # Count them
     char_count=char_count+"${#MATCH}"
     # This is the beginning of current word
-    ZCMDR_PB_WORDS_BEGINNINGS[i]=$(( char_count + 1 ))
+    ZUI_PB_WORDS_BEGINNINGS[i]=$(( char_count + 1 ))
     # Remember the spaces
-    ZCMDR_PB_SPACES[i]="$MATCH"
+    ZUI_PB_SPACES[i]="$MATCH"
 
     # Remove the word
     wordlen="${#word}"
@@ -72,26 +72,26 @@ for (( i=1; i<=nwords; i++ )); do
 
     # Spaces point to previous shell word
     # Visual cursor right after spaces (-ge) -> not enough to select previous word (-gt required)
-    [[ "$ZCMDR_PB_SELECTED_WORD" -eq "-1" && "$char_count" -gt "$cursor" ]] && ZCMDR_PB_SELECTED_WORD=$(( i-1 ))
+    [[ "$ZUI_PB_SELECTED_WORD" -eq "-1" && "$char_count" -gt "$cursor" ]] && ZUI_PB_SELECTED_WORD=$(( i-1 ))
 
     # Actual characters point to current shell word
     # Visual cursor right after letters (-ge) -> enough to select current word
     char_count=char_count+"$#word"
-    [[ "$ZCMDR_PB_SELECTED_WORD" -eq "-1" && "$char_count" -ge "$cursor" ]] && ZCMDR_PB_SELECTED_WORD="$i"
+    [[ "$ZUI_PB_SELECTED_WORD" -eq "-1" && "$char_count" -ge "$cursor" ]] && ZUI_PB_SELECTED_WORD="$i"
 done 
 
 # What's left in $buf can be only white spaces
 char_count=char_count+"$#buf"
-ZCMDR_PB_SPACES[i]="$buf"
+ZUI_PB_SPACES[i]="$buf"
 
 # Visual cursor right after spaces (-ge) -> enough to select last word
-[[ "$ZCMDR_PB_SELECTED_WORD" -eq "-1" && "$char_count" -ge "$cursor" ]] && ZCMDR_PB_SELECTED_WORD=$(( i-1 ))
+[[ "$ZUI_PB_SELECTED_WORD" -eq "-1" && "$char_count" -ge "$cursor" ]] && ZUI_PB_SELECTED_WORD=$(( i-1 ))
 
 # Divide active word into two halves
-integer diff=$(( cursor - ZCMDR_PB_WORDS_BEGINNINGS[ZCMDR_PB_SELECTED_WORD] + 1 ))
-word="${ZCMDR_PB_WORDS[ZCMDR_PB_SELECTED_WORD]}"
-ZCMDR_PB_LEFT="${word[1,diff]}"
-ZCMDR_PB_RIGHT="${word[diff+1,-1]}"
+integer diff=$(( cursor - ZUI_PB_WORDS_BEGINNINGS[ZUI_PB_SELECTED_WORD] + 1 ))
+word="${ZUI_PB_WORDS[ZUI_PB_SELECTED_WORD]}"
+ZUI_PB_LEFT="${word[1,diff]}"
+ZUI_PB_RIGHT="${word[diff+1,-1]}"
 
 # This function should be tested
 return 0
