@@ -6,16 +6,16 @@
 
 # Available colors to embed in generated text
 # \31 is octal value 25 - EM End of medium
-ZUI_RED=$'\7'
-ZUI_RED_E=$'\31'
-ZUI_GREEN=$'\3'
-ZUI_GREEN_E=$'\31'
-ZUI_YELLOW=$'\4'
-ZUI_YELLOW_E=$'\31'
-ZUI_MAGENTA=$'\5'
-ZUI_MAGENTA_E=$'\31'
-ZUI_CYAN=$'\6'
-ZUI_CYAN_E=$'\31'
+typeset -g ZUI_RED=$'\7'
+typeset -g ZUI_RED_E=$'\31'
+typeset -g ZUI_GREEN=$'\3'
+typeset -g ZUI_GREEN_E=$'\31'
+typeset -g ZUI_YELLOW=$'\4'
+typeset -g ZUI_YELLOW_E=$'\31'
+typeset -g ZUI_MAGENTA=$'\5'
+typeset -g ZUI_MAGENTA_E=$'\31'
+typeset -g ZUI_CYAN=$'\6'
+typeset -g ZUI_CYAN_E=$'\31'
 
 # Appends hyperlink into "reply" output array. It's the
 # standard action button, shown without surrounding

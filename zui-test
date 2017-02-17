@@ -6,7 +6,7 @@
 [[ -o promptsubst ]] && ZUI[PROMPT_SUBST]="1" || ZUI[PROMPT_SUBST]="0"
 
 emulate -LR zsh
-setopt extendedglob typesetsilent
+setopt extendedglob typesetsilent warncreateglobal
 
 [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
 
@@ -141,6 +141,7 @@ fi
 # Store all results into OUTPUT, ZUILIST_NONSELECTABLE_ELEMENTS, ZUILIST_HOP_INDEXES
 #
 
+typeset -ga ZUILIST_NONSELECTABLE_ELEMENTS ZUILIST_HOP_INDEXES
 ZUILIST_NONSELECTABLE_ELEMENTS=()
 ZUILIST_HOP_INDEXES=()
 
