@@ -1,0 +1,271 @@
+#
+# Started from zle or from command line
+#
+
+[[ -o interactivecomments ]] && ZUI[INTERACTIVE_COMMENTS]="1" || ZUI[INTERACTIVE_COMMENTS]="0"
+[[ -o promptsubst ]] && ZUI[PROMPT_SUBST]="1" || ZUI[PROMPT_SUBST]="0"
+
+emulate -LR zsh
+setopt extendedglob typesetsilent
+
+[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
+
+[[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
+
+##
+## Main code
+##
+
+# Measure and limit generation time
+typeset -F SECONDS=0.0
+local -F start_seconds
+
+#
+# Actions
+#
+
+-zui_test_action_1() {
+    echo "Hello world!"
+}
+
+#
+# Internal actions
+#
+-zui_test_internal_action_1() {
+    echo "Hello world!"
+}
+
+#
+# Generator for module 1
+#
+
+-zui_test_module1_generator() {
+    reply=( "Hello World" "Hello [there]" "Third line" )
+    reply2=3
+    reply3=( 1 )
+    reply4=( 1 3 )
+}
+
+-zui_test_module2_generator() {
+    reply=( "Second Module" "I'm not selectable" "Last line" )
+    reply2=3
+    reply3=( 2 )
+    reply4=( 1 3 )
+}
+
+#
+# Business logic follows
+#
+
+local curcontext=":zle:$WIDGET"
+local MATCH; local -i MBEGIN MEND
+local -a match mbegin mend
+
+#
+# General zstyles
+#
+
+#
+# Variables
+#
+
+local -A ZUI_SECTION_INDICES
+
+# Replies from generation modules
+local -a reply reply3 reply4
+integer reply2
+
+# Module 1
+local -a module1_output module1_nonselectables module1_hops
+local -a prev_module1_nonselectables prev_module1_hops
+integer module1_size prev_module1_size
+
+# Module 2
+local -a module2_output module2_nonselectables module2_hops
+local -a prev_module2_nonselectables prev_module2_hops
+integer module2_size prev_module2_size
+
+###
+### REGENERATION REQUEST LOOP ###
+###
+
+local REGENERATE="" REGENERATE_ARG="" REGENERATE_ALWAYS=""
+
+while (( 1 )); do
+
+# Measure generation time
+start_seconds=$SECONDS
+
+#
+# Common regeneration block
+#
+
+if [[ -z "$REGENERATE" || "$REGENERATE" = *,all,* ]]
+then
+
+fi
+
+#
+# Module 1
+#
+
+if [[ -z "$REGENERATE" || "$REGENERATE" = *,module1,* || "$REGENERATE" = *,all,* ]]; then
+    reply=( ); reply2="0"; reply3=( ); reply4=( )
+
+    -zui_test_module1_generator
+
+    module1_output=( "${reply[@]}" )
+    module1_size=$reply2
+    module1_nonselectables=( "${reply3[@]}" )
+    module1_hops=( "${reply4[@]}" )
+fi
+
+#
+# Last N projects
+#
+
+if [[ -z "$REGENERATE" || "$REGENERATE" = *,module2,* || "$REGENERATE" = *,all,* ]]; then
+    reply=( ); reply2="0"; reply3=( ); reply4=( )
+
+    -zui_test_module2_generator
+
+    module2_output=( "${reply[@]}" )
+    module2_size=$reply2
+    module2_nonselectables=( "${reply3[@]}" )
+    module2_hops=( "${reply4[@]}" )
+fi
+
+#
+# Store all results into OUTPUT, ZUILIST_NONSELECTABLE_ELEMENTS, ZUILIST_HOP_INDEXES
+#
+
+ZUILIST_NONSELECTABLE_ELEMENTS=()
+ZUILIST_HOP_INDEXES=()
+
+local -a OUTPUT output nonselectables hops
+local -a prev_nonselectables prev_hops
+local -a anchors
+local n var_name
+integer LINE_COUNT size
+
+OUTPUT=( )
+LINE_COUNT=0
+anchors=( )
+
+for n in "module1" "module2"; do
+    # Get output
+    var_name="${n}_output"
+    output=( "${(PA@)var_name}" )
+
+    # Get output size
+    var_name="${n}_size"
+    size="${(P)var_name}"
+
+    # Get nonselectables
+    var_name="${n}_nonselectables"
+    nonselectables=( "${(PA@)var_name}" )
+
+    # Get hops
+    var_name="${n}_hops"
+    hops=( "${(PA@)var_name}" )
+
+    # Get previous nonselectables
+    var_name="prev_${n}_nonselectables"
+    prev_nonselectables=( "${(PA@)var_name}" )
+
+    # Get previous hops
+    var_name="prev_${n}_hops"
+    prev_hops=( "${(PA@)var_name}" )
+
+    if (( size > 0 )); then
+        OUTPUT+=( "" )
+        LINE_COUNT+=1
+        # + 1 for the anchors at top
+        ZUILIST_NONSELECTABLE_ELEMENTS+=( "$(( LINE_COUNT + 1 ))" )
+    fi
+
+    # Translate returned indices to global ones
+    # The + 1 is for anchors at the top
+    nonselectables=( "${nonselectables[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + LINE_COUNT + 1 ))}" )
+    hops=( "${hops[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + LINE_COUNT + 1 ))}" )
+
+    # Add translated, current hops and nonselectables
+    ZUILIST_NONSELECTABLE_ELEMENTS+=( "${nonselectables[@]}" )
+    ZUILIST_HOP_INDEXES+=( "${hops[@]}" )
+
+    # Alter current index if size of section was changed
+    # - using *_size, prev_*_size parameters
+    if [[ "$n" = "module1" && "$REGENERATE" = *,module1,* ]]; then
+        integer delta=$(( log_size-prev_log_size ))
+        ZUILIST_CURRENT_IDX=$(( ZUILIST_CURRENT_IDX + delta ))
+    elif [[ "$n" = "module2" && "$REGENERATE" = *,module2,* ]]; then
+        ZUILIST_CURRENT_IDX="4"
+        ZUILIST_CURRENT_SEGMENT="1"
+    fi
+
+    # Also store the indices into prev_* arrays
+    var_name="prev_${n}_nonselectables"
+    : "${(PA)var_name::=${nonselectables[@]}}";
+    var_name="prev_${n}_hops"
+    : "${(PA)var_name::=${hops[@]}}";
+    var_name="prev_${n}_size"
+    : "${(P)var_name::=${size}}";
+
+    # Create anchors for selected sections
+    reply=( )
+    if [[ "$n" = "module1" ]]; then
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_get_button "zui_anchor_1" "${hops[1]}" "/Jump/" "" "$size" "${ZUI_MAGENTA}Module1${ZUI_MAGENTA_E}" ""
+    elif [[ "$n" = "module2" ]]; then
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_get_button "zui_anchor_2" "${hops[1]}" "/Jump & Load/" "" "$size" "${ZUI_CYAN}Module2${ZUI_CYAN_E}" -zui_test_internal_action_1
+    fi
+    anchors+=( "${reply[@]}" )
+
+    ZUI_SECTION_INDICES[$n]=$(( LINE_COUNT + 1 ))
+    OUTPUT+=( "${output[@]}" )
+    LINE_COUNT+=size
+done
+
+# Reset regeneration variables and prev_current_project
+REGENERATE=""
+REGENERATE_ARG=""
+
+#
+# Generation time
+#
+
+local ZUI_GENERATION_TIME="$(( SECONDS - start_seconds ))"
+ZUI_GENERATION_TIME="${ZUI_GENERATION_TIME[1,5]}"
+
+#
+# Invoke the list, handle outcome
+#
+
+ZUILIST_HOP_INDEXES+=( 1 ) # jump to anchors
+local ZUILIST_WRAPPER_BIT=""
+zui-usetty-wrapper zui-list-wrapper "${anchors[*]}" "${OUTPUT[@]}" "$ZUI_GENERATION_TIME"
+
+if [ -z "$ZUILIST_WRAPPER_BIT" ]; then
+    zle && { zle .redisplay; zle .reset-prompt; }
+    return 1
+fi
+
+# ID, data1, data2, data3, data4
+if -zui_stdlib_decode_hyperlink "$ZUILIST_WRAPPER_BIT"; then
+    local id="${reply[1]}" ts="${reply[2]}" cmd="${reply[3]}" active_path="${reply[4]}" file="${reply[5]}"
+    if [[ -z "$id" ]]; then
+        REGENERATE="$ts"
+        REGENERATE_ARG="$active_path"
+        REGENERATE+="$REGENERATE_ALWAYS"
+    elif [[ -n "${ZUI_ACTION_IDS_TO_HANDLERS[$id]}" ]]; then
+        # Call the handled with all hyper-link data
+        "${ZUI_ACTION_IDS_TO_HANDLERS[$id]}" "$id" "$ts" "$cmd" "$active_path" "$file"
+        break
+    fi
+fi
+
+### REGENERATION REQUEST LOOP ###
+done
+
+return 0
+
+# vim:ft=zsh

@@ -196,13 +196,13 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         [[ "$ZUILIST_CURRENT_SEGMENT" -gt "$nseg" ]] && ZUILIST_CURRENT_SEGMENT="$nseg"
         integer active_segment="$ZUILIST_CURRENT_SEGMENT"
 
-        # Prepare output variables for -zui-process-buffer
+        # Prepare output variables for zui-process-buffer
         local ZUI_PB_WORDS="" ZUI_PB_WORDS_BEGINNINGS="" ZUI_PB_SPACES=""
         local ZUI_PB_SELECTED_WORD="" ZUI_PB_LEFT="" ZUI_PB_RIGHT=""
 
         # Lets find interesting segment and mark it with bells (\7),
         # that are translated to red color
-        -zui-process-buffer "$element"
+        zui-process-buffer "$element"
         integer size="${#ZUI_PB_WORDS}" i
         local buf=""
         for (( i=1; i<=size; i++ )); do
@@ -435,7 +435,7 @@ while (( 1 )); do
         disp_list2=( "${disp_list2[@]//$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\2'/}" )
 
         # Output colored list
-        -zui-list-draw "$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
+        zui-list-draw "$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
             "$page_height" "$page_width" 1 2 "$ZUILIST_TEXT_OFFSET" "$wname_main" \
             "$disp_list2[@]"
     else
@@ -501,7 +501,7 @@ while (( 1 )); do
         disp_list2=( "${disp_list2[@]//$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\1'[^$'\1']#$'\2'/}" )
 
         # Output the list
-        -zui-list-draw "$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
+        zui-list-draw "$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
             "$page_height" "$page_width" 1 2 "$ZUILIST_TEXT_OFFSET" "$wname_main" \
             "$disp_list2[@]"
     fi
@@ -587,7 +587,7 @@ while (( 1 )); do
     fi
 
     integer track_cur_idx="$ZUILIST_CURRENT_IDX"
-    -zui-list-input "$ZUILIST_CURRENT_IDX" "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" \
+    zui-list-input "$ZUILIST_CURRENT_IDX" "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" \
                     "$page_height" "$page_width" "$last_element" "$nseg" "$ZUILIST_TEXT_OFFSET" \
                     "$final_key" "$ZUILIST_IS_SEARCH_MODE" "$ZUILIST_SEARCH_BUFFER" \
                     "$ZUILIST_IS_UNIQ_MODE" "$ZUILIST_DISABLE_SEARCH"

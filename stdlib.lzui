@@ -1,0 +1,285 @@
+#
+# Library file (*.lcmdr)
+#
+# Standard functions
+#
+
+# Available colors to embed in generated text
+# \31 is octal value 25 - EM End of medium
+ZUI_RED=$'\7'
+ZUI_RED_E=$'\31'
+ZUI_GREEN=$'\3'
+ZUI_GREEN_E=$'\31'
+ZUI_YELLOW=$'\4'
+ZUI_YELLOW_E=$'\31'
+ZUI_MAGENTA=$'\5'
+ZUI_MAGENTA_E=$'\31'
+ZUI_CYAN=$'\6'
+ZUI_CYAN_E=$'\31'
+
+# Appends hyperlink into "reply" output array. It's the
+# standard action button, shown without surrounding
+# "[" and "]".
+#
+# $1 - action ID
+# $2 - data1, e.g. timestamp
+# $3 - data2, e.g. command
+# $4 - data3, e.g. active path
+# $5 - data4, e.g. file path, file name, URL, other data
+# $6 - text
+# $7 - handler function name
+#
+# $reply array is extended by hyperlink's text (one new element)
+#
+function -zui_stdlib_get_std_button() {
+    local id="${(q)1}" data1="${(q)2}" data2="${(q)3}" data3="${(q)4}" data4="${(q)5}" text="$6" handler="$7"
+    reply+=( $'\1'"$id"$'\1'"$data1"$'\1'"$data2"$'\1'"$data3"$'\1'"$data4"$'\2'"${text}" )
+    [[ -n "$handler" ]] && ZUI_ACTION_IDS_TO_HANDLERS[$id]="$handler"
+}
+
+# Appends button hyperlink into "reply" output array
+#
+# Arguments are the same as in zaccu_get_std_button
+#
+function -zui_stdlib_get_button() {
+    local id="${(q)1}" data1="${(q)2}" data2="${(q)3}" data3="${(q)4}" data4="${(q)5}" text="$6" handler="$7"
+    reply+=( $'\1'"$id"$'\1'"$data1"$'\1'"$data2"$'\1'"$data3"$'\1'"$data4"$'\2'"[${text}]" )
+    [[ -n "$handler" ]] && ZUI_ACTION_IDS_TO_HANDLERS[$id]="$handler"
+}
+
+# Resolves absolute path from current working directory and file path
+#
+# $1 - current working directory
+#
+# $2 - file path
+#
+# $reply[1] - dirname
+#
+# $reply[2] - basename
+#
+function -zui_stdlib_resolve_path() {
+    local dirpath="$1" filepath="$2"
+
+    local dirpath2="${dirpath/#\~/$HOME}"
+    # :a behaves weird, prepends paths, which are not CWD
+    [ "${dirpath2[1]}" = "/" ] && dirpath2="${dirpath2:a}"
+    local filepath2="${filepath/#\~/$HOME}"
+    [ "${filepath2[1]}" = "/" ] && filepath2="${filepath2:a}"
+
+    reply=()
+    if [ "${filepath2[1]}" = "/" ]; then
+        reply[1]="${filepath2:h}"
+        reply[2]="${filepath2:t}"
+    else
+        local p="$dirpath2/$filepath2"
+        [ "${p[1]}" = "/" ] && p="${p:a}"
+        reply[1]="${p:h}"
+        reply[2]="${p:t}"
+    fi
+}
+
+# Puts given text on command line – regardless if Zle is active or not
+#
+# $1 - text to put on command line
+#
+function -zui_stdlib_to_cmd_line() {
+    if zle; then
+        zle .kill-buffer
+        BUFFER="$1"
+        zle .redisplay
+        zle .beginning-of-line
+    else
+        print -zr "$1"
+    fi
+}
+
+# Returns date and time
+#
+# $REPLY - date and time string "Y_m_d_H.M.S"
+#
+function -zui_stdlib_get_date_and_time_string() {
+    REPLY=$( date +%Y%m%d_%H.%M.%S )
+}
+
+# Decodes given hyperlink and returns data contained. Testable
+# - test to check if hyperlink was correctly decoded
+#
+# $1 - hyperlink string
+#
+# $reply[1] - ID (of action)
+# $reply[2] - time stamp
+# $reply[3] - command
+# $reply[4] - active path
+# $reply[5] - file
+#
+function -zui_stdlib_decode_hyperlink() {
+    if [[ "$1" = (#b)*$'\1'([^$'\1']#)$'\1'([^$'\1']#)$'\1'([^$'\1']#)$'\1'([^$'\1']#)$'\1'([^$'\2']#)$'\2'* ]]; then
+        local id="${match[1]}" ts="${match[2]}" cmd="${match[3]}" active_path="${match[4]}" file="${match[5]}"
+        reply=()
+        reply[1]="${(Q)id}"
+        reply[2]="${(Q)ts}"
+        reply[3]="${(Q)cmd}"
+        reply[4]="${(Q)active_path}"
+        reply[5]="${(Q)file}"
+        return 0
+    fi
+
+    return 1
+}
+
+# Puts given links in a box, i.e. into sequence of lines
+# that are limited in length. The sequence is returned
+# in reply array. The length of a link is the length of
+# its text, i.e. it doesn't include meta-data.
+#
+# $1 - box width (line length)
+# $2 - max box height (i.e. max # of lines)
+# $3 - hyperlink 1
+# $4 - hyperlink 2
+# $5 - ...
+#
+function -zui_stdlib_pack_hyperlinks_into_box() {
+    local width="$1" max_height="$2"
+    shift 2
+
+    reply=()
+    local hyp_link text new_line="" tmp pad
+    integer idx max_idx="${#}" text_len diff_len now_width=0 now_height=0
+    for (( idx=1; idx <= max_idx; idx ++ )); do
+        # The box is limited in height
+        (( now_height >= max_height )) && break
+
+        hyp_link="${@[idx]}"
+        text="${hyp_link#$'\1'*$'\2'}"
+        text_len="${#text}"
+
+        # Will hyp_link fit into this line?
+        if [ "$now_width" != "0" ]; then
+            if (( now_width + text_len + 1 <= width )); then
+                now_width+=text_len+1
+                new_line+=" $hyp_link"
+            else
+                # The line will be too long, pad it and store
+                # it into the box array without current link
+                # – leave the link for next loop run
+                pad=""
+                (( width-now_width > 0 )) && pad="${(r:width-now_width:: :)pad}"
+                # Store the line into the box array
+                reply+=( "${new_line}${pad}" )
+                now_height+=1
+                # Next line – empty
+                new_line=""
+                now_width=0
+                # Repeat processing of current hyp_link
+                idx=idx-1
+            fi
+        else
+            if (( text_len <= width )); then
+                now_width+=text_len
+                new_line+="$hyp_link"
+            else
+                # Special case: a hyper-link that does
+                # not fit even when it's alone in line
+                diff_len=$(( ${#text} - (width-2) ))
+                hyp_link="${hyp_link[1,-diff_len-1]}"
+                # Store the truncated button into box array
+                reply+=( "${hyp_link}.." )
+                now_height+=1
+                # Next line – empty
+                new_line=""
+                now_width=0
+            fi
+        fi
+    done
+
+    # Line that wasn't filled and store wasn't triggered
+    if [[ -n "$new_line" && "$now_height" -lt "$max_height" ]]; then
+        pad=""
+        (( width-now_width > 0 )) && pad="${(r:width-now_width:: :)pad}"
+        # Store the line into the box array
+        reply+=( "${new_line}${pad}" )
+    fi
+
+    #local tmp
+    #for tmp in "${reply[@]}"; do
+    #    echo "| $tmp |" >> /tmp/reply
+    #done
+}
+
+#
+# Returns timestamp, via datetime or `date` as fallback
+#
+function -zui_stdlib_get_timestamp() {
+    REPLY="$EPOCHSECONDS"
+    [[ -z "$REPLY" ]] && REPLY="$(date +%s)"
+}
+
+#
+# Returns time %H:%M, via datetime or `date` as fallback
+#
+function -zui_stdlib_get_time() {
+    local ts
+    ts="${EPOCHSECONDS}"
+    [[ -z "$ts" || "$ts" = "0" ]] && REPLY="$(date '+%H:%M')" || strftime -s REPLY '%H:%M' "$ts"
+}
+
+#
+# Returns next file to write to in circular buffer set
+# of file names <base>.1 <base>.2 ... <base>.<size>
+#
+# The buffer is ordered according to modification time.
+#
+# $1 - base of file names in circular buffer
+# $2 - maximum number of files in circular buffer
+#
+function -zui_stdlib_circular_next() {
+    setopt localoptions extendedglob
+
+    # Input data
+    local base="$1" count="$2"
+
+    # Circular buffers' directory
+    local circpath="$ZUI_CONFIG_DIR/var/circular_buffers"
+    [[ ! -d "$circpath" ]] && command mkdir -p "$circpath"
+
+    local -a circular_buffer
+    circular_buffer=( "$circpath"/"$base".[[:digit:]]##(OmN) )
+
+    if [[ "$count" -gt "${#circular_buffer}" ]]; then
+        integer next_index=$(( ${#circular_buffer} + 1 ))
+        REPLY="$circpath/${base}.${next_index}"
+    else
+        REPLY="${circular_buffer[1]}"
+    fi
+
+    return 0
+}
+
+#
+# Returns absolute file paths of given circular buffer.
+# They are ordered from most recent to least recent.
+#
+# No count is obtained, so all files are returned, even
+# actually disabled by buffer limit.
+#
+# $1 - name of the circular buffer
+#
+function -zui_stdlib_circular_paths() {
+    setopt localoptions extendedglob
+
+    # Input data
+    local base="$1"
+
+    # Output array
+    reply=( )
+
+    # Circular buffers' directory
+    local circpath="$ZUI_CONFIG_DIR/var/circular_buffers"
+    [[ ! -d "$circpath" ]] && return 1
+
+    reply=( "$circpath"/"$base".[[:digit:]]##(omN) )
+}
+
+ZUI[stdlib_sourced]="1"
+
+# vim:ft=zsh
