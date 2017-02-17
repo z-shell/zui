@@ -2,14 +2,13 @@
 # Started from zle or from command line
 #
 
-[[ -o interactivecomments ]] && local INTERACTIVE_COMMENTS="1" || local INTERACTIVE_COMMENTS="0"
-[[ -o promptsubst ]] && local PROMPT_SUBST="1" || local PROMPT_SUBST="0"
+[[ -o interactivecomments ]] && ZUI[INTERACTIVE_COMMENTS]="1" || ZUI[INTERACTIVE_COMMENTS]="0"
+[[ -o promptsubst ]] && ZUI[PROMPT_SUBST]="1" || ZUI[PROMPT_SUBST]="0"
 
 emulate -LR zsh
 setopt extendedglob typesetsilent
 
 [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
-unset PROMPT_SUBST
 
 [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
 
