@@ -49,7 +49,7 @@ local -F start_seconds
     data3="$3"
     handler="$7"
 
-    reply=( " My id: $id" " My data: $data3" " My handler:" " $handler" )
+    reply=( "My id: $id" " My data: $data3" " My handler:" " $handler" )
 }
 
 #
