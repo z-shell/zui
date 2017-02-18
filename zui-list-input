@@ -162,11 +162,12 @@ case "$key" in
             reply=( )
             if -zui_stdlib_decode_hyperlink "$REPLY"; then
                 if [[ "${reply[1]}" = zuianchor* || "${reply[1]}" = zuiinternal* ]]; then
-                    # Positions 3-9 are reserved
-                    reply=( $current_idx HYPERLINK "3" "4" "5" "6" "7" "8" "9" "${reply[@]}" )
+                    # This is to run internal action,
+                    # i.e. action without leaving list
+                    reply=( $current_idx HYPERLINK )
                 else
-                    # This path is through quitting list
-                    # and restarting it (for hyperlinks)
+                    # This hyperlink path is through
+                    # quitting list and restarting it
                     reply=( $current_idx SELECT )
                 fi
             else
