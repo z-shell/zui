@@ -120,6 +120,11 @@ function -zui_stdlib_get_timestamp() {
     [[ -z "$REPLY" ]] && REPLY="$(date +%s)"
 }
 
+# Checks if given text is a hyperlink
+function -zui_stdlib_is_hyperlink() {
+    [[ "$1" = (#b)*$'\1'([^$'\1']#)$'\1'([^$'\1']#)$'\1'([^$'\1']#)$'\1'([^$'\1']#)$'\1'([^$'\2']#)$'\2'* ]]
+}
+
 # Decodes given hyperlink and returns data contained. Testable
 # - test to check if hyperlink was correctly decoded
 #
