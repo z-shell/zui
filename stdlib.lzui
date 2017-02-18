@@ -107,7 +107,9 @@ function -zui_stdlib_get_time() {
 # $REPLY - date and time string "Y_m_d_H.M.S"
 #
 function -zui_stdlib_get_datetime() {
-    REPLY=$( date +%Y%m%d_%H.%M.%S )
+    local ts
+    ts="${EPOCHSECONDS}"
+    [[ -z "$ts" || "$ts" = "0" ]] && REPLY="$(date '+%Y%m%d_%H.%M.%S')" || strftime -s REPLY '%Y%m%d_%H.%M.%S' "$ts"
 }
 
 #
