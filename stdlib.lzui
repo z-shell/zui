@@ -27,13 +27,16 @@ typeset -g ZUI_CYAN_E=$'\31'
 # $4 - data3, e.g. active path
 # $5 - data4, e.g. file path, file name, URL, other data
 # $6 - text
-# $7 - handler function name
-#
+# $7 - optional handler function name, can be empty text
+# $8 - optional output variable name (defualt: 'reply[-1]')
 # $reply array is extended by hyperlink's text (one new element)
 #
 function -zui_stdlib_get_std_button() {
     local id="${(q)1}" data1="${(q)2}" data2="${(q)3}" data3="${(q)4}" data4="${(q)5}" text="$6" handler="$7"
-    reply+=( $'\1'"$id"$'\1'"$data1"$'\1'"$data2"$'\1'"$data3"$'\1'"$data4"$'\2'"${text}" )
+    local var_name="${8:-reply[-1]}"
+    local -a output
+    output=( $'\1'"$id"$'\1'"$data1"$'\1'"$data2"$'\1'"$data3"$'\1'"$data4"$'\2'"${text}" )
+    : ${(P)var_name::=${output[@]}}
     [[ -n "$handler" ]] && ZUI_ACTION_IDS_TO_HANDLERS[$id]="$handler"
 }
 
@@ -43,7 +46,10 @@ function -zui_stdlib_get_std_button() {
 #
 function -zui_stdlib_get_button() {
     local id="${(q)1}" data1="${(q)2}" data2="${(q)3}" data3="${(q)4}" data4="${(q)5}" text="$6" handler="$7"
-    reply+=( $'\1'"$id"$'\1'"$data1"$'\1'"$data2"$'\1'"$data3"$'\1'"$data4"$'\2'"[${text}]" )
+    local var_name="${8:-reply[-1]}"
+    local -a output
+    output=( $'\1'"$id"$'\1'"$data1"$'\1'"$data2"$'\1'"$data3"$'\1'"$data4"$'\2'"[${text}]" )
+    : ${(P)var_name::=${output[@]}}
     [[ -n "$handler" ]] && ZUI_ACTION_IDS_TO_HANDLERS[$id]="$handler"
 }
 
