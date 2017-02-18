@@ -156,12 +156,11 @@ case "$key" in
             ${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$current_idx]} != $current_idx ]]
         then
             # Check if we are at hyperlink. Only then allow selection
-            local -a segs
-            segs=( "${(z@)orig_element}" )
+            -zui_stdlib_get_segment "$orig_element" $current_segment
 
             local -a data
             reply=( )
-            if -zui_stdlib_decode_hyperlink "${segs[current_segment]}"; then
+            if -zui_stdlib_decode_hyperlink "$REPLY"; then
                 if [[ "${reply[1]}" = zuianchor* || "${reply[1]}" = zuiinternal* ]]; then
                     # Positions 3-9 are reserved
                     reply=( $current_idx HYPERLINK "3" "4" "5" "6" "7" "8" "9" "${reply[@]}" )
