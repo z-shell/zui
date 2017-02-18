@@ -93,12 +93,29 @@ function -zui_stdlib_to_cmd_line() {
     fi
 }
 
+#
+# Returns time %H:%M, via datetime or `date` as fallback
+#
+function -zui_stdlib_get_time() {
+    local ts
+    ts="${EPOCHSECONDS}"
+    [[ -z "$ts" || "$ts" = "0" ]] && REPLY="$(date '+%H:%M')" || strftime -s REPLY '%H:%M' "$ts"
+}
+
 # Returns date and time
 #
 # $REPLY - date and time string "Y_m_d_H.M.S"
 #
-function -zui_stdlib_get_date_and_time_string() {
+function -zui_stdlib_get_datetime() {
     REPLY=$( date +%Y%m%d_%H.%M.%S )
+}
+
+#
+# Returns timestamp, via datetime or `date` as fallback
+#
+function -zui_stdlib_get_timestamp() {
+    REPLY="$EPOCHSECONDS"
+    [[ -z "$REPLY" ]] && REPLY="$(date +%s)"
 }
 
 # Decodes given hyperlink and returns data contained. Testable
@@ -204,23 +221,6 @@ function -zui_stdlib_pack_hyperlinks_into_box() {
     #for tmp in "${reply[@]}"; do
     #    echo "| $tmp |" >> /tmp/reply
     #done
-}
-
-#
-# Returns timestamp, via datetime or `date` as fallback
-#
-function -zui_stdlib_get_timestamp() {
-    REPLY="$EPOCHSECONDS"
-    [[ -z "$REPLY" ]] && REPLY="$(date +%s)"
-}
-
-#
-# Returns time %H:%M, via datetime or `date` as fallback
-#
-function -zui_stdlib_get_time() {
-    local ts
-    ts="${EPOCHSECONDS}"
-    [[ -z "$ts" || "$ts" = "0" ]] && REPLY="$(date '+%H:%M')" || strftime -s REPLY '%H:%M' "$ts"
 }
 
 #
