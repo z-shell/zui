@@ -124,6 +124,7 @@ function -zui_stdlib_get_timestamp() {
 # - test to check if hyperlink was correctly decoded
 #
 # $1 - hyperlink string
+# $2 - optional output array name (default: "reply")
 #
 # $reply[1] - ID (of action)
 # $reply[2] - time stamp
@@ -134,12 +135,18 @@ function -zui_stdlib_get_timestamp() {
 function -zui_stdlib_decode_hyperlink() {
     if [[ "$1" = (#b)*$'\1'([^$'\1']#)$'\1'([^$'\1']#)$'\1'([^$'\1']#)$'\1'([^$'\1']#)$'\1'([^$'\2']#)$'\2'* ]]; then
         local id="${match[1]}" ts="${match[2]}" cmd="${match[3]}" active_path="${match[4]}" file="${match[5]}"
-        reply=()
-        reply[1]="${(Q)id}"
-        reply[2]="${(Q)ts}"
-        reply[3]="${(Q)cmd}"
-        reply[4]="${(Q)active_path}"
-        reply[5]="${(Q)file}"
+        local var_name="${2-reply}"
+        : ${(PA)var_name::=}
+        local assgn_str="${var_name}[1]"
+        : ${(P)assgn_str::=${(Q)id}}
+        assgn_str="${var_name}[2]"
+        : ${(P)assgn_str::=${(Q)ts}}
+        assgn_str="${var_name}[3]"
+        : ${(P)assgn_str::=${(Q)cmd}}
+        assgn_str="${var_name}[4]"
+        : ${(P)assgn_str::=${(Q)active_path}}
+        assgn_str="${var_name}[5]"
+        : ${(P)assgn_str::=${(Q)file}}
         return 0
     fi
 
