@@ -19,8 +19,8 @@ setopt typesetsilent extendedglob
     fi
 }
 
-# Compute first to show index - page
-# scrolled to center to show index
+# Compute first to show index - page is
+# scrolled to center to show given index
 -zui_listin_compute_first_to_show_idx_center() {
     from_what_idx_list_is_shown=current_idx-page_height/2
     -zui_listin_compute_exact_page_if_needed

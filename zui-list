@@ -83,6 +83,23 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     fi 
 }
 
+# Conditional, fully robust page-to-show computation
+-zui_list_compute_exact_page_if_needed() {
+    # Fallback: in case of any problems compute exact page
+    if [[ "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" -lt "1" ||
+        "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" -gt "$last_element" ]]
+    then
+        ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN=$(( ((ZUILIST_CURRENT_IDX-1)/page_height)*page_height+1 ))
+    fi
+}
+
+# Compute first to show index - page is
+# scrolled to center to show given index
+-zui_list_compute_first_to_show_idx_center() {
+    (( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN=ZUILIST_CURRENT_IDX-page_height/2 ))
+    -zui_list_compute_exact_page_if_needed
+}
+
 # current_difference - how many to subtract from current
 # element index, last_element_difference - how many to
 # subtract from element total count. These values allow
@@ -653,7 +670,21 @@ while (( 1 )); do
     elif [[ "$action" = "HYPERLINK" ]]; then
         -zui_stdlib_get_segment "${list[ZUILIST_CURRENT_IDX]}" "$ZUILIST_CURRENT_SEGMENT"
         -zui_stdlib_decode_hyperlink $REPLY
-        # TODO handle hyperlinks
+        local id="${reply[1]}"
+        integer call_hook=0
+        if [[ "$id" = *zuianchor* ]]; then
+            ZUILIST_CURRENT_IDX="${reply[2]}"
+            ZUILIST_CURRENT_SEGMENT=1
+            -zui_list_compute_first_to_show_idx_center
+            call_hook=1
+        elif [[ "$id" = *zuicheckbox* ]]; then
+            call_hook=1
+        fi
+
+        # Is there hook to launch?
+        if [[ $call_hook -gt 0 && -n "${ZUI_ACTION_IDS_TO_HANDLERS[$id]}" ]]; then
+            "${ZUI_ACTION_IDS_TO_HANDLERS[$id]}" "${reply[@]}"
+        fi
     else
         if [[ -n "$ZUILIST_REPLY_LIST_PART_SIZE" && "$ZUILIST_REPLY_LIST_PART_SIZE" -ge "1" ]]; then
             set "${(@)@[1,ZUILIST_REPLY_HEADER_IDX-1]}" "${ZUILIST_REPLY_LIST_PART[@]}" "${(@)@[ZUILIST_REPLY_HEADER_IDX+ZUILIST_REPLY_TO_OVERWRITE_SIZE,-1]}"
