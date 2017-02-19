@@ -35,7 +35,7 @@ local -F start_seconds
 #
 
 -zui_test_internal_action_1() {
-    echo "Hello world!"
+    zcurses bg "status" "white/blue"
 }
 
 #
