@@ -146,7 +146,7 @@ function -zui_stdlib_is_hyperlink() {
 function -zui_stdlib_decode_hyperlink() {
     if [[ "$1" = (#b)*$'\1'([^$'\1']#)$'\1'([^$'\1']#)$'\1'([^$'\1']#)$'\1'([^$'\1']#)$'\1'([^$'\2']#)$'\2'* ]]; then
         local id="${match[1]}" ts="${match[2]}" cmd="${match[3]}" active_path="${match[4]}" file="${match[5]}"
-        local var_name="${2-reply}"
+        local var_name="${2:-reply}"
         : ${(PA)var_name::=}
         local assgn_str="${var_name}[1]"
         : ${(P)assgn_str::=${(Q)id}}
@@ -252,8 +252,8 @@ function -zui_stdlib_pack_hyperlinks_into_box() {
 function -zui_stdlib_get_segment() {
     local -a segs
     segs=( "${(z@)1}" )
-    local varname="${3-REPLY}"
-    local index="${2-1}"
+    local varname="${3:-REPLY}"
+    local index="${2:-1}"
     : ${(P)varname::=${segs[index]}}
 }
 
