@@ -182,7 +182,7 @@ case "$key" in
     (/)
         if [ "$disable_search" = "0" ]; then
             search=1
-            -zui_list_cursor_visibility 1
+            -zui_list_cursor_visibility "status" 1
         fi
         ;;
     ($'\C-L')
@@ -308,7 +308,7 @@ else
 case "$key" in
     ($'\n'|ENTER)
         search=0
-        -zui_list_cursor_visibility 0
+        -zui_list_cursor_visibility "status" 0
         ;;
     ($'\C-L')
         reply=( -1 REDRAW )
@@ -471,7 +471,7 @@ case "$key" in
     ($'\E')
         buffer=""
         search=0
-        -zui_list_cursor_visibility 0
+        -zui_list_cursor_visibility "status" 0
         ;;
     ($'\C-O')
         uniq_mode=1-uniq_mode
