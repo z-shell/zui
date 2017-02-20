@@ -31,7 +31,7 @@ typeset -g ZUI_CYAN_E=$'\31'
 # $8 - optional output variable name (defualt: 'reply[-1]')
 # $reply array is extended by hyperlink's text (one new element)
 #
-function -zui_stdlib_get_std_button() {
+function -zui_stdlib_button() {
     local id="${(q)1}" data1="${(q)2}" data2="${(q)3}" data3="${(q)4}" data4="${(q)5}" text="$6" handler="$7"
     local var_name="${8:-reply[-1]}"
     local -a output
@@ -42,9 +42,9 @@ function -zui_stdlib_get_std_button() {
 
 # Appends button hyperlink into "reply" output array
 #
-# Arguments are the same as in zaccu_get_std_button
+# Arguments are the same as in -zui_stdlib_button
 #
-function -zui_stdlib_get_button() {
+function -zui_stdlib_rc_button() {
     local id="${(q)1}" data1="${(q)2}" data2="${(q)3}" data3="${(q)4}" data4="${(q)5}" text="$6" handler="$7"
     local var_name="${8:-reply[-1]}"
     local -a output

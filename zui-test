@@ -61,7 +61,7 @@ local -F start_seconds
 # Generator for module 1
 -zui_test_module1_generator() {
     reply=( )
-    -zui_stdlib_get_button "there" "" "/Jump/" "" "" "${ZUI_MAGENTA}there${ZUI_MAGENTA_E}" ""
+    -zui_stdlib_rc_button "there" "" "/Jump/" "" "" "${ZUI_MAGENTA}there${ZUI_MAGENTA_E}" ""
     reply=( "Hello World" "Hello ${reply[1]}" "Third line" )
     reply2=3
     reply3=( 1 )
@@ -238,9 +238,9 @@ for n in "module1" "module2"; do
     # Create anchors for selected sections
     reply=( )
     if [[ "$n" = "module1" ]]; then
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_get_button "zuianchor_1" "${hops[1]}" "/Jump/" "" "$size" "${ZUI_MAGENTA}Module1${ZUI_MAGENTA_E}" ""
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_rc_button "zuianchor_1" "${hops[1]}" "/Jump/" "" "$size" "${ZUI_MAGENTA}Module1${ZUI_MAGENTA_E}" ""
     elif [[ "$n" = "module2" ]]; then
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_get_button "zuianchor_2" "${hops[1]}" "/Jump & Load/" "" "$size" "${ZUI_CYAN}Module2${ZUI_CYAN_E}" -zui_test_internal_action_1
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_rc_button "zuianchor_2" "${hops[1]}" "/Jump & Load/" "" "$size" "${ZUI_CYAN}Module2${ZUI_CYAN_E}" -zui_test_internal_action_1
     fi
     anchors+=( "${reply[@]}" )
 
