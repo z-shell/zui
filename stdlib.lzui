@@ -60,8 +60,16 @@ function -zui_stdlib_rc_button() {
 # to be index of line to jump to.
 #
 function -zui_stdlib_anchor() {
+    setopt localoptions extendedglob
+
     local id="zuianchor${(q)1}" data1="${(q)2}" data2="${(q)3}" data3="${(q)4}" data4="${(q)5}" text="$6" handler="$7"
     local var_name="${8:-reply[-1]}"
+
+    # Set to some line that probably exist,
+    # to signal that anchor works, but input
+    # line number is incorrect
+    [[ "$data1" != <-> ]] && data1=3
+
     local -a output
     output=( $'\1'"$id"$'\1'"$data1"$'\1'"$data2"$'\1'"$data3"$'\1'"$data4"$'\2'"${text}" )
     : ${(P)var_name::=${output[@]}}
