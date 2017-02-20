@@ -691,14 +691,25 @@ while (( 1 )); do
         fi
     fi
 
-    if [[ -n "$ZUILIST_REPLY_LIST_PART_SIZE" && "$ZUILIST_REPLY_LIST_PART_SIZE" -ge "1" ]]; then
-        set "${(@)@[1,ZUILIST_REPLY_HEADER_IDX-1]}" "${ZUILIST_REPLY_LIST_PART[@]}" "${(@)@[ZUILIST_REPLY_HEADER_IDX+ZUILIST_REPLY_TO_OVERWRITE_SIZE,-1]}"
+    # Now check if there are any update-on-the-fly packages submitted
+    local -a update
+    -zui_stdlib_decode_list_update "${ZUI[fly_update]}" update
+    ZUI[fly_update]=""
+
+    integer update_first=$update[1]
+    integer update_count=$update[2]
+    shift 2 update
+    update=( "${update[@]}" )
+    integer update_size=${#update}
+
+    if [[ -n "$update_size" && "$update_size" -ge "1" ]]; then
+        set "${(@)@[1,update_first-1]}" "${update[@]}" "${(@)@[update_first+update_count,-1]}"
         typeset -g ZUILIST_REGENERATE_DISP_LIST
         ZUILIST_REGENERATE_DISP_LIST="1"
 
         # How many elements push down (up if negative)
         # indices that are after the modified section
-        integer size_diff=$(( ZUILIST_REPLY_LIST_PART_SIZE - ZUILIST_REPLY_TO_OVERWRITE_SIZE ))
+        integer size_diff=$(( update_size - update_count ))
 
         # Remove indices that lay inside the block being overwritten
         # NONSELECTABLES
@@ -707,8 +718,7 @@ while (( 1 )); do
         mysize="${#ZUILIST_NONSELECTABLE_ELEMENTS[@]}"
         for (( index = 1; index <= mysize; index ++ )); do
             el="${ZUILIST_NONSELECTABLE_ELEMENTS[index]}"
-            if [[ "$el" -ge "$ZUILIST_REPLY_HEADER_IDX" &&
-                    "$el" -le "$(( ZUILIST_REPLY_HEADER_IDX + ZUILIST_REPLY_TO_OVERWRITE_SIZE - 1 ))" ]]
+            if [[ "$el" -ge "$update_first" && "$el" -le "$(( update_first + update_count - 1 ))" ]]
             then
                 ZUILIST_NONSELECTABLE_ELEMENTS[index]=()
             fi
@@ -721,7 +731,7 @@ while (( 1 )); do
             el="${ZUILIST_NONSELECTABLE_ELEMENTS[index]}"
             # No need to check if it lays inside the range
             # as ones that did have been removed above
-            if [[ "$el" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
+            if [[ "$el" -gt "$update_first" ]]; then
                 (( ZUILIST_NONSELECTABLE_ELEMENTS[index] += size_diff ))
             fi
         done
@@ -731,8 +741,8 @@ while (( 1 )); do
         mysize="${#ZUILIST_HOP_INDICES[@]}"
         for (( index = 1; index <= mysize; index ++ )); do
             el="${ZUILIST_HOP_INDICES[index]}"
-            if [[ "$el" -ge "$ZUILIST_REPLY_HEADER_IDX" &&
-                    "$el" -le "$(( ZUILIST_REPLY_HEADER_IDX + ZUILIST_REPLY_TO_OVERWRITE_SIZE - 1 ))" ]]
+            if [[ "$el" -ge "$update_first" &&
+                    "$el" -le "$(( update_first + update_count - 1 ))" ]]
             then
                 ZUILIST_HOP_INDICES[index]=()
             fi
@@ -745,7 +755,7 @@ while (( 1 )); do
             el="${ZUILIST_HOP_INDICES[index]}"
             # No need to check if it lays inside the range
             # as ones that did have been removed above
-            if [[ "$el" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
+            if [[ "$el" -gt "$update_first" ]]; then
                 (( ZUILIST_HOP_INDICES[index] += size_diff ))
             fi
         done
@@ -754,45 +764,31 @@ while (( 1 )); do
         local _key
         for _key in "${(k)ZUI_SECTION_INDICES[@]}"; do
             el="${ZUI_SECTION_INDICES[$_key]}"
-            if [[ -n "$el" && "$el" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
+            if [[ -n "$el" && "$el" -gt "$update_first" ]]; then
                 ZUI_SECTION_INDICES[$_key]=$(( ${ZUI_SECTION_INDICES[$_key]} + size_diff ))
             fi
         done
 
         # Now add new hops and nonselectables
         # first translating to global indices
-        ZUILIST_REPLY_NONSELECTABLES=( "${ZUILIST_REPLY_NONSELECTABLES[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUILIST_REPLY_HEADER_IDX - 1 ))}" )
-        ZUILIST_REPLY_HOPS=( "${ZUILIST_REPLY_HOPS[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUILIST_REPLY_HEADER_IDX - 1 ))}" )
+        local -a nonselectables hops
+        -zui_stdlib_decode_nonselectables "${ZUI[fly_nonselectables]}" nonselectables
+        -zui_stdlib_decode_hops "${ZUI[fly_hops]}" hops
+        ZUI[fly_nonselectables]=""
+        ZUI[fly_hops]=""
 
-        ZUILIST_NONSELECTABLE_ELEMENTS+=( "${ZUILIST_REPLY_NONSELECTABLES[@]}" )
-        ZUILIST_HOP_INDICES+=( "${ZUILIST_REPLY_HOPS[@]}" )
+        nonselectables=( "${nonselectables[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + update_first - 1 ))}" )
+        hops=( "${hops[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + update_first - 1 ))}" )
+
+        ZUILIST_NONSELECTABLE_ELEMENTS+=( "${nonselectables[@]}" )
+        ZUILIST_HOP_INDICES+=( "${hops[@]}" )
 
         # Last thing: update anchors
-        local -a asegs
-        asegs=( "${(z@)1}" )
-        mysize="${#asegs}"
-        local aseg
-        for (( index = 1; index <= mysize; index ++ )); do
-            aseg="${asegs[index]}"
-            [[ -z "$aseg" ]] && continue
-            -zui_stdlib_decode_hyperlink "$aseg"
-            local _id="${reply[1]}" _idx="${reply[2]}" _cmd="${reply[3]}" _active_path="${reply[4]}" _section_size="${reply[5]}"
-            if [[ "$_idx" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
-                # Plainly replace the hyperlink fragment
-                integer _new_idx
-                (( _new_idx = _idx + size_diff ))
-                asegs[index]="${aseg/(#b)($'\1')$_idx$'\1'/${match[1]}$_new_idx${match[1]}}"
-            elif [[ "$_idx" = "$ZUILIST_REPLY_HEADER_IDX" ]]; then
-                integer _new_section_size
-                (( _new_section_size = _section_size + size_diff ))
-                asegs[index]="${aseg/(#b)($'\1')$_section_size($'\2')/${match[1]}$_new_section_size${match[2]}}"
-            fi
-        done
-        1="${asegs[*]}"
+        # TODO ...
 
         # Cleanup
-        unset ZUILIST_REPLY_LIST_PART ZUILIST_REPLY_LIST_PART_SIZE ZUILIST_REPLY_NONSELECTABLES
-        unset ZUILIST_REPLY_HOPS ZUILIST_REPLY_HEADER_IDX ZUILIST_REPLY_TO_OVERWRITE_SIZE
+        unset update update_size nonselectables
+        unset update_first update_count hops
     elif (( ${+ZUILIST_REPLY_CHECKBOX_NUM} )); then
         local new_line="${@[ZUILIST_REPLY_CHECKBOX_NUM]}"
         [[ "$ZUILIST_REPLY_CHECKBOX_OP" = "set" ]] && new_line="${new_line/\[_\]/[x]}" || new_line="${new_line/\[x\]/[_]}"
