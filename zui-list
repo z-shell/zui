@@ -689,116 +689,116 @@ while (( 1 )); do
             reply[1]="${${${${${reply[1]#zuiiaction}#zuiaction}#zuicheckbox}#zuieanchor}#zuianchor}"
             "${ZUI[$id]}" "${reply[@]}"
         fi
-    else
-        if [[ -n "$ZUILIST_REPLY_LIST_PART_SIZE" && "$ZUILIST_REPLY_LIST_PART_SIZE" -ge "1" ]]; then
-            set "${(@)@[1,ZUILIST_REPLY_HEADER_IDX-1]}" "${ZUILIST_REPLY_LIST_PART[@]}" "${(@)@[ZUILIST_REPLY_HEADER_IDX+ZUILIST_REPLY_TO_OVERWRITE_SIZE,-1]}"
-            typeset -g ZUILIST_REGENERATE_DISP_LIST
-            ZUILIST_REGENERATE_DISP_LIST="1"
+    fi
 
-            # How many elements push down (up if negative)
-            # indices that are after the modified section
-            integer size_diff=$(( ZUILIST_REPLY_LIST_PART_SIZE - ZUILIST_REPLY_TO_OVERWRITE_SIZE ))
+    if [[ -n "$ZUILIST_REPLY_LIST_PART_SIZE" && "$ZUILIST_REPLY_LIST_PART_SIZE" -ge "1" ]]; then
+        set "${(@)@[1,ZUILIST_REPLY_HEADER_IDX-1]}" "${ZUILIST_REPLY_LIST_PART[@]}" "${(@)@[ZUILIST_REPLY_HEADER_IDX+ZUILIST_REPLY_TO_OVERWRITE_SIZE,-1]}"
+        typeset -g ZUILIST_REGENERATE_DISP_LIST
+        ZUILIST_REGENERATE_DISP_LIST="1"
 
-            # Remove indices that lay inside the block being overwritten
-            # NONSELECTABLES
-            local index el
-            integer mysize
-            mysize="${#ZUILIST_NONSELECTABLE_ELEMENTS[@]}"
-            for (( index = 1; index <= mysize; index ++ )); do
-                el="${ZUILIST_NONSELECTABLE_ELEMENTS[index]}"
-                if [[ "$el" -ge "$ZUILIST_REPLY_HEADER_IDX" &&
-                        "$el" -le "$(( ZUILIST_REPLY_HEADER_IDX + ZUILIST_REPLY_TO_OVERWRITE_SIZE - 1 ))" ]]
-                then
-                    ZUILIST_NONSELECTABLE_ELEMENTS[index]=()
-                fi
-            done
+        # How many elements push down (up if negative)
+        # indices that are after the modified section
+        integer size_diff=$(( ZUILIST_REPLY_LIST_PART_SIZE - ZUILIST_REPLY_TO_OVERWRITE_SIZE ))
 
-            # Push down (up) elements that are after the growed (shrinked) section
-            # NONSELECTABLES
-            mysize="${#ZUILIST_NONSELECTABLE_ELEMENTS[@]}"
-            for (( index = 1; index <= mysize; index ++ )); do
-                el="${ZUILIST_NONSELECTABLE_ELEMENTS[index]}"
-                # No need to check if it lays inside the range
-                # as ones that did have been removed above
-                if [[ "$el" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
-                    (( ZUILIST_NONSELECTABLE_ELEMENTS[index] += size_diff ))
-                fi
-            done
+        # Remove indices that lay inside the block being overwritten
+        # NONSELECTABLES
+        local index el
+        integer mysize
+        mysize="${#ZUILIST_NONSELECTABLE_ELEMENTS[@]}"
+        for (( index = 1; index <= mysize; index ++ )); do
+            el="${ZUILIST_NONSELECTABLE_ELEMENTS[index]}"
+            if [[ "$el" -ge "$ZUILIST_REPLY_HEADER_IDX" &&
+                    "$el" -le "$(( ZUILIST_REPLY_HEADER_IDX + ZUILIST_REPLY_TO_OVERWRITE_SIZE - 1 ))" ]]
+            then
+                ZUILIST_NONSELECTABLE_ELEMENTS[index]=()
+            fi
+        done
 
-            # Remove indices that lay inside the block being overwritten
-            # HOPS
-            mysize="${#ZUILIST_HOP_INDICES[@]}"
-            for (( index = 1; index <= mysize; index ++ )); do
-                el="${ZUILIST_HOP_INDICES[index]}"
-                if [[ "$el" -ge "$ZUILIST_REPLY_HEADER_IDX" &&
-                        "$el" -le "$(( ZUILIST_REPLY_HEADER_IDX + ZUILIST_REPLY_TO_OVERWRITE_SIZE - 1 ))" ]]
-                then
-                    ZUILIST_HOP_INDICES[index]=()
-                fi
-            done
+        # Push down (up) elements that are after the growed (shrinked) section
+        # NONSELECTABLES
+        mysize="${#ZUILIST_NONSELECTABLE_ELEMENTS[@]}"
+        for (( index = 1; index <= mysize; index ++ )); do
+            el="${ZUILIST_NONSELECTABLE_ELEMENTS[index]}"
+            # No need to check if it lays inside the range
+            # as ones that did have been removed above
+            if [[ "$el" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
+                (( ZUILIST_NONSELECTABLE_ELEMENTS[index] += size_diff ))
+            fi
+        done
 
-            # Push down (up) elements that are after the growed (shrinked) section
-            # HOPS
-            mysize="${#ZUILIST_HOP_INDICES[@]}"
-            for (( index = 1; index <= mysize; index ++ )); do
-                el="${ZUILIST_HOP_INDICES[index]}"
-                # No need to check if it lays inside the range
-                # as ones that did have been removed above
-                if [[ "$el" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
-                    (( ZUILIST_HOP_INDICES[index] += size_diff ))
-                fi
-            done
+        # Remove indices that lay inside the block being overwritten
+        # HOPS
+        mysize="${#ZUILIST_HOP_INDICES[@]}"
+        for (( index = 1; index <= mysize; index ++ )); do
+            el="${ZUILIST_HOP_INDICES[index]}"
+            if [[ "$el" -ge "$ZUILIST_REPLY_HEADER_IDX" &&
+                    "$el" -le "$(( ZUILIST_REPLY_HEADER_IDX + ZUILIST_REPLY_TO_OVERWRITE_SIZE - 1 ))" ]]
+            then
+                ZUILIST_HOP_INDICES[index]=()
+            fi
+        done
 
-            # Push down (up) entries of ZUI_SECTION_INDICES
-            local _key
-            for _key in "${(k)ZUI_SECTION_INDICES[@]}"; do
-                el="${ZUI_SECTION_INDICES[$_key]}"
-                if [[ -n "$el" && "$el" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
-                    ZUI_SECTION_INDICES[$_key]=$(( ${ZUI_SECTION_INDICES[$_key]} + size_diff ))
-                fi
-            done
+        # Push down (up) elements that are after the growed (shrinked) section
+        # HOPS
+        mysize="${#ZUILIST_HOP_INDICES[@]}"
+        for (( index = 1; index <= mysize; index ++ )); do
+            el="${ZUILIST_HOP_INDICES[index]}"
+            # No need to check if it lays inside the range
+            # as ones that did have been removed above
+            if [[ "$el" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
+                (( ZUILIST_HOP_INDICES[index] += size_diff ))
+            fi
+        done
 
-            # Now add new hops and nonselectables
-            # first translating to global indices
-            ZUILIST_REPLY_NONSELECTABLES=( "${ZUILIST_REPLY_NONSELECTABLES[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUILIST_REPLY_HEADER_IDX - 1 ))}" )
-            ZUILIST_REPLY_HOPS=( "${ZUILIST_REPLY_HOPS[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUILIST_REPLY_HEADER_IDX - 1 ))}" )
+        # Push down (up) entries of ZUI_SECTION_INDICES
+        local _key
+        for _key in "${(k)ZUI_SECTION_INDICES[@]}"; do
+            el="${ZUI_SECTION_INDICES[$_key]}"
+            if [[ -n "$el" && "$el" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
+                ZUI_SECTION_INDICES[$_key]=$(( ${ZUI_SECTION_INDICES[$_key]} + size_diff ))
+            fi
+        done
 
-            ZUILIST_NONSELECTABLE_ELEMENTS+=( "${ZUILIST_REPLY_NONSELECTABLES[@]}" )
-            ZUILIST_HOP_INDICES+=( "${ZUILIST_REPLY_HOPS[@]}" )
+        # Now add new hops and nonselectables
+        # first translating to global indices
+        ZUILIST_REPLY_NONSELECTABLES=( "${ZUILIST_REPLY_NONSELECTABLES[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUILIST_REPLY_HEADER_IDX - 1 ))}" )
+        ZUILIST_REPLY_HOPS=( "${ZUILIST_REPLY_HOPS[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUILIST_REPLY_HEADER_IDX - 1 ))}" )
 
-            # Last thing: update anchors
-            local -a asegs
-            asegs=( "${(z@)1}" )
-            mysize="${#asegs}"
-            local aseg
-            for (( index = 1; index <= mysize; index ++ )); do
-                aseg="${asegs[index]}"
-                [[ -z "$aseg" ]] && continue
-                -zui_stdlib_decode_hyperlink "$aseg"
-                local _id="${reply[1]}" _idx="${reply[2]}" _cmd="${reply[3]}" _active_path="${reply[4]}" _section_size="${reply[5]}"
-                if [[ "$_idx" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
-                    # Plainly replace the hyperlink fragment
-                    integer _new_idx
-                    (( _new_idx = _idx + size_diff ))
-                    asegs[index]="${aseg/(#b)($'\1')$_idx$'\1'/${match[1]}$_new_idx${match[1]}}"
-                elif [[ "$_idx" = "$ZUILIST_REPLY_HEADER_IDX" ]]; then
-                    integer _new_section_size
-                    (( _new_section_size = _section_size + size_diff ))
-                    asegs[index]="${aseg/(#b)($'\1')$_section_size($'\2')/${match[1]}$_new_section_size${match[2]}}"
-                fi
-            done
-            1="${asegs[*]}"
+        ZUILIST_NONSELECTABLE_ELEMENTS+=( "${ZUILIST_REPLY_NONSELECTABLES[@]}" )
+        ZUILIST_HOP_INDICES+=( "${ZUILIST_REPLY_HOPS[@]}" )
 
-            # Cleanup
-            unset ZUILIST_REPLY_LIST_PART ZUILIST_REPLY_LIST_PART_SIZE ZUILIST_REPLY_NONSELECTABLES
-            unset ZUILIST_REPLY_HOPS ZUILIST_REPLY_HEADER_IDX ZUILIST_REPLY_TO_OVERWRITE_SIZE
-        elif (( ${+ZUILIST_REPLY_CHECKBOX_NUM} )); then
-            local new_line="${@[ZUILIST_REPLY_CHECKBOX_NUM]}"
-            [[ "$ZUILIST_REPLY_CHECKBOX_OP" = "set" ]] && new_line="${new_line/\[_\]/[x]}" || new_line="${new_line/\[x\]/[_]}"
-            set "${(@)@[1,ZUILIST_REPLY_CHECKBOX_NUM-1]}" "$new_line" "${(@)@[ZUILIST_REPLY_CHECKBOX_NUM+1,-1]}"
-            typeset -g ZUILIST_REGENERATE_DISP_LIST="1"
-            unset ZUILIST_REPLY_CHECKBOX_NUM ZUILIST_REPLY_CHECKBOX_OP
-        fi
+        # Last thing: update anchors
+        local -a asegs
+        asegs=( "${(z@)1}" )
+        mysize="${#asegs}"
+        local aseg
+        for (( index = 1; index <= mysize; index ++ )); do
+            aseg="${asegs[index]}"
+            [[ -z "$aseg" ]] && continue
+            -zui_stdlib_decode_hyperlink "$aseg"
+            local _id="${reply[1]}" _idx="${reply[2]}" _cmd="${reply[3]}" _active_path="${reply[4]}" _section_size="${reply[5]}"
+            if [[ "$_idx" -gt "$ZUILIST_REPLY_HEADER_IDX" ]]; then
+                # Plainly replace the hyperlink fragment
+                integer _new_idx
+                (( _new_idx = _idx + size_diff ))
+                asegs[index]="${aseg/(#b)($'\1')$_idx$'\1'/${match[1]}$_new_idx${match[1]}}"
+            elif [[ "$_idx" = "$ZUILIST_REPLY_HEADER_IDX" ]]; then
+                integer _new_section_size
+                (( _new_section_size = _section_size + size_diff ))
+                asegs[index]="${aseg/(#b)($'\1')$_section_size($'\2')/${match[1]}$_new_section_size${match[2]}}"
+            fi
+        done
+        1="${asegs[*]}"
+
+        # Cleanup
+        unset ZUILIST_REPLY_LIST_PART ZUILIST_REPLY_LIST_PART_SIZE ZUILIST_REPLY_NONSELECTABLES
+        unset ZUILIST_REPLY_HOPS ZUILIST_REPLY_HEADER_IDX ZUILIST_REPLY_TO_OVERWRITE_SIZE
+    elif (( ${+ZUILIST_REPLY_CHECKBOX_NUM} )); then
+        local new_line="${@[ZUILIST_REPLY_CHECKBOX_NUM]}"
+        [[ "$ZUILIST_REPLY_CHECKBOX_OP" = "set" ]] && new_line="${new_line/\[_\]/[x]}" || new_line="${new_line/\[x\]/[_]}"
+        set "${(@)@[1,ZUILIST_REPLY_CHECKBOX_NUM-1]}" "$new_line" "${(@)@[ZUILIST_REPLY_CHECKBOX_NUM+1,-1]}"
+        typeset -g ZUILIST_REGENERATE_DISP_LIST="1"
+        unset ZUILIST_REPLY_CHECKBOX_NUM ZUILIST_REPLY_CHECKBOX_OP
     fi
 done
 
