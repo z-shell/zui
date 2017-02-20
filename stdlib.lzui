@@ -190,19 +190,19 @@ function -zui_stdlib_is_hyperlink() {
 #
 function -zui_stdlib_decode_hyperlink() {
     if [[ "$1" = (#b)*$'\1'([^$'\1']#)$'\1'([^$'\1']#)$'\1'([^$'\1']#)$'\1'([^$'\1']#)$'\1'([^$'\2']#)$'\2'* ]]; then
-        local id="${match[1]}" ts="${match[2]}" cmd="${match[3]}" active_path="${match[4]}" file="${match[5]}"
+        local id="${match[1]}" data1="${match[2]}" data2="${match[3]}" data3="${match[4]}" data4="${match[5]}"
         local var_name="${2:-reply}"
         : ${(PA)var_name::=}
         local assgn_str="${var_name}[1]"
         : ${(P)assgn_str::=${(Q)id}}
         assgn_str="${var_name}[2]"
-        : ${(P)assgn_str::=${(Q)ts}}
+        : ${(P)assgn_str::=${(Q)data1}}
         assgn_str="${var_name}[3]"
-        : ${(P)assgn_str::=${(Q)cmd}}
+        : ${(P)assgn_str::=${(Q)data2}}
         assgn_str="${var_name}[4]"
-        : ${(P)assgn_str::=${(Q)active_path}}
+        : ${(P)assgn_str::=${(Q)data3}}
         assgn_str="${var_name}[5]"
-        : ${(P)assgn_str::=${(Q)file}}
+        : ${(P)assgn_str::=${(Q)data4}}
         return 0
     fi
 
