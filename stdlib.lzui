@@ -53,6 +53,21 @@ function -zui_stdlib_rc_button() {
     [[ -n "$handler" ]] && ZUI_ACTION_IDS_TO_HANDLERS[$id]="$handler"
 }
 
+# Appends anchor hyperlink into "reply" output array
+#
+# Arguments are the same as in -zui_stdlib_button,
+# except the first data argument (data1, $2) needs
+# to be index of line to jump to.
+#
+function -zui_stdlib_anchor() {
+    local id="zuianchor${(q)1}" data1="${(q)2}" data2="${(q)3}" data3="${(q)4}" data4="${(q)5}" text="$6" handler="$7"
+    local var_name="${8:-reply[-1]}"
+    local -a output
+    output=( $'\1'"$id"$'\1'"$data1"$'\1'"$data2"$'\1'"$data3"$'\1'"$data4"$'\2'"${text}" )
+    : ${(P)var_name::=${output[@]}}
+    [[ -n "$handler" ]] && ZUI_ACTION_IDS_TO_HANDLERS[$id]="$handler"
+}
+
 # Resolves absolute path from current working directory and file path
 #
 # $1 - current working directory

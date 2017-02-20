@@ -672,7 +672,7 @@ while (( 1 )); do
         -zui_stdlib_decode_hyperlink $REPLY
         local id="${reply[1]}"
         integer call_hook=0
-        if [[ "$id" = *zuianchor* ]]; then
+        if [[ "$id" = zuianchor* ]]; then
             ZUILIST_CURRENT_IDX="${reply[2]}"
             ZUILIST_CURRENT_SEGMENT=1
             -zui_list_compute_first_to_show_idx_center
