@@ -686,6 +686,7 @@ while (( 1 )); do
 
         # Is there hook to launch?
         if [[ $call_hook -gt 0 && -n "${ZUI[$id]}" ]]; then
+            reply[1]="${${${reply[1]#zuiiaction}#zuiaction}#zuicheckbox}"
             "${ZUI[$id]}" "${reply[@]}"
         fi
     else
