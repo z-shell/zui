@@ -29,7 +29,7 @@ local -F start_seconds
 # Actions
 #
 
--zui_test_action_1() {
+-zui_external_test_action_1() {
     local -a zip_B
     zip_B=( "$@" )
     local -a zip_A
@@ -41,6 +41,10 @@ local -F start_seconds
     for v1 v2 in "${(@)zip_A:^zip_B}"; do
         print "$v1 $v2"
     done
+}
+
+-zui_external_anchor_action_2() {
+    print "I've jumped even though list has been restarted!"
 }
 
 #
@@ -74,7 +78,7 @@ local -F start_seconds
 # Generator for module 1
 -zui_test_module1_generator() {
     reply=( )
-    -zui_stdlib_rc_button "there" "" "/Jump/" "" "" "${ZUI_MAGENTA}there${ZUI_MAGENTA_E}" -zui_test_action_1
+    -zui_stdlib_rc_button "there" "" "/Jump/" "" "" "${ZUI_MAGENTA}there${ZUI_MAGENTA_E}" -zui_external_test_action_1
     reply=( "Hello World" "Hello ${reply[1]}" "Third line" )
     reply2=3
     reply3=( 1 )
@@ -251,7 +255,7 @@ for n in "module1" "module2"; do
     # Create anchors for selected sections
     reply=( )
     if [[ "$n" = "module1" ]]; then
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "1" "${hops[1]}" "/Jump/" "" "$size" "[${ZUI_MAGENTA}Module1${ZUI_MAGENTA_E}]" ""
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "1" "${hops[1]}" "/Jump/" "" "$size" "[${ZUI_MAGENTA}Module1${ZUI_MAGENTA_E}]" -zui_external_anchor_action_2
     elif [[ "$n" = "module2" ]]; then
         [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "2" "${hops[1]}" "/Jump & Load/" "" "$size" "[${ZUI_CYAN}Module2${ZUI_CYAN_E}]" -zui_test_internal_action_1
     fi
@@ -294,12 +298,22 @@ fi
 if -zui_stdlib_decode_hyperlink "$ZUILIST_WRAPPER_BIT"; then
     local id="${reply[1]}" data1="${reply[2]}" data2="${reply[3]}" data3="${reply[4]}" data4="${reply[5]}"
 
-    REGENERATE="$data1"
-    REGENERATE_ARG="$data2"
+    REGENERATE="$data2"
+    REGENERATE_ARG="$data3"
     REGENERATE+="$REGENERATE_ALWAYS"
 
-    if [[ -n "${ZUI[$id]}" ]]; then
-        reply[1]="${${${reply[1]#zuiiaction}#zuiaction}#zuicheckbox}"
+    integer call_hook=0
+    if [[ "$id" = zuieanchor* ]]; then
+        ZUILIST_CURRENT_IDX="${ZUI[$id]-$data1}"
+        ZUILIST_CURRENT_SEGMENT=1
+        id="zuiaction${id#zuieanchor}"
+        call_hook=1
+    elif [[ "$id" = zuiaction* ]]; then
+        call_hook=1
+    fi
+
+    if [[ $call_hook -gt 0 && -n "${ZUI[$id]}" ]]; then
+        reply[1]="${${${${${reply[1]#zuiiaction}#zuiaction}#zuicheckbox}#zuieanchor}#zuianchor}"
         # Call the handler with all hyper-link data
         "${ZUI[$id]}" "${reply[@]}"
     fi
