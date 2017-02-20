@@ -30,7 +30,17 @@ local -F start_seconds
 #
 
 -zui_test_action_1() {
-    echo "Hello world!"
+    local -a zip_B
+    zip_B=( "$@" )
+    local -a zip_A
+    zip_A=( "ID:" "Data 1:" "Data 2:" "Data 3:" "Data 4:" )
+
+    print "Hello world!"
+
+    local v1 v2
+    for v1 v2 in "${(@)zip_A:^zip_B}"; do
+        print "$v1 $v2"
+    done
 }
 
 #
