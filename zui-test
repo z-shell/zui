@@ -283,7 +283,7 @@ ZUI[GENERATION_TIME]="${generation_time[1,4]}"
 
 ZUILIST_HOP_INDICES+=( 1 ) # jump to anchors
 local ZUILIST_WRAPPER_BIT=""
-zui-usetty-wrapper zui-list-wrapper "${anchors[*]}" "${OUTPUT[@]}"
+zui-usetty-wrapper zui-list-wrapper "${anchors[*]}" "${OUTPUT[@]}" "$generation_time"
 
 if [ -z "$ZUILIST_WRAPPER_BIT" ]; then
     zle && { zle .redisplay; zle .reset-prompt; }
