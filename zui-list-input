@@ -161,7 +161,7 @@ case "$key" in
             local -a data
             reply=( )
             if -zui_stdlib_decode_hyperlink "$REPLY"; then
-                if [[ "${reply[1]}" = zuianchor* || "${reply[1]}" = zuiinternal* ]]; then
+                if [[ "${reply[1]}" = zuianchor* || "${reply[1]}" = zuiiaction* ]]; then
                     # This is to run internal action,
                     # i.e. action without leaving list
                     reply=( $current_idx HYPERLINK )

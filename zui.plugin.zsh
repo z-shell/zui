@@ -37,7 +37,6 @@ bindkey "^O^P" zui-test
 #
 
 typeset -gAH ZUI
-typeset -gAH ZUI_ACTION_IDS_TO_HANDLERS
 
 #
 # Load modules

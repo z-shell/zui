@@ -676,14 +676,17 @@ while (( 1 )); do
             ZUILIST_CURRENT_IDX="${ZUI[$id]-${reply[2]}}"
             ZUILIST_CURRENT_SEGMENT=1
             -zui_list_compute_first_to_show_idx_center
+            id="zuiiaction${id#zuianchor}"
             call_hook=1
-        elif [[ "$id" = *zuicheckbox* ]]; then
+        elif [[ "$id" = zuicheckbox* ]]; then
+            call_hook=1
+        elif [[ "$id" = zuiiaction* ]]; then
             call_hook=1
         fi
 
         # Is there hook to launch?
-        if [[ $call_hook -gt 0 && -n "${ZUI_ACTION_IDS_TO_HANDLERS[$id]}" ]]; then
-            "${ZUI_ACTION_IDS_TO_HANDLERS[$id]}" "${reply[@]}"
+        if [[ $call_hook -gt 0 && -n "${ZUI[$id]}" ]]; then
+            "${ZUI[$id]}" "${reply[@]}"
         fi
     else
         if [[ -n "$ZUILIST_REPLY_LIST_PART_SIZE" && "$ZUILIST_REPLY_LIST_PART_SIZE" -ge "1" ]]; then

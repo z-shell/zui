@@ -287,9 +287,9 @@ if -zui_stdlib_decode_hyperlink "$ZUILIST_WRAPPER_BIT"; then
         REGENERATE="$ts"
         REGENERATE_ARG="$active_path"
         REGENERATE+="$REGENERATE_ALWAYS"
-    elif [[ -n "${ZUI_ACTION_IDS_TO_HANDLERS[$id]}" ]]; then
+    elif [[ -n "${ZUI[$id]}" ]]; then
         # Call the handled with all hyper-link data
-        "${ZUI_ACTION_IDS_TO_HANDLERS[$id]}" "$id" "$ts" "$cmd" "$active_path" "$file"
+        "${ZUI[$id]}" "$id" "$ts" "$cmd" "$active_path" "$file"
         break
     fi
 fi

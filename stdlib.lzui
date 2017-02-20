@@ -37,7 +37,9 @@ function -zui_stdlib_button() {
     local -a output
     output=( $'\1'"$id"$'\1'"$data1"$'\1'"$data2"$'\1'"$data3"$'\1'"$data4"$'\2'"${text}" )
     : ${(P)var_name::=${output[@]}}
-    [[ -n "$handler" ]] && ZUI_ACTION_IDS_TO_HANDLERS[$id]="$handler"
+    [[ -n "$handler" ]] && {
+        [[ $handler = *internal* ]] && ZUI[zuiiaction$id]="$handler" || ZUI[zuiaction$id]="$handler"
+    }
 }
 
 # Appends button hyperlink into "reply" output array
@@ -50,7 +52,9 @@ function -zui_stdlib_rc_button() {
     local -a output
     output=( $'\1'"$id"$'\1'"$data1"$'\1'"$data2"$'\1'"$data3"$'\1'"$data4"$'\2'"[${text}]" )
     : ${(P)var_name::=${output[@]}}
-    [[ -n "$handler" ]] && ZUI_ACTION_IDS_TO_HANDLERS[$id]="$handler"
+    [[ -n "$handler" ]] && {
+        [[ $handler = *internal* ]] && ZUI[zuiiaction$id]="$handler" || ZUI[zuiaction$id]="$handler"
+    }
 }
 
 # Appends anchor hyperlink into "reply" output array
@@ -62,7 +66,7 @@ function -zui_stdlib_rc_button() {
 function -zui_stdlib_anchor() {
     setopt localoptions extendedglob
 
-    local id="zuianchor${(q)1}" data1="${(q)2}" data2="${(q)3}" data3="${(q)4}" data4="${(q)5}" text="$6" handler="$7"
+    local id="${(q)1}" data1="${(q)2}" data2="${(q)3}" data3="${(q)4}" data4="${(q)5}" text="$6" handler="$7"
     local var_name="${8:-reply[-1]}"
 
     # Set to some line that probably exist,
@@ -71,12 +75,12 @@ function -zui_stdlib_anchor() {
     [[ "$data1" != <-> ]] && data1=3
 
     local -a output
-    output=( $'\1'"$id"$'\1'"$data1"$'\1'"$data2"$'\1'"$data3"$'\1'"$data4"$'\2'"${text}" )
+    output=( $'\1'"zuianchor$id"$'\1'"$data1"$'\1'"$data2"$'\1'"$data3"$'\1'"$data4"$'\2'"${text}" )
     : ${(P)var_name::=${output[@]}}
-    [[ -n "$handler" ]] && ZUI_ACTION_IDS_TO_HANDLERS[$id]="$handler"
+    [[ -n "$handler" ]] && ZUI[zuiiaction$id]="$handler"
 
     # Store anchor's target line
-    ZUI[$id]="$data1"
+    ZUI[zuianchor$id]="$data1"
 }
 
 # Resolves absolute path from current working directory and file path
