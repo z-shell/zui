@@ -673,7 +673,7 @@ while (( 1 )); do
         local id="${reply[1]}"
         integer call_hook=0
         if [[ "$id" = zuianchor* ]]; then
-            ZUILIST_CURRENT_IDX="${ZUI[$id]}"
+            ZUILIST_CURRENT_IDX="${ZUI[$id]-${reply[2]}}"
             ZUILIST_CURRENT_SEGMENT=1
             -zui_list_compute_first_to_show_idx_center
             call_hook=1
