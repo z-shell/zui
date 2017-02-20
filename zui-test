@@ -2,6 +2,11 @@
 # Started from zle or from command line
 #
 
+[[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
+
+# Cleanup $ZUI hash runtime data
+-zui_stdlib_cleanup
+
 [[ -o interactivecomments ]] && ZUI[INTERACTIVE_COMMENTS]="1" || ZUI[INTERACTIVE_COMMENTS]="0"
 [[ -o promptsubst ]] && ZUI[PROMPT_SUBST]="1" || ZUI[PROMPT_SUBST]="0"
 
@@ -9,8 +14,6 @@ emulate -LR zsh
 setopt extendedglob typesetsilent warncreateglobal
 
 [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
-
-[[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
 
 ZUI[app]="zui-test"
 
@@ -270,6 +273,10 @@ zui-usetty-wrapper zui-list-wrapper "${anchors[*]}" "${OUTPUT[@]}"
 
 if [ -z "$ZUILIST_WRAPPER_BIT" ]; then
     zle && { zle .redisplay; zle .reset-prompt; }
+
+    # Cleanup $ZUI hash runtime data
+    -zui_stdlib_cleanup
+
     return 1
 fi
 
@@ -289,6 +296,9 @@ fi
 
 ### REGENERATION REQUEST LOOP ###
 done
+
+# Cleanup $ZUI hash runtime data
+-zui_stdlib_cleanup
 
 return 0
 
