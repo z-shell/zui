@@ -64,7 +64,7 @@ local -F start_seconds
 # Generator for module 1
 -zui_test_module1_generator() {
     reply=( )
-    -zui_stdlib_rc_button "there" "" "/Jump/" "" "" "${ZUI_MAGENTA}there${ZUI_MAGENTA_E}" ""
+    -zui_stdlib_rc_button "there" "" "/Jump/" "" "" "${ZUI_MAGENTA}there${ZUI_MAGENTA_E}" -zui_test_action_1
     reply=( "Hello World" "Hello ${reply[1]}" "Third line" )
     reply2=3
     reply3=( 1 )
@@ -282,15 +282,15 @@ fi
 
 # ID, data1, data2, data3, data4
 if -zui_stdlib_decode_hyperlink "$ZUILIST_WRAPPER_BIT"; then
-    local id="${reply[1]}" ts="${reply[2]}" cmd="${reply[3]}" active_path="${reply[4]}" file="${reply[5]}"
-    if [[ -z "$id" ]]; then
-        REGENERATE="$ts"
-        REGENERATE_ARG="$active_path"
-        REGENERATE+="$REGENERATE_ALWAYS"
-    elif [[ -n "${ZUI[$id]}" ]]; then
-        # Call the handled with all hyper-link data
-        "${ZUI[$id]}" "$id" "$ts" "$cmd" "$active_path" "$file"
-        break
+    local id="${reply[1]}" data1="${reply[2]}" data2="${reply[3]}" data3="${reply[4]}" data4="${reply[5]}"
+
+    REGENERATE="$data1"
+    REGENERATE_ARG="$data2"
+    REGENERATE+="$REGENERATE_ALWAYS"
+
+    if [[ -n "${ZUI[$id]}" ]]; then
+        # Call the handler with all hyper-link data
+        "${ZUI[$id]}" "${reply[@]}"
     fi
 fi
 

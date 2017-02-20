@@ -34,12 +34,16 @@ typeset -g ZUI_CYAN_E=$'\31'
 function -zui_stdlib_button() {
     local id="${(q)1}" data1="${(q)2}" data2="${(q)3}" data3="${(q)4}" data4="${(q)5}" text="$6" handler="$7"
     local var_name="${8:-reply[-1]}"
-    local -a output
-    output=( $'\1'"$id"$'\1'"$data1"$'\1'"$data2"$'\1'"$data3"$'\1'"$data4"$'\2'"${text}" )
-    : ${(P)var_name::=${output[@]}}
+
+    local pfx=""
     [[ -n "$handler" ]] && {
-        [[ $handler = *internal* ]] && ZUI[zuiiaction$id]="$handler" || ZUI[zuiaction$id]="$handler"
+        [[ $handler = *internal* ]] && pfx="zuiiaction" || pfx="zuiaction"
+        ZUI[$pfx$id]="$handler"
     }
+
+    local -a output
+    output=( $'\1'"$pfx$id"$'\1'"$data1"$'\1'"$data2"$'\1'"$data3"$'\1'"$data4"$'\2'"${text}" )
+    : ${(P)var_name::=${output[@]}}
 }
 
 # Appends button hyperlink into "reply" output array
@@ -50,11 +54,15 @@ function -zui_stdlib_rc_button() {
     local id="${(q)1}" data1="${(q)2}" data2="${(q)3}" data3="${(q)4}" data4="${(q)5}" text="$6" handler="$7"
     local var_name="${8:-reply[-1]}"
     local -a output
-    output=( $'\1'"$id"$'\1'"$data1"$'\1'"$data2"$'\1'"$data3"$'\1'"$data4"$'\2'"[${text}]" )
-    : ${(P)var_name::=${output[@]}}
+
+    local pfx=""
     [[ -n "$handler" ]] && {
-        [[ $handler = *internal* ]] && ZUI[zuiiaction$id]="$handler" || ZUI[zuiaction$id]="$handler"
+        [[ $handler = *internal* ]] && pfx="zuiiaction" || pfx="zuiaction"
+        ZUI[$pfx$id]="$handler"
     }
+
+    output=( $'\1'"$pfx$id"$'\1'"$data1"$'\1'"$data2"$'\1'"$data3"$'\1'"$data4"$'\2'"[${text}]" )
+    : ${(P)var_name::=${output[@]}}
 }
 
 # Appends anchor hyperlink into "reply" output array
