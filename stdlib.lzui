@@ -382,7 +382,7 @@ function -zui_stdlib_cleanup() {
 # $2 - end line number of area to replace
 # $3, $4, ... - new elements to replace lines $1..$2
 function -zui_stdlib_submit_list_update() {
-    integer size=$(( $2 - $1 ))
+    integer size=$(( $2 - $1 + 1 ))
     2=$size
     ZUI[fly_update]="${(j: :)${(q)@}}"
 }
