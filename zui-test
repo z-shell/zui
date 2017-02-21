@@ -51,8 +51,19 @@ local -F start_seconds
 # Internal actions
 #
 
+# Anchor internal action - data1 is index in time
+# of creation of the anchor (it an be changed via
+# on-the-fly updates submitted by stdlib function
+# -zui_stdlib_submit_list_update
 -zui_test_internal_action_1() {
-    zcurses bg "status" "white/blue"
+    local id="$1" line="$2" module="$3"
+
+    if [[ "$module" = "2" ]]; then
+        zcurses bg "status" "green/black"
+        bold="+bold"
+    elif [[ "$module" = "3" ]]; then
+        zcurses bg "status" "white/blue"
+    fi
 }
 
 #
@@ -291,10 +302,16 @@ for (( i = 1; i <= 1000; i ++ )); do
 
     # Create anchors for selected sections
     reply=( )
-    if [[ "$n" = "module1" ]]; then
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "1" "${hops[1]}" "/Jump/" "" "$size" "[${ZUI_MAGENTA}Module1${ZUI_MAGENTA_E}]" -zui_external_anchor_action_2
-    elif [[ "$n" = "module2" ]]; then
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "2" "${hops[1]}" "/Jump & Load/" "" "$size" "[${ZUI_CYAN}Module2${ZUI_CYAN_E}]" -zui_test_internal_action_1
+    if [[ "$i" = "1" ]]; then
+        # First argument of -zui_stdlib_anchor is
+        # reserved to index to jump to. Second
+        # argument, in case of automatically (in
+        # a loop) generated modules can be required
+        # to be index of the module ($i of this
+        # loop)
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "1" "${hops[1]}" "$i" "" "" "[${ZUI_MAGENTA}Module1${ZUI_MAGENTA_E}]" -zui_external_anchor_action_2
+    elif [[ "$i" -ge "2" && "$i" -le "3" ]]; then
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "2" "${hops[1]}" "$i" "" "" "[${ZUI_CYAN}Module${i}${ZUI_CYAN_E}]" -zui_test_internal_action_1
     fi
     anchors+=( "${reply[@]}" )
 
