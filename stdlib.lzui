@@ -420,6 +420,37 @@ function -zui_stdlib_cleanup() {
 
 # Internal action can call this function in
 # order to replace part of list with new text.
+# It uses parameters reply{,2..5} normally
+# returned from a module generator. It covers
+# calls to multiple submit functions:
+#
+# - -zui_stdlib_submit_list_update
+# - -zui_stdlib_submit_nonselectables
+# - -zui_stdlib_submit_hops
+# - -zui_stdlib_submit_lanchors
+#
+# What needs to be provided is current module
+# global index, i.e. its first line number in
+# the whole page text. It's normaly kept in
+# module${idx}_global_index.
+#
+# Also, current module size, i.e. the number of
+# lines of text of the module, returned in `reply`
+# array in previous module generation, normally
+# helpd in module${idx}_size.
+#
+# $1 - current module global index
+# $2 - current module size
+function -zui_stdlib_submit_fly_from_replies() {
+    local global_index="$1" previous_size="$2"
+    -zui_stdlib_submit_list_update "$global_index" "$(( global_index + previous_size - 1 ))" "${reply[@]}"
+    -zui_stdlib_submit_nonselectables "${reply3[@]}"
+    -zui_stdlib_submit_hops "${reply4[@]}"
+    -zui_stdlib_submit_lanchors "${reply5[@]}"
+}
+
+# Internal action can call this function in
+# order to replace part of list with new text.
 #
 # $1 - beginning line number of area to replace
 # $2 - end line number of area to replace
