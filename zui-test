@@ -39,7 +39,7 @@ local -F start_seconds
 }
 
 -zui_external_anchor_action_2() {
-    print "I've jumped even though list has been restarted!"
+    print "[Module1] anchor button - I've jumped even though list has been restarted!"
 }
 
 #
