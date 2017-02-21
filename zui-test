@@ -77,6 +77,8 @@ local -F start_seconds
     data3="$3"
     handler="$7"
 
+    id="${${${${${id#zuiiaction}#zuiaction}#zuicheckbox}#zuieanchor}#zuianchor}"
+
     reply=( "My id: $id" " My data: $data3" " My handler:" " $handler" )
 }
 
