@@ -103,8 +103,7 @@ integer total_module_limit=3
     # its global index
     -zui_stdlib_load_global_index_and_size $module global_index previous_size
 
-    reply=( ); reply2="0"; reply3=( ); reply4=( ); reply5=( )
-
+    -zui_stdlib_reset_replies
     -zui_test_module2_generator $module
 
     # Setting the following will also pass the new
@@ -117,7 +116,8 @@ integer total_module_limit=3
     # The same data.
     -zui_stdlib_submit_fly_from_replies $global_index $previous_size
 
-    reply=( ); reply2="0"; reply3=( ); reply4=( ); reply5=( )
+    # No output from this function
+    -zui_stdlib_reset_replies
 }
 
 #
@@ -260,13 +260,12 @@ fi
 module=1
 
 if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,module${module},* || "$REGENERATE" = *,all,* ]]; then
-    reply=( ); reply2="0"; reply3=( ); reply4=( )
-
     # Module 1
     local -a module${module}_output module${module}_nonselectables module${module}_hops module${module}_lanchors
     local -a prev_module${module}_nonselectables prev_module${module}_hops
     integer module${module}_size prev_module${module}_size
 
+    -zui_stdlib_reset_replies
     -zui_test_module1_generator $module $REGENERATE_ARG
 
     # This function has to be called after each *_generator
@@ -284,13 +283,12 @@ for (( i=2; i <= total_module_limit; i ++ )); do
     module=$i
 
     if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,module${module},* || "$REGENERATE" = *,all,* ]]; then
-        reply=( ); reply2="0"; reply3=( ); reply4=( )
-
         # Module 2..4
         local -a module${module}_output module${module}_nonselectables module${module}_hops module${module}_lanchors
         local -a prev_module${module}_nonselectables prev_module${module}_hops
         integer module${module}_size prev_module${module}_size
 
+        -zui_stdlib_reset_replies
         -zui_test_module2_generator $module
 
         # This function has to be called after each *_generator

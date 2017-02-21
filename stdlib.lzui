@@ -449,6 +449,20 @@ function -zui_stdlib_load_global_index_and_size() {
     : ${(P)3::=$tmp}
 }
 
+# Resets parameters reply{,2..5}
+function -zui_stdlib_reset_replies() {
+    local var_name="reply"
+    : ${(PA)var_name::=}
+    var_name="reply2"
+    : ${(P)var_name::=0}
+    var_name="reply3"
+    : ${(PA)var_name::=}
+    var_name="reply4"
+    : ${(PA)var_name::=}
+    var_name="reply5"
+    : ${(PA)var_name::=}
+}
+
 # Internal action can call this function in
 # order to replace part of list with new text.
 # It uses parameters reply{,2..5} normally
