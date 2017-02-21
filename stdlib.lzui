@@ -511,4 +511,26 @@ function -zui_stdlib_decode_lanchors() {
     : ${(PA)__var_name::="${(Q)__lanchors[@]}"}
 }
 
+# Maps reply{,2..5} parameters onto module
+# parameters:
+#    module${idx}_output module${idx}_nonselectables
+#    module${idx}_hops module${idx}_lanchors
+#    module${idx}_size
+#
+# $1 - module index
+function -zui_stdlib_map_replies() {
+    echo "Yes I'm called [$1]" >> /tmp/reply
+
+    var_name="module${1}_output"
+    : ${(PA)var_name::="${reply[@]}"}
+    var_name="module${1}_size"
+    : ${(PA)var_name::=$reply2}
+    var_name="module${1}_nonselectables"
+    : ${(PA)var_name::="${reply3[@]}"}
+    var_name="module${1}_hops"
+    : ${(PA)var_name::="${reply4[@]}"}
+    var_name="module${1}_lanchors"
+    : ${(PA)var_name::="${reply5[@]}"}
+}
+
 # vim:ft=zsh

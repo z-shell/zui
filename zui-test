@@ -65,9 +65,9 @@ local -F start_seconds
 }
 
 -zui_test_internal_action_2() {
-    local id="$1" module="$2" var_name previous_size
+    local id="$1" module="$2" var_name var_name2
 
-    reply=( ); reply2="0"; reply3=( ); reply4=( )
+    reply=( ); reply2="0"; reply3=( ); reply4=( ); reply5=( )
 
     -zui_test_module2_generator $module
 
@@ -75,28 +75,20 @@ local -F start_seconds
     # content to regeneration-path, if only this
     # specific module 2 will not be regenerated
     # (so some other, e.g. via REGENERATE=,module1,)
+    -zui_stdlib_map_replies $module
 
-    var_name="module${module}_output"
-    : ${(PA)var_name::="${reply[@]}"}
-    var_name="module${module}_size"
-    previous_size="${(P)var_name}"
-    : ${(PA)var_name::=$reply2}
-    var_name="module${module}_nonselectables"
-    : ${(PA)var_name::="${reply3[@]}"}
-    var_name="module${module}_hops"
-    : ${(PA)var_name::="${reply4[@]}"}
-    var_name="module${module}_lanchors"
-    : ${(PA)var_name::="${reply5[@]}"}
+    # Needed to construct on-the-fly packet
+    var_name2="module${module}_size"
 
     # Submit on-the-fly list update.
     # The same data.
     var_name="module${module}_global_index"
-    -zui_stdlib_submit_list_update "${(P)var_name}" "$(( ${(P)var_name} + previous_size - 1 ))" "${reply[@]}"
+    -zui_stdlib_submit_list_update "${(P)var_name}" "$(( ${(P)var_name} + ${(P)var_name2} - 1 ))" "${reply[@]}"
     -zui_stdlib_submit_nonselectables "${reply3[@]}"
     -zui_stdlib_submit_hops "${reply4[@]}"
     -zui_stdlib_submit_lanchors "${reply5[@]}"
 
-    reply=( ); reply2="0"; reply3=( ); reply4=( )
+    reply=( ); reply2="0"; reply3=( ); reply4=( ); reply5=( )
 }
 
 #
@@ -279,16 +271,10 @@ if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,module${module},* || "$REGE
 
     -zui_test_module1_generator $module $REGENERATE_ARG
 
-    var_name="module${module}_output"
-    : ${(PA)var_name::="${reply[@]}"}
-    var_name="module${module}_size"
-    : ${(PA)var_name::=$reply2}
-    var_name="module${module}_nonselectables"
-    : ${(PA)var_name::="${reply3[@]}"}
-    var_name="module${module}_hops"
-    : ${(PA)var_name::="${reply4[@]}"}
-    var_name="module${module}_lanchors"
-    : ${(PA)var_name::="${reply5[@]}"}
+    # This function has to be called after each *_generator
+    # function call, to copy reply{,2..5} into above (after
+    # "# Module 1" line) variables
+    -zui_stdlib_map_replies $module
 fi
 
 #
@@ -302,22 +288,17 @@ for (( i=2; i <= total_module_limit; i ++ )); do
     if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,module${module},* || "$REGENERATE" = *,all,* ]]; then
         reply=( ); reply2="0"; reply3=( ); reply4=( )
 
+        # Module 2..4
         local -a module${module}_output module${module}_nonselectables module${module}_hops module${module}_lanchors
         local -a prev_module${module}_nonselectables prev_module${module}_hops
         integer module${module}_size prev_module${module}_size
 
         -zui_test_module2_generator $module
 
-        var_name="module${module}_output"
-        : ${(PA)var_name::="${reply[@]}"}
-        var_name="module${module}_size"
-        : ${(PA)var_name::=$reply2}
-        var_name="module${module}_nonselectables"
-        : ${(PA)var_name::="${reply3[@]}"}
-        var_name="module${module}_hops"
-        : ${(PA)var_name::="${reply4[@]}"}
-        var_name="module${module}_lanchors"
-        : ${(PA)var_name::="${reply5[@]}"}
+        # This function has to be called after each *_generator
+        # function call, to copy reply{,2..5} into above (after
+        # "# Module 2..4" line) variables
+        -zui_stdlib_map_replies $module
     fi
 
 done
