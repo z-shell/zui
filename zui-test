@@ -57,10 +57,10 @@ local module1_extra_line
 integer total_module_limit=3
 
 #
-# Actions
+# External Actions
 #
 
--zui_external_test_action_1() {
+-zui_module1_external_action_1() {
     local var_name="module${2}_extra_line"
     : ${(P)var_name::=Function set this line, regeneration used it}
 
@@ -69,7 +69,7 @@ integer total_module_limit=3
     reply=( ",module${2}," "" )
 }
 
--zui_external_anchor_action_2() {
+-zui_top_anchors_external_action_1() {
     print "[Module1] anchor button - I've jumped even though list has been restarted!"
 }
 
@@ -81,7 +81,7 @@ integer total_module_limit=3
 # of creation of the anchor (it an be changed via
 # on-the-fly updates submitted by stdlib function
 # -zui_stdlib_submit_list_update)
--zui_test_internal_action_1() {
+-zui_top_anchors_internal_action_1() {
     local id="$1" line="$2" module="$3"
 
     if [[ "$module" = "2" ]]; then
@@ -95,7 +95,7 @@ integer total_module_limit=3
     fi
 }
 
--zui_test_internal_action_2() {
+-zui_module2_internal_action_1() {
     local id="$1" module="$2" var_name var_name2
 
     reply=( ); reply2="0"; reply3=( ); reply4=( ); reply5=( )
@@ -149,7 +149,7 @@ integer total_module_limit=3
     reply=( )
     # IDs of anchors have own namespace
     -zui_stdlib_anchor "regenerate1" "1" "" ",module${1}," "${RANDOM}$((RANDOM%2))" "[${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}]"
-    -zui_stdlib_rc_button "regenerate2" "$1" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_external_test_action_1
+    -zui_stdlib_rc_button "regenerate2" "$1" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_module1_external_action_1
     -zui_stdlib_rc_button "regenerate3" "$1" "" ",module$(( $1 + 1 ))," "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}"
 
     # Passed user data
@@ -163,7 +163,7 @@ integer total_module_limit=3
             "${reply[3]} ${ZUI_RED}NEXT${ZUI_RED_E} section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}raw_link${ZUI_CYAN_E}"
             "Random number: $RANDOM$((RANDOM%2))"
 
-            # This is set in -zui_external_test_action_1
+            # This is set in -zui_module1_external_action_1
             $module1_extra_line
             )
     # Content count
@@ -191,7 +191,7 @@ integer total_module_limit=3
     if [[ "$1" = "2" ]]; then
         reply=( )
         # IDs of anchors have own namespace
-        -zui_stdlib_rc_button "regenerate4" "$1" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_test_internal_action_2
+        -zui_stdlib_rc_button "regenerate4" "$1" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_module2_internal_action_1
         -zui_stdlib_anchor "jump1" "1" "" "" "" "[${ZUI_YELLOW}Jump${ZUI_YELLOW_E}]"
         regenerate="${reply[1]} this section on-the-fly, ${ZUI_YELLOW}without${ZUI_YELLOW_E} list restart"
         jump="${reply[2]} to 1st line"
@@ -404,11 +404,11 @@ for (( i = 1; i <= 1000; i ++ )); do
         # a loop) generated modules can be required
         # to be index of the module ($i of this
         # loop)
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "amain$i" "${hops[1]}" "$i" "" "" "[${ZUI_MAGENTA}Module1${ZUI_MAGENTA_E}]" -zui_external_anchor_action_2
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "amain$i" "${hops[1]}" "$i" "" "" "[${ZUI_MAGENTA}Module1${ZUI_MAGENTA_E}]" -zui_top_anchors_external_action_1
     elif [[ "$i" -ge "2" && "$i" -le "3" ]]; then
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "amain$i" "${hops[1]}" "$i" "" "" "[${ZUI_CYAN}Module${i}${ZUI_CYAN_E}]" -zui_test_internal_action_1
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "amain$i" "${hops[1]}" "$i" "" "" "[${ZUI_CYAN}Module${i}${ZUI_CYAN_E}]" -zui_top_anchors_internal_action_1
     else
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "amain$i" "${hops[1]}" "$i" "" "" "[${ZUI_YELLOW}Module${i}${ZUI_YELLOW_E}]" -zui_test_internal_action_1
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "amain$i" "${hops[1]}" "$i" "" "" "[${ZUI_YELLOW}Module${i}${ZUI_YELLOW_E}]" -zui_top_anchors_internal_action_1
     fi
     top_anchors+=( "${reply[@]}" )
 
