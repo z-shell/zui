@@ -784,7 +784,16 @@ while (( 1 )); do
         ZUILIST_HOP_INDICES+=( "${hops[@]}" )
 
         # Last thing: update anchors
-        # TODO ...
+        local -a anchor_keys
+        anchor_keys=( ${ZUI[(I)zuianchor*]} ${ZUI[(I)zuieanchor*]} )
+        local k
+        for k in "${anchor_keys[@]}"; do
+            integer _idx=${ZUI[$k]}
+            # Anchors after replaced block
+            if [[ "$_idx" -gt $(( update_first + update_count )) ]]; then
+                ZUI[$k]=$(( _idx + size_diff ))
+            fi
+        done
 
         # Cleanup
         unset update update_size nonselectables
