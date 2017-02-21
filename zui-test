@@ -49,12 +49,15 @@ local -F start_seconds
 # Anchor internal action - data1 is index in time
 # of creation of the anchor (it an be changed via
 # on-the-fly updates submitted by stdlib function
-# -zui_stdlib_submit_list_update
+# -zui_stdlib_submit_list_update)
 -zui_test_internal_action_1() {
     local id="$1" line="$2" module="$3"
 
     if [[ "$module" = "2" ]]; then
         zcurses bg "status" "green/black"
+        # This is internal zui-list variable,
+        # accessible because internal actions
+        # are called from within the list
         bold="+bold"
     elif [[ "$module" = "3" ]]; then
         zcurses bg "status" "white/blue"
