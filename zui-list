@@ -698,25 +698,29 @@ while (( 1 )); do
     -zui_stdlib_decode_list_update "${ZUI[fly_update]}" update
     ZUI[fly_update]=""
 
-    integer update_first=$update[1]
-    integer update_count=$update[2]
-    shift 2 update
-    update=( "${update[@]}" )
-    integer update_size=${#update}
+    if [[ ${update[2]} -ge 1 ]]; then
+        integer update_first=$update[1]
+        integer update_count=$update[2]
+        shift 2 update
+        integer update_size=${#update}
 
-    if [[ -n "$update_size" && "$update_size" -ge "1" ]]; then
+        # Update $@ array of this function - it
+        # is "zui-list", main UI function, and
+        # $@ holds original input data. So it
+        # can be said that here a restart of
+        # zui-list is simulated
         set "${(@)@[1,update_first-1]}" "${update[@]}" "${(@)@[update_first+update_count,-1]}"
+
         typeset -g ZUILIST_REGENERATE_DISP_LIST
         ZUILIST_REGENERATE_DISP_LIST="1"
 
         # How many elements push down (up if negative)
         # indices that are after the modified section
-        integer size_diff=$(( update_size - update_count ))
+        integer size_diff=$(( update_size - update_count )) mysize
+        local index el var_name
 
         # Remove indices that lay inside the block being overwritten
         # NONSELECTABLES
-        local index el
-        integer mysize
         mysize="${#ZUILIST_NONSELECTABLE_ELEMENTS[@]}"
         for (( index = 1; index <= mysize; index ++ )); do
             el="${ZUILIST_NONSELECTABLE_ELEMENTS[index]}"
@@ -733,7 +737,7 @@ while (( 1 )); do
             el="${ZUILIST_NONSELECTABLE_ELEMENTS[index]}"
             # No need to check if it lays inside the range
             # as ones that did have been removed above
-            if [[ "$el" -gt "$update_first" ]]; then
+            if [[ "$el" -gt "$(( update_first + update_count - 1 ))" ]]; then
                 (( ZUILIST_NONSELECTABLE_ELEMENTS[index] += size_diff ))
             fi
         done
@@ -743,8 +747,7 @@ while (( 1 )); do
         mysize="${#ZUILIST_HOP_INDICES[@]}"
         for (( index = 1; index <= mysize; index ++ )); do
             el="${ZUILIST_HOP_INDICES[index]}"
-            if [[ "$el" -ge "$update_first" &&
-                    "$el" -le "$(( update_first + update_count - 1 ))" ]]
+            if [[ "$el" -ge "$update_first" && "$el" -le "$(( update_first + update_count - 1 ))" ]]
             then
                 ZUILIST_HOP_INDICES[index]=()
             fi
@@ -757,17 +760,19 @@ while (( 1 )); do
             el="${ZUILIST_HOP_INDICES[index]}"
             # No need to check if it lays inside the range
             # as ones that did have been removed above
-            if [[ "$el" -gt "$update_first" ]]; then
+            if [[ "$el" -gt "$(( update_first + update_count - 1 ))" ]]; then
                 (( ZUILIST_HOP_INDICES[index] += size_diff ))
             fi
         done
 
-        # Push down (up) entries of ZUI_SECTION_INDICES
-        local _key
-        for _key in "${(k)ZUI_SECTION_INDICES[@]}"; do
-            el="${ZUI_SECTION_INDICES[$_key]}"
-            if [[ -n "$el" && "$el" -gt "$update_first" ]]; then
-                ZUI_SECTION_INDICES[$_key]=$(( ${ZUI_SECTION_INDICES[$_key]} + size_diff ))
+        # Push down (up) *_global_index parameters
+        for (( index = 1; index <= 1000; index ++ )); do
+            var_name="module${index}_global_index"
+            [[ "${(P)+var_name}" = "0" ]] && break
+
+            el="${(P)var_name}"
+            if [[ -n "$el" && "$el" -gt "$(( update_first + update_count - 1 ))" ]]; then
+                : ${(P)var_name::=$(( el + size_diff ))}
             fi
         done
 
@@ -786,20 +791,18 @@ while (( 1 )); do
         ZUILIST_HOP_INDICES+=( "${hops[@]}" )
 
         # Last thing: update anchors
-        local -a anchor_keys
-        anchor_keys=( ${ZUI[(I)zuianchor*]} ${ZUI[(I)zuieanchor*]} )
-        local k
-        for k in "${anchor_keys[@]}"; do
-            integer _idx=${ZUI[$k]}
+        for el in ${ZUI[(I)zuianchor*]} ${ZUI[(I)zuieanchor*]}; do
+            index=${ZUI[$el]}
             # Anchors after replaced block
-            if [[ "$_idx" -gt $(( update_first + update_count )) ]]; then
-                ZUI[$k]=$(( _idx + size_diff ))
+            if [[ "$index" -gt $(( update_first + update_count - 1 )) ]]; then
+                ZUI[$el]=$(( index + size_diff ))
             fi
         done
 
         # Cleanup
         unset update update_size nonselectables
         unset update_first update_count hops
+        unset index mysize el var_name
     elif (( ${+ZUILIST_REPLY_CHECKBOX_NUM} )); then
         local new_line="${@[ZUILIST_REPLY_CHECKBOX_NUM]}"
         [[ "$ZUILIST_REPLY_CHECKBOX_OP" = "set" ]] && new_line="${new_line/\[_\]/[x]}" || new_line="${new_line/\[x\]/[_]}"
