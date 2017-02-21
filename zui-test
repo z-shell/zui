@@ -202,7 +202,7 @@ integer internal
         # IDs of anchors have own namespace
         -zui_stdlib_rc_button "regenerate4" "$1" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_module2_internal_action_1
         -zui_stdlib_anchor "jump1" "1" "" "" "" "[${ZUI_YELLOW}Jump${ZUI_YELLOW_E}]"
-        regenerate="${reply[1]} this section on-the-fly, ${ZUI_YELLOW}without${ZUI_YELLOW_E} list restart"
+        regenerate="${reply[1]} this section ${ZUI_RED}ON-THE-FLY${ZUI_RED_E}, ${ZUI_YELLOW}without${ZUI_YELLOW_E} list restart"
         jump="${reply[2]} to 1st line"
     fi
 
