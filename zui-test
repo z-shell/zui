@@ -117,8 +117,6 @@ local -a match mbegin mend
 # Variables
 #
 
-local -A ZUI_SECTION_INDICES
-
 # Replies from generation modules
 local -a reply reply3 reply4
 integer reply2
@@ -300,7 +298,13 @@ for (( i = 1; i <= 1000; i ++ )); do
     fi
     anchors+=( "${reply[@]}" )
 
-    ZUI_SECTION_INDICES[$n]=$(( LINE_COUNT + 1 ))
+    # Store where in the list module is
+    # located, via typical "moduleX_..."
+    # variable
+    local ${n}_global_index
+    var_name="${n}_global_index"
+    : ${(P)var_name::=$(( LINE_COUNT + 1 ))}
+
     OUTPUT+=( "${output[@]}" )
     LINE_COUNT+=size
 done
