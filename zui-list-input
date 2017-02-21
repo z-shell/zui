@@ -75,12 +75,12 @@ local orig_element="${(P)list_var_name}"
 # Listening for input
 #
 
-if [ "$search" = "0" ]; then
+if [[ "$search" = "0" ]]; then
 
 case "$key" in
     (UP|k)
         # Are there any elements before the current one?
-        [ "$current_idx" -gt 1 ] && {
+        [[ "$current_idx" -gt 1 ]] && {
             current_idx=current_idx-1
             -zui_listin_compute_first_to_show_idx_up_many
         }
@@ -91,7 +91,7 @@ case "$key" in
         ;;
     (DOWN|j)
         # Are there any elements after the current one?
-        [ "$current_idx" -lt "$last_element" ] && {
+        [[ "$current_idx" -lt "$last_element" ]] && {
             current_idx=current_idx+1
             -zui_listin_compute_first_to_show_idx_down_many
         }
@@ -101,7 +101,7 @@ case "$key" in
         }
         ;;
     ($'\C-P')
-        [ "$current_idx" -gt 1 ] && {
+        [[ "$current_idx" -gt 1 ]] && {
             current_idx=current_idx-1
             -zui_listin_compute_first_to_show_idx_center
         }
@@ -112,7 +112,7 @@ case "$key" in
         ;;
     ($'\C-N')
         # Are there any elements after the current one?
-        [ "$current_idx" -lt "$last_element" ] && {
+        [[ "$current_idx" -lt "$last_element" ]] && {
             current_idx=current_idx+1
             -zui_listin_compute_first_to_show_idx_center
         }
@@ -123,22 +123,22 @@ case "$key" in
         ;;
     (PPAGE|$'\b'|$'\C-?'|BACKSPACE)
         current_idx=current_idx-page_height
-        [ "$current_idx" -lt 1 ] && current_idx=1;
+        [[ "$current_idx" -lt 1 ]] && current_idx=1;
         -zui_listin_compute_first_to_show_idx
         ;;
     (NPAGE|" ")
         current_idx=current_idx+page_height
-        [ "$current_idx" -gt "$last_element" ] && current_idx=last_element;
+        [[ "$current_idx" -gt "$last_element" ]] && current_idx=last_element;
         -zui_listin_compute_first_to_show_idx
         ;;
     ($'\C-U')
         current_idx=current_idx-page_height/2
-        [ "$current_idx" -lt 1 ] && current_idx=1;
+        [[ "$current_idx" -lt 1 ]] && current_idx=1;
         -zui_listin_compute_first_to_show_idx
         ;;
     ($'\C-D')
         current_idx=current_idx+page_height/2
-        [ "$current_idx" -gt "$last_element" ] && current_idx=last_element;
+        [[ "$current_idx" -gt "$last_element" ]] && current_idx=last_element;
         -zui_listin_compute_first_to_show_idx
         ;;
     (HOME|g)
@@ -180,7 +180,7 @@ case "$key" in
         reply=( -1 QUIT )
         ;;
     (/)
-        if [ "$disable_search" = "0" ]; then
+        if [[ "$disable_search" = "0" ]]; then
             search=1
             -zui_list_cursor_visibility "status" 1
         fi
@@ -194,9 +194,9 @@ case "$key" in
         else
 
         [[ "${(t)ZUILIST_HOP_INDICES}" = "array" || "${(t)ZUILIST_HOP_INDICES}" = "array-local" ]] &&
-        [ -z "$ZUILIST_SEARCH_BUFFER" ] && [ "$ZUILIST_IS_UNIQ_MODE" -eq 0 ] &&
+        [[ -z "$ZUILIST_SEARCH_BUFFER" ]] && [[ "$ZUILIST_IS_UNIQ_MODE" -eq 0 ]] &&
         for idx in "${(n)ZUILIST_HOP_INDICES[@]}"; do
-            if [ "$idx" -gt "$current_idx" ]; then
+            if [[ "$idx" -gt "$current_idx" ]]; then
                 current_idx=$idx
                 -zui_listin_compute_first_to_show_idx_center
                 break
@@ -211,9 +211,9 @@ case "$key" in
         else
 
         [[ "${(t)ZUILIST_HOP_INDICES}" = "array" || "${(t)ZUILIST_HOP_INDICES}" = "array-local" ]] &&
-        [ -z "$ZUILIST_SEARCH_BUFFER" ] && [ "$ZUILIST_IS_UNIQ_MODE" -eq 0 ] &&
+        [[ -z "$ZUILIST_SEARCH_BUFFER" ]] && [[ "$ZUILIST_IS_UNIQ_MODE" -eq 0 ]] &&
         for idx in "${(nO)ZUILIST_HOP_INDICES[@]}"; do
-            if [ "$idx" -lt "$current_idx" ]; then
+            if [[ "$idx" -lt "$current_idx" ]]; then
                 current_idx=$idx
                 -zui_listin_compute_first_to_show_idx_center
                 break
@@ -224,7 +224,7 @@ case "$key" in
         ;;
     ('<'|'{')
         hscroll=hscroll-7
-        [ "$hscroll" -lt 0 ] && hscroll=0
+        [[ "$hscroll" -lt 0 ]] && hscroll=0
         ;;
     ('>'|'}')
         hscroll+=7
@@ -241,12 +241,12 @@ case "$key" in
                 -zui_listin_compute_first_to_show_idx_up_many
             }
         else
-            if [ "$current_segment" -gt "$nseg" ]; then
+            if [[ "$current_segment" -gt "$nseg" ]]; then
                 (( current_segment = nseg - 1 ))
-                [ "$current_segment" -le 0 ] && current_segment=1
+                [[ "$current_segment" -le 0 ]] && current_segment=1
             else
                 if [[ "$key" = "BTAB" && "$current_segment" -eq "1" ]]; then
-                    [ "$current_idx" -gt "1" ] && {
+                    [[ "$current_idx" -gt "1" ]] && {
                         current_idx=current_idx-1
                         current_segment="100"
                         -zui_listin_compute_first_to_show_idx_up_many
@@ -263,7 +263,7 @@ case "$key" in
         ;;
     (RIGHT|'l'|$'\t')
         if [[ "$key" = $'\t' && ${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$current_idx]} = $current_idx ]]; then
-            [ "$current_idx" -lt "$last_element" ] && {
+            [[ "$current_idx" -lt "$last_element" ]] && {
                 current_idx=current_idx+1
                 current_segment=1
                 -zui_listin_compute_first_to_show_idx_down_many
@@ -274,9 +274,9 @@ case "$key" in
             }
         else
             (( current_segment = current_segment + 1 ))
-            if [ "$key" = $'\t' ]; then
+            if [[ "$key" = $'\t' ]]; then
                 if [[ "$current_segment" -gt "$nseg" ]]; then
-                    [ "$current_idx" -lt "$last_element" ] && {
+                    [[ "$current_idx" -lt "$last_element" ]] && {
                         current_idx=current_idx+1
                         current_segment="1"
                         -zui_listin_compute_first_to_show_idx_down_many
@@ -287,7 +287,7 @@ case "$key" in
                     }
                 fi
             fi
-            [ "$current_segment" -gt "$nseg" ] && current_segment="$nseg"
+            [[ "$current_segment" -gt "$nseg" ]] && current_segment="$nseg"
         fi
         ;;
     (F1|F2|F3|F4)
@@ -319,7 +319,7 @@ case "$key" in
     #
 
     (UP)
-        [ "$current_idx" -gt 1 ] && {
+        [[ "$current_idx" -gt 1 ]] && {
             current_idx=current_idx-1
             -zui_listin_compute_first_to_show_idx_up_many
         }
@@ -329,7 +329,7 @@ case "$key" in
         }
         ;;
     (DOWN)
-        [ "$current_idx" -lt "$last_element" ] && {
+        [[ "$current_idx" -lt "$last_element" ]] && {
             current_idx=current_idx+1;
             -zui_listin_compute_first_to_show_idx_down_many
         }
@@ -339,7 +339,7 @@ case "$key" in
         }
         ;;
     ($'\C-P')
-        [ "$current_idx" -gt 1 ] && {
+        [[ "$current_idx" -gt 1 ]] && {
             current_idx=current_idx-1
             -zui_listin_compute_first_to_show_idx_center
         }
@@ -350,7 +350,7 @@ case "$key" in
         ;;
     ($'\C-N')
         # Are there any elements after the current one?
-        [ "$current_idx" -lt "$last_element" ] && {
+        [[ "$current_idx" -lt "$last_element" ]] && {
             current_idx=current_idx+1
             -zui_listin_compute_first_to_show_idx_center
         }
@@ -361,22 +361,22 @@ case "$key" in
         ;;
     (PPAGE)
         current_idx=current_idx-page_height
-        [ "$current_idx" -lt 1 ] && current_idx=1;
+        [[ "$current_idx" -lt 1 ]] && current_idx=1;
         -zui_listin_compute_first_to_show_idx
         ;;
     (NPAGE)
         current_idx=current_idx+page_height
-        [ "$current_idx" -gt "$last_element" ] && current_idx=last_element;
+        [[ "$current_idx" -gt "$last_element" ]] && current_idx=last_element;
         -zui_listin_compute_first_to_show_idx
         ;;
     ($'\C-U')
         current_idx=current_idx-page_height/2
-        [ "$current_idx" -lt 1 ] && current_idx=1;
+        [[ "$current_idx" -lt 1 ]] && current_idx=1;
         -zui_listin_compute_first_to_show_idx
         ;;
     ($'\C-D')
         current_idx=current_idx+page_height/2
-        [ "$current_idx" -gt "$last_element" ] && current_idx=last_element;
+        [[ "$current_idx" -gt "$last_element" ]] && current_idx=last_element;
         -zui_listin_compute_first_to_show_idx
         ;;
     (HOME)
@@ -399,12 +399,12 @@ case "$key" in
                 -zui_listin_compute_first_to_show_idx_up_many
             }
         else
-            if [ "$current_segment" -gt "$nseg" ]; then
+            if [[ "$current_segment" -gt "$nseg" ]]; then
                 (( current_segment = nseg - 1 ))
-                [ "$current_segment" -le 0 ] && current_segment=1
+                [[ "$current_segment" -le 0 ]] && current_segment=1
             else
                 if [[ "$key" = BTAB && "$current_segment" -eq "1" ]]; then
-                    [ "$current_idx" -gt "1" ] && {
+                    [[ "$current_idx" -gt "1" ]] && {
                         current_idx=current_idx-1
                         current_segment="100"
                         -zui_listin_compute_first_to_show_idx_up_many
@@ -421,7 +421,7 @@ case "$key" in
         ;;
     (RIGHT|$'\t')
         if [[ "$key" = $'\t' && ${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$current_idx]} = $current_idx ]]; then
-            [ "$current_idx" -lt "$last_element" ] && {
+            [[ "$current_idx" -lt "$last_element" ]] && {
                 current_idx=current_idx+1
                 current_segment=1
                 -zui_listin_compute_first_to_show_idx_down_many
@@ -432,9 +432,9 @@ case "$key" in
             }
         else
             (( current_segment = current_segment + 1 ))
-            if [ "$key" = $'\t' ]; then
+            if [[ "$key" = $'\t' ]]; then
                 if [[ "$current_segment" -gt "$nseg" ]]; then
-                    [ "$current_idx" -lt "$last_element" ] && {
+                    [[ "$current_idx" -lt "$last_element" ]] && {
                         current_idx=current_idx+1
                         current_segment="1"
                         -zui_listin_compute_first_to_show_idx_down_many
@@ -445,7 +445,7 @@ case "$key" in
                     }
                 fi
             fi
-            [ "$current_segment" -gt "$nseg" ] && current_segment="$nseg"
+            [[ "$current_segment" -gt "$nseg" ]] && current_segment="$nseg"
         fi
         ;;
     (F1|F2|F3|F4)
@@ -463,7 +463,7 @@ case "$key" in
         buffer="${buffer%?}"
         ;;
     ($'\C-W')
-        [ "$buffer" = "${buffer% *}" ] && buffer="" || buffer="${buffer% *}"
+        [[ "$buffer" = "${buffer% *}" ]] && buffer="" || buffer="${buffer% *}"
         ;;
     ($'\C-K')
         buffer=""
