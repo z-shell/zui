@@ -96,15 +96,12 @@ integer total_module_limit=3
 }
 
 -zui_module2_internal_action_1() {
-    local id="$1" module="$2" var_name global_index previous_size
+    local id="$1" module="$2" global_index previous_size
 
     # Needed to construct on-the-fly packet
-    # - previous size of module $module, its
-    # global index
-    var_name="module${module}_global_index"
-    global_index="${(P)var_name}"
-    var_name="module${module}_size"
-    previous_size="${(P)var_name}"
+    # - previous size of module $module and
+    # its global index
+    -zui_stdlib_load_global_index_and_size $module global_index previous_size
 
     reply=( ); reply2="0"; reply3=( ); reply4=( ); reply5=( )
 

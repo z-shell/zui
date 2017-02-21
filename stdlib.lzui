@@ -418,6 +418,37 @@ function -zui_stdlib_cleanup() {
     done
 }
 
+# Use this to quickly load variables:
+#
+# - module${idx}_global_index
+# - module${idx}_size
+#
+# into parameters given by names.
+#
+# Has default target parameters' names
+# (REPLY & REPLY2), this might lead to
+# silent errors, but I prefer that to
+# error-revealing crash.. Hm..
+#
+# $1 - module index
+# $2 - output parameter name for global index
+# $3 - output parameter name for size
+function -zui_stdlib_load_global_index_and_size() {
+    local tmp var_name
+    2=${2:-REPLY}
+    3=${3:-REPLY2}
+
+    # Global index
+    var_name="module${module}_global_index"
+    tmp="${(P)var_name}"
+    : ${(P)2::=$tmp}
+
+    # Size
+    var_name="module${module}_size"
+    tmp="${(P)var_name}"
+    : ${(P)3::=$tmp}
+}
+
 # Internal action can call this function in
 # order to replace part of list with new text.
 # It uses parameters reply{,2..5} normally
@@ -550,8 +581,6 @@ function -zui_stdlib_decode_lanchors() {
 #
 # $1 - module index
 function -zui_stdlib_map_replies() {
-    echo "Yes I'm called [$1]" >> /tmp/reply
-
     var_name="module${1}_output"
     : ${(PA)var_name::="${reply[@]}"}
     var_name="module${1}_size"
