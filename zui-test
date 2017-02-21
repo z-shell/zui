@@ -147,7 +147,9 @@ integer i
 ### REGENERATION REQUEST LOOP ###
 ###
 
-local REGENERATE="" REGENERATE_ARG="" REGENERATE_ALWAYS=""
+# Set REGENERATE_ALWAYS to e.g. ,module3,
+# to always regenerate third module
+local REGENERATE="initial" REGENERATE_ARG="" REGENERATE_ALWAYS=""
 
 while (( 1 )); do
 
@@ -158,9 +160,9 @@ start_seconds=$SECONDS
 # Common regeneration block
 #
 
-if [[ -z "$REGENERATE" || "$REGENERATE" = *,all,* ]]
+if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,all,* ]]
 then
-
+    :
 fi
 
 #
@@ -169,7 +171,7 @@ fi
 
 module=1
 
-if [[ -z "$REGENERATE" || "$REGENERATE" = *,module${module},* || "$REGENERATE" = *,all,* ]]; then
+if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,module${module},* || "$REGENERATE" = *,all,* ]]; then
     reply=( ); reply2="0"; reply3=( ); reply4=( )
 
     # Module 1
@@ -197,7 +199,7 @@ for (( i=2; i <= 3; i ++ )); do
 
     module=$i
 
-    if [[ -z "$REGENERATE" || "$REGENERATE" = *,module${module},* || "$REGENERATE" = *,all,* ]]; then
+    if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,module${module},* || "$REGENERATE" = *,all,* ]]; then
         reply=( ); reply2="0"; reply3=( ); reply4=( )
 
         local -a module${module}_output module${module}_nonselectables module${module}_hops
@@ -358,10 +360,6 @@ fi
 if -zui_stdlib_decode_hyperlink "$ZUILIST_WRAPPER_BIT"; then
     local id="${reply[1]}" data1="${reply[2]}" data2="${reply[3]}" data3="${reply[4]}" data4="${reply[5]}"
 
-    REGENERATE="$data2"
-    REGENERATE_ARG="$data3"
-    REGENERATE+="$REGENERATE_ALWAYS"
-
     integer call_hook=0
     if [[ "$id" = zuieanchor* ]]; then
         ZUILIST_CURRENT_IDX="${ZUI[$id]-$data1}"
@@ -376,7 +374,21 @@ if -zui_stdlib_decode_hyperlink "$ZUILIST_WRAPPER_BIT"; then
         reply[1]="${${${${${reply[1]#zuiiaction}#zuiaction}#zuicheckbox}#zuieanchor}#zuianchor}"
         # Call the handler with all hyper-link data
         "${ZUI[$id]}" "${reply[@]}"
+
+        # Handler can request regeneration
+        REGENERATE="${reply[1]}"
+        REGENERATE_ARG="${reply[2]}"
+    else
+        # Without handler regeneration can be requested
+        # only by link itself, by data3 and data4 of the
+        # link (data1 can be used by anchor - hold target
+        # line number, while data2 optionally can hold
+        # module number)
+        REGENERATE="$data3"
+        REGENERATE_ARG="$data4"
     fi
+
+    REGENERATE+="$REGENERATE_ALWAYS"
 fi
 
 ### REGENERATION REQUEST LOOP ###
