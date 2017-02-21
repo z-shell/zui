@@ -79,17 +79,25 @@ local -F start_seconds
 -zui_test_module1_generator() {
     reply=( )
     -zui_stdlib_rc_button "there" "" "/Jump/" "" "" "${ZUI_MAGENTA}there${ZUI_MAGENTA_E}" -zui_external_test_action_1
-    reply=( "Hello World" "Hello ${reply[1]}" "Third line" )
+    # Content
+    reply=( "Hello World" "Hello ${reply[1]}" "Random number: $RANDOM" )
+    # Content count
     reply2=3
+    # Non-selectables
     reply3=( 1 )
+    # Hops
     reply4=( 1 3 )
 }
 
 # Generator for module 2
 -zui_test_module2_generator() {
-    reply=( "Second Module" "I'm not selectable" "Last line" )
+    # Content
+    reply=( "Second Module" "I'm not selectable" "Random number: $RANDOM" )
+    # Content count
     reply2=3
+    # Non-selectables
     reply3=( 2 )
+    # Hops
     reply4=( 1 3 )
 }
 
