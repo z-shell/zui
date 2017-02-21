@@ -343,9 +343,11 @@ for (( i = 1; i <= 1000; i ++ )); do
         # a loop) generated modules can be required
         # to be index of the module ($i of this
         # loop)
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "1" "${hops[1]}" "$i" "" "" "[${ZUI_MAGENTA}Module1${ZUI_MAGENTA_E}]" -zui_external_anchor_action_2
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "amain$i" "${hops[1]}" "$i" "" "" "[${ZUI_MAGENTA}Module1${ZUI_MAGENTA_E}]" -zui_external_anchor_action_2
     elif [[ "$i" -ge "2" && "$i" -le "3" ]]; then
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "2" "${hops[1]}" "$i" "" "" "[${ZUI_CYAN}Module${i}${ZUI_CYAN_E}]" -zui_test_internal_action_1
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "amain$i" "${hops[1]}" "$i" "" "" "[${ZUI_CYAN}Module${i}${ZUI_CYAN_E}]" -zui_test_internal_action_1
+    else
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "amain$i" "${hops[1]}" "$i" "" "" "[${ZUI_YELLOW}Module${i}${ZUI_YELLOW_E}]" -zui_test_internal_action_1
     fi
     anchors+=( "${reply[@]}" )
 
