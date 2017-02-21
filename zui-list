@@ -790,12 +790,21 @@ while (( 1 )); do
         ZUILIST_NONSELECTABLE_ELEMENTS+=( "${nonselectables[@]}" )
         ZUILIST_HOP_INDICES+=( "${hops[@]}" )
 
-        # Last thing: update anchors
+        # Update existing anchors: global ones get
+        # pushed down (up), local ones get globalized.
+        local -a lanchors
+        -zui_stdlib_decode_lanchors "${ZUI[fly_lanchors]}" lanchors
         for el in ${ZUI[(I)zuianchor*]} ${ZUI[(I)zuieanchor*]}; do
-            index=${ZUI[$el]}
-            # Anchors after replaced block
-            if [[ "$index" -gt $(( update_first + update_count - 1 )) ]]; then
-                ZUI[$el]=$(( index + size_diff ))
+            if [[ "${lanchors[(r)${el#zuianchor}]}" = ${el#zuianchor} ]]; then
+                (( ZUI[$el] += update_first - 1 ))
+            elif [[ "${lanchors[(r)${el#zuieanchor}]}" = ${el#zuieanchor} ]]; then
+                (( ZUI[$el] += update_first - 1 ))
+            else
+                index=${ZUI[$el]:-0}
+                # Anchors after the replaced block
+                if [[ "$index" -gt $(( update_first + update_count - 1 )) ]]; then
+                    ZUI[$el]=$(( index + size_diff ))
+                fi
             fi
         done
 

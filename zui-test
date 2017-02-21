@@ -85,6 +85,8 @@ local -F start_seconds
     : ${(PA)var_name::="${reply3[@]}"}
     var_name="module${module}_hops"
     : ${(PA)var_name::="${reply4[@]}"}
+    var_name="module${module}_lanchors"
+    : ${(PA)var_name::="${reply5[@]}"}
 
     # Submit on-the-fly list update.
     # The same data.
@@ -92,6 +94,7 @@ local -F start_seconds
     -zui_stdlib_submit_list_update "${(P)var_name}" "$(( ${(P)var_name} + previous_size - 1 ))" "${reply[@]}"
     -zui_stdlib_submit_nonselectables "${reply3[@]}"
     -zui_stdlib_submit_hops "${reply4[@]}"
+    -zui_stdlib_submit_lanchors "${reply5[@]}"
 
     reply=( ); reply2="0"; reply3=( ); reply4=( )
 }
@@ -161,12 +164,14 @@ local -F start_seconds
         append_third="${reply[1]}"
     fi
 
-    local regenerate
+    local regenerate jump
     if [[ "$1" = "2" ]]; then
         reply=( )
         # IDs of anchors have own namespace
         -zui_stdlib_rc_button "regenerate4" "$1" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_test_internal_action_2
+        -zui_stdlib_anchor "jump1" "1" "" "" "" "[${ZUI_YELLOW}Jump${ZUI_YELLOW_E}]"
         regenerate="${reply[1]} this section on-the-fly, ${ZUI_YELLOW}without${ZUI_YELLOW_E} list restart"
+        jump="${reply[2]} to 1st line"
     fi
 
     if [[ "$1" = "2" ]]; then
@@ -179,6 +184,7 @@ local -F start_seconds
         "I'm the same generator called ${ZUI_CYAN}#$(( $1 - 1 ))${ZUI_CYAN_E} time"
         "${ZUI_GREEN}I'm not selectable${ZUI_GREEN_E}"
         $regenerate
+        $jump
         "$rand_line"
         $append_third
     )
@@ -189,7 +195,7 @@ local -F start_seconds
     # Hops
     reply4=( 1 )
     # Local anchors
-    reply5=( )
+    reply5=( ${jump:+jump1} )
 }
 
 #
@@ -402,6 +408,11 @@ for (( i = 1; i <= 1000; i ++ )); do
             (( ZUI[zuieanchor$a] += LINE_COUNT + 1 ))
         fi
     done
+
+    # Remove from list of anchors
+    # needing globalization
+    var_name="${n}_lanchors"
+    : ${(PA)var_name::=}
 
     # Create anchors for selected sections
     reply=( )

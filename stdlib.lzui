@@ -452,6 +452,16 @@ function -zui_stdlib_submit_nonselectables() {
     ZUI[fly_nonselectables]="${(j: :)${(q)@}}"
 }
 
+# Internal action can call this function when
+# replacing part of list to provide new local
+# anchors (their IDs). Their indices (stored
+# in $ZUI) will be globalized.
+#
+# $1, $2, ... - IDs of anchors to be globalized
+function -zui_stdlib_submit_lanchors() {
+    ZUI[fly_lanchors]="${(j: :)${(q)@}}"
+}
+
 # Deserializes on-the-fly update package.
 # To be used rather only internally.
 #
@@ -487,6 +497,18 @@ function -zui_stdlib_decode_nonselectables() {
     [[ -n "$1" ]] && __nonselectables=( "${(z@)1}" ) || __nonselectables=( )
     local __var_name="${2-reply}"
     : ${(PA)__var_name::="${(Q)__nonselectables[@]}"}
+}
+
+# Deserializes on-the-fly local anchors.
+# For internal usage.
+#
+# $1 - the anchors' package
+# $2 - optional target parameter name
+function -zui_stdlib_decode_lanchors() {
+    local -a __lanchors
+    [[ -n "$1" ]] && __lanchors=( "${(z@)1}" ) || __lanchors=( )
+    local __var_name="${2-reply}"
+    : ${(PA)__var_name::="${(Q)__lanchors[@]}"}
 }
 
 # vim:ft=zsh
