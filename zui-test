@@ -104,7 +104,7 @@ integer total_module_limit=3
     -zui_stdlib_load_global_index_and_size $module global_index previous_size
 
     -zui_stdlib_reset_replies
-    -zui_test_module2_generator $module
+    -zui_test_module2_generator $module "Extra line"
 
     # Setting the following will also pass the new
     # content to regeneration-path, if only this
@@ -176,8 +176,9 @@ integer total_module_limit=3
 
 # Generator for module 2
 -zui_test_module2_generator() {
-    local append_third
+    local extra_line="$2"
 
+    local append_third
     # Second instance of this content?
     if [[ "$1" = "3" && "$total_module_limit" -eq 3 ]]; then
         reply=( )
@@ -207,6 +208,7 @@ integer total_module_limit=3
         $regenerate
         $jump
         "$rand_line"
+        $extra_line
         $append_third
     )
     # Content count
@@ -289,7 +291,7 @@ for (( i=2; i <= total_module_limit; i ++ )); do
         integer module${module}_size prev_module${module}_size
 
         -zui_stdlib_reset_replies
-        -zui_test_module2_generator $module
+        -zui_test_module2_generator $module $REGENERATE_ARG
 
         # This function has to be called after each *_generator
         # function call, to copy reply{,2..5} into above (after
