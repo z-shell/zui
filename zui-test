@@ -30,17 +30,12 @@ local -F start_seconds
 #
 
 -zui_external_test_action_1() {
-    local -a zip_B
-    zip_B=( "$@" )
-    local -a zip_A
-    zip_A=( "ID:" "Data 1:" "Data 2:" "Data 3:" "Data 4:" )
+    local var_name="module${2}_extra_line"
+    : ${(P)var_name::=Function set this line (once), regeneration used it}
 
-    print "Hello world!"
-
-    local v1 v2
-    for v1 v2 in "${(@)zip_A:^zip_B}"; do
-        print "$v1 $v2"
-    done
+    # Request regeneration - module ID
+    # and regeneration argument (empty)
+    reply=( ",module${2}," "" )
 }
 
 -zui_external_anchor_action_2() {
@@ -89,15 +84,24 @@ local -F start_seconds
 # Generator for module 1
 -zui_test_module1_generator() {
     reply=( )
-    -zui_stdlib_rc_button "there" "" "/Jump/" "" "" "${ZUI_MAGENTA}there${ZUI_MAGENTA_E}" -zui_external_test_action_1
+    -zui_stdlib_rc_button "regenerate1" "$1" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_external_test_action_1
+    -zui_stdlib_rc_button "regenerate2" "$1" "" ",module${1}," "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}"
     # Content
-    reply=( "Hello World from ${ZUI_GREEN}module $1${ZUI_GREEN_E}" "Hello ${reply[1]}" "Random number: $RANDOM" )
+    reply=(
+            "Hello World from ${ZUI_GREEN}module ${1}${ZUI_GREEN_E}"
+            "${reply[1]} this section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}function_call${ZUI_CYAN_E}"
+            "${reply[2]} this section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}raw_link${ZUI_CYAN_E}"
+            "Random number: $RANDOM"
+
+            # This is set in -zui_external_test_action_1
+            $module1_extra_line
+            )
     # Content count
-    reply2=3
+    reply2=${#reply[@]}
     # Non-selectables
     reply3=( 1 )
     # Hops
-    reply4=( 1 3 )
+    reply4=( 1 )
 }
 
 # Generator for module 2
@@ -109,7 +113,7 @@ local -F start_seconds
     # Non-selectables
     reply3=( 2 )
     # Hops
-    reply4=( 1 3 )
+    reply4=( 1 )
 }
 
 #
@@ -142,6 +146,9 @@ local var_name
 
 # Used in e.g. for loops as index
 integer i
+
+# A variable used for demonstration purposes
+local module1_extra_line
 
 ###
 ### REGENERATION REQUEST LOOP ###
