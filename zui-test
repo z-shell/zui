@@ -96,7 +96,12 @@ integer total_module_limit=3
 }
 
 -zui_module2_internal_action_1() {
-    local id="$1" module="$2" var_name var_name2
+    local id="$1" module="$2" var_name previous_size
+
+    # Needed to construct on-the-fly packet
+    # - previous size of module $module
+    var_name="module${module}_size"
+    previous_size="${(P)var_name}"
 
     reply=( ); reply2="0"; reply3=( ); reply4=( ); reply5=( )
 
@@ -108,13 +113,10 @@ integer total_module_limit=3
     # (so some other, e.g. via REGENERATE=,module1,)
     -zui_stdlib_map_replies $module
 
-    # Needed to construct on-the-fly packet
-    var_name2="module${module}_size"
-
     # Submit on-the-fly list update.
     # The same data.
     var_name="module${module}_global_index"
-    -zui_stdlib_submit_list_update "${(P)var_name}" "$(( ${(P)var_name} + ${(P)var_name2} - 1 ))" "${reply[@]}"
+    -zui_stdlib_submit_list_update "${(P)var_name}" "$(( ${(P)var_name} + previous_size - 1 ))" "${reply[@]}"
     -zui_stdlib_submit_nonselectables "${reply3[@]}"
     -zui_stdlib_submit_hops "${reply4[@]}"
     -zui_stdlib_submit_lanchors "${reply5[@]}"
