@@ -31,7 +31,7 @@ local -F start_seconds
 
 -zui_external_test_action_1() {
     local var_name="module${2}_extra_line"
-    : ${(P)var_name::=Function set this line (once), regeneration used it}
+    : ${(P)var_name::=Function set this line, regeneration used it}
 
     # Request regeneration - module ID
     # and regeneration argument (empty)
@@ -84,14 +84,21 @@ local -F start_seconds
 # Generator for module 1
 -zui_test_module1_generator() {
     reply=( )
-    -zui_stdlib_rc_button "regenerate1" "$1" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_external_test_action_1
-    -zui_stdlib_rc_button "regenerate2" "$1" "" ",module${1}," "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}"
+    # IDs of anchors have own namespace
+    -zui_stdlib_anchor "regenerate1" "4" "" ",module${1}," "${RANDOM}$((RANDOM%2))" "[${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}]"
+    -zui_stdlib_rc_button "regenerate2" "$1" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_external_test_action_1
+    -zui_stdlib_rc_button "regenerate3" "$1" "" ",module$(( $1 + 1 ))," "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}"
+
+    # Passed user data
+    local user_data=${2:+ \[Obtained regeneration user data: $2\]}
+
     # Content
     reply=(
             "Hello World from ${ZUI_GREEN}module ${1}${ZUI_GREEN_E}"
-            "${reply[1]} this section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}function_call${ZUI_CYAN_E}"
-            "${reply[2]} this section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}raw_link${ZUI_CYAN_E}"
-            "Random number: $RANDOM"
+            "${reply[1]} this section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}external_anchor${ZUI_CYAN_E}${user_data}"
+            "${reply[2]} this section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}function_call${ZUI_CYAN_E}"
+            "${reply[3]} ${ZUI_RED}NEXT${ZUI_RED_E} section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}raw_link${ZUI_CYAN_E}"
+            "Random number: $RANDOM$((RANDOM%2))"
 
             # This is set in -zui_external_test_action_1
             $module1_extra_line
@@ -107,7 +114,7 @@ local -F start_seconds
 # Generator for module 2
 -zui_test_module2_generator() {
     # Content
-    reply=( "Second Module" "I'm not selectable" "Random number: $RANDOM" )
+    reply=( "Second Module" "I'm not selectable" "Random number: $RANDOM$((RANDOM%2))" )
     # Content count
     reply2=3
     # Non-selectables
@@ -186,7 +193,7 @@ if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,module${module},* || "$REGE
     local -a prev_module${module}_nonselectables prev_module${module}_hops
     integer module${module}_size prev_module${module}_size
 
-    -zui_test_module1_generator $module
+    -zui_test_module1_generator $module $REGENERATE_ARG
 
     var_name="module${module}_output"
     : ${(PA)var_name::="${reply[@]}"}
@@ -290,16 +297,6 @@ for (( i = 1; i <= 1000; i ++ )); do
     # Add translated, current hops and nonselectables
     ZUILIST_NONSELECTABLE_ELEMENTS+=( "${nonselectables[@]}" )
     ZUILIST_HOP_INDICES+=( "${hops[@]}" )
-
-    # Alter current index if size of section was changed
-    # - using *_size, prev_*_size parameters
-    if [[ "$n" = "module1" && "$REGENERATE" = *,module1,* ]]; then
-        integer delta=$(( log_size-prev_log_size ))
-        ZUILIST_CURRENT_IDX=$(( ZUILIST_CURRENT_IDX + delta ))
-    elif [[ "$n" = "module2" && "$REGENERATE" = *,module2,* ]]; then
-        ZUILIST_CURRENT_IDX="4"
-        ZUILIST_CURRENT_SEGMENT="1"
-    fi
 
     # Also store the indices into prev_* arrays
     var_name="prev_${n}_nonselectables"
