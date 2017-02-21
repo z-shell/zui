@@ -131,13 +131,12 @@ function -zui_stdlib_anchor() {
         [[ "$__data3" = ,*, ]] && __pfx="zuieanchor"
     }
 
-    # Return data
+    # Store return data
     local -a __output
     __output=( "${(P@)__var_name}" $'\1'"$__pfx$__id"$'\1'"$__data1"$'\1'"$__data2"$'\1'"$__data3"$'\1'"$__data4"$'\2'"${__text}" )
     : ${(PA)__var_name::=${__output[@]}}
 
-    # Store anchor's target line
-    unset __id __data1 __data2 __data3 __data4 __text __handler
+    # Store anchor's target line index
     ZUI[$__pfx$__id]="$__data1"
 }
 
