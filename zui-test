@@ -80,7 +80,7 @@ local -F start_seconds
     reply=( )
     -zui_stdlib_rc_button "there" "" "/Jump/" "" "" "${ZUI_MAGENTA}there${ZUI_MAGENTA_E}" -zui_external_test_action_1
     # Content
-    reply=( "Hello World" "Hello ${reply[1]}" "Random number: $RANDOM" )
+    reply=( "Hello World from ${ZUI_GREEN}module $1${ZUI_GREEN_E}" "Hello ${reply[1]}" "Random number: $RANDOM" )
     # Content count
     reply2=3
     # Non-selectables
@@ -123,15 +123,13 @@ local -A ZUI_SECTION_INDICES
 local -a reply reply3 reply4
 integer reply2
 
-# Module 1
-local -a module1_output module1_nonselectables module1_hops
-local -a prev_module1_nonselectables prev_module1_hops
-integer module1_size prev_module1_size
+# Module counter - used to declare parameters
+# of given module (they are distinct only in
+# counter embedded in them)
+local module
 
-# Module 2
-local -a module2_output module2_nonselectables module2_hops
-local -a prev_module2_nonselectables prev_module2_hops
-integer module2_size prev_module2_size
+# Used to access parameters via name
+local var_name
 
 ###
 ### REGENERATION REQUEST LOOP ###
@@ -157,30 +155,51 @@ fi
 # Module 1
 #
 
-if [[ -z "$REGENERATE" || "$REGENERATE" = *,module1,* || "$REGENERATE" = *,all,* ]]; then
+module=1
+
+if [[ -z "$REGENERATE" || "$REGENERATE" = *,module${module},* || "$REGENERATE" = *,all,* ]]; then
     reply=( ); reply2="0"; reply3=( ); reply4=( )
 
-    -zui_test_module1_generator
+    # Module 1
+    local -a module${module}_output module${module}_nonselectables module${module}_hops
+    local -a prev_module${module}_nonselectables prev_module${module}_hops
+    integer module${module}_size prev_module${module}_size
 
-    module1_output=( "${reply[@]}" )
-    module1_size=$reply2
-    module1_nonselectables=( "${reply3[@]}" )
-    module1_hops=( "${reply4[@]}" )
+    -zui_test_module1_generator $module
+
+    var_name="module${module}_output"
+    : ${(PA)var_name::="${reply[@]}"}
+    var_name="module${module}_size"
+    : ${(PA)var_name::=$reply2}
+    var_name="module${module}_nonselectables"
+    : ${(PA)var_name::="${reply3[@]}"}
+    var_name="module${module}_hops"
+    : ${(PA)var_name::="${reply4[@]}"}
 fi
 
 #
 # Module 2
 #
 
-if [[ -z "$REGENERATE" || "$REGENERATE" = *,module2,* || "$REGENERATE" = *,all,* ]]; then
+module=2
+
+if [[ -z "$REGENERATE" || "$REGENERATE" = *,module${module},* || "$REGENERATE" = *,all,* ]]; then
     reply=( ); reply2="0"; reply3=( ); reply4=( )
 
-    -zui_test_module2_generator
+    local -a module${module}_output module${module}_nonselectables module${module}_hops
+    local -a prev_module${module}_nonselectables prev_module${module}_hops
+    integer module${module}_size prev_module${module}_size
 
-    module2_output=( "${reply[@]}" )
-    module2_size=$reply2
-    module2_nonselectables=( "${reply3[@]}" )
-    module2_hops=( "${reply4[@]}" )
+    -zui_test_module2_generator $module
+
+    var_name="module${module}_output"
+    : ${(PA)var_name::="${reply[@]}"}
+    var_name="module${module}_size"
+    : ${(PA)var_name::=$reply2}
+    var_name="module${module}_nonselectables"
+    : ${(PA)var_name::="${reply3[@]}"}
+    var_name="module${module}_hops"
+    : ${(PA)var_name::="${reply4[@]}"}
 fi
 
 #
@@ -194,7 +213,7 @@ ZUILIST_HOP_INDICES=()
 local -a OUTPUT output nonselectables hops
 local -a prev_nonselectables prev_hops
 local -a anchors
-local n var_name
+local n
 integer LINE_COUNT size
 
 OUTPUT=( )
