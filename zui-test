@@ -26,6 +26,37 @@ typeset -F SECONDS=0.0
 local -F start_seconds
 
 #
+# Variables
+#
+
+# Replies from generation modules
+# reply - content
+# reply2 - content size
+# reply3 - nonselectables (to be globalized)
+# reply4 - hops (to be globalized)
+# reply5 - anchors' IDs (to be globalized)
+local -a reply reply3 reply4 reply5
+integer reply2
+
+# Module counter - used to declare parameters
+# of given module (they are distinct only in
+# counter embedded in them)
+local module
+
+# Used to access parameters via name
+local var_name
+
+# Used in e.g. for loops as index
+integer i
+
+# A variable used for demonstration purposes
+local module1_extra_line
+
+# Maximum number of modules to generate,
+# the dynamic ones will saturate that value
+integer total_module_limit=3
+
+#
 # Actions
 #
 
@@ -110,7 +141,7 @@ local -F start_seconds
 }
 
 #
-# Generators for module
+# Generators for modules
 #
 
 # Generator for module 1
@@ -201,37 +232,6 @@ local -a match mbegin mend
 #
 # General zstyles
 #
-
-#
-# Variables
-#
-
-# Replies from generation modules
-# reply - content
-# reply2 - content size
-# reply3 - nonselectables (to be globalized)
-# reply4 - hops (to be globalized)
-# reply5 - anchors' IDs (to be globalized)
-local -a reply reply3 reply4 reply5
-integer reply2
-
-# Module counter - used to declare parameters
-# of given module (they are distinct only in
-# counter embedded in them)
-local module
-
-# Used to access parameters via name
-local var_name
-
-# Used in e.g. for loops as index
-integer i
-
-# A variable used for demonstration purposes
-local module1_extra_line
-
-# Maximum number of modules to generate,
-# the dynamic ones will saturate that value
-integer total_module_limit=3
 
 ###
 ### REGENERATION REQUEST LOOP ###
