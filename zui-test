@@ -122,7 +122,7 @@ local -F start_seconds
 -zui_test_module1_generator() {
     reply=( )
     # IDs of anchors have own namespace
-    -zui_stdlib_anchor "regenerate1" "4" "" ",module${1}," "${RANDOM}$((RANDOM%2))" "[${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}]"
+    -zui_stdlib_anchor "regenerate1" "1" "" ",module${1}," "${RANDOM}$((RANDOM%2))" "[${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}]"
     -zui_stdlib_rc_button "regenerate2" "$1" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_external_test_action_1
     -zui_stdlib_rc_button "regenerate3" "$1" "" ",module$(( $1 + 1 ))," "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}"
 
@@ -146,6 +146,8 @@ local -F start_seconds
     reply3=( 1 )
     # Hops
     reply4=( 1 )
+    # Local anchors
+    reply5=( regenerate1 )
 }
 
 # Generator for module 2
@@ -186,6 +188,8 @@ local -F start_seconds
     reply3=( 2 )
     # Hops
     reply4=( 1 )
+    # Local anchors
+    reply5=( )
 }
 
 #
@@ -205,7 +209,12 @@ local -a match mbegin mend
 #
 
 # Replies from generation modules
-local -a reply reply3 reply4
+# reply - content
+# reply2 - content size
+# reply3 - nonselectables (to be globalized)
+# reply4 - hops (to be globalized)
+# reply5 - anchors' IDs (to be globalized)
+local -a reply reply3 reply4 reply5
 integer reply2
 
 # Module counter - used to declare parameters
@@ -258,7 +267,7 @@ if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,module${module},* || "$REGE
     reply=( ); reply2="0"; reply3=( ); reply4=( )
 
     # Module 1
-    local -a module${module}_output module${module}_nonselectables module${module}_hops
+    local -a module${module}_output module${module}_nonselectables module${module}_hops module${module}_lanchors
     local -a prev_module${module}_nonselectables prev_module${module}_hops
     integer module${module}_size prev_module${module}_size
 
@@ -272,6 +281,8 @@ if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,module${module},* || "$REGE
     : ${(PA)var_name::="${reply3[@]}"}
     var_name="module${module}_hops"
     : ${(PA)var_name::="${reply4[@]}"}
+    var_name="module${module}_lanchors"
+    : ${(PA)var_name::="${reply5[@]}"}
 fi
 
 #
@@ -285,7 +296,7 @@ for (( i=2; i <= total_module_limit; i ++ )); do
     if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,module${module},* || "$REGENERATE" = *,all,* ]]; then
         reply=( ); reply2="0"; reply3=( ); reply4=( )
 
-        local -a module${module}_output module${module}_nonselectables module${module}_hops
+        local -a module${module}_output module${module}_nonselectables module${module}_hops module${module}_lanchors
         local -a prev_module${module}_nonselectables prev_module${module}_hops
         integer module${module}_size prev_module${module}_size
 
@@ -299,6 +310,8 @@ for (( i=2; i <= total_module_limit; i ++ )); do
         : ${(PA)var_name::="${reply3[@]}"}
         var_name="module${module}_hops"
         : ${(PA)var_name::="${reply4[@]}"}
+        var_name="module${module}_lanchors"
+        : ${(PA)var_name::="${reply5[@]}"}
     fi
 
 done
@@ -311,15 +324,15 @@ typeset -ga ZUILIST_NONSELECTABLE_ELEMENTS ZUILIST_HOP_INDICES
 ZUILIST_NONSELECTABLE_ELEMENTS=()
 ZUILIST_HOP_INDICES=()
 
-local -a OUTPUT output nonselectables hops
+local -a OUTPUT output nonselectables hops lanchors
 local -a prev_nonselectables prev_hops
-local -a anchors
-local n
+local -a top_anchors
+local n a
 integer LINE_COUNT size
 
 OUTPUT=( )
 LINE_COUNT=0
-anchors=( )
+top_anchors=( )
 
 for (( i = 1; i <= 1000; i ++ )); do
     n="module$i"
@@ -342,6 +355,10 @@ for (( i = 1; i <= 1000; i ++ )); do
     # Get hops
     var_name="${n}_hops"
     hops=( "${(PA@)var_name}" )
+
+    # Get local anchors
+    var_name="${n}_lanchors"
+    lanchors=( "${(PA@)var_name}" )
 
     # Get previous nonselectables
     var_name="prev_${n}_nonselectables"
@@ -375,6 +392,17 @@ for (( i = 1; i <= 1000; i ++ )); do
     var_name="prev_${n}_size"
     : "${(P)var_name::=${size}}";
 
+    # Traverse module's local anchors,
+    # translate them to global ones
+    for a in "${lanchors[@]}"; do
+        # + 1 for anchors at top
+        if [[ "${+ZUI[zuianchor$a]}" = "1" ]]; then
+            (( ZUI[zuianchor$a] += LINE_COUNT + 1 ))
+        elif [[ "${+ZUI[zuieanchor$a]}" = "1" ]]; then
+            (( ZUI[zuieanchor$a] += LINE_COUNT + 1 ))
+        fi
+    done
+
     # Create anchors for selected sections
     reply=( )
     if [[ "$i" = "1" ]]; then
@@ -390,7 +418,7 @@ for (( i = 1; i <= 1000; i ++ )); do
     else
         [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "amain$i" "${hops[1]}" "$i" "" "" "[${ZUI_YELLOW}Module${i}${ZUI_YELLOW_E}]" -zui_test_internal_action_1
     fi
-    anchors+=( "${reply[@]}" )
+    top_anchors+=( "${reply[@]}" )
 
     # Store where in the list module is
     # located, via typical "moduleX_..."
@@ -422,7 +450,7 @@ ZUI[GENERATION_TIME]="${generation_time[1,4]}"
 ZUILIST_HOP_INDICES+=( 1 ) # jump to anchors
 ZUILIST_NONSELECTABLE_ELEMENTS+=( $(( 1 + ${#OUTPUT} + 2 )) )
 local ZUILIST_WRAPPER_BIT=""
-zui-usetty-wrapper zui-list-wrapper "${anchors[*]}" "${OUTPUT[@]}" "" "${ZUI_YELLOW}Fine grained list (re-)generation time: $generation_time${ZUI_YELLOW_E}"
+zui-usetty-wrapper zui-list-wrapper "${top_anchors[*]}" "${OUTPUT[@]}" "" "${ZUI_YELLOW}Fine grained list (re-)generation time: $generation_time${ZUI_YELLOW_E}"
 
 if [ -z "$ZUILIST_WRAPPER_BIT" ]; then
     zle && { zle .redisplay; zle .reset-prompt; }
