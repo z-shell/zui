@@ -76,46 +76,34 @@ if [[ "$search" = "0" ]]; then
 case "$key" in
     (UP|k)
         # Are there any elements before the current one?
-        [[ "$current_idx" -gt 1 ]] && {
+        [[ "$current_idx" -gt 1 ]] && current_idx=current_idx-1
+        while [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]]; do
             current_idx=current_idx-1
-            -zui_listin_compute_first_to_show_idx_up_many
-        }
-        [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]] && {
-            current_idx=current_idx-1
-            -zui_listin_compute_first_to_show_idx_up_many
-        }
+        done
+        -zui_listin_compute_first_to_show_idx_up_many
         ;;
     (DOWN|j)
         # Are there any elements after the current one?
-        [[ "$current_idx" -lt "$last_element" ]] && {
+        [[ "$current_idx" -lt "$last_element" ]] && current_idx=current_idx+1
+        while [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]]; do
             current_idx=current_idx+1
-            -zui_listin_compute_first_to_show_idx_down_many
-        }
-        [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]] && {
-            current_idx=current_idx+1
-            -zui_listin_compute_first_to_show_idx_down_many
-        }
+        done
+        -zui_listin_compute_first_to_show_idx_down_many
         ;;
     ($'\C-P')
-        [[ "$current_idx" -gt 1 ]] && {
+        [[ "$current_idx" -gt 1 ]] && current_idx=current_idx-1
+        while [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]]; do
             current_idx=current_idx-1
-            -zui_listin_compute_first_to_show_idx_center
-        }
-        [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]] && {
-            current_idx=current_idx-1
-            -zui_listin_compute_first_to_show_idx_center
-        }
+        done
+        -zui_listin_compute_first_to_show_idx_center
         ;;
     ($'\C-N')
         # Are there any elements after the current one?
-        [[ "$current_idx" -lt "$last_element" ]] && {
+        [[ "$current_idx" -lt "$last_element" ]] && current_idx=current_idx+1
+        while [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]]; do
             current_idx=current_idx+1
-            -zui_listin_compute_first_to_show_idx_center
-        }
-        [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]] && {
-            current_idx=current_idx+1
-            -zui_listin_compute_first_to_show_idx_center
-        }
+        done
+        -zui_listin_compute_first_to_show_idx_center
         ;;
     (PPAGE|$'\b'|$'\C-?'|BACKSPACE)
         current_idx=current_idx-page_height
@@ -230,12 +218,11 @@ case "$key" in
             [[ "$current_idx" -gt "1" ]] && {
                 current_idx=current_idx-1
                 current_segment="100"
-                -zui_listin_compute_first_to_show_idx_up_many
             }
-            [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]] && {
+            while [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]]; do
                 current_idx=current_idx-1
-                -zui_listin_compute_first_to_show_idx_up_many
-            }
+            done
+            -zui_listin_compute_first_to_show_idx_up_many
         else
             # Establish exact right-edge segment
             if [[ "$current_segment" -gt "$nseg" ]]; then
@@ -247,12 +234,11 @@ case "$key" in
                 [[ "$current_idx" -gt "1" ]] && {
                     current_idx=current_idx-1
                     current_segment="100"
-                    -zui_listin_compute_first_to_show_idx_up_many
                 }
-                [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]] && {
+                while [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]]; do
                     current_idx=current_idx-1
-                    -zui_listin_compute_first_to_show_idx_up_many
-                }
+                done
+                -zui_listin_compute_first_to_show_idx_up_many
             else
                 (( current_segment = current_segment - 1 ))
             fi
@@ -263,12 +249,11 @@ case "$key" in
             [[ "$current_idx" -lt "$last_element" ]] && {
                 current_idx=current_idx+1
                 current_segment=1
-                -zui_listin_compute_first_to_show_idx_down_many
             }
-            [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]] && {
+            while [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]]; do
                 current_idx=current_idx+1
-                -zui_listin_compute_first_to_show_idx_down_many
-            }
+            done
+            -zui_listin_compute_first_to_show_idx_down_many
         else
             (( current_segment = current_segment + 1 ))
             if [[ "$key" = $'\t' ]]; then
@@ -276,12 +261,11 @@ case "$key" in
                     [[ "$current_idx" -lt "$last_element" ]] && {
                         current_idx=current_idx+1
                         current_segment="1"
-                        -zui_listin_compute_first_to_show_idx_down_many
                     }
-                    [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]] && {
+                    while [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]]; do
                         current_idx=current_idx+1
-                        -zui_listin_compute_first_to_show_idx_down_many
-                    }
+                    done
+                    -zui_listin_compute_first_to_show_idx_down_many
                 fi
             fi
             [[ "$current_segment" -gt "$nseg" ]] && current_segment="$nseg"
@@ -316,45 +300,33 @@ case "$key" in
     #
 
     (UP)
-        [[ "$current_idx" -gt 1 ]] && {
+        [[ "$current_idx" -gt 1 ]] && current_idx=current_idx-1
+        while [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]]; do
             current_idx=current_idx-1
-            -zui_listin_compute_first_to_show_idx_up_many
-        }
-        [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]] && {
-            current_idx=current_idx-1
-            -zui_listin_compute_first_to_show_idx_up_many
-        }
+        done
+        -zui_listin_compute_first_to_show_idx_up_many
         ;;
     (DOWN)
-        [[ "$current_idx" -lt "$last_element" ]] && {
-            current_idx=current_idx+1;
-            -zui_listin_compute_first_to_show_idx_down_many
-        }
-        [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]] && {
+        [[ "$current_idx" -lt "$last_element" ]] && current_idx=current_idx+1
+        while [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]]; do
             current_idx=current_idx+1
-            -zui_listin_compute_first_to_show_idx_down_many
-        }
+        done
+        -zui_listin_compute_first_to_show_idx_down_many
         ;;
     ($'\C-P')
-        [[ "$current_idx" -gt 1 ]] && {
+        [[ "$current_idx" -gt 1 ]] && current_idx=current_idx-1
+        while [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]]; do
             current_idx=current_idx-1
-            -zui_listin_compute_first_to_show_idx_center
-        }
-        [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]] && {
-            current_idx=current_idx-1
-            -zui_listin_compute_first_to_show_idx_center
-        }
+        done
+        -zui_listin_compute_first_to_show_idx_center
         ;;
     ($'\C-N')
         # Are there any elements after the current one?
-        [[ "$current_idx" -lt "$last_element" ]] && {
+        [[ "$current_idx" -lt "$last_element" ]] && current_idx=current_idx+1
+        while [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]]; do
             current_idx=current_idx+1
-            -zui_listin_compute_first_to_show_idx_center
-        }
-        [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]] && {
-            current_idx=current_idx+1
-            -zui_listin_compute_first_to_show_idx_center
-        }
+        done
+        -zui_listin_compute_first_to_show_idx_center
         ;;
     (PPAGE)
         current_idx=current_idx-page_height
@@ -389,12 +361,11 @@ case "$key" in
             [[ "$current_idx" -gt "1" ]] && {
                 current_idx=current_idx-1
                 current_segment="100"
-                -zui_listin_compute_first_to_show_idx_up_many
             }
-            [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]] && {
+            while [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]]; do
                 current_idx=current_idx-1
-                -zui_listin_compute_first_to_show_idx_up_many
-            }
+            done
+            -zui_listin_compute_first_to_show_idx_up_many
         else
             # Establish exact right-edge segment
             if [[ "$current_segment" -gt "$nseg" ]]; then
@@ -406,12 +377,11 @@ case "$key" in
                 [[ "$current_idx" -gt "1" ]] && {
                     current_idx=current_idx-1
                     current_segment="100"
-                    -zui_listin_compute_first_to_show_idx_up_many
                 }
-                [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]] && {
+                while [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]]; do
                     current_idx=current_idx-1
-                    -zui_listin_compute_first_to_show_idx_up_many
-                }
+                done
+                -zui_listin_compute_first_to_show_idx_up_many
             else
                 (( current_segment = current_segment - 1 ))
             fi
@@ -422,12 +392,11 @@ case "$key" in
             [[ "$current_idx" -lt "$last_element" ]] && {
                 current_idx=current_idx+1
                 current_segment=1
-                -zui_listin_compute_first_to_show_idx_down_many
             }
-            [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]] && {
+            while [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]]; do
                 current_idx=current_idx+1
-                -zui_listin_compute_first_to_show_idx_down_many
-            }
+            done
+            -zui_listin_compute_first_to_show_idx_down_many
         else
             (( current_segment = current_segment + 1 ))
             if [[ "$key" = $'\t' ]]; then
@@ -435,12 +404,11 @@ case "$key" in
                     [[ "$current_idx" -lt "$last_element" ]] && {
                         current_idx=current_idx+1
                         current_segment="1"
-                        -zui_listin_compute_first_to_show_idx_down_many
                     }
-                    [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]] && {
+                    while [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]]; do
                         current_idx=current_idx+1
-                        -zui_listin_compute_first_to_show_idx_down_many
-                    }
+                    done
+                    -zui_listin_compute_first_to_show_idx_down_many
                 fi
             fi
             [[ "$current_segment" -gt "$nseg" ]] && current_segment="$nseg"
