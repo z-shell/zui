@@ -237,23 +237,24 @@ case "$key" in
                 -zui_listin_compute_first_to_show_idx_up_many
             }
         else
+            # Establish exact right-edge segment
             if [[ "$current_segment" -gt "$nseg" ]]; then
-                (( current_segment = nseg - 1 ))
+                (( current_segment = nseg ))
                 [[ "$current_segment" -le 0 ]] && current_segment=1
+            fi
+
+            if [[ "$key" = "BTAB" && "$current_segment" -eq "1" ]]; then
+                [[ "$current_idx" -gt "1" ]] && {
+                    current_idx=current_idx-1
+                    current_segment="100"
+                    -zui_listin_compute_first_to_show_idx_up_many
+                }
+                [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]] && {
+                    current_idx=current_idx-1
+                    -zui_listin_compute_first_to_show_idx_up_many
+                }
             else
-                if [[ "$key" = "BTAB" && "$current_segment" -eq "1" ]]; then
-                    [[ "$current_idx" -gt "1" ]] && {
-                        current_idx=current_idx-1
-                        current_segment="100"
-                        -zui_listin_compute_first_to_show_idx_up_many
-                    }
-                    [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]] && {
-                        current_idx=current_idx-1
-                        -zui_listin_compute_first_to_show_idx_up_many
-                    }
-                else
-                    (( current_segment = current_segment - 1 ))
-                fi
+                (( current_segment = current_segment - 1 ))
             fi
         fi
         ;;
@@ -395,23 +396,24 @@ case "$key" in
                 -zui_listin_compute_first_to_show_idx_up_many
             }
         else
+            # Establish exact right-edge segment
             if [[ "$current_segment" -gt "$nseg" ]]; then
-                (( current_segment = nseg - 1 ))
+                (( current_segment = nseg ))
                 [[ "$current_segment" -le 0 ]] && current_segment=1
+            fi
+
+            if [[ "$key" = BTAB && "$current_segment" -eq "1" ]]; then
+                [[ "$current_idx" -gt "1" ]] && {
+                    current_idx=current_idx-1
+                    current_segment="100"
+                    -zui_listin_compute_first_to_show_idx_up_many
+                }
+                [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]] && {
+                    current_idx=current_idx-1
+                    -zui_listin_compute_first_to_show_idx_up_many
+                }
             else
-                if [[ "$key" = BTAB && "$current_segment" -eq "1" ]]; then
-                    [[ "$current_idx" -gt "1" ]] && {
-                        current_idx=current_idx-1
-                        current_segment="100"
-                        -zui_listin_compute_first_to_show_idx_up_many
-                    }
-                    [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]] && {
-                        current_idx=current_idx-1
-                        -zui_listin_compute_first_to_show_idx_up_many
-                    }
-                else
-                    (( current_segment = current_segment - 1 ))
-                fi
+                (( current_segment = current_segment - 1 ))
             fi
         fi
         ;;
