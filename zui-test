@@ -148,16 +148,16 @@ integer internal
 # It generates additional status text, displayed after
 # "Current #...", from data of highlighted button
 -zui-standard-status-callback() {
-    local id data1 data2 data3 data4 text handler
-    id="$1"
-    data3="$3"
-    handler="$7"
+    local id="$1" data1="$2" data2="$3" data3="$4" data4="$5" text="$6" handler
 
     [[ $id = (zuiiaction|zuianchor|zuicheckbox)* ]] && local exint="NO-RESTART" || local exint="RESTART"
 
     id="${${${${${id#zuiiaction}#zuiaction}#zuicheckbox}#zuieanchor}#zuianchor}"
 
-    reply=( "My id: $id" " $exint" " My handler:" " $handler" )
+    handler="$ZUI[zuiiaction$id]"
+    [[ -z "$handler" ]] && handler="$ZUI[zuiaction$id]"
+
+    reply=( "Id: $id $data1" " $exint" " Handler:" " $handler" )
 }
 
 #
