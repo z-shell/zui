@@ -49,6 +49,39 @@ setopt typesetsilent extendedglob
     fi
 }
 
+# Searches for hyperlink in current line,
+# sets current_segment to first link found
+-zui_listin_search_for_hyperlink() {
+    local -a segments
+    segments=( "${(Pz@)list_var_current}" )
+
+    # Hide global $nseg
+    local nseg="${#segments}"
+
+    [[ "$current_segment" -gt "$nseg" ]] && current_segment="$nseg"
+    [[ "$current_segment" -le 0 ]] && current_segment="1"
+
+    integer left=current_segment right=current_segment
+
+    # Left
+    while ! -zui_stdlib_is_hyperlink "${segments[left]}"; do
+        (( -- left ))
+        [[ "$left" -le 0 ]] && break
+    done
+
+    # Right
+    while ! -zui_stdlib_is_hyperlink "${segments[right]}"; do
+        (( ++ right ))
+        [[ "$right" -gt "$nseg" ]] && break
+    done
+
+    # Choose smaller distance
+    if (( (current_segment - left) <= (right - current_segment) && left >= 1 )); then
+        current_segment=left
+    elif (( right <= nseg )); then
+        current_segment=right
+    fi
+}
 
 typeset -ga reply
 reply=( -1 '' )
@@ -452,6 +485,10 @@ case "$key" in
 esac
 
 fi
+
+# Make current_segment point to
+# hyperlink, if it exists in line
+-zui_listin_search_for_hyperlink
 
 reply[3]="$current_idx"
 reply[4]="$current_segment"
