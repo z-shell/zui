@@ -76,10 +76,12 @@ setopt typesetsilent extendedglob
     done
 
     # Choose smaller distance
-    if (( (current_segment - left) <= (right - current_segment) && left >= 1 )); then
+    if (( left >= 1 && right <= nseg && (current_segment - left) <= (right - current_segment) )); then
         current_segment=left
     elif (( right <= nseg )); then
         current_segment=right
+    elif (( left >= 1 )); then
+        current_segment=left
     fi
 }
 
