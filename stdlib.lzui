@@ -70,6 +70,7 @@ function -zui_stdlib_rc_button() {
 }
 
 # Appends anchor hyperlink into "reply" output array
+# (or to array given by name via $8).
 #
 # Arguments are initially the same as in -zui_stdlib_\
 # button, except:

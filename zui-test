@@ -182,13 +182,19 @@ integer internal
             "Hello World from ${ZUI_GREEN}Module ${1}${ZUI_GREEN_E} (non-selectable line, a header)"
             "${reply[1]} this module via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}external_anchor${ZUI_CYAN_E}${user_data}"
             "${reply[2]} this module via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}function_call${ZUI_CYAN_E}"
-            "${reply[3]} ${ZUI_RED}NEXT${ZUI_RED_E} section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}raw_link${ZUI_CYAN_E}"
+            "${reply[3]} the <NEXT> section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}raw_link${ZUI_CYAN_E}"
             "Toggle ${reply[4]} with inlined (no function!) code"
             "Random number: $RANDOM$((RANDOM%2))"
 
             # This is set in -zui_module1_external_action_1
             $module1_extra_line
             )
+
+    # Jump 2 lines after last line
+    local -a next
+    -zui_stdlib_anchor "nextjump" "$(( ${#reply[@]} + 2 ))" "" "" "" "[${ZUI_YELLOW}NEXT${ZUI_YELLOW_E}]" "" next
+    reply[4]="${reply[4]/<NEXT>/${next[1]}}"
+
     # Content count
     reply2=${#reply[@]}
     # Non-selectables
@@ -196,7 +202,7 @@ integer internal
     # Hops
     reply4=( 1 )
     # Local anchors
-    reply5=( regenerate1 )
+    reply5=( regenerate1 nextjump )
 }
 
 # Generator for module 2
