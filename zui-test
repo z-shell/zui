@@ -167,7 +167,7 @@ integer internal
 
     # Content
     reply=(
-            "Hello World from ${ZUI_GREEN}Module ${1}${ZUI_GREEN_E}"
+            "Hello World from ${ZUI_GREEN}Module ${1}${ZUI_GREEN_E} (non-selectable line, a header)"
             "${reply[1]} this module via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}external_anchor${ZUI_CYAN_E}${user_data}"
             "${reply[2]} this module via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}function_call${ZUI_CYAN_E}"
             "${reply[3]} ${ZUI_RED}NEXT${ZUI_RED_E} section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}raw_link${ZUI_CYAN_E}"
@@ -227,7 +227,7 @@ integer internal
     # Content count
     reply2=${#reply[@]}
     # Non-selectables
-    reply3=( 2 )
+    reply3=( 1 2 )
     # Hops
     reply4=( 1 )
     # Local anchors (:+ - replace if not null)
