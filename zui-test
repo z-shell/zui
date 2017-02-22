@@ -141,9 +141,11 @@ integer internal
     data3="$3"
     handler="$7"
 
+    [[ $id = (zuiiaction|zuianchor|zuicheckbox)* ]] && local exint="NO-RESTART" || local exint="RESTART"
+
     id="${${${${${id#zuiiaction}#zuiaction}#zuicheckbox}#zuieanchor}#zuianchor}"
 
-    reply=( "My id: $id" " My data: $data3" " My handler:" " $handler" )
+    reply=( "My id: $id" " $exint" " My handler:" " $handler" )
 }
 
 #
