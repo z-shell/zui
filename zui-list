@@ -700,10 +700,14 @@ while (( 1 )); do
     -zui_stdlib_decode_list_update "${ZUI[fly_update]}" update
     ZUI[fly_update]=""
 
-    if [[ ${update[2]} -ge 1 ]]; then
-        integer update_first=$update[1]
-        integer update_count=$update[2]
-        shift 2 update
+    if [[ ${update[3]} -ge 1 ]]; then
+        # If not empty, we're updating whole
+        # module and want this be treated as
+        # module regeneration
+        local module=$update[1]
+        integer update_first=$update[2]
+        integer update_count=$update[3]
+        shift 3 update
         integer update_size=${#update}
 
         # Update $@ array of this function - it
@@ -791,6 +795,19 @@ while (( 1 )); do
 
         ZUILIST_NONSELECTABLE_ELEMENTS+=( "${nonselectables[@]}" )
         ZUILIST_HOP_INDICES+=( "${hops[@]}" )
+
+        if [[ -n "$module" ]]; then
+            # Treat as module update - fill prev_*
+            # parameters and also *_global_index
+            var_name="prev_module${module}_nonselectables"
+            : "${(PA)var_name::=${nonselectables[@]}}";
+            var_name="prev_module${module}_hops"
+            : "${(PA)var_name::=${hops[@]}}";
+            var_name="prev_module${module}_size"
+            : "${(P)var_name::=$update_size}";
+            var_name="module${module}_global_index"
+            : "${(P)var_name::=$update_first}";
+        fi
 
         # Update existing anchors: global ones get
         # pushed down (up), local ones get globalized.

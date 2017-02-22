@@ -490,8 +490,18 @@ function -zui_stdlib_reset_replies() {
 # $1 - current module global index
 # $2 - current module size
 function -zui_stdlib_submit_fly_from_replies() {
-    local global_index="$1" previous_size="$2"
-    -zui_stdlib_submit_list_update "$global_index" "$(( global_index + previous_size - 1 ))" "${reply[@]}"
+    local module="$1" global_index previous_size
+
+    # Get global index and previous size. We reach for
+    # prev_${m}_size parameter because here we submit
+    # what means outside code that ran generator also
+    # probably mapped new replies to non-prev parameters
+    var_name="module${module}_global_index"
+    global_index="${(P)var_name}"
+    var_name="prev_module${module}_size"
+    previous_size="${(P)var_name}"
+
+    -zui_stdlib_submit_list_update "$module" "$global_index" "$(( global_index + previous_size - 1 ))" "${reply[@]}"
     -zui_stdlib_submit_nonselectables "${reply3[@]}"
     -zui_stdlib_submit_hops "${reply4[@]}"
     -zui_stdlib_submit_lanchors "${reply5[@]}"
@@ -500,12 +510,13 @@ function -zui_stdlib_submit_fly_from_replies() {
 # Internal action can call this function in
 # order to replace part of list with new text.
 #
-# $1 - beginning line number of area to replace
-# $2 - end line number of area to replace
-# $3, $4, ... - new elements to replace lines $1..$2
+# $1 - module index, can be empty for stray list update
+# $2 - beginning line number of area to replace
+# $3 - end line number of area to replace
+# $4, $5, ... - new elements to replace lines $1..$2
 function -zui_stdlib_submit_list_update() {
-    integer size=$(( $2 - $1 + 1 ))
-    2=$size
+    integer size=$(( $3 - $2 + 1 ))
+    3=$size
     ZUI[fly_update]="${(j: :)${(q)@}}"
 }
 
@@ -548,7 +559,7 @@ function -zui_stdlib_submit_lanchors() {
 # $2 - optional target parameter name
 function -zui_stdlib_decode_list_update() {
     local -a __segments
-    [[ -n "$1" ]] && __segments=( "${(z@)1}" ) || __segments=( 0 0 )
+    [[ -n "$1" ]] && __segments=( "${(z@)1}" ) || __segments=( "" 0 0 )
     local __var_name="${2-reply}"
 
     : ${(PA)__var_name::="${(Q)__segments[@]}"}
