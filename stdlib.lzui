@@ -410,7 +410,9 @@ function -zui_stdlib_cleanup() {
     local -a keys
     # Anchors, checkboxes, actions, internal actions
     keys=( ${ZUI[(I)zuianchor*]} ${ZUI[(I)zuieanchor*]} ${ZUI[(I)zuicheckbox*]}
-            ${ZUI[(I)zuiaction*]} ${ZUI[(I)zuiiaction*]} ${ZUI[(I)fly_*]} )
+           ${ZUI[(I)zuiaction*]} ${ZUI[(I)zuiiaction*]} ${ZUI[(I)fly_*]}
+           app app_name PROMPT_SUBST INTERACTIVE_COMMENTS GENERATION_TIME
+    )
 
     local k
     for k in "${keys[@]}"; do

@@ -66,7 +66,7 @@ integer term_width="$COLUMNS"
 [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/stdlib.lzui"
 -zui_stdlib_get_time
 
-zui-list "main" $(( term_height-3 )) $term_width "status" "3" "$term_width" "  Welcome to Zcommodore $REPLY " "1" "$@"
+zui-list "main" $(( term_height-3 )) $term_width "status" "3" "$term_width" "  Welcome to ${ZUI[app_name]} $REPLY " "1" "$@"
 
 if [[ "$REPLY" != "-1" && "$REPLY" = -(#c0,1)[0-9]## ]]; then
     answer=${reply[REPLY]}

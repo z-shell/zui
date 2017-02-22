@@ -550,7 +550,7 @@ while (( 1 )); do
 
     # The check for "white/black" means: mark header
     # only when default color isn't special
-    [[ "$mark_header" = "1" && "$colorpair" = "white/black" ]] && zcurses attr "$wname_main" "$bold" "magenta/$background"
+    [[ "$mark_header" = "1" && "$colorpair" = "white/black" ]] && zcurses attr "$wname_main" "$bold" "yellow/$background"
     [[ "$border" = "1" ]] && zcurses border "$wname_main"
     zcurses move "$wname_main" 0 2
     zcurses string "$wname_main" "$header"

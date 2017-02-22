@@ -16,6 +16,7 @@ setopt extendedglob typesetsilent warncreateglobal
 [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
 
 ZUI[app]="zui-test"
+ZUI[app_name]="ZUI demonstration"
 
 ##
 ## Main code
@@ -164,9 +165,9 @@ integer internal
 
     # Content
     reply=(
-            "Hello World from ${ZUI_GREEN}module ${1}${ZUI_GREEN_E}"
-            "${reply[1]} this section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}external_anchor${ZUI_CYAN_E}${user_data}"
-            "${reply[2]} this section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}function_call${ZUI_CYAN_E}"
+            "Hello World from ${ZUI_GREEN}Module ${1}${ZUI_GREEN_E}"
+            "${reply[1]} this module via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}external_anchor${ZUI_CYAN_E}${user_data}"
+            "${reply[2]} this module via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}function_call${ZUI_CYAN_E}"
             "${reply[3]} ${ZUI_RED}NEXT${ZUI_RED_E} section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}raw_link${ZUI_CYAN_E}"
             "Toggle ${reply[4]} with inlined (no function!) code"
             "Random number: $RANDOM$((RANDOM%2))"
@@ -202,7 +203,7 @@ integer internal
         # IDs of anchors have own namespace
         -zui_stdlib_rc_button "regenerate4" "$1" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_module2_internal_action_1
         -zui_stdlib_anchor "jump1" "1" "" "" "" "[${ZUI_YELLOW}Jump${ZUI_YELLOW_E}]"
-        regenerate="${reply[1]} this section ${ZUI_RED}ON-THE-FLY${ZUI_RED_E}, ${ZUI_YELLOW}without${ZUI_YELLOW_E} list restart"
+        regenerate="${reply[1]} this module ${ZUI_RED}ON-THE-FLY${ZUI_RED_E}, ${ZUI_YELLOW}without${ZUI_YELLOW_E} list restart"
         jump="${reply[2]} to 1st line"
     fi
 
@@ -213,8 +214,8 @@ integer internal
     fi
     # Content
     reply=(
-        "I'm the same generator called ${ZUI_CYAN}#$(( $1 - 1 ))${ZUI_CYAN_E} time"
-        "${ZUI_GREEN}I'm not selectable${ZUI_GREEN_E}"
+        "The same generator called ${ZUI_CYAN}#$(( $1 - 1 ))${ZUI_CYAN_E} time"
+        "${ZUI_GREEN}Not selectable line${ZUI_GREEN_E}"
         $regenerate
         $jump
         "$rand_line"
