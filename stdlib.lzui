@@ -609,4 +609,21 @@ function -zui_stdlib_map_replies() {
     : ${(PA)var_name::="${reply5[@]}"}
 }
 
+# Appends module_${1}_lanchors into array
+# given by name
+#
+# $1 - module index
+# $2 - target array name
+function -zui_stdlib_gather_lanchors() {
+    local __var_name1="module_${1}_lanchors" __var_name2="$2"
+    if [[ -z "$1" || -z "$2" ]]; then
+        echo "-zui_stdlib_gather_lanchors must obtain module index and target array name"
+        return 1
+    fi
+
+    # Append and store
+    local -a __output
+    __output=( "${(P@)__var_name2}" "${(P@)__var_name1}" )
+    : ${(PA)__var_name2::=${__output[@]}}
+}
 # vim:ft=zsh

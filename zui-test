@@ -39,6 +39,13 @@ local -F start_seconds
 local -a reply reply3 reply4 reply5
 integer reply2
 
+# Gathers all (re-)generated local anchors,
+# those that are returned in reply5 and are
+# subject to index globalization (translation
+# of local in-module indices to normal, global
+# list indices)
+local -aU regen_lanchors
+
 # Module counter - used to declare parameters
 # of given module (they are distinct only in
 # counter embedded in them)
@@ -119,6 +126,11 @@ integer internal
     # specific module 2 will not be regenerated
     # (so some other, e.g. via REGENERATE=,module1,)
     -zui_stdlib_map_replies $module
+
+    # No typical saving of any newly created local
+    # anchors. There is no regeneration loop and
+    # shifting of anchors is handled in zui-list.
+    # -zui_stdlib_gather_lanchors regen_lanchors
 
     # Submit on-the-fly list update.
     # The same data.
@@ -259,6 +271,9 @@ while (( 1 )); do
 # Measure generation time
 start_seconds=$SECONDS
 
+# Clear the recreated-lanchors array
+regen_lanchors=( )
+
 #
 # Common regeneration block
 #
@@ -287,6 +302,9 @@ if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,module${module},* || "$REGE
     # function call, to copy reply{,2..5} into above (after
     # "# Module 1" line) variables
     -zui_stdlib_map_replies $module
+
+    # Save any newly created local anchors
+    -zui_stdlib_gather_lanchors $module regen_lanchors
 fi
 
 #
@@ -310,6 +328,9 @@ for (( i=2; i <= total_module_limit; i ++ )); do
         # function call, to copy reply{,2..5} into above (after
         # "# Module 2..4" line) variables
         -zui_stdlib_map_replies $module
+
+        # Save any newly created local anchors
+        -zui_stdlib_gather_lanchors $module regen_lanchors
     fi
 
 done
@@ -325,7 +346,7 @@ ZUILIST_HOP_INDICES=()
 local -a OUTPUT output nonselectables hops lanchors
 local -a prev_nonselectables prev_hops
 local -a top_anchors
-local n a
+local prev_size n a
 integer LINE_COUNT size
 
 OUTPUT=( )
@@ -357,6 +378,10 @@ for (( i = 1; i <= 1000; i ++ )); do
     # Get local anchors
     var_name="${n}_lanchors"
     lanchors=( "${(PA@)var_name}" )
+
+    # Get previous size
+    var_name="prev_${n}_size"
+    prev_size="${(P)var_name}"
 
     # Get previous nonselectables
     var_name="prev_${n}_nonselectables"
@@ -390,23 +415,26 @@ for (( i = 1; i <= 1000; i ++ )); do
     var_name="prev_${n}_size"
     : "${(P)var_name::=${size}}";
 
-    # Traverse module's local anchors,
-    # translate them to global ones
+    # Translate module's new local anchors,
+    # into normal, global list indices
     for a in "${lanchors[@]}"; do
-        # + 1 for anchors at top
         if [[ "${+ZUI[zuianchor$a]}" = "1" ]]; then
+            # + 1 for anchors at top
             (( ZUI[zuianchor$a] += LINE_COUNT + 1 ))
         elif [[ "${+ZUI[zuieanchor$a]}" = "1" ]]; then
             (( ZUI[zuieanchor$a] += LINE_COUNT + 1 ))
         fi
     done
 
-    # Remove from list of anchors
-    # needing globalization
+    # Remove from list of anchors needing to-global
+    # translation. This makes anchors distinct from
+    # other data, other "...${n}..." parameters, as
+    # data is moved to ZUI hash once, and the array
+    # "${n}_lanchors" is instantly emptied.
     var_name="${n}_lanchors"
     : ${(PA)var_name::=}
 
-    # Create anchors for selected sections
+    # Create top anchors, for selected sections
     reply=( )
     if [[ "$i" = "1" ]]; then
         # First argument of -zui_stdlib_anchor is
@@ -415,11 +443,11 @@ for (( i = 1; i <= 1000; i ++ )); do
         # a loop) generated modules can be required
         # to be index of the module ($i of this
         # loop)
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "amain$i" "${hops[1]}" "$i" "" "" "[${ZUI_MAGENTA}Module1${ZUI_MAGENTA_E}]" -zui_top_anchors_external_action_1
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "aglobal$i" "${hops[1]}" "$i" "" "" "[${ZUI_MAGENTA}Module1${ZUI_MAGENTA_E}]" -zui_top_anchors_external_action_1
     elif [[ "$i" -ge "2" && "$i" -le "3" ]]; then
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "amain$i" "${hops[1]}" "$i" "" "" "[${ZUI_CYAN}Module${i}${ZUI_CYAN_E}]" -zui_top_anchors_internal_action_1
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "aglobal$i" "${hops[1]}" "$i" "" "" "[${ZUI_CYAN}Module${i}${ZUI_CYAN_E}]" -zui_top_anchors_internal_action_1
     else
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "amain$i" "${hops[1]}" "$i" "" "" "[${ZUI_YELLOW}Module${i}${ZUI_YELLOW_E}]" -zui_top_anchors_internal_action_1
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "aglobal$i" "${hops[1]}" "$i" "" "" "[${ZUI_YELLOW}Module${i}${ZUI_YELLOW_E}]" -zui_top_anchors_internal_action_1
     fi
     top_anchors+=( "${reply[@]}" )
 
@@ -430,6 +458,25 @@ for (( i = 1; i <= 1000; i ++ )); do
     var_name="${n}_global_index"
     # + 1 for anchors, + 1 for "next future line"
     : ${(P)var_name::=$(( LINE_COUNT + 1 + 1 ))}
+
+    # Shift down (up) local anchors that weren't
+    # recreated in this regeneration loop run,
+    # i.e. aren't in regen_lanchors array. If an
+    # anchor ID contains string "global" then it
+    # will not be modified - will be considered
+    # a fixed global anchor.
+    if [[ $(( size - prev_size )) -ne 0 ]]; then
+        for a in ${ZUI[(I)zuianchor*~*global*]} ${ZUI[(I)zuieanchor*~*global*]}; do
+            # Skip anchors recreated at this regeneration loop
+            [[ "${regen_lanchors[(r)${a#zuianchor}]}" = ${a#zuianchor} || 
+               "${regen_lanchors[(r)${a#zuieanchor}]}" = ${a#zuieanchor} ]] && continue
+
+            # Anchor after current module?
+            if [[ "${ZUI[$a]}" -gt $(( LINE_COUNT + 1 + 1 + size )) ]]; then
+                (( ZUI[$a] += size - prev_size ))
+            fi
+        done
+    fi
 
     OUTPUT+=( "${output[@]}" )
     LINE_COUNT+=size
