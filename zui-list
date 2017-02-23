@@ -880,6 +880,15 @@ while (( 1 )); do
             fi
         done
 
+        # On-the-fly module regeneration, not only
+        # list update - this means lanchors have
+        # been submitted to module${idx}_lanchors
+        # parameter. They are now fully processed.
+        if [[ -n "$module" ]]; then
+            var_name="module${module}_lanchors"
+            : ${(PA)var_name::=}
+        fi
+
         # Cleanup
         unset update update_size nonselectables
         unset update_first update_count hops
