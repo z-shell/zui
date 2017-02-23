@@ -15,7 +15,8 @@ setopt typesetsilent extendedglob
     c=( black red green yellow blue magenta cyan white )
 
     while [[ -n "$text" && "$no_match" -eq 0 ]]; do
-        if [[ "$text" = (#b)([^$'\x1b']#)$'\x1b'\[([0-9](#c0,2))(#B)(\;|)(#b)([0-9](#c0,2))[mK](*) ]]; then
+        # Example: \e[0;31m
+        if [[ "$text" = (#b)([^$'\e']#)$'\e'\[([0-9](#c0,2))(#B)(\;|)(#b)([0-9](#c0,2))[mK](*) ]]; then
             # Text for further processing
             text="$match[4]"
             # Text chunk to output now
