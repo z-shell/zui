@@ -5,7 +5,7 @@ zmodload zsh/curses
 setopt typesetsilent extendedglob
 
 -zui_list_print_with_ansi() {
-    local win="$1" text="$2" out col chunk Xout
+    local win="$1" text="$2" out col attr chunk Xout
     integer text_offset="$3" max_text_len="$4" text_len=0 no_match=0 nochunk_text_len to_skip_from_chunk to_chop_off_from_chunk before_len
 
     # 1 - non-escaped text, 2 - first number in the escaped text, with ;
@@ -22,8 +22,13 @@ setopt typesetsilent extendedglob
             # Text chunk to output now
             out="$match[1]"
             # Save color
-            col="$match[2]"
-            (( match[3] >= 30 && match[3] <= 37 )) && col="$match[3]"
+            col="-1"
+            (( ${match[2]:-0} >= 30 && ${match[2]:-0} <= 37 )) && col="$match[2]"
+            (( ${match[3]:-0} >= 30 && ${match[3]:-0} <= 37 )) && col="$match[3]"
+            # Save attribute
+            attr="-1"
+            (( ${match[2]:--1} >= 0 && ${match[2]:--1} <= 27 )) && attr="$match[2]"
+            (( ${match[3]:--1} >= 0 && ${match[3]:--1} <= 27 )) && attr="$match[3]"
         else
             out="$text"
             no_match=1
@@ -74,10 +79,31 @@ setopt typesetsilent extendedglob
         fi
 
         if (( no_match == 0 )); then
+            # Color code dominates - simplification
+            # for performance
             if (( col >= 30 && col <= 37 )); then
-                zcurses attr "$win" "${c[col-29]}/$background"
-            elif [[ "$col" -eq 0 ]]; then
+                [[ "$attr" = "1" ]] && zcurses attr "$win" "${c[col-29]}/$background" +bold || zcurses attr "$win" "${c[col-29]}/$background"
+            elif [[ "$attr" -eq 0 ]]; then
                 zcurses attr "$win" "$colorpair"
+            elif [[ "$attr" = "1" ]]; then
+                zcurses attr "$win" +bold
+            fi
+
+            if [[ "$attr" != "-1" ]]; then
+                # Bold, blink, reverse, underline
+                [[ "$attr" = "21" ]] && zcurses attr "$win" -bold || {
+                    [[ "$attr" = "5" || "$attr" = "6" ]] && zcurses attr "$win" +blink || {
+                        [[ "$attr" = "25" ]] && zcurses attr "$win" -blink || {
+                            [[ "$attr" = "7" ]] && zcurses attr "$win" +reverse || {
+                                [[ "$attr" = "27" ]] && zcurses attr "$win" -reverse || {
+                                    [[ "$attr" = "4" ]] && zcurses attr "$win" +underline || {
+                                        [[ "$attr" = "24" ]] && zcurses attr "$win" -underline
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             fi
         fi
     done
