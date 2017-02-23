@@ -302,19 +302,21 @@ local YELLOW=$'\e[0;33m' MAGENTA=$'\e[0;35m' CYAN=$'\e[0;36m'
 # Load configuration – per application if ZUI[app] is set
 #
 
-local actmark colorpair border bold background foreground backuptheme
+local actmark altmark colorpair border bold background foreground backuptheme
 zstyle -s ":plugin:zui" "colorpair" colorpair || colorpair="white/black"
 zstyle -t ":plugin:zui" "border" && border="1" || border="0"
 zstyle -t ":plugin:zui" "bold" && bold="+bold" || bold="-bold"
 zstyle -s ":plugin:zui" "mark" actmark || actmark="red reverse lineund"
+zstyle -s ":plugin:zui" "altmark" altmark || altmark="red reverse"
 
 [[ -n "${ZUI[app]}" ]] && {
-    local zstyle_path=":plugin:zui:app:${ZUI[app]}" colorpair2 actmark2
+    local zstyle_path=":plugin:zui:app:${ZUI[app]}" colorpair2 actmark2 altmark2
     zstyle -s $zstyle_path "colorpair" colorpair2 && colorpair="$colorpair2"
     # -t - false when unset or false, -T - false when false
     zstyle -t $zstyle_path "border" && border="1" || zstyle -T $zstyle_path "border" || border="0"
     zstyle -t $zstyle_path "bold" && bold="+bold" || zstyle -t $zstyle_path "bold" || bold="-bold"
     zstyle -s $zstyle_path "mark" actmark2 && actmark="$actmark2"
+    zstyle -s $zstyle_path "mark" altmark2 && altmark="$altmark2"
     unset zstyle_path colorpair2 actmark2
 }
 
@@ -324,6 +326,12 @@ foreground="${colorpair%/*}"
 backuptheme="$colorpair/$bold"
 local MARK_CODES MARK_END_CODES active_text
 () {
+    # Check if terminal supports underline
+    # Linux has ncv 18, screen* has ncv 3 - underline won't work properly
+    (( ${+terminfo} )) && (( ${terminfo[ncv]:-0} & 2 )) && actmark="$altmark"
+    # FreeBSD uses TERM=xterm for newcons but doesn't actually support underline
+    [[ "$TERM" = "xterm" && -z "$DISPLAY" && "${(L)OSTYPE}" = *bsd* ]] && actmark="$altmark"
+
     local color="${actmark%%[[:space:]]*}"
     local color2="${${actmark#*[[:space:]]}%%[[:space:]]*}"
     local bold="${actmark/*bold*/bold}"
