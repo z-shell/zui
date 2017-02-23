@@ -190,7 +190,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     buf=( "${buf//(#b)$ZUI_MAGENTA([^$ZUI_MAGENTA_E]#)$ZUI_MAGENTA_E/$MAGENTA$match[1]$RESET}" )
     buf=( "${buf//(#b)$ZUI_CYAN([^$ZUI_CYAN_E]#)$ZUI_CYAN_E/$CYAN$match[1]$RESET}" )
     buf=( "${buf//(#b)$ZUI_RED([^$ZUI_RED_E]#)$ZUI_RED_E/$RED$match[1]$RESET}" )
-    buf=( "${buf//(#b)$ZUI_MARK([^$ZUI_MARK_E]#)$ZUI_MARK_E/$RED$match[1]$RESET}" )
+    buf=( "${buf//(#b)$ZUI_MARK([^$ZUI_MARK_E]#)$ZUI_MARK_E/$MARK_CODES$match[1]$MARK_END_CODES}" )
     REPLY="$buf"
 }
 
@@ -302,22 +302,52 @@ local YELLOW=$'\e[0;33m' MAGENTA=$'\e[0;35m' CYAN=$'\e[0;36m'
 # Load configuration – per application if ZUI[app] is set
 #
 
-local colorpair border bold background backuptheme
+local actmark colorpair border bold background backuptheme
 zstyle -s ":plugin:zui" "colorpair" colorpair || colorpair="white/black"
 zstyle -t ":plugin:zui" "border" && border="1" || border="0"
 zstyle -t ":plugin:zui" "bold" && bold="+bold" || bold="-bold"
+zstyle -s ":plugin:zui" "mark" actmark || actmark="red reverse"
 
 [[ -n "${ZUI[app]}" ]] && {
-    local zstyle_path=":plugin:zui:app:${ZUI[app]}" colorpair2
+    local zstyle_path=":plugin:zui:app:${ZUI[app]}" colorpair2 actmark2
     zstyle -s $zstyle_path "colorpair" colorpair2 && colorpair="$colorpair2"
     # -t - false when unset or false, -T - false when false
     zstyle -t $zstyle_path "border" && border="1" || zstyle -T $zstyle_path "border" || border="0"
     zstyle -t $zstyle_path "bold" && bold="+bold" || zstyle -t $zstyle_path "bold" || bold="-bold"
-    unset zstyle_path colorpair2
+    zstyle -s $zstyle_path "mark" actmark2 && actmark="$actmark2"
+    unset zstyle_path colorpair2 actmark2
 }
 
+# Process configuration
 background="${colorpair#*/}"
 backuptheme="$colorpair/$bold"
+local MARK_CODES MARK_END_CODES
+() {
+    local color="${(L)actmark%%[[:space:]]*}"
+    local bold="${actmark/*bold*/bold}"
+    local reverse="${actmark/*(reverse|inverse)*/reverse}"
+    local blink="${actmark/*blink*/blink}"
+    local underline="${actmark/*underline*/underline}"
+    local -A colormap
+    colormap=( reset 0 green 32 yellow 33 blue 34 magenta 35 cyan 36 red 31 )
+    local -a opening closing
+    [[ -n "${colormap[$color]}" ]] && { opening+=( ${colormap[$color]} ); closing+=( 0 ); }
+    [[ $bold == bold ]] && { opening+=( 1 ); closing+=( 21 ); }
+    [[ $reverse == reverse ]] && { opening+=( 7 ); closing+=( 27 ); }
+    [[ $blink == blink ]] && { opening+=( 5 ); closing+=( 25 ); }
+    [[ $underline == underline ]] && { opening+=( 4 ); closing+=( 24 ); }
+
+    local a opcodes clcodes
+    for a in "${opening[@]}"; do
+        opcodes+=$'\e'"[${a}m"
+    done
+    for a in "${closing[@]}"; do
+        clcodes+=$'\e'"[${a}m"
+    done
+
+    MARK_CODES="$opcodes"
+    MARK_END_CODES="$clcodes"
+}
 
 # Set background
 zcurses bg "$wname_main" "$colorpair"
