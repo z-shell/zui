@@ -146,13 +146,16 @@ integer internal
     local id="$1" data1="$2" data2="$3" data3="$4" data4="$5" text="$6" handler
 
     [[ $id = (zuiiaction|zuianchor|zuicheckbox)* ]] && local exint="NO-RESTART" || local exint="RESTART"
+    [[ $id = (zuiaction|zuiiaction|zuicheckbox)* ]] && local __is_action="Module"
+    # A raw link?
+    [[ $id != (zuiaction|zuiiaction|zuicheckbox|zuiaction|zuieanchor)* ]] && local __is_action="Module"
 
     id="${${${${${id#zuiiaction}#zuiaction}#zuicheckbox}#zuieanchor}#zuianchor}"
 
     handler="$ZUI[zuiiaction$id]"
     [[ -z "$handler" ]] && handler="$ZUI[zuiaction$id]"
 
-    reply=( "Id: $id $data1" " $exint" " Handler:" " $handler" )
+    reply=( "Id: $id" " ${__is_action-Index}: $data1" " $exint" " Handler:" " $handler" )
 }
 
 #
