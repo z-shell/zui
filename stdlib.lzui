@@ -17,6 +17,10 @@ typeset -g ZUI_MAGENTA_E=$'\31'
 typeset -g ZUI_CYAN=$'\6'
 typeset -g ZUI_CYAN_E=$'\31'
 
+# Special code used to mark active button
+typeset -g ZUI_MARK=$'\26'      # octal value, decimal 22 - Synchronous idle
+typeset -g ZUI_MARK_E=$'\31'
+
 # Appends hyperlink into "reply" output array. It's the
 # standard action button, shown without surrounding
 # "[" and "]".

@@ -173,6 +173,9 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     disp_list=( "${disp_list[@]//(#b)$'\5'([^$'\31']#)$'\31'/$MAGENTA$match[1]$RESET}" )
     disp_list=( "${disp_list[@]//(#b)$'\6'([^$'\31']#)$'\31'/$CYAN$match[1]$RESET}" )
     disp_list=( "${disp_list[@]//(#b)$'\7'([^$'\31']#)$'\31'/$RED$match[1]$RESET}" )
+    # This shouldn't be needed as current
+    # line in $list has ZUI_MARK replaced
+    # disp_list=( "${disp_list[@]//(#b)$ZUI_MARK([^$ZUI_MARK_E]#)$ZUI_MARK_E/$RED$match[1]$RESET}" )
 }
 
 # Changes color marks (\3, \4, \5, \6, \7) into ANSI color
@@ -187,6 +190,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     buf=( "${buf//(#b)$'\5'([^$'\31']#)$'\31'/$MAGENTA$match[1]$RESET}" )
     buf=( "${buf//(#b)$'\6'([^$'\31']#)$'\31'/$CYAN$match[1]$RESET}" )
     buf=( "${buf//(#b)$'\7'([^$'\31']#)$'\31'/$RED$match[1]$RESET}" )
+    buf=( "${buf//(#b)$ZUI_MARK([^$ZUI_MARK_E]#)$ZUI_MARK_E/$RED$match[1]$RESET}" )
     REPLY="$buf"
 }
 
@@ -234,7 +238,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         for (( i=1; i<=size; i++ )); do
             if [[ "$i" -eq "$active_segment" ]]; then
                 ZUI_PB_WORDS[i]=${ZUI_PB_WORDS[i]//$'\n'/\\n}
-                -zui_list_replace_color_marks_with "${ZUI_PB_WORDS[i]}" $'\7'
+                -zui_list_replace_color_marks_with "${ZUI_PB_WORDS[i]}" "$ZUI_MARK"
                 ZUI_PB_WORDS[i]="$REPLY"
             fi
             buf+="$ZUI_PB_SPACES[i]$ZUI_PB_WORDS[i]"
