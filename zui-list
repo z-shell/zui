@@ -302,7 +302,7 @@ local YELLOW=$'\e[0;33m' MAGENTA=$'\e[0;35m' CYAN=$'\e[0;36m'
 # Load configuration – per application if ZUI[app] is set
 #
 
-local actmark colorpair border bold background backuptheme
+local actmark colorpair border bold background foreground backuptheme
 zstyle -s ":plugin:zui" "colorpair" colorpair || colorpair="white/black"
 zstyle -t ":plugin:zui" "border" && border="1" || border="0"
 zstyle -t ":plugin:zui" "bold" && bold="+bold" || bold="-bold"
@@ -320,6 +320,7 @@ zstyle -s ":plugin:zui" "mark" actmark || actmark="red reverse lineund"
 
 # Process configuration
 background="${colorpair#*/}"
+foreground="${colorpair%/*}"
 backuptheme="$colorpair/$bold"
 local MARK_CODES MARK_END_CODES active_text
 () {
