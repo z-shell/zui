@@ -306,7 +306,7 @@ local actmark colorpair border bold background backuptheme
 zstyle -s ":plugin:zui" "colorpair" colorpair || colorpair="white/black"
 zstyle -t ":plugin:zui" "border" && border="1" || border="0"
 zstyle -t ":plugin:zui" "bold" && bold="+bold" || bold="-bold"
-zstyle -s ":plugin:zui" "mark" actmark || actmark="red reverse"
+zstyle -s ":plugin:zui" "mark" actmark || actmark="red reverse lineund"
 
 [[ -n "${ZUI[app]}" ]] && {
     local zstyle_path=":plugin:zui:app:${ZUI[app]}" colorpair2 actmark2
@@ -321,17 +321,21 @@ zstyle -s ":plugin:zui" "mark" actmark || actmark="red reverse"
 # Process configuration
 background="${colorpair#*/}"
 backuptheme="$colorpair/$bold"
-local MARK_CODES MARK_END_CODES
+local MARK_CODES MARK_END_CODES active_text
 () {
     local color="${(L)actmark%%[[:space:]]*}"
     local bold="${actmark/*bold*/bold}"
     local reverse="${actmark/*(reverse|inverse)*/reverse}"
     local blink="${actmark/*blink*/blink}"
     local underline="${actmark/*underline*/underline}"
+    local linerev="${actmark/*linerev*/linerev}"
+    local lineund="${actmark/*lineund*/lineund}"
     local -A colormap
     colormap=( reset 0 green 32 yellow 33 blue 34 magenta 35 cyan 36 red 31 )
     local -a opening closing
     [[ -n "${colormap[$color]}" ]] && { opening+=( ${colormap[$color]} ); closing+=( 0 ); }
+    [[ $linerev = linerev ]] && { active_text="reverse"; reverse=""; }
+    [[ $lineund = lineund ]] && { active_text="underline"; underline=""; }
     [[ $bold == bold ]] && { opening+=( 1 ); closing+=( 21 ); }
     [[ $reverse == reverse ]] && { opening+=( 7 ); closing+=( 27 ); }
     [[ $blink == blink ]] && { opening+=( 5 ); closing+=( 25 ); }

@@ -119,7 +119,7 @@ local win="$7"
 shift 7
 integer max_text_len=page_width-x_offset
 
-[[ "$active_text" = "underline" || "$active_text" = "reverse" ]] || local active_text="underline"
+[[ "$active_text" = "underline" || "$active_text" = "reverse" ]] || local active_text=""
 # Linux has ncv 18, screen* has ncv 3 - underline won't work properly
 (( ${terminfo[ncv]:-0} & 2 )) && active_text="reverse"
 # FreeBSD uses TERM=xterm for newcons but doesn't actually support underline
@@ -139,9 +139,9 @@ for (( i=1; i<=end_idx; i++ )); do
     zcurses move "$win" $y "$x_offset"
 
     if [ "$i" = "$highlight" ]; then
-        zcurses attr "$win" +"$active_text"
+        [[ -n "$active_text" ]] && zcurses attr "$win" +"$active_text"
         -zui_list_print_with_ansi "$win" "$@[i]" "$text_offset" "$max_text_len"
-        zcurses attr "$win" -"$active_text"
+        [[ -n "$active_text" ]] && zcurses attr "$win" -"$active_text"
     else
         -zui_list_print_with_ansi "$win" "$@[i]" "$text_offset" "$max_text_len"
     fi

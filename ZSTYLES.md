@@ -6,8 +6,10 @@ The values being set are the defaults:
 zstyle ":plugin:zui" colorpair "white/black"
 zstyle ":plugin:zui" border "no"
 zstyle ":plugin:zui" bold "no"
-zstyle ":plugin:zui" mark "red reverse"         # String starting with color name, continued with
-                                                # combination of: reverse, underline, blink, bold.
+zstyle ":plugin:zui" mark "red reverse lineund" # String starting with color name, continued with
+                                                # combination of: reverse, underline, blink, bold,
+                                                # lineund, linerev. Last two underline, reverse
+                                                # whole active line. The rest marks active button.
 ```
 
 Each application can override those via "...:app:{name}" zstyles, e.g. for application "zplugin":
