@@ -128,7 +128,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
     # Verify that element is just visible, if not then compute exact page
     if [[ "$ZUILIST_CURRENT_IDX" -lt "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ||
-        "$ZUILIST_CURRENT_IDX" -gt "$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height + 1 ))" ]]
+        "$ZUILIST_CURRENT_IDX" -gt "$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))" ]]
     then
         (( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN = ((ZUILIST_CURRENT_IDX-1)/page_height) * page_height + 1 ))
     fi
