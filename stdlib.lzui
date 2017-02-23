@@ -112,10 +112,10 @@ function -zui_stdlib_anchor() {
     local __id="${(q)1}" __data1="${(q)2}" __data2="${(q)3}" __data3="${(q)4}" __data4="${(q)5}" __text="$6" __handler="$7"
     local __var_name="${8:-reply}"
 
-    # Set to some line that probably exist,
-    # to signal that anchor works, but input
-    # line number is incorrect
-    [[ "$__data1" != <-> ]] && __data1=3
+    # Set to some weird line that probably exists,
+    # to signal that anchor works, but input line
+    # number is incorrect
+    [[ "$__data1" != <-> && "$__data1" != <->[-+]<-> ]] && __data1="1+0+0+0"
 
     # With no handler do only no-restart jumps
     local hpfx="zuiiaction" __pfx="zuianchor"
