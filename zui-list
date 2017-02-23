@@ -810,19 +810,20 @@ while (( 1 )); do
         fi
 
         # Update existing anchors: global ones get
-        # pushed down (up), local ones get globalized.
+        # pushed down (up), local ones (not yet
+        # processed, new) are only globalized
         local -a lanchors
         -zui_stdlib_decode_lanchors "${ZUI[fly_lanchors]}" lanchors
         for el in ${ZUI[(I)zuianchor*]} ${ZUI[(I)zuieanchor*]}; do
             if [[ "${lanchors[(r)${el#zuianchor}]}" = ${el#zuianchor} ]]; then
-                (( ZUI[$el] += update_first - 1 ))
+                ZUI[$el]=$(( ${ZUI[$el]%[-+]*} + update_first - 1 ))"${ZUI[$el]##[0-9]##}"
             elif [[ "${lanchors[(r)${el#zuieanchor}]}" = ${el#zuieanchor} ]]; then
-                (( ZUI[$el] += update_first - 1 ))
+                ZUI[$el]=$(( ${ZUI[$el]%[-+]*} + update_first - 1 ))"${ZUI[$el]##[0-9]##}"
             else
-                index=${ZUI[$el]:-0}
-                # Anchors after the replaced block
-                if [[ "$index" -gt $(( update_first + update_count - 1 )) ]]; then
-                    ZUI[$el]=$(( index + size_diff ))
+                # The $el anchor is after the replaced block?
+                # In this detection only "a" in "a+b" matters
+                if [[ "${ZUI[$el]%[-+]*}" -gt $(( update_first + update_count - 1 )) ]]; then
+                    ZUI[$el]=$(( ${ZUI[$el]%[-+]*} + size_diff ))"${ZUI[$el]##[0-9]##}"
                 fi
             fi
         done

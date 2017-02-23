@@ -185,9 +185,12 @@ integer internal
             $module1_extra_line
             )
 
-    # Jump 2 lines after last line
+    # Jump 2 lines after last line. Note that
+    # the line index is written as:
+    # - maximum local line number
+    # - remaining lines to reach next module
     local -a next
-    -zui_stdlib_anchor "nextjump" "$(( ${#reply[@]} + 2 ))" "" "" "" "[${ZUI_YELLOW}NEXT${ZUI_YELLOW_E}]" "" next
+    -zui_stdlib_anchor "nextjump" "${#reply[@]}+2" "" "" "" "[${ZUI_YELLOW}NEXT${ZUI_YELLOW_E}]" "" next
     reply[4]="${reply[4]/<NEXT>/${next[1]}}"
 
     # Content count
@@ -419,12 +422,11 @@ for (( i = 1; i <= 1000; i ++ )); do
     # Translate module's new local anchors,
     # into normal, global list indices
     for a in "${lanchors[@]}"; do
-        if [[ "${+ZUI[zuianchor$a]}" = "1" ]]; then
-            # + 1 for anchors at top
-            (( ZUI[zuianchor$a] += LINE_COUNT + 1 ))
-        elif [[ "${+ZUI[zuieanchor$a]}" = "1" ]]; then
-            (( ZUI[zuieanchor$a] += LINE_COUNT + 1 ))
-        fi
+        [[ "${+ZUI[zuianchor$a]}" = "1" ]] && a="zuianchor$a" || {
+            [[ "${+ZUI[zuieanchor$a]}" = "1" ]] && a="zuieanchor$a"
+        }
+        # + 1 for anchors at top; retain "+number" part
+        ZUI[$a]=$(( ${ZUI[$a]%[-+]*} + LINE_COUNT + 1 ))"${ZUI[$a]##[0-9]##}"
     done
 
     # Remove from list of anchors needing to-global
@@ -457,7 +459,8 @@ for (( i = 1; i <= 1000; i ++ )); do
     # variable
     local ${n}_global_index
     var_name="${n}_global_index"
-    # + 1 for anchors, + 1 for "next future line"
+    # + 1 for anchors at top, + 1 because
+    # we point at next line after separator
     : ${(P)var_name::=$(( LINE_COUNT + 1 + 1 ))}
 
     # Shift down (up) local anchors that weren't
@@ -472,9 +475,17 @@ for (( i = 1; i <= 1000; i ++ )); do
             [[ "${regen_lanchors[(r)${a#zuianchor}]}" = ${a#zuianchor} || 
                "${regen_lanchors[(r)${a#zuieanchor}]}" = ${a#zuieanchor} ]] && continue
 
-            # Anchor after current module?
-            if [[ "${ZUI[$a]}" -gt $(( LINE_COUNT + 1 + 1 + size )) ]]; then
-                (( ZUI[$a] += size - prev_size ))
+            # Anchor after current module? The %[-+]* removes
+            # "+number" part used to point to other modules
+            # while still using local anchors. This addition
+            # doesn't change the fact that the anchor belongs
+            # to its module, i.e. "a" in "a+b" matters.
+            #
+            # + 1 for anchors at top, + 1 because we point at
+            # module, at next line after empty separator line
+            if [[ "${ZUI[$a]%[-+]*}" -gt $(( LINE_COUNT + 1 + 1 + (size - 1) )) ]]; then
+                # Retain "+number" part
+                ZUI[$a]=$(( ${ZUI[$a]%[-+]*} + size - prev_size ))"${ZUI[$a]##[0-9]##}"
             fi
         done
     fi
