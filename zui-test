@@ -202,7 +202,7 @@ integer internal
     # Content count
     reply2=${#reply[@]}
     # Non-selectables
-    reply3=( 1 )
+    reply3=( 1 6 ${module1_extra_line:+${#reply[@]}} )
     # Hops
     reply4=( 1 )
     # Local anchors
