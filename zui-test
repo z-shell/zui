@@ -148,7 +148,7 @@ integer internal
     [[ $id = (zuiiaction|zuianchor|zuicheckbox)* ]] && local exint="NO-RESTART" || local exint="RESTART"
     [[ $id = (zuiaction|zuiiaction|zuicheckbox)* ]] && local __is_action="Module"
     # A raw link?
-    [[ $id != (zuiaction|zuiiaction|zuicheckbox|zuiaction|zuieanchor)* ]] && {
+    [[ $id != (zuiaction|zuiiaction|zuicheckbox|zuianchor|zuieanchor)* ]] && {
         local __is_action="Module"
         exint+=" <raw link>"
     }
