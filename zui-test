@@ -154,7 +154,14 @@ integer internal
         if (( $data1 )); then
             reply=( "Text: $data2" )
         else
-            reply=( "(A non-selectable line)" )
+            # Detect if current line is also a hop
+            local on_hop
+            [[ "${(t)ZUILIST_HOP_INDICES}" = array* ]] && [[ -z "$ZUILIST_SEARCH_BUFFER" ]] &&
+                [[ "$ZUILIST_IS_UNIQ_MODE" -eq 0 ]] &&
+                [[ ${ZUILIST_HOP_INDICES[(r)$ZUILIST_CURRENT_IDX]} = $ZUILIST_CURRENT_IDX ]] &&
+                on_hop=", also a hop"
+
+            reply=( "(A non-selectable line$on_hop)" )
         fi
         return 0
     fi
