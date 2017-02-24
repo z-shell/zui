@@ -12,6 +12,9 @@ zstyle ":plugin:zui" mark "red reverse lineund" # String starting with one or tw
                                                 # active line. The rest marks active button. Uppercase
                                                 # color names are for background.
 zstyle ":plugin:zui" altmark "red reverse"      # As "mark", but for terminals without underline support
+
+zstyle ":plugin:zui" text_mode "no"             # Navigate across each bit of text, not only buttons
+                                                # Rather for implementing, not configuring
 ```
 
 Each application can override those via "...:app:{name}" zstyles, e.g. for application "zplugin":
