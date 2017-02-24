@@ -17,6 +17,7 @@ setopt extendedglob typesetsilent warncreateglobal
 
 ZUI[app]="zui-test"
 ZUI[app_name]="ZUI demonstration"
+-zui_stdlib_load_config b:text_mode 0 2 'ZUI[text_mode]'
 
 ##
 ## Main code

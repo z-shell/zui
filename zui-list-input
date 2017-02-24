@@ -146,6 +146,10 @@ integer uniq_mode="$12"
 integer disable_search="$13"
 local list_var_current="${14}[\$current_idx]"
 
+# Trigger nearest hyperlink searching,
+# even when ZUI[text_mode] is 1
+integer search_for_hyperlink=0
+
 #
 # Listening for input
 #
@@ -318,6 +322,7 @@ case "$key" in
                     [[ "$current_idx" -gt "1" ]] && {
                         current_idx=current_idx-1
                         current_segment="100"
+                        search_for_hyperlink=1
                     }
                     while [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]]; do
                         current_idx=current_idx-1
@@ -325,8 +330,8 @@ case "$key" in
                     -zui_listin_compute_first_to_show_idx_up_many
                 fi
             else
-                # Search left accepting lack of success
-                -zui_listin_set_next_hyperlink 0
+                # || Search left accepting lack of success
+                (( ${ZUI[text_mode]} )) && (( -- current_segment )) || -zui_listin_set_next_hyperlink 0
             fi
         fi
         ;;
@@ -351,6 +356,7 @@ case "$key" in
                     [[ "$current_idx" -lt "$last_element" ]] && {
                         current_idx=current_idx+1
                         current_segment="1"
+                        search_for_hyperlink=1
                     }
                     while [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]]; do
                         current_idx=current_idx+1
@@ -358,8 +364,8 @@ case "$key" in
                     -zui_listin_compute_first_to_show_idx_down_many
                 fi
             else
-                # Search right accepting lack of success
-                -zui_listin_set_next_hyperlink 1
+                # || Search right accepting lack of success
+                (( ${ZUI[text_mode]} )) && (( ++ current_segment )) || -zui_listin_set_next_hyperlink 1
             fi
             [[ "$current_segment" -gt "$nseg" ]] && current_segment="$nseg"
         fi
@@ -475,6 +481,7 @@ case "$key" in
                     [[ "$current_idx" -gt "1" ]] && {
                         current_idx=current_idx-1
                         current_segment="100"
+                        search_for_hyperlink=1
                     }
                     while [[ -z "${(P)list_var_current}" && "$current_idx" -gt 1 ]]; do
                         current_idx=current_idx-1
@@ -482,8 +489,8 @@ case "$key" in
                     -zui_listin_compute_first_to_show_idx_up_many
                 fi
             else
-                # Search left accepting lack of success
-                -zui_listin_set_next_hyperlink 0
+                # || Search left accepting lack of success
+                (( ${ZUI[text_mode]} )) && (( -- current_segment )) || -zui_listin_set_next_hyperlink 0
             fi
         fi
         ;;
@@ -507,6 +514,7 @@ case "$key" in
                     [[ "$current_idx" -lt "$last_element" ]] && {
                         current_idx=current_idx+1
                         current_segment="1"
+                        search_for_hyperlink=1
                     }
                     while [[ -z "${(P)list_var_current}" && "$current_idx" -lt "$last_element" ]]; do
                         current_idx=current_idx+1
@@ -514,8 +522,8 @@ case "$key" in
                     -zui_listin_compute_first_to_show_idx_down_many
                 fi
             else
-                # Search right accepting lack of success
-                -zui_listin_set_next_hyperlink 1
+                # || Search right accepting lack of success
+                (( ${ZUI[text_mode]} )) && (( ++ current_segment )) || -zui_listin_set_next_hyperlink 1
             fi
             [[ "$current_segment" -gt "$nseg" ]] && current_segment="$nseg"
         fi
@@ -561,7 +569,7 @@ fi
 
 # Make current_segment point to
 # hyperlink, if it exists in line
--zui_listin_search_for_hyperlink
+(( ${ZUI[text_mode]} && search_for_hyperlink == 0 )) || -zui_listin_search_for_hyperlink
 
 reply[3]="$current_idx"
 reply[4]="$current_segment"

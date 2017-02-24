@@ -309,6 +309,7 @@ local actmark altmark colorpair border bold background foreground backuptheme
 [[ "$bold" = "1" ]] && bold="+bold" || bold="-bold"
 -zui_stdlib_load_config s:mark "red reverse lineund" -1 actmark
 -zui_stdlib_load_config s:altmark "red reverse" -1 altmark
+-zui_stdlib_load_config b:text_mode 0 2 'ZUI[text_mode]'
 
 # Process configuration
 background="${colorpair#*/}"
