@@ -170,18 +170,18 @@ integer internal
     local mod="$1"
     reply=( )
     # IDs of anchors have own namespace
-    -zui_stdlib_anchor "regenerate1_$mod" "1" "" ",module${1}," "${RANDOM}$((RANDOM%2))" "[${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}]"
-    -zui_stdlib_rc_button "regenerate2_$mod" "$1" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_module1_external_action_1
-    -zui_stdlib_rc_button "regenerate3_$mod" "$1" "" ",module$(( $1 + 1 ))," "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}"
+    -zui_stdlib_anchor "regenerate1_$mod" "1" "" ",module${mod}," "${RANDOM}$((RANDOM%2))" "[${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}]"
+    -zui_stdlib_rc_button "regenerate2_$mod" "$mod" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_module1_external_action_1
+    -zui_stdlib_rc_button "regenerate3_$mod" "$mod" "" ",module$(( $mod + 1 ))," "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}"
     # internal=0 is a trick, look at comment
-    -zui_stdlib_rc_button "bold_$mod" "$1" "" "" "" "${ZUI_GREEN}bold${ZUI_GREEN_E}" 'internal=0; [ $bold = "+bold" ] && bold="-bold" || bold="+bold"'
+    -zui_stdlib_rc_button "bold_$mod" "$mod" "" "" "" "${ZUI_GREEN}bold${ZUI_GREEN_E}" 'internal=0; [ $bold = "+bold" ] && bold="-bold" || bold="+bold"'
 
     # Passed user data
     local user_data=${2:+ \[Obtained regeneration user data: $2\]}
 
     # Content
     reply=(
-            "Hello World from ${ZUI_GREEN}Module ${1}${ZUI_GREEN_E} (non-selectable line, a header)"
+            "Hello World from ${ZUI_GREEN}Module ${mod}${ZUI_GREEN_E} (non-selectable line, a header)"
             "${reply[1]} this module via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}external_anchor${ZUI_CYAN_E}${user_data}"
             "${reply[2]} this module via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}function_call${ZUI_CYAN_E}"
             "${reply[3]} the <NEXT> section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}raw_link${ZUI_CYAN_E}"
