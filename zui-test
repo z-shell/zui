@@ -167,13 +167,14 @@ integer internal
 
 # Generator for module 1
 -zui_test_module1_generator() {
+    local mod="$1"
     reply=( )
     # IDs of anchors have own namespace
-    -zui_stdlib_anchor "regenerate1" "1" "" ",module${1}," "${RANDOM}$((RANDOM%2))" "[${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}]"
-    -zui_stdlib_rc_button "regenerate2" "$1" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_module1_external_action_1
-    -zui_stdlib_rc_button "regenerate3" "$1" "" ",module$(( $1 + 1 ))," "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}"
+    -zui_stdlib_anchor "regenerate1_$mod" "1" "" ",module${1}," "${RANDOM}$((RANDOM%2))" "[${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}]"
+    -zui_stdlib_rc_button "regenerate2_$mod" "$1" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_module1_external_action_1
+    -zui_stdlib_rc_button "regenerate3_$mod" "$1" "" ",module$(( $1 + 1 ))," "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}"
     # internal=0 is a trick, look at comment
-    -zui_stdlib_rc_button "bold" "$1" "" "" "" "${ZUI_GREEN}bold${ZUI_GREEN_E}" 'internal=0; [ $bold = "+bold" ] && bold="-bold" || bold="+bold"'
+    -zui_stdlib_rc_button "bold_$mod" "$1" "" "" "" "${ZUI_GREEN}bold${ZUI_GREEN_E}" 'internal=0; [ $bold = "+bold" ] && bold="-bold" || bold="+bold"'
 
     # Passed user data
     local user_data=${2:+ \[Obtained regeneration user data: $2\]}
@@ -196,7 +197,7 @@ integer internal
     # - maximum local line number
     # - remaining lines to reach next module
     local -a next
-    -zui_stdlib_anchor "nextjump" "${#reply[@]}+2" "" "" "" "[${ZUI_YELLOW}NEXT${ZUI_YELLOW_E}]" "" next
+    -zui_stdlib_anchor "nextjump_$mod" "${#reply[@]}+2" "" "" "" "[${ZUI_YELLOW}NEXT${ZUI_YELLOW_E}]" "" next
     reply[4]="${reply[4]/<NEXT>/${next[1]}}"
 
     # Content count
@@ -206,7 +207,7 @@ integer internal
     # Hops
     reply4=( 1 )
     # Local anchors
-    reply5=( regenerate1 nextjump )
+    reply5=( regenerate1_$mod nextjump_$mod )
 }
 
 # Generator for module 2
