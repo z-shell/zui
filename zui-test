@@ -75,6 +75,10 @@ integer total_module_limit=3
 # internal action.
 integer internal
 
+# Holds the selected text (in text_mode and
+# text_select mode)
+local pure_text_selected
+
 #
 # External Actions
 #
@@ -151,8 +155,11 @@ integer internal
 
     # Zero ID means we're called on non-button
     if [[ -z "$id" ]]; then
-        if (( $data1 )); then
-            reply=( "Text: $data2" )
+        if [[ -n "$pure_text_selected" ]]; then
+            reply=( "Pure-text selected: " "$data2" )
+            pure_text_selected=""
+        elif (( $data1 )); then
+            reply=( "" "" "Text: " "$data2" )
         else
             # Detect if current line is also a hop
             local on_hop
@@ -601,6 +608,9 @@ if -zui_stdlib_decode_hyperlink "$ZUILIST_WRAPPER_BIT"; then
     fi
 
     REGENERATE+="$REGENERATE_ALWAYS"
+else
+    # Non-hyperlink text-bit selection
+    pure_text_selected="$ZUILIST_WRAPPER_BIT"
 fi
 
 ### REGENERATION REQUEST LOOP ###
