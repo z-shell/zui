@@ -208,7 +208,7 @@ function -zui_stdlib_to_cmd_line() {
 #
 function -zui_stdlib_get_time() {
     local ts
-    ts="${EPOCHSECONDS}"
+    ts="$EPOCHSECONDS"
     [[ -z "$ts" || "$ts" = "0" ]] && REPLY="$(date '+%H:%M')" || strftime -s REPLY '%H:%M' "$ts"
 }
 
@@ -218,7 +218,7 @@ function -zui_stdlib_get_time() {
 #
 function -zui_stdlib_get_datetime() {
     local ts
-    ts="${EPOCHSECONDS}"
+    ts="$EPOCHSECONDS"
     [[ -z "$ts" || "$ts" = "0" ]] && REPLY="$(date '+%Y%m%d_%H.%M.%S')" || strftime -s REPLY '%Y%m%d_%H.%M.%S' "$ts"
 }
 
