@@ -251,7 +251,7 @@ local pure_text_selected
     if [[ "$mod" = "2" ]]; then
         reply=( )
         # IDs of anchors have own namespace
-        -zui_stdlib_rc_button "regenerate4_$mod" "$mod" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_module2_internal_action_1
+        -zui_stdlib_rc_button "regenerate4_$mod" "$mod" "" "" "" "${ZUI_BLUE}Regenerate${ZUI_BLUE_E}" -zui_module2_internal_action_1
         -zui_stdlib_anchor "jump1_$mod" "1" "" "" "" "[${ZUI_YELLOW}Jump${ZUI_YELLOW_E}]"
         regenerate="${reply[1]} this module ${ZUI_RED}ON-THE-FLY${ZUI_RED_E}, ${ZUI_YELLOW}without${ZUI_YELLOW_E} list restart"
         jump="${reply[2]} to 1st line"

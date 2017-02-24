@@ -17,7 +17,7 @@
 # detects that distinct *_E are used. That said,
 # this is apparently only an engineering ambition,
 # as common *_E values work fine :)
-typeset -g ZUI_COMMON_E=$'\031'  # octal value, decimal 25 - EM End of medium.
+typeset -g ZUI_COMMON_E=$'\037'  # octal value, decimal 31 - Unit separator
 typeset -g ZUI_RED=$'\07'        # Bell
 typeset -g ZUI_RED_E=$ZUI_COMMON_E
 typeset -g ZUI_GREEN=$'\03'      # End of text
@@ -28,6 +28,8 @@ typeset -g ZUI_MAGENTA=$'\05'    # Enquiry
 typeset -g ZUI_MAGENTA_E=$ZUI_COMMON_E
 typeset -g ZUI_CYAN=$'\06'       # Acknowledge
 typeset -g ZUI_CYAN_E=$ZUI_COMMON_E
+typeset -g ZUI_BLUE=$'\010'      # Backspace
+typeset -g ZUI_BLUE_E=$ZUI_COMMON_E
 
 # Special code used to mark active button
 typeset -g ZUI_MARK=$'\026'      # octal value, decimal 22 - Synchronous idle

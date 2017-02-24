@@ -173,6 +173,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     disp_list=( "${disp_list[@]//(#b)$ZUI_MAGENTA([^$ZUI_MAGENTA_E]#)$ZUI_MAGENTA_E/$MAGENTA$match[1]$RESET}" )
     disp_list=( "${disp_list[@]//(#b)$ZUI_CYAN([^$ZUI_CYAN_E]#)$ZUI_CYAN_E/$CYAN$match[1]$RESET}" )
     disp_list=( "${disp_list[@]//(#b)$ZUI_RED([^$ZUI_RED_E]#)$ZUI_RED_E/$RED$match[1]$RESET}" )
+    disp_list=( "${disp_list[@]//(#b)$ZUI_BLUE([^$ZUI_BLUE_E]#)$ZUI_BLUE_E/$BLUE$match[1]$RESET}" )
     # This shouldn't be needed as current
     # line in $list has ZUI_MARK replaced
     # disp_list=( "${disp_list[@]//(#b)$ZUI_MARK([^$ZUI_MARK_E]#)$ZUI_MARK_E/$RED$match[1]$RESET}" )
@@ -190,6 +191,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     buf=( "${buf//(#b)$ZUI_MAGENTA([^$ZUI_MAGENTA_E]#)$ZUI_MAGENTA_E/$MAGENTA$match[1]$RESET}" )
     buf=( "${buf//(#b)$ZUI_CYAN([^$ZUI_CYAN_E]#)$ZUI_CYAN_E/$CYAN$match[1]$RESET}" )
     buf=( "${buf//(#b)$ZUI_RED([^$ZUI_RED_E]#)$ZUI_RED_E/$RED$match[1]$RESET}" )
+    buf=( "${buf//(#b)$ZUI_BLUE([^$ZUI_BLUE_E]#)$ZUI_BLUE_E/$BLUE$match[1]$RESET}" )
     buf=( "${buf//(#b)$ZUI_MARK([^$ZUI_MARK_E]#)$ZUI_MARK_E/$MARK_CODES$match[1]$MARK_END_CODES}" )
     REPLY="$buf"
 }
@@ -203,7 +205,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # $REPLY - modified buffer
 -zui_list_replace_color_marks_with() {
     local buf="$1" target_mark="$2"
-    buf=${buf//[$'\03'-$'\07']/$target_mark}
+    buf=${buf//[$'\03'-$'\010']/$target_mark}
 
     # No existing replaced marks – then just add the mark
     if [[ "${buf/$target_mark/}" = "$buf" ]]; then
@@ -292,8 +294,8 @@ typeset -A "cursor_state"
 cursor_state=( "main" 1 "status" 1 )
 
 # Escape codes for colors
-local RESET=$'\e[0m' RED=$'\e[0;31m' GREEN=$'\e[0;32m'
-local YELLOW=$'\e[0;33m' MAGENTA=$'\e[0;35m' CYAN=$'\e[0;36m'
+local RESET=$'\e[0m' RED=$'\e[0;31m' GREEN=$'\e[0;32m' YELLOW=$'\e[0;33m'
+local BLUE=$'\e[0;34m' MAGENTA=$'\e[0;35m' CYAN=$'\e[0;36m'
 
 #
 # Load configuration – per application if ZUI[app] is set
@@ -497,7 +499,7 @@ while (( 1 )); do
                     # Here is the common *_E obstacle - we can easily use only single [Close] in the substitution
                     while (( 1 )); do
                         match=()
-                        disp_list=( ${(@)disp_list//(#b)([$'\03'-$'\07'])([^$close]#)$col([^$close]#)$close/$match[1]$match[2]$close$col$match[3]$close$match[1]} )
+                        disp_list=( ${(@)disp_list//(#b)([$'\03'-$'\010'])([^$close]#)$col([^$close]#)$close/$match[1]$match[2]$close$col$match[3]$close$match[1]} )
                         [[ -z "${match[1]}" ]] && break
                     done
                 done
