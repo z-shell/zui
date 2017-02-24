@@ -212,34 +212,34 @@ integer internal
 
 # Generator for module 2
 -zui_test_module2_generator() {
-    local extra_line="$2"
+    local mod="$1" extra_line="$2"
 
     local append_third
     # Second instance of this content?
-    if [[ "$1" = "3" && "$total_module_limit" -eq 3 ]]; then
+    if [[ "$mod" = "3" && "$total_module_limit" -eq 3 ]]; then
         reply=( )
-        -zui_stdlib_anchor "append_third" "3+2" "$1" ",module${1},module$(( $1 + 1 ))," "" "${ZUI_MAGENTA}Append_third!${ZUI_MAGENTA_E}" "(( total_module_limit ++ ))"
+        -zui_stdlib_anchor "append_third" "3+2" "$mod" ",module${mod},module$(( $mod + 1 ))," "" "${ZUI_MAGENTA}Append_third!${ZUI_MAGENTA_E}" "(( total_module_limit ++ ))"
         append_third="${reply[1]}"
     fi
 
     local regenerate jump
-    if [[ "$1" = "2" ]]; then
+    if [[ "$mod" = "2" ]]; then
         reply=( )
         # IDs of anchors have own namespace
-        -zui_stdlib_rc_button "regenerate4" "$1" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_module2_internal_action_1
+        -zui_stdlib_rc_button "regenerate4" "$mod" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_module2_internal_action_1
         -zui_stdlib_anchor "jump1" "1" "" "" "" "[${ZUI_YELLOW}Jump${ZUI_YELLOW_E}]"
         regenerate="${reply[1]} this module ${ZUI_RED}ON-THE-FLY${ZUI_RED_E}, ${ZUI_YELLOW}without${ZUI_YELLOW_E} list restart"
         jump="${reply[2]} to 1st line"
     fi
 
-    if [[ "$1" = "2" ]]; then
+    if [[ "$mod" = "2" ]]; then
         local rand_line="Random number: ${ZUI_YELLOW}$RANDOM$((RANDOM%2))${ZUI_YELLOW_E}"
     else
         local rand_line="Random number: $RANDOM$((RANDOM%2))"
     fi
     # Content
     reply=(
-        "The same generator called ${ZUI_CYAN}#$(( $1 - 1 ))${ZUI_CYAN_E} time"
+        "The same generator called ${ZUI_CYAN}#$(( mod - 1 ))${ZUI_CYAN_E} time"
         "${ZUI_GREEN}Not selectable line${ZUI_GREEN_E}"
         $regenerate
         $jump
