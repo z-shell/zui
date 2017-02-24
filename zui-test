@@ -149,6 +149,16 @@ integer internal
 -zui-standard-status-callback() {
     local id="$1" data1="$2" data2="$3" data3="$4" data4="$5" text="$6" handler
 
+    # Zero ID means we're called on non-button
+    if [[ -z "$id" ]]; then
+        if (( $data1 )); then
+            reply=( "Text: $data2" )
+        else
+            reply=( "(A non-selectable line)" )
+        fi
+        return 0
+    fi
+
     [[ $id = (zuiiaction|zuianchor|zuicheckbox)* ]] && local exint="NO-RESTART" || local exint="RESTART"
     [[ $id = (zuiaction|zuiiaction|zuicheckbox)* ]] && local __is_action="Module"
     # A raw link?

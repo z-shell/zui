@@ -605,8 +605,13 @@ while (( 1 )); do
     # Status window is optional (1/2)
     [[ -n "$wname_status" ]] && {
         reply=( )
-        if -zui_stdlib_decode_hyperlink "${segments[$ZUILIST_CURRENT_SEGMENT]}"; then
+        local selectable=0
+        [[ ${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]} != $ZUILIST_CURRENT_IDX ]] && selectable=1
+        if (( selectable )) && -zui_stdlib_decode_hyperlink "${segments[ZUILIST_CURRENT_SEGMENT]}"
+        then
             (( ${+functions[-zui-standard-status-callback]} )) && -zui-standard-status-callback "${reply[@]}"
+        else
+            (( ${+functions[-zui-standard-status-callback]} )) && -zui-standard-status-callback "" $selectable "${segments[ZUILIST_CURRENT_SEGMENT]}"
         fi
 
         local status_msg_strlen _uniq="" _text="" _grep="" _gen=""
@@ -622,7 +627,7 @@ while (( 1 )); do
             -zui_list_status_msg "$_uniq" "$_text" "$_grep" "$_gen" "${reply[@]}"
         else
             # "[UNIQ]", "Text", "[Grep string]", "Generation time", "$reply[@]" from callback
-            -zui_list_status_msg "" "" "" "$_gen"
+            -zui_list_status_msg "" "" "" "$_gen" "${reply[@]}"
         fi
 
         [[ "$border" = "1" ]] && zcurses border "$wname_status"
