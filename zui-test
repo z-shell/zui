@@ -215,14 +215,9 @@ integer internal
     local mod="$1" extra_line="$2"
 
     local append_third
-    # Second instance of this content?
-    if [[ "$mod" = "3" && "$total_module_limit" -eq 3 ]]; then
-        reply=( )
-        -zui_stdlib_anchor "append_third_$mod" "3+2" "$mod" ",module${mod},module$(( $mod + 1 ))," "" "${ZUI_MAGENTA}Append_third!${ZUI_MAGENTA_E}" "(( total_module_limit ++ ))"
-        append_third="${reply[1]}"
-    fi
-
     local regenerate jump
+
+    # First instance of this content?
     if [[ "$mod" = "2" ]]; then
         reply=( )
         # IDs of anchors have own namespace
@@ -230,6 +225,13 @@ integer internal
         -zui_stdlib_anchor "jump1_$mod" "1" "" "" "" "[${ZUI_YELLOW}Jump${ZUI_YELLOW_E}]"
         regenerate="${reply[1]} this module ${ZUI_RED}ON-THE-FLY${ZUI_RED_E}, ${ZUI_YELLOW}without${ZUI_YELLOW_E} list restart"
         jump="${reply[2]} to 1st line"
+    fi
+
+    # Second instance of this content?
+    if [[ "$mod" = "3" && "$total_module_limit" -eq 3 ]]; then
+        reply=( )
+        -zui_stdlib_anchor "append_third_$mod" "3+2" "$mod" ",module${mod},module$(( $mod + 1 ))," "" "${ZUI_MAGENTA}Append_third!${ZUI_MAGENTA_E}" "(( total_module_limit ++ ))"
+        append_third="${reply[1]}"
     fi
 
     if [[ "$mod" = "2" ]]; then
