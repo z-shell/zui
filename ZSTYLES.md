@@ -17,7 +17,7 @@ zstyle ":plugin:zui" altmark "red reverse"      # As "mark", but for terminals w
 Each application can override those via "...:app:{name}" zstyles, e.g. for application "zplugin":
 
 ```zsh
-zstyle ":plugin:zui:app:zplugin" colorpair "10/17"
+zstyle ":plugin:zui:app:zplugin" colorpair "10/17"  # 256 colors – zsh >= 5.3; "default" color also from this version
 zstyle ":plugin:zui:app:zplugin" border "yes"
 zstyle ":plugin:zui:app:zplugin" bold "yes"
 zstyle ":plugin:zui:app:zplugin" mark "blue WHITE reverse bold lineund"
