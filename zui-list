@@ -303,22 +303,12 @@ local YELLOW=$'\e[0;33m' MAGENTA=$'\e[0;35m' CYAN=$'\e[0;36m'
 #
 
 local actmark altmark colorpair border bold background foreground backuptheme
-zstyle -s ":plugin:zui" "colorpair" colorpair || colorpair="white/black"
-zstyle -t ":plugin:zui" "border" && border="1" || border="0"
-zstyle -t ":plugin:zui" "bold" && bold="+bold" || bold="-bold"
-zstyle -s ":plugin:zui" "mark" actmark || actmark="red reverse lineund"
-zstyle -s ":plugin:zui" "altmark" altmark || altmark="red reverse"
-
-[[ -n "${ZUI[app]}" ]] && {
-    local zstyle_path=":plugin:zui:app:${ZUI[app]}" colorpair2 actmark2 altmark2
-    zstyle -s $zstyle_path "colorpair" colorpair2 && colorpair="$colorpair2"
-    # -t - false when unset or false, -T - false when false
-    zstyle -t $zstyle_path "border" && border="1" || zstyle -T $zstyle_path "border" || border="0"
-    zstyle -t $zstyle_path "bold" && bold="+bold" || zstyle -t $zstyle_path "bold" || bold="-bold"
-    zstyle -s $zstyle_path "mark" actmark2 && actmark="$actmark2"
-    zstyle -s $zstyle_path "mark" altmark2 && altmark="$altmark2"
-    unset zstyle_path colorpair2 actmark2
-}
+-zui_stdlib_load_config s:colorpair "white/black" -1 colorpair
+-zui_stdlib_load_config b:border 0 -1 border
+-zui_stdlib_load_config b:bold 0 -1 bold
+[[ "$bold" = "1" ]] && bold="+bold" || bold="-bold"
+-zui_stdlib_load_config s:mark "red reverse lineund" -1 actmark
+-zui_stdlib_load_config s:altmark "red reverse" -1 altmark
 
 # Process configuration
 background="${colorpair#*/}"
