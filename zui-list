@@ -203,10 +203,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # $REPLY - modified buffer
 -zui_list_replace_color_marks_with() {
     local buf="$1" target_mark="$2"
-    buf=${buf//$'\03'/$target_mark}
-    buf=${buf//$'\04'/$target_mark}
-    buf=${buf//$'\05'/$target_mark}
-    buf=${buf//$'\06'/$target_mark}
+    buf=${buf//[$'\03'-$'\07']/$target_mark}
 
     # No existing replaced marks – then just add the mark
     if [[ "${buf/$target_mark/}" = "$buf" ]]; then
@@ -500,7 +497,7 @@ while (( 1 )); do
                     # Here is the common *_E obstacle - we can easily use only single [Close] in the substitution
                     while (( 1 )); do
                         match=()
-                        disp_list=( ${(@)disp_list//(#b)([$'\03'$'\04'$'\05'$'\06'$'\07'])([^$close]#)$col([^$close]#)$close/$match[1]$match[2]$close$col$match[3]$close$match[1]} )
+                        disp_list=( ${(@)disp_list//(#b)([$'\03'-$'\07'])([^$close]#)$col([^$close]#)$close/$match[1]$match[2]$close$col$match[3]$close$match[1]} )
                         [[ -z "${match[1]}" ]] && break
                     done
                 done
