@@ -203,6 +203,8 @@ local pure_text_selected
     -zui_stdlib_rc_button "regenerate3_$mod" "$mod" "" ",module$(( $mod + 1 ))," "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}"
     # internal=0 is a trick, look at comment
     -zui_stdlib_rc_button "bold_$mod" "$mod" "" "" "" "${ZUI_GREEN}bold${ZUI_GREEN_E}" 'internal=0; [ $bold = "+bold" ] && bold="-bold" || bold="+bold"'
+    -zui_stdlib_rc_button "text_mode_$mod" "$mod" "" "" "" "${ZUI_GREEN}Text_mode${ZUI_GREEN_E}" 'internal=0; (( ZUI[text_mode] )) && ZUI[text_mode]=0 || ZUI[text_mode]=1; (( ZUI[text_mode_ts_]=2**31 ))'
+    -zui_stdlib_rc_button "text_select_$mod" "$mod" "" "" "" "${ZUI_GREEN}text_select${ZUI_GREEN_E}" 'internal=0; (( ZUI[text_select] )) && ZUI[text_select]=0 || ZUI[text_select]=1; (( ZUI[text_select_ts_]=2**31 ))'
 
     # Passed user data
     local user_data=${2:+ \[Obtained regeneration user data: $2\]}
@@ -213,7 +215,7 @@ local pure_text_selected
             "${reply[1]} this module via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}external_anchor${ZUI_CYAN_E}${user_data}"
             "${reply[2]} this module via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}function_call${ZUI_CYAN_E}"
             "${reply[3]} the <NEXT> section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}raw_link${ZUI_CYAN_E}"
-            "Toggle ${reply[4]} with inlined (no function!) code"
+            "Toggle ${reply[4]} with inlined (no function!) code. ${reply[5]}, ${reply[6]}."
             "Random number: $RANDOM$((RANDOM%2))"
 
             # This is set in -zui_module1_external_action_1
