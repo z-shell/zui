@@ -198,23 +198,23 @@ local pure_text_selected
     local mod="$1"
     reply=( )
     # IDs of anchors have own namespace
-    -zui_stdlib_anchor "regenerate1_$mod" "1" "" ",module${mod}," "${RANDOM}$((RANDOM%2))" "[${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}]"
-    -zui_stdlib_rc_button "regenerate2_$mod" "$mod" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_module1_external_action_1
-    -zui_stdlib_rc_button "regenerate3_$mod" "$mod" "" ",module$(( $mod + 1 ))," "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}"
+    -zui_stdlib_anchor "regenerate1_$mod" "1" "" ",module${mod}," "${RANDOM}$((RANDOM%2))" "[${ZUI[MAGENTA]}Regenerate${ZUI[MAGENTA_E]}]"
+    -zui_stdlib_rc_button "regenerate2_$mod" "$mod" "" "" "" "${ZUI[MAGENTA]}Regenerate${ZUI[MAGENTA_E]}" -zui_module1_external_action_1
+    -zui_stdlib_rc_button "regenerate3_$mod" "$mod" "" ",module$(( $mod + 1 ))," "" "${ZUI[MAGENTA]}Regenerate${ZUI[MAGENTA_E]}"
     # internal=0 is a trick, look at comment
-    -zui_stdlib_rc_button "bold_$mod" "$mod" "" "" "" "${ZUI_GREEN}bold${ZUI_GREEN_E}" 'internal=0; [ $bold = "+bold" ] && bold="-bold" || bold="+bold"'
-    -zui_stdlib_rc_button "text_mode_$mod" "$mod" "" "" "" "${ZUI_GREEN}Text_mode${ZUI_GREEN_E}" 'internal=0; (( ZUI[text_mode] )) && ZUI[text_mode]=0 || ZUI[text_mode]=1; (( ZUI[text_mode_ts_]=2**31 ))'
-    -zui_stdlib_rc_button "text_select_$mod" "$mod" "" "" "" "${ZUI_GREEN}text_select${ZUI_GREEN_E}" 'internal=0; (( ZUI[text_select] )) && ZUI[text_select]=0 || ZUI[text_select]=1; (( ZUI[text_select_ts_]=2**31 ))'
+    -zui_stdlib_rc_button "bold_$mod" "$mod" "" "" "" "${ZUI[GREEN]}bold${ZUI[GREEN_E]}" 'internal=0; [ $bold = "+bold" ] && bold="-bold" || bold="+bold"'
+    -zui_stdlib_rc_button "text_mode_$mod" "$mod" "" "" "" "${ZUI[GREEN]}Text_mode${ZUI[GREEN_E]}" 'internal=0; (( ZUI[text_mode] )) && ZUI[text_mode]=0 || ZUI[text_mode]=1; (( ZUI[text_mode_ts_]=2**31 ))'
+    -zui_stdlib_rc_button "text_select_$mod" "$mod" "" "" "" "${ZUI[GREEN]}text_select${ZUI[GREEN_E]}" 'internal=0; (( ZUI[text_select] )) && ZUI[text_select]=0 || ZUI[text_select]=1; (( ZUI[text_select_ts_]=2**31 ))'
 
     # Passed user data
     local user_data=${2:+ \[Obtained regeneration user data: $2\]}
 
     # Content
     reply=(
-            "Hello World from ${ZUI_GREEN}Module ${mod}${ZUI_GREEN_E} (non-selectable line, a header)"
-            "${reply[1]} this module via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}external_anchor${ZUI_CYAN_E}${user_data}"
-            "${reply[2]} this module via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}function_call${ZUI_CYAN_E}"
-            "${reply[3]} the <NEXT> section via ${ZUI_YELLOW}list_restart${ZUI_YELLOW_E} and ${ZUI_CYAN}raw_link${ZUI_CYAN_E}"
+            "Hello World from ${ZUI[GREEN]}Module ${mod}${ZUI[GREEN_E]} (non-selectable line, a header)"
+            "${reply[1]} this module via ${ZUI[YELLOW]}list_restart${ZUI[YELLOW_E]} and ${ZUI[CYAN]}external_anchor${ZUI[CYAN_E]}${user_data}"
+            "${reply[2]} this module via ${ZUI[YELLOW]}list_restart${ZUI[YELLOW_E]} and ${ZUI[CYAN]}function_call${ZUI[CYAN_E]}"
+            "${reply[3]} the <NEXT> section via ${ZUI[YELLOW]}list_restart${ZUI[YELLOW_E]} and ${ZUI[CYAN]}raw_link${ZUI[CYAN_E]}"
             "Toggle ${reply[4]} with inlined (no function!) code. ${reply[5]}, ${reply[6]}."
             "Random number: $RANDOM$((RANDOM%2))"
 
@@ -227,7 +227,7 @@ local pure_text_selected
     # - maximum local line number
     # - remaining lines to reach next module
     local -a next
-    -zui_stdlib_anchor "nextjump_$mod" "${#reply[@]}+2" "" "" "" "[${ZUI_YELLOW}NEXT${ZUI_YELLOW_E}]" "" next
+    -zui_stdlib_anchor "nextjump_$mod" "${#reply[@]}+2" "" "" "" "[${ZUI[YELLOW]}NEXT${ZUI[YELLOW_E]}]" "" next
     reply[4]="${reply[4]/<NEXT>/${next[1]}}"
 
     # Content count
@@ -251,28 +251,28 @@ local pure_text_selected
     if [[ "$mod" = "2" ]]; then
         reply=( )
         # IDs of anchors have own namespace
-        -zui_stdlib_rc_button "regenerate4_$mod" "$mod" "" "" "" "${ZUI_BLUE}Regenerate${ZUI_BLUE_E}" -zui_module2_internal_action_1
-        -zui_stdlib_anchor "jump1_$mod" "1" "" "" "" "[${ZUI_YELLOW}Jump${ZUI_YELLOW_E}]"
-        regenerate="${reply[1]} this module ${ZUI_RED}ON-THE-FLY${ZUI_RED_E}, ${ZUI_YELLOW}without${ZUI_YELLOW_E} list restart"
+        -zui_stdlib_rc_button "regenerate4_$mod" "$mod" "" "" "" "${ZUI[BLUE]}Regenerate${ZUI[BLUE_E]}" -zui_module2_internal_action_1
+        -zui_stdlib_anchor "jump1_$mod" "1" "" "" "" "[${ZUI[YELLOW]}Jump${ZUI[YELLOW_E]}]"
+        regenerate="${reply[1]} this module ${ZUI[RED]}ON-THE-FLY${ZUI[RED_E]}, ${ZUI[YELLOW]}without${ZUI[YELLOW_E]} list restart"
         jump="${reply[2]} to 1st line"
     fi
 
     # Second instance of this content?
     if [[ "$mod" = "3" && "$total_module_limit" -eq 3 ]]; then
         reply=( )
-        -zui_stdlib_anchor "append_third_$mod" "3+2" "$mod" ",module${mod},module$(( $mod + 1 ))," "" "${ZUI_MAGENTA}Append_third!${ZUI_MAGENTA_E}" "(( total_module_limit ++ ))"
+        -zui_stdlib_anchor "append_third_$mod" "3+2" "$mod" ",module${mod},module$(( $mod + 1 ))," "" "${ZUI[MAGENTA]}Append_third!${ZUI[MAGENTA_E]}" "(( total_module_limit ++ ))"
         append_third="${reply[1]}"
     fi
 
     if [[ "$mod" = "2" ]]; then
-        local rand_line="Random number: ${ZUI_YELLOW}$RANDOM$((RANDOM%2))${ZUI_YELLOW_E}"
+        local rand_line="Random number: ${ZUI[YELLOW]}$RANDOM$((RANDOM%2))${ZUI[YELLOW_E]}"
     else
         local rand_line="Random number: $RANDOM$((RANDOM%2))"
     fi
     # Content
     reply=(
-        "The same generator called ${ZUI_CYAN}#$(( mod - 1 ))${ZUI_CYAN_E} time"
-        "${ZUI_GREEN}Not selectable line${ZUI_GREEN_E}"
+        "The same generator called ${ZUI[CYAN]}#$(( mod - 1 ))${ZUI[CYAN_E]} time"
+        "${ZUI[GREEN]}Not selectable line${ZUI[GREEN_E]}"
         $regenerate
         $jump
         "$rand_line"
@@ -485,11 +485,11 @@ for (( i = 1; i <= 1000; i ++ )); do
         # a loop) generated modules can be required
         # to be index of the module ($i of this
         # loop)
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "aglobal$i" "${hops[1]}" "$i" "" "" "[${ZUI_MAGENTA}Module1${ZUI_MAGENTA_E}]" -zui_top_anchors_external_action_1
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "aglobal$i" "${hops[1]}" "$i" "" "" "[${ZUI[MAGENTA]}Module1${ZUI[MAGENTA_E]}]" -zui_top_anchors_external_action_1
     elif [[ "$i" -ge "2" && "$i" -le "3" ]]; then
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "aglobal$i" "${hops[1]}" "$i" "" "" "[${ZUI_CYAN}Module${i}${ZUI_CYAN_E}]" -zui_top_anchors_internal_action_1
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "aglobal$i" "${hops[1]}" "$i" "" "" "[${ZUI[CYAN]}Module${i}${ZUI[CYAN_E]}]" -zui_top_anchors_internal_action_1
     else
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "aglobal$i" "${hops[1]}" "$i" "" "" "[${ZUI_YELLOW}Module${i}${ZUI_YELLOW_E}]" -zui_top_anchors_internal_action_1
+        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "aglobal$i" "${hops[1]}" "$i" "" "" "[${ZUI[YELLOW]}Module${i}${ZUI[YELLOW_E]}]" -zui_top_anchors_internal_action_1
     fi
     top_anchors+=( "${reply[@]}" )
 
@@ -551,7 +551,7 @@ ZUI[GENERATION_TIME]="${generation_time[1,4]}"
 ZUILIST_HOP_INDICES+=( 1 ) # jump to anchors
 ZUILIST_NONSELECTABLE_ELEMENTS+=( $(( 1 + ${#OUTPUT} + 2 )) )
 local ZUILIST_WRAPPER_BIT=""
-zui-usetty-wrapper zui-list-wrapper "${top_anchors[*]}" "${OUTPUT[@]}" "" "${ZUI_YELLOW}Fine grained list (re-)generation time: $generation_time${ZUI_YELLOW_E}"
+zui-usetty-wrapper zui-list-wrapper "${top_anchors[*]}" "${OUTPUT[@]}" "" "${ZUI[YELLOW]}Fine grained list (re-)generation time: $generation_time${ZUI[YELLOW_E]}"
 
 if [ -z "$ZUILIST_WRAPPER_BIT" ]; then
     zle && { zle .redisplay; zle .reset-prompt; }

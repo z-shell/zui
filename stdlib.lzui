@@ -13,27 +13,27 @@
 # Allowed color values are \03..\07.
 #
 # If the problem with common *_E will be fixed,
-# ZUI_COMMON_E should be empty, so that code
+# ZUI[COMMON_E] should be empty, so that code
 # detects that distinct *_E are used. That said,
 # this is apparently only an engineering ambition,
 # as common *_E values work fine :)
-typeset -g ZUI_COMMON_E=$'\037'  # octal value, decimal 31 - Unit separator
-typeset -g ZUI_RED=$'\07'        # Bell
-typeset -g ZUI_RED_E=$ZUI_COMMON_E
-typeset -g ZUI_GREEN=$'\03'      # End of text
-typeset -g ZUI_GREEN_E=$ZUI_COMMON_E
-typeset -g ZUI_YELLOW=$'\04'     # End of transmission
-typeset -g ZUI_YELLOW_E=$ZUI_COMMON_E
-typeset -g ZUI_MAGENTA=$'\05'    # Enquiry
-typeset -g ZUI_MAGENTA_E=$ZUI_COMMON_E
-typeset -g ZUI_CYAN=$'\06'       # Acknowledge
-typeset -g ZUI_CYAN_E=$ZUI_COMMON_E
-typeset -g ZUI_BLUE=$'\010'      # Backspace
-typeset -g ZUI_BLUE_E=$ZUI_COMMON_E
+ZUI[COMMON_E]=$'\037'       # octal value, decimal 31 - Unit separator
+ZUI[RED]=$'\07'             # Bell
+ZUI[RED_E]=$ZUI[COMMON_E]
+ZUI[GREEN]=$'\03'           # End of text
+ZUI[GREEN_E]=$ZUI[COMMON_E]
+ZUI[YELLOW]=$'\04'          # End of transmission
+ZUI[YELLOW_E]=$ZUI[COMMON_E]
+ZUI[MAGENTA]=$'\05'         # Enquiry
+ZUI[MAGENTA_E]=$ZUI[COMMON_E]
+ZUI[CYAN]=$'\06'            # Acknowledge
+ZUI[CYAN_E]=$ZUI[COMMON_E]
+ZUI[BLUE]=$'\010'           # Backspace
+ZUI[BLUE_E]=$ZUI[COMMON_E]
 
 # Special code used to mark active button
-typeset -g ZUI_MARK=$'\026'      # octal value, decimal 22 - Synchronous idle
-typeset -g ZUI_MARK_E=$ZUI_COMMON_E
+ZUI[MARK]=$'\026'           # octal value, decimal 22 - Synchronous idle
+ZUI[MARK_E]=$ZUI[COMMON_E]
 
 # Appends hyperlink into "reply" output array. It's the
 # standard action button, shown without surrounding
@@ -115,7 +115,7 @@ function -zui_stdlib_rc_button() {
 # name then anchor is also set to be external.
 #
 # Example call:
-#    -zui_stdlib_anchor "regen1" "4" "" ",module${1}," "$RANDOM", "[${ZUI_MAGENTA}Regen${ZUI_MAGENTA_E}]"
+#    -zui_stdlib_anchor "regen1" "4" "" ",module${1}," "$RANDOM", "[${ZUI[MAGENTA]}Regen${ZUI[MAGENTA_E]}]"
 #
 # This is done in generator, which has module number
 # in $1. So, this instructs to regenerate that module,

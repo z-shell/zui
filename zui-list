@@ -150,10 +150,10 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # Functionality inherited from n-list: ability to colorify
 # selected keywords (via ZUILIST_COLORING_PATTERN). Here
 # it uses color mark (default: \6) instead of direct usage
-# of ANSI color codes. \6 is cyan by default (ZUI_CYAN).
+# of ANSI color codes. \6 is cyan by default (ZUI[CYAN]).
 #
 -zui_list_colorify_disp_list() {
-    local col=$ZUI_CYAN close=$ZUI_CYAN_E
+    local col=${ZUI[CYAN]} close=${ZUI[CYAN_E]}
     [[ -n "$ZUILIST_COLORING_COLOR" ]] && col="$ZUILIST_COLORING_COLOR"
     [[ -n "$ZUILIST_COLORING_END_COLOR" ]] && close="$ZUILIST_COLORING_END_COLOR"
 
@@ -168,15 +168,15 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # color codes (default: green, yellow, magenta, cyan, red).
 # Operates on disp_list array.
 -zui_list_translate_color_marks_in_disp_list() {
-    disp_list=( "${disp_list[@]//(#b)$ZUI_GREEN([^$ZUI_GREEN_E]#)$ZUI_GREEN_E/$GREEN$match[1]$RESET}" )
-    disp_list=( "${disp_list[@]//(#b)$ZUI_YELLOW([^$ZUI_YELLOW_E]#)$ZUI_YELLOW_E/$YELLOW$match[1]$RESET}" )
-    disp_list=( "${disp_list[@]//(#b)$ZUI_MAGENTA([^$ZUI_MAGENTA_E]#)$ZUI_MAGENTA_E/$MAGENTA$match[1]$RESET}" )
-    disp_list=( "${disp_list[@]//(#b)$ZUI_CYAN([^$ZUI_CYAN_E]#)$ZUI_CYAN_E/$CYAN$match[1]$RESET}" )
-    disp_list=( "${disp_list[@]//(#b)$ZUI_RED([^$ZUI_RED_E]#)$ZUI_RED_E/$RED$match[1]$RESET}" )
-    disp_list=( "${disp_list[@]//(#b)$ZUI_BLUE([^$ZUI_BLUE_E]#)$ZUI_BLUE_E/$BLUE$match[1]$RESET}" )
+    disp_list=( "${disp_list[@]//(#b)${ZUI[GREEN]}([^${ZUI[GREEN_E]}]#)${ZUI[GREEN_E]}/$GREEN$match[1]$RESET}" )
+    disp_list=( "${disp_list[@]//(#b)${ZUI[YELLOW]}([^${ZUI[YELLOW_E]}]#)${ZUI[YELLOW_E]}/$YELLOW$match[1]$RESET}" )
+    disp_list=( "${disp_list[@]//(#b)${ZUI[MAGENTA]}([^${ZUI[MAGENTA_E]}]#)${ZUI[MAGENTA_E]}/$MAGENTA$match[1]$RESET}" )
+    disp_list=( "${disp_list[@]//(#b)${ZUI[CYAN]}([^${ZUI[CYAN_E]}]#)${ZUI[CYAN_E]}/$CYAN$match[1]$RESET}" )
+    disp_list=( "${disp_list[@]//(#b)${ZUI[RED]}([^${ZUI[RED_E]}]#)${ZUI[RED_E]}/$RED$match[1]$RESET}" )
+    disp_list=( "${disp_list[@]//(#b)${ZUI[BLUE]}([^${ZUI[BLUE_E]}]#)${ZUI[BLUE_E]}/$BLUE$match[1]$RESET}" )
     # This shouldn't be needed as current
-    # line in $list has ZUI_MARK replaced
-    # disp_list=( "${disp_list[@]//(#b)$ZUI_MARK([^$ZUI_MARK_E]#)$ZUI_MARK_E/$RED$match[1]$RESET}" )
+    # line in $list has ZUI[MARK] replaced
+    # disp_list=( "${disp_list[@]//(#b)${ZUI[MARK]}([^${ZUI[MARK_E]}]#)${ZUI[MARK_E]}/$RED$match[1]$RESET}" )
 }
 
 # Changes color marks (default: \3, \4, \5, \6, \7) into ANSI
@@ -186,13 +186,13 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # $REPLY - modified buffer
 -zui_list_translate_color_marks() {
     local buf="$1"
-    buf="${buf//(#b)$ZUI_GREEN([^$ZUI_GREEN_E]#)$ZUI_GREEN_E/$GREEN$match[1]$RESET}"
-    buf="${buf//(#b)$ZUI_YELLOW([^$ZUI_YELLOW_E]#)$ZUI_YELLOW_E/$YELLOW$match[1]$RESET}"
-    buf="${buf//(#b)$ZUI_MAGENTA([^$ZUI_MAGENTA_E]#)$ZUI_MAGENTA_E/$MAGENTA$match[1]$RESET}"
-    buf="${buf//(#b)$ZUI_CYAN([^$ZUI_CYAN_E]#)$ZUI_CYAN_E/$CYAN$match[1]$RESET}"
-    buf="${buf//(#b)$ZUI_RED([^$ZUI_RED_E]#)$ZUI_RED_E/$RED$match[1]$RESET}"
-    buf="${buf//(#b)$ZUI_BLUE([^$ZUI_BLUE_E]#)$ZUI_BLUE_E/$BLUE$match[1]$RESET}"
-    buf="${buf//(#b)$ZUI_MARK([^$ZUI_MARK_E]#)$ZUI_MARK_E/$MARK_CODES$match[1]$MARK_END_CODES}"
+    buf="${buf//(#b)${ZUI[GREEN]}([^${ZUI[GREEN_E]}]#)${ZUI[GREEN_E]}/$GREEN$match[1]$RESET}"
+    buf="${buf//(#b)${ZUI[YELLOW]}([^${ZUI[YELLOW_E]}]#)${ZUI[YELLOW_E]}/$YELLOW$match[1]$RESET}"
+    buf="${buf//(#b)${ZUI[MAGENTA]}([^${ZUI[MAGENTA_E]}]#)${ZUI[MAGENTA_E]}/$MAGENTA$match[1]$RESET}"
+    buf="${buf//(#b)${ZUI[CYAN]}([^${ZUI[CYAN_E]}]#)${ZUI[CYAN_E]}/$CYAN$match[1]$RESET}"
+    buf="${buf//(#b)${ZUI[RED]}([^${ZUI[RED_E]}]#)${ZUI[RED_E]}/$RED$match[1]$RESET}"
+    buf="${buf//(#b)${ZUI[BLUE]}([^${ZUI[BLUE_E]}]#)${ZUI[BLUE_E]}/$BLUE$match[1]$RESET}"
+    buf="${buf//(#b)${ZUI[MARK]}([^${ZUI[MARK_E]}]#)${ZUI[MARK_E]}/$MARK_CODES$match[1]$MARK_END_CODES}"
     REPLY="$buf"
 }
 
@@ -210,7 +210,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     # No existing replaced marks – then just add the mark
     if [[ "${buf/$target_mark/}" = "$buf" ]]; then
         # TODO: allow distinct *_E variables
-        buf="${target_mark}${buf}"$ZUI_COMMON_E
+        buf="${target_mark}${buf}"${ZUI[COMMON_E]}
     fi
 
     REPLY="$buf"
@@ -238,7 +238,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         for (( i=1; i<=size; i++ )); do
             if [[ "$i" -eq "$active_segment" ]]; then
                 ZUI_PB_WORDS[i]=${ZUI_PB_WORDS[i]//$'\n'/\\n}
-                -zui_list_replace_color_marks_with "${ZUI_PB_WORDS[i]}" "$ZUI_MARK"
+                -zui_list_replace_color_marks_with "${ZUI_PB_WORDS[i]}" "${ZUI[MARK]}"
                 ZUI_PB_WORDS[i]="$REPLY"
             fi
             buf+="$ZUI_PB_SPACES[i]$ZUI_PB_WORDS[i]"
@@ -490,7 +490,7 @@ while (( 1 )); do
             disp_list=( "${(@)list[ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN, end_idx]}" )
 
             if [[ -n "$colsearch_pattern" ]]; then
-                local col="$ZUI_MAGENTA" close="$ZUI_COMMON_E"
+                local col="${ZUI[MAGENTA]}" close="${ZUI[COMMON_E]}"
                 # The repeat will make the matching work on a fresh heap arena
                 repeat 1; do
                     disp_list=( ${(@)disp_list//(#mi)($~colsearch_pattern)/$col${MATCH}$close} )
