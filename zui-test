@@ -218,7 +218,7 @@ integer internal
     # Second instance of this content?
     if [[ "$mod" = "3" && "$total_module_limit" -eq 3 ]]; then
         reply=( )
-        -zui_stdlib_anchor "append_third" "3+2" "$mod" ",module${mod},module$(( $mod + 1 ))," "" "${ZUI_MAGENTA}Append_third!${ZUI_MAGENTA_E}" "(( total_module_limit ++ ))"
+        -zui_stdlib_anchor "append_third_$mod" "3+2" "$mod" ",module${mod},module$(( $mod + 1 ))," "" "${ZUI_MAGENTA}Append_third!${ZUI_MAGENTA_E}" "(( total_module_limit ++ ))"
         append_third="${reply[1]}"
     fi
 
@@ -226,8 +226,8 @@ integer internal
     if [[ "$mod" = "2" ]]; then
         reply=( )
         # IDs of anchors have own namespace
-        -zui_stdlib_rc_button "regenerate4" "$mod" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_module2_internal_action_1
-        -zui_stdlib_anchor "jump1" "1" "" "" "" "[${ZUI_YELLOW}Jump${ZUI_YELLOW_E}]"
+        -zui_stdlib_rc_button "regenerate4_$mod" "$mod" "" "" "" "${ZUI_MAGENTA}Regenerate${ZUI_MAGENTA_E}" -zui_module2_internal_action_1
+        -zui_stdlib_anchor "jump1_$mod" "1" "" "" "" "[${ZUI_YELLOW}Jump${ZUI_YELLOW_E}]"
         regenerate="${reply[1]} this module ${ZUI_RED}ON-THE-FLY${ZUI_RED_E}, ${ZUI_YELLOW}without${ZUI_YELLOW_E} list restart"
         jump="${reply[2]} to 1st line"
     fi
@@ -254,7 +254,7 @@ integer internal
     # Hops
     reply4=( 1 )
     # Local anchors (:+ - replace if not null)
-    reply5=( ${jump:+jump1} ${append_third:+append_third} )
+    reply5=( ${jump:+jump1_$mod} ${append_third:+append_third_$mod} )
 }
 
 #
