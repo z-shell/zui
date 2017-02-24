@@ -238,8 +238,8 @@ case "$key" in
                     reply=( $current_idx SELECT )
                 fi
             else
-                # Selecting non-hyperlink is disallowed
-                reply=( -1 '' )
+                # Selecting non-hyperlink is disallowed?
+                (( ${ZUI[text_select]} )) && reply=( $current_idx SELECT ) || reply=( -1 '' )
             fi
         fi
         ;;

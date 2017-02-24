@@ -17,7 +17,10 @@ setopt extendedglob typesetsilent warncreateglobal
 
 ZUI[app]="zui-test"
 ZUI[app_name]="ZUI demonstration"
+# Navigate across text, not only buttons?
 -zui_stdlib_load_config b:text_mode 0 2 'ZUI[text_mode]'
+# Allow selecting text, not only buttons?
+-zui_stdlib_load_config b:text_select 0 2 'ZUI[text_select]'
 
 ##
 ## Main code
