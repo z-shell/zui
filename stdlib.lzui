@@ -654,4 +654,65 @@ function -zui_stdlib_gather_lanchors() {
     __output=( "${(P@)__var_name2}" "${(P@)__var_name1}" )
     : ${(PA)__var_name2::=${__output[@]}}
 }
+
+# Loads variable from configuration if it's older than
+# e.g.  2 seconds. The point is: I expect users to not
+# always manage ZUI hash well: forgot to call *cleanup,
+# not reset ZUI[app], etc. This will be covered here:
+# if config field in ZUI is fresh, less than say 2
+# seconds old, it means it's probably correctly aimed
+# at the ZUI application starting. If it's older, it's
+# a stray value from previous app.
+#
+# This applies only to configuration variables stored in
+# ZUI hash ($4 = ZUI\[*\]). Other target variables are
+# just being read, without age examination.
+#
+# $1 - variable to load, with "s:" or "b:" prefix
+#      for string or boolean
+# $2 - default value, 0 or 1 for bools
+# $3 - time limit
+# $4 - output parameter to fill (name)
+function -zui_stdlib_load_config() {
+    local __ts=${EPOCHSECONDS:-0}
+
+    local __bool="${${${1##b:*}:+0}:-1}" __default="$2" __cvar="${${1#b:}#s:}" __time_limit="${3:-2}" __var_name="${4:-REPLY}"
+    local __key __value
+
+    # Check if current ZUI[...] is fresh
+    if [[ "$__var_name" = (#b)ZUI\[(*)\] ]]; then
+        __key="${match[1]}_ts_"
+        # *_ts_ key in ZUI is older than __time_limit?
+        if [[ $(( __ts - __time_limit )) -gt "${ZUI[$__key]:-0}" || "$__ts" -eq 0 ]]; then
+            ZUI[$__key]=$__ts
+        else
+            return 0
+        fi
+    fi
+
+    # Global ZUI settings
+    if (( __bool )); then
+        if (( __default )); then
+            zstyle -T ":plugin:zui" "$__cvar" && : ${(P)__var_name::=1} || : ${(P)__var_name::=0}
+        else
+            zstyle -t ":plugin:zui" "$__cvar" && : ${(P)__var_name::=1} || : ${(P)__var_name::=0}
+        fi
+    else
+        zstyle -s ":plugin:zui" "$__cvar" __value || __value="$__default"
+        : ${(P)__var_name::=$__value}
+    fi
+
+    # Application - specific settings
+    [[ -n "${ZUI[app]}" ]] && {
+        local __zstyle_path=":plugin:zui:app:${ZUI[app]}"
+        if (( __bool )); then
+            zstyle -t $__zstyle_path "$__cvar" && : ${(P)__var_name::=1} || zstyle -T $__zstyle_path "$__cvar" || : ${(P)__var_name::=0}
+        else
+            zstyle -s $__zstyle_path "$__cvar" __value && : ${(P)__var_name::=$__value}
+        fi
+    }
+
+    return 0
+}
+
 # vim:ft=zsh
