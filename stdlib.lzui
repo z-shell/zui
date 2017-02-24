@@ -678,6 +678,7 @@ function -zui_stdlib_load_config() {
 
     local __bool="${${${1##b:*}:+0}:-1}" __default="$2" __cvar="${${1#b:}#s:}" __time_limit="${3:-2}" __var_name="${4:-REPLY}"
     local __key __value
+    local -a match mbegin mend
 
     # Check if current ZUI[...] is fresh
     if [[ "$__var_name" = (#b)ZUI\[(*)\] ]]; then
