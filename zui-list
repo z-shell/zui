@@ -186,13 +186,13 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # $REPLY - modified buffer
 -zui_list_translate_color_marks() {
     local buf="$1"
-    buf=( "${buf//(#b)$ZUI_GREEN([^$ZUI_GREEN_E]#)$ZUI_GREEN_E/$GREEN$match[1]$RESET}" )
-    buf=( "${buf//(#b)$ZUI_YELLOW([^$ZUI_YELLOW_E]#)$ZUI_YELLOW_E/$YELLOW$match[1]$RESET}" )
-    buf=( "${buf//(#b)$ZUI_MAGENTA([^$ZUI_MAGENTA_E]#)$ZUI_MAGENTA_E/$MAGENTA$match[1]$RESET}" )
-    buf=( "${buf//(#b)$ZUI_CYAN([^$ZUI_CYAN_E]#)$ZUI_CYAN_E/$CYAN$match[1]$RESET}" )
-    buf=( "${buf//(#b)$ZUI_RED([^$ZUI_RED_E]#)$ZUI_RED_E/$RED$match[1]$RESET}" )
-    buf=( "${buf//(#b)$ZUI_BLUE([^$ZUI_BLUE_E]#)$ZUI_BLUE_E/$BLUE$match[1]$RESET}" )
-    buf=( "${buf//(#b)$ZUI_MARK([^$ZUI_MARK_E]#)$ZUI_MARK_E/$MARK_CODES$match[1]$MARK_END_CODES}" )
+    buf="${buf//(#b)$ZUI_GREEN([^$ZUI_GREEN_E]#)$ZUI_GREEN_E/$GREEN$match[1]$RESET}"
+    buf="${buf//(#b)$ZUI_YELLOW([^$ZUI_YELLOW_E]#)$ZUI_YELLOW_E/$YELLOW$match[1]$RESET}"
+    buf="${buf//(#b)$ZUI_MAGENTA([^$ZUI_MAGENTA_E]#)$ZUI_MAGENTA_E/$MAGENTA$match[1]$RESET}"
+    buf="${buf//(#b)$ZUI_CYAN([^$ZUI_CYAN_E]#)$ZUI_CYAN_E/$CYAN$match[1]$RESET}"
+    buf="${buf//(#b)$ZUI_RED([^$ZUI_RED_E]#)$ZUI_RED_E/$RED$match[1]$RESET}"
+    buf="${buf//(#b)$ZUI_BLUE([^$ZUI_BLUE_E]#)$ZUI_BLUE_E/$BLUE$match[1]$RESET}"
+    buf="${buf//(#b)$ZUI_MARK([^$ZUI_MARK_E]#)$ZUI_MARK_E/$MARK_CODES$match[1]$MARK_END_CODES}"
     REPLY="$buf"
 }
 
