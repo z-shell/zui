@@ -732,4 +732,14 @@ function -zui_stdlib_load_config() {
     return 0
 }
 
+# Returns true if the "default" color
+# can be used with current Zsh/zcurses
+function -zui_stdlib_has_default_color() {
+    (( ${+zcurses_colors} )) || return 2
+    [[ -z "${zcurses_colors[(r)default]}" ]] && return 1
+    autoload is-at-least
+    is-at-least 2>/dev/null 5.3 && return 0
+    return 1
+}
+
 # vim:ft=zsh
