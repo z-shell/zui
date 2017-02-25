@@ -37,7 +37,8 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 -zui_list_status_msg() {
     # -1 for border, -1 for 0-based indexing
     zcurses move "$wname_status" 2 0; zcurses clear "$wname_status" eol
-    zcurses move "$wname_status" 1 2; zcurses clear "$wname_status" eol
+    zcurses move "$wname_status" 1 0; zcurses clear "$wname_status" eol
+    zcurses move "$wname_status" 1 2
 
     [[ -n "$4" ]] && {
         1="" 2="" 3=""
