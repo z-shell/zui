@@ -735,6 +735,43 @@ function -zui_stdlib_load_config() {
     return 0
 }
 
+# Stores given ZUI[app] configuration if it is not
+# already set by user, i.e. if given Zstyle is empty,
+# it is then set to given value, so that ZUI will
+# read it as the application default, overriding ZUI
+# global default.
+#
+# $1 - Zstyle variable to write, with "s:" or "b:" prefix
+#      for string or boolean
+# $2 - value to write, 0 or 1 for bools
+#
+# Returns 0 if written, 1 if Zstyle was already set
+function -zui_stdlib_store_default_app_config() {
+    local cvar="${${1#b:}#s:}" value="$2" bool="${${${1##b:*}:+0}:-1}"
+    local zstyle_path=":plugin:zui:app:${ZUI[app]}" tmp
+    integer isset
+
+    # Establish if already set
+    if (( bool )); then
+        # Lets keep this as a fine piece of logic
+        if zstyle -t "$zstyle_path" "$cvar"; then
+            isset=1
+        else
+            zstyle -T "$zstyle_path" "$cvar" && isset=0 || isset=1
+        fi
+    else
+        zstyle -s "$zstyle_path" "$cvar" tmp && isset=1 || isset=0
+    fi
+
+    # Store if not set
+    if (( isset == 0 )); then
+        zstyle "$zstyle_path" "$cvar" "$value"
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Returns true if the "default" color
 # can be used with current Zsh/zcurses
 function -zui_stdlib_has_default_color() {
