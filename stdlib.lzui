@@ -16,6 +16,9 @@
 #
 # \01 and \02 are used for hyperlinks (buttons)
 
+# If one would want to use the lib without plugin...
+typeset -gA ZUI
+
 # Ends colors and bold
 ZUI[COLOR_END]=$'\037'      # octal value, decimal 31 - Unit separator
 
@@ -684,7 +687,7 @@ function -zui_stdlib_gather_lanchors() {
 # ZUI hash ($4 = ZUI\[*\]). Other target variables are
 # just being read, without age examination.
 #
-# $1 - variable to load, with "s:" or "b:" prefix
+# $1 - Zstyle variable to load, with "s:" or "b:" prefix
 #      for string or boolean
 # $2 - default value, 0 or 1 for bools
 # $3 - time limit
