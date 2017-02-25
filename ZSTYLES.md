@@ -3,9 +3,16 @@
 The values being set are the defaults:
 
 ```zsh
-zstyle ":plugin:zui" colorpair "white/black"
-zstyle ":plugin:zui" border "no"
-zstyle ":plugin:zui" bold "no"
+zstyle ":plugin:zui" colorpair "white/black"        # Default text color. For Zsh >= 5.3, color "default"
+                                                    # is available, it might be e.g. transparent (depends
+                                                    # on terminal configuration)
+zstyle ":plugin:zui" border "no"                    # No border around main window
+zstyle ":plugin:zui" bold "no"                      # No default bold
+
+zstyle ":plugin:zui" status_colorpair "white/black" # The same as "colorpair", but for status window
+zstyle ":plugin:zui" status_border "no"
+zstyle ":plugin:zui" status_bold "no"
+
 zstyle ":plugin:zui" mark "red reverse lineund" # String starting with one or two color names continued
                                                 # with combination of: reverse, underline, blink, bold,
                                                 # lineund, linerev. Last two underline, reverse whole

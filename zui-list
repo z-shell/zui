@@ -27,9 +27,9 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
 # Outputs message in color, restores default color
 -zui_curses_colmsg() {
-    zcurses attr "$wname_status" "$1/$background"
+    zcurses attr "$wname_status" "$1/$stbackground"
     zcurses string "$wname_status" "$2"
-    zcurses attr "$wname_status" "$colorpair"
+    zcurses attr "$wname_status" "$stcolorpair"
 }
 
 # Outputs a message in the bottom of the screen
@@ -329,10 +329,17 @@ colormap=(
 #
 
 local actmark altmark colorpair border bold background foreground backuptheme
+local stcolorpair stborder stbold stbackground stforeground stbackuptheme
 -zui_stdlib_load_config s:colorpair "white/black" -1 colorpair
 -zui_stdlib_load_config b:border 0 -1 border
 -zui_stdlib_load_config b:bold 0 -1 bold
 [[ "$bold" = "1" ]] && bold="+bold" || bold="-bold"
+
+-zui_stdlib_load_config s:status_colorpair "white/black" -1 stcolorpair
+-zui_stdlib_load_config b:status_border 0 -1 stborder
+-zui_stdlib_load_config b:status_bold 0 -1 stbold
+[[ "$stbold" = "1" ]] && stbold="+bold" || stbold="-bold"
+
 -zui_stdlib_load_config s:mark "red reverse lineund" -1 actmark
 -zui_stdlib_load_config s:altmark "red reverse" -1 altmark
 -zui_stdlib_load_config b:text_mode 0 2 'ZUI[text_mode]'
@@ -342,6 +349,9 @@ local actmark altmark colorpair border bold background foreground backuptheme
 background="${colorpair#*/}"
 foreground="${colorpair%/*}"
 backuptheme="$colorpair/$bold"
+stbackground="${stcolorpair#*/}"
+stforeground="${stcolorpair%/*}"
+stbackuptheme="$stcolorpair/$stbold"
 local MARK_CODES MARK_END_CODES active_text
 () {
     # Check if terminal supports underline
@@ -385,7 +395,7 @@ local MARK_CODES MARK_END_CODES active_text
 
 # Set background
 zcurses bg "$wname_main" "$colorpair"
-zcurses bg "$wname_status" "$colorpair"
+zcurses bg "$wname_status" "$stcolorpair"
 
 # Ability to remember the list between calls
 if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" = 0 || "$ZUILIST_REMEMBER_STATE" = 2 ]]; then
@@ -631,6 +641,8 @@ while (( 1 )); do
 
     # Status window is optional (1/2)
     [[ -n "$wname_status" ]] && {
+        zcurses attr "$wname_status" "$stbold"
+
         reply=( )
         local selectable=0
         [[ ${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]} != $ZUILIST_CURRENT_IDX ]] && selectable=1
@@ -657,7 +669,7 @@ while (( 1 )); do
             -zui_list_status_msg "" "" "" "$_gen" "${reply[@]}"
         fi
 
-        [[ "$border" = "1" ]] && zcurses border "$wname_status"
+        [[ "$stborder" = "1" ]] && zcurses border "$wname_status"
         # status_msg_strlen is being set in -zui_list_status_msg()
         zcurses move "$wname_status" 1 $(( status_msg_strlen + 2 ))
         [[ "$ZUILIST_IS_SEARCH_MODE" -ne 1 ]] && -zui_list_cursor_visibility "status" "0" || -zui_list_cursor_visibility "status" "1"
