@@ -8,8 +8,8 @@ zmodload zsh/terminfo 2>/dev/null && _zui_wrapper_has_terminfo=1
 
 trap "-zui_wrapper_on_exit" EXIT
 
-integer term_height="$LINES"
-integer term_width="$COLUMNS"
+integer term_height="${LINES:-$(tput lines)}"
+integer term_width="${COLUMNS:-$(tput cols)}"
 
 # Reason for this function is that on some systems
 # smcup and rmcup are not knowing why left empty
