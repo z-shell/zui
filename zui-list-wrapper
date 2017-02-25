@@ -46,9 +46,6 @@ integer term_width="${COLUMNS:-$(tput cols)}"
     zcurses delwin status 2>/dev/null
     zcurses addwin main $(( term_height - 3 )) "$term_width" 0 0
     zcurses addwin status "3" "$term_width" $(( term_height - 3 )) 0
-
-    zcurses bg main "+bold" white/black
-    zcurses bg status "+bold" white/black
 }
 
 -zui_wrapper_end() {
