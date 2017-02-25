@@ -73,7 +73,7 @@ integer total_module_limit=3
 
 # A special parameter to be used in handlers
 # that are to-eval code, not function names.
-# By doing "internal=0" somewhere in the code
+# By doing "internal=1" somewhere in the code
 # the anchor, button will be configured as
 # internal action.
 integer internal
@@ -204,10 +204,10 @@ local pure_text_selected
     -zui_stdlib_anchor "regenerate1_$mod" "1" "" ",module${mod}," "${RANDOM}$((RANDOM%2))" "[${ZUI[MAGENTA]}Regenerate${ZUI[COLOR_END]}]"
     -zui_stdlib_rc_button "regenerate2_$mod" "$mod" "" "" "" "${ZUI[MAGENTA]}Regenerate${ZUI[COLOR_END]}" -zui_module1_external_action_1
     -zui_stdlib_rc_button "regenerate3_$mod" "$mod" "" ",module$(( $mod + 1 ))," "" "${ZUI[MAGENTA]}Regenerate${ZUI[COLOR_END]}"
-    # internal=0 is a trick, look at comment
-    -zui_stdlib_rc_button "bold_$mod" "$mod" "" "" "" "${ZUI[GREEN]}bold${ZUI[COLOR_END]}" 'internal=0; [ $bold = "+bold" ] && bold="-bold" || bold="+bold"'
-    -zui_stdlib_rc_button "text_mode_$mod" "$mod" "" "" "" "${ZUI[GREEN]}Text_mode${ZUI[COLOR_END]}" 'internal=0; (( ZUI[text_mode] )) && ZUI[text_mode]=0 || ZUI[text_mode]=1; (( ZUI[text_mode_ts_]=2**31 ))'
-    -zui_stdlib_rc_button "text_select_$mod" "$mod" "" "" "" "${ZUI[GREEN]}text_select${ZUI[COLOR_END]}" 'internal=0; (( ZUI[text_select] )) && ZUI[text_select]=0 || ZUI[text_select]=1; (( ZUI[text_select_ts_]=2**31 ))'
+    # internal=1 is a trick, look at comment
+    -zui_stdlib_rc_button "bold_$mod" "$mod" "" "" "" "${ZUI[GREEN]}bold${ZUI[COLOR_END]}" 'internal=1; [ $bold = "+bold" ] && bold="-bold" || bold="+bold"'
+    -zui_stdlib_rc_button "text_mode_$mod" "$mod" "" "" "" "${ZUI[GREEN]}Text_mode${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_mode] )) && ZUI[text_mode]=0 || ZUI[text_mode]=1; (( ZUI[text_mode_ts_]=2**31 ))'
+    -zui_stdlib_rc_button "text_select_$mod" "$mod" "" "" "" "${ZUI[GREEN]}text_select${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_select] )) && ZUI[text_select]=0 || ZUI[text_select]=1; (( ZUI[text_select_ts_]=2**31 ))'
 
     # Passed user data
     local user_data=${2:+ \[Obtained regeneration user data: $2\]}
