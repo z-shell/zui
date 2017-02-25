@@ -96,7 +96,7 @@ setopt typesetsilent extendedglob
                 currentb="${c[bcol-39]}"
                 [[ "$attr" = "1" ]] && zcurses attr "$win" "$current/$currentb" +bold || zcurses attr "$win" "$current/$currentb"
             elif [[ "$attr" -eq 0 ]]; then
-                zcurses attr "$win" "$colorpair"
+                zcurses attr "$win" "$bold" "$colorpair"
                 current="$foreground"
                 currentb="$background"
             elif [[ "$attr" = "1" ]]; then

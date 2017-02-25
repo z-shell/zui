@@ -153,7 +153,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # of ANSI color codes. \6 is cyan by default (ZUI[CYAN]).
 #
 -zui_list_colorify_disp_list() {
-    local col=${ZUI[CYAN]} close=${ZUI[CYAN_E]}
+    local col=${ZUI[CYAN]} close=${ZUI[COLOR_END]}
     [[ -n "$ZUILIST_COLORING_COLOR" ]] && col="$ZUILIST_COLORING_COLOR"
     [[ -n "$ZUILIST_COLORING_END_COLOR" ]] && close="$ZUILIST_COLORING_END_COLOR"
 
@@ -168,15 +168,8 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # color codes (default: green, yellow, magenta, cyan, red).
 # Operates on disp_list array.
 -zui_list_translate_color_marks_in_disp_list() {
-    disp_list=( "${disp_list[@]//(#b)${ZUI[GREEN]}([^${ZUI[GREEN_E]}]#)${ZUI[GREEN_E]}/$GREEN$match[1]$RESET}" )
-    disp_list=( "${disp_list[@]//(#b)${ZUI[YELLOW]}([^${ZUI[YELLOW_E]}]#)${ZUI[YELLOW_E]}/$YELLOW$match[1]$RESET}" )
-    disp_list=( "${disp_list[@]//(#b)${ZUI[MAGENTA]}([^${ZUI[MAGENTA_E]}]#)${ZUI[MAGENTA_E]}/$MAGENTA$match[1]$RESET}" )
-    disp_list=( "${disp_list[@]//(#b)${ZUI[CYAN]}([^${ZUI[CYAN_E]}]#)${ZUI[CYAN_E]}/$CYAN$match[1]$RESET}" )
-    disp_list=( "${disp_list[@]//(#b)${ZUI[RED]}([^${ZUI[RED_E]}]#)${ZUI[RED_E]}/$RED$match[1]$RESET}" )
-    disp_list=( "${disp_list[@]//(#b)${ZUI[BLUE]}([^${ZUI[BLUE_E]}]#)${ZUI[BLUE_E]}/$BLUE$match[1]$RESET}" )
-    # This shouldn't be needed as current
-    # line in $list has ZUI[MARK] replaced
-    # disp_list=( "${disp_list[@]//(#b)${ZUI[MARK]}([^${ZUI[MARK_E]}]#)${ZUI[MARK_E]}/$RED$match[1]$RESET}" )
+    # [all] [fg] [bg]
+    disp_list=( "${disp_list[@]//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\027'])([$'\03'-$'\07'$'\013'-$'\014'$'\016']|)([$'\017'-$'\026']|)([^${ZUI[COLOR_END]}]#)${ZUI[COLOR_END]}/${colormap[${match[1]}]}${colormap[${match[2]}]}${colormap[${match[3]}]}$match[4]$RESET}" )
 }
 
 # Changes color marks (default: \3, \4, \5, \6, \7) into ANSI
@@ -186,13 +179,12 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # $REPLY - modified buffer
 -zui_list_translate_color_marks() {
     local buf="$1"
-    buf="${buf//(#b)${ZUI[GREEN]}([^${ZUI[GREEN_E]}]#)${ZUI[GREEN_E]}/$GREEN$match[1]$RESET}"
-    buf="${buf//(#b)${ZUI[YELLOW]}([^${ZUI[YELLOW_E]}]#)${ZUI[YELLOW_E]}/$YELLOW$match[1]$RESET}"
-    buf="${buf//(#b)${ZUI[MAGENTA]}([^${ZUI[MAGENTA_E]}]#)${ZUI[MAGENTA_E]}/$MAGENTA$match[1]$RESET}"
-    buf="${buf//(#b)${ZUI[CYAN]}([^${ZUI[CYAN_E]}]#)${ZUI[CYAN_E]}/$CYAN$match[1]$RESET}"
-    buf="${buf//(#b)${ZUI[RED]}([^${ZUI[RED_E]}]#)${ZUI[RED_E]}/$RED$match[1]$RESET}"
-    buf="${buf//(#b)${ZUI[BLUE]}([^${ZUI[BLUE_E]}]#)${ZUI[BLUE_E]}/$BLUE$match[1]$RESET}"
+    # [all] [fg] [bg]
+    buf="${buf//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\027'])([$'\03'-$'\07'$'\013'-$'\014'$'\016']|)([$'\017'-$'\026']|)([^${ZUI[COLOR_END]}]#)${ZUI[COLOR_END]}/${colormap[${match[1]}]}${colormap[${match[2]}]}${colormap[${match[3]}]}$match[4]$RESET}"
+
+    # Mark
     buf="${buf//(#b)${ZUI[MARK]}([^${ZUI[MARK_E]}]#)${ZUI[MARK_E]}/$MARK_CODES$match[1]$MARK_END_CODES}"
+
     REPLY="$buf"
 }
 
@@ -205,12 +197,12 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # $REPLY - modified buffer
 -zui_list_replace_color_marks_with() {
     local buf="$1" target_mark="$2"
-    buf=${buf//[$'\03'-$'\010']/$target_mark}
+    # [all] [fg] [bg]
+    buf=${buf//[$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\027']([$'\03'-$'\07'$'\013'-$'\014'$'\016']|)([$'\017'-$'\026']|)/$target_mark}
 
     # No existing replaced marks – then just add the mark
     if [[ "${buf/$target_mark/}" = "$buf" ]]; then
-        # TODO: allow distinct *_E variables
-        buf="${target_mark}${buf}"${ZUI[COMMON_E]}
+        buf="${target_mark}${buf}${ZUI[COLOR_END]}"
     fi
 
     REPLY="$buf"
@@ -294,8 +286,40 @@ typeset -A "cursor_state"
 cursor_state=( "main" 1 "status" 1 )
 
 # Escape codes for colors
-local RESET=$'\e[0m' RED=$'\e[0;31m' GREEN=$'\e[0;32m' YELLOW=$'\e[0;33m'
-local BLUE=$'\e[0;34m' MAGENTA=$'\e[0;35m' CYAN=$'\e[0;36m'
+local RESET=$'\e[0m' BLACK=$'\e[0;30m' RED=$'\e[0;31m' GREEN=$'\e[0;32m' YELLOW=$'\e[0;33m'
+local BLUE=$'\e[0;34m' MAGENTA=$'\e[0;35m' CYAN=$'\e[0;36m' WHITE=$'\e[0;37m'
+
+# Background
+local BG_BLACK=$'\e[0;40m' BG_RED=$'\e[0;41m' BG_GREEN=$'\e[0;42m' BG_YELLOW=$'\e[0;43m'
+local BG_BLUE=$'\e[0;44m' BG_MAGENTA=$'\e[0;45m' BG_CYAN=$'\e[0;46m' BG_WHITE=$'\e[0;47m'
+
+# Bold
+local BOLD=$'\e[1m'
+
+local -A colormap
+colormap=(
+    ""                ""
+
+    $ZUI[BLACK]       $BLACK
+    $ZUI[RED]         $RED
+    $ZUI[GREEN]       $GREEN
+    $ZUI[YELLOW]      $YELLOW
+    $ZUI[BLUE]        $BLUE
+    $ZUI[MAGENTA]     $MAGENTA
+    $ZUI[CYAN]        $CYAN
+    $ZUI[WHITE]       $WHITE
+
+    $ZUI[BG_BLACK]    $BG_BLACK
+    $ZUI[BG_RED]      $BG_RED
+    $ZUI[BG_GREEN]    $BG_GREEN
+    $ZUI[BG_YELLOW]   $BG_YELLOW
+    $ZUI[BG_BLUE]     $BG_BLUE
+    $ZUI[BG_MAGENTA]  $BG_MAGENTA
+    $ZUI[BG_CYAN]     $BG_CYAN
+    $ZUI[BG_WHITE]    $BG_WHITE
+
+    $ZUI[BOLD]        $BOLD
+)
 
 #
 # Load configuration – per application if ZUI[app] is set
@@ -332,8 +356,8 @@ local MARK_CODES MARK_END_CODES active_text
     local linerev="${actmark/*linerev*/linerev}"
     local lineund="${actmark/*lineund*/lineund}"
     local -A colormap
-    colormap=( reset 0 black 30 green 32 yellow 33 blue 34 magenta 35 cyan 36 red 31 white 37
-                       BLACK 30 GREEN 42 YELLOW 43 BLUE 44 MAGENTA 45 CYAN 46 RED 41 WHITE 47 )
+    colormap=( reset 0 black 30 red 31 green 32 yellow 33 blue 34 magenta 35 cyan 36 white 37
+                       BLACK 30 RED 41 GREEN 42 YELLOW 43 BLUE 44 MAGENTA 45 CYAN 46 WHITE 47 )
     local -aU opening closing
     [[ -n "${colormap[$color]}" ]] && { opening+=( ${colormap[$color]} ); closing+=( 0 ); }
     [[ -n "${colormap[$color2]}" ]] && { opening+=( ${colormap[$color2]} ); closing+=( 0 ); }
@@ -490,17 +514,18 @@ while (( 1 )); do
             disp_list=( "${(@)list[ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN, end_idx]}" )
 
             if [[ -n "$colsearch_pattern" ]]; then
-                local col="${ZUI[MAGENTA]}" close="${ZUI[COMMON_E]}"
+                local col="${ZUI[BG_MAGENTA]}" close="${ZUI[COLOR_END]}"
                 # The repeat will make the matching work on a fresh heap arena
                 repeat 1; do
                     disp_list=( ${(@)disp_list//(#mi)($~colsearch_pattern)/$col${MATCH}$close} )
-                    # [Mark][Text][Red-Mark][Text2][Close]... -> [Mark][Text][Close][Red-Mark][Text2][Close][Mark]
-                    # I.e. provide [Close] before [Red-Mark] and [Mark] after red's [Close]
-                    # Here is the common *_E obstacle - we can easily use only single [Close] in the substitution
+                    # [Mark][Text][$col-Mark][Text2][Close]... -> [Mark][Text][Close][$col-Mark][Text2][Close][Mark]
+                    # I.e. provide [Close] before [$col-Mark] and [Mark] after $col's [Close]
+                    # Here is the ancient common *_E obstacle - we can easily use only single [Close] in the substitution
                     while (( 1 )); do
-                        match=()
-                        disp_list=( ${(@)disp_list//(#b)([$'\03'-$'\010'])([^$close]#)$col([^$close]#)$close/$match[1]$match[2]$close$col$match[3]$close$match[1]} )
-                        [[ -z "${match[1]}" ]] && break
+                        # [all] [fg] [bg], matches more combinations but solves and is fast
+                        mbegin=()
+                        disp_list=( ${(@)disp_list//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\027']([$'\03'-$'\07'$'\013'-$'\014'$'\016']|)([$'\017'-$'\026']|))([^$close]#)$col([^$close]#)$close/$match[1]$match[4]$close$col$match[5]$close$match[1]} )
+                        [[ -z "${mbegin[1]}" ]] && break
                     done
                 done
             fi

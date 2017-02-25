@@ -6,34 +6,45 @@
 
 # Available colors to embed in generated text
 #
-# Code is written as if *_E variables could be
-# different, but currently there's an obstacle
-# that allows only single common *_E value.
+# Excluded codes, recognized by curses, are: 010,
+# 011, 012, 015, 033. Tabulation is handled by
+# this library (conversion to spaces).
 #
-# Allowed color values are \03..\07.
+# Foreground range: $'\03'-$'\07' $'\013'-$'\014' $'\016'
+# Background range: $'\017'-$'\026'. With BOLD its ...-$'\027'
+# Formatting codes range: $'\03'-$'\07' $'\013'-$'\014' $'\016'-$'\027'
 #
-# If the problem with common *_E will be fixed,
-# ZUI[COMMON_E] should be empty, so that code
-# detects that distinct *_E are used. That said,
-# this is apparently only an engineering ambition,
-# as common *_E values work fine :)
-ZUI[COMMON_E]=$'\037'       # octal value, decimal 31 - Unit separator
-ZUI[RED]=$'\07'             # Bell
-ZUI[RED_E]=$ZUI[COMMON_E]
-ZUI[GREEN]=$'\03'           # End of text
-ZUI[GREEN_E]=$ZUI[COMMON_E]
-ZUI[YELLOW]=$'\04'          # End of transmission
-ZUI[YELLOW_E]=$ZUI[COMMON_E]
-ZUI[MAGENTA]=$'\05'         # Enquiry
-ZUI[MAGENTA_E]=$ZUI[COMMON_E]
-ZUI[CYAN]=$'\06'            # Acknowledge
-ZUI[CYAN_E]=$ZUI[COMMON_E]
-ZUI[BLUE]=$'\010'           # Backspace
-ZUI[BLUE_E]=$ZUI[COMMON_E]
+# \01 and \02 are used for hyperlinks (buttons)
+
+
+ZUI[COLOR_END]=$'\037'      # octal value, decimal 31 - Unit separator
+
+# Foreground, excluded are 010, 011, 012, 015
+ZUI[BLACK]=$'\03'           # End of text
+ZUI[RED]=$'\04'             # End of transmission
+ZUI[GREEN]=$'\05'           # Enquiry
+ZUI[YELLOW]=$'\06'          # Acknowledge
+ZUI[BLUE]=$'\07'            # Bell
+ZUI[MAGENTA]=$'\013'        # Vertical tab
+ZUI[CYAN]=$'\014'           # Form feed
+ZUI[WHITE]=$'\016'
+
+# Background, no exclusions
+ZUI[BG_BLACK]=$'\017'       # Shift in
+ZUI[BG_RED]=$'\020'         # Data line escape
+ZUI[BG_GREEN]=$'\021'       # Device control 1
+ZUI[BG_YELLOW]=$'\022'      # Device control 2
+ZUI[BG_BLUE]=$'\023'        # Device control 3
+ZUI[BG_MAGENTA]=$'\024'     # Device control 4
+ZUI[BG_CYAN]=$'\025'        # Negative acknowledge
+ZUI[BG_WHITE]=$'\026'       # Synchronous idle
+
+# Bold
+ZUI[BOLD]=$'\027'           # End transmission block
 
 # Special code used to mark active button
-ZUI[MARK]=$'\026'           # octal value, decimal 22 - Synchronous idle
-ZUI[MARK_E]=$ZUI[COMMON_E]
+ZUI[MARK]=$'\036'               # octal value, decimal 30 - Record separator
+ZUI[MARK_E]=$ZUI[COLOR_END]
 
 # Appends hyperlink into "reply" output array. It's the
 # standard action button, shown without surrounding
