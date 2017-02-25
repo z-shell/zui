@@ -7,6 +7,9 @@
 # Cleanup $ZUI hash runtime data
 -zui_stdlib_cleanup
 
+ZUI[app]="zui-test"
+ZUI[app_name]="ZUI demonstration"
+
 [[ -o interactivecomments ]] && ZUI[INTERACTIVE_COMMENTS]="1" || ZUI[INTERACTIVE_COMMENTS]="0"
 [[ -o promptsubst ]] && ZUI[PROMPT_SUBST]="1" || ZUI[PROMPT_SUBST]="0"
 
@@ -15,8 +18,8 @@ setopt extendedglob typesetsilent warncreateglobal
 
 [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
 
-ZUI[app]="zui-test"
-ZUI[app_name]="ZUI demonstration"
+# Default status window size for this app
+-zui_stdlib_store_default_app_config s:status_size "4"
 # Navigate across text, not only buttons?
 -zui_stdlib_load_config b:text_mode 0 2 'ZUI[text_mode]'
 # Allow selecting text, not only buttons?
