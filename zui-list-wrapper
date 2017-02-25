@@ -42,7 +42,6 @@ integer term_width="${COLUMNS:-$(tput cols)}"
 -zui_wrapper_init_windows() {
     -zui_wrapper_alternate_screen 1
     zcurses init
-    zcurses delwin cmd 2>/dev/null
     zcurses delwin main 2>/dev/null
     zcurses delwin status 2>/dev/null
     zcurses addwin main $(( term_height - 3 )) "$term_width" 0 0
@@ -54,8 +53,8 @@ integer term_width="${COLUMNS:-$(tput cols)}"
 
 -zui_wrapper_end() {
     zcurses init
-    zcurses delwin cmd 2>/dev/null
     zcurses delwin main 2>/dev/null
+    zcurses delwin status 2>/dev/null
     zcurses end
 }
 
