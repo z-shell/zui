@@ -1,7 +1,7 @@
 emulate -LR zsh
-setopt extendedglob
+setopt extendedglob warncreateglobal
 
-_zui_wrapper_has_terminfo=0
+local _zui_wrapper_has_terminfo=0
 
 zmodload zsh/curses
 zmodload zsh/terminfo 2>/dev/null && _zui_wrapper_has_terminfo=1
@@ -57,6 +57,7 @@ integer term_width="${COLUMNS:-$(tput cols)}"
 
 [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/stdlib.lzui"
 
+typeset -g ZUILIST_REMEMBER_STATE
 [ "$ZUILIST_REMEMBER_STATE" != 1 ] && ZUILIST_REMEMBER_STATE=2
 
 local status_size
@@ -67,10 +68,11 @@ local status_size
 zui-list "main" $(( term_height-status_size )) $term_width "status" "$status_size" "$term_width" " Welcome to ${ZUI[app_name]} $REPLY " "1" "$@"
 
 if [[ "$REPLY" != "-1" && "$REPLY" = -(#c0,1)[0-9]## ]]; then
-    answer=${reply[REPLY]}
-    tmp=( "${(z)answer}" )
-    [[ "$ZUILIST_CURRENT_SEGMENT" -gt "${#tmp}" ]] && ZUILIST_CURRENT_SEGMENT="${#tmp}"
-    ZUILIST_WRAPPER_BIT=$tmp[ZUILIST_CURRENT_SEGMENT]
+    local answer="${reply[REPLY]}"
+    local -a segments
+    segments=( "${(z@)answer}" )
+    [[ "$ZUILIST_CURRENT_SEGMENT" -gt "${#segments[@]}" ]] && ZUILIST_CURRENT_SEGMENT="${#segments[@]}"
+    ZUILIST_WRAPPER_BIT="${segments[ZUILIST_CURRENT_SEGMENT]}"
 else
     ZUILIST_WRAPPER_BIT=""
 fi
