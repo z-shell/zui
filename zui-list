@@ -328,15 +328,17 @@ colormap=(
 # Load configuration – per application if ZUI[app] is set
 #
 
-local actmark altmark colorpair border bold background foreground backuptheme
-local stcolorpair stborder stbold stbackground stforeground stbackuptheme
+local actmark altmark colorpair border border_cpair bold background foreground backuptheme
+local stcolorpair stborder stborder_cpair stbold stbackground stforeground stbackuptheme
 -zui_stdlib_load_config s:colorpair "white/black" -1 colorpair
 -zui_stdlib_load_config b:border 0 -1 border
+-zui_stdlib_load_config s:border_cp "yellow/black" -1 border_cpair
 -zui_stdlib_load_config b:bold 0 -1 bold
 [[ "$bold" = "1" ]] && bold="+bold" || bold="-bold"
 
 -zui_stdlib_load_config s:status_colorpair "white/black" -1 stcolorpair
 -zui_stdlib_load_config b:status_border 0 -1 stborder
+-zui_stdlib_load_config s:status_border_cp "green/black" -1 stborder_cpair
 -zui_stdlib_load_config b:status_bold 0 -1 stbold
 [[ "$stbold" = "1" ]] && stbold="+bold" || stbold="-bold"
 
@@ -631,11 +633,14 @@ while (( 1 )); do
 
     # The check for "white/black" means: mark header
     # only when default color isn't special
-    [[ "$mark_header" = "1" && "$colorpair" = "white/black" ]] && zcurses attr "$wname_main" "$bold" "yellow/$background"
+    zcurses attr "$wname_main" "$bold" "$border_cpair"
+
     [[ "$border" = "1" ]] && zcurses border "$wname_main"
     zcurses move "$wname_main" 0 2
     zcurses string "$wname_main" "$header"
-    [[ "$mark_header" = "1" && "$colorpair" = "white/black" ]] && zcurses attr "$wname_main" "$bold" "$colorpair"
+
+    zcurses attr "$wname_main" "$bold" "$colorpair"
+
     -zui_list_cursor_visibility "main" "0"
     zcurses refresh "$wname_main"
 
@@ -669,7 +674,11 @@ while (( 1 )); do
             -zui_list_status_msg "" "" "" "$_gen" "${reply[@]}"
         fi
 
-        [[ "$stborder" = "1" ]] && zcurses border "$wname_status"
+        [[ "$stborder" = "1" ]] && {
+            zcurses attr "$wname_status" "$stbold" "$stborder_cpair"
+            zcurses border "$wname_status"
+        }
+
         # status_msg_strlen is being set in -zui_list_status_msg()
         zcurses move "$wname_status" 1 $(( status_msg_strlen + 2 ))
         [[ "$ZUILIST_IS_SEARCH_MODE" -ne 1 ]] && -zui_list_cursor_visibility "status" "0" || -zui_list_cursor_visibility "status" "1"
