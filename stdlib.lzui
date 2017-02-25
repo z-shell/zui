@@ -10,13 +10,13 @@
 # 011, 012, 015, 033. Tabulation is handled by
 # this library (conversion to spaces).
 #
-# Foreground range: $'\03'-$'\07' $'\013'-$'\014' $'\016'
-# Background range: $'\017'-$'\026'. With BOLD its ...-$'\027'
-# Formatting codes range: $'\03'-$'\07' $'\013'-$'\014' $'\016'-$'\027'
+# Foreground range: $'\03'-$'\07' $'\013'-$'\014' $'\016'-$'\017'
+# Background range: $'\020'-$'\030'. With BOLD it is ...-$'\031'
+# Formatting codes range: $'\03'-$'\07' $'\013'-$'\014' $'\016'-$'\031'
 #
 # \01 and \02 are used for hyperlinks (buttons)
 
-
+# Ends colors and bold
 ZUI[COLOR_END]=$'\037'      # octal value, decimal 31 - Unit separator
 
 # Foreground, excluded are 010, 011, 012, 015
@@ -27,23 +27,25 @@ ZUI[YELLOW]=$'\06'          # Acknowledge
 ZUI[BLUE]=$'\07'            # Bell
 ZUI[MAGENTA]=$'\013'        # Vertical tab
 ZUI[CYAN]=$'\014'           # Form feed
-ZUI[WHITE]=$'\016'
+ZUI[WHITE]=$'\016'          # Shift out
+ZUI[DEFAULT]=$'\017'        # Shift in
 
 # Background, no exclusions
-ZUI[BG_BLACK]=$'\017'       # Shift in
-ZUI[BG_RED]=$'\020'         # Data line escape
-ZUI[BG_GREEN]=$'\021'       # Device control 1
-ZUI[BG_YELLOW]=$'\022'      # Device control 2
-ZUI[BG_BLUE]=$'\023'        # Device control 3
-ZUI[BG_MAGENTA]=$'\024'     # Device control 4
-ZUI[BG_CYAN]=$'\025'        # Negative acknowledge
-ZUI[BG_WHITE]=$'\026'       # Synchronous idle
+ZUI[BG_BLACK]=$'\020'       # Data line escape
+ZUI[BG_RED]=$'\021'         # Device control 1
+ZUI[BG_GREEN]=$'\022'       # Device control 2
+ZUI[BG_YELLOW]=$'\023'      # Device control 3
+ZUI[BG_BLUE]=$'\024'        # Device control 4
+ZUI[BG_MAGENTA]=$'\025'     # Negative acknowledge
+ZUI[BG_CYAN]=$'\026'        # Synchronous idle
+ZUI[BG_WHITE]=$'\027'       # End transmission block
+ZUI[BG_DEFAULT]=$'\030'     # Cancel
 
 # Bold
-ZUI[BOLD]=$'\027'           # End transmission block
+ZUI[BOLD]=$'\031'           # End of medium
 
 # Special code used to mark active button
-ZUI[MARK]=$'\036'               # octal value, decimal 30 - Record separator
+ZUI[MARK]=$'\036'           # octal value, decimal 30 - Record separator
 ZUI[MARK_E]=$ZUI[COLOR_END]
 
 # Appends hyperlink into "reply" output array. It's the

@@ -11,8 +11,9 @@ setopt typesetsilent extendedglob
     # 1 - non-escaped text, 2 - first number in the escaped text, with ;
     # 3 - second number, 4 - text after whole escape text
 
+    # White is repeated, "default" conforms to ESC specs
     typeset -a c
-    c=( black red green yellow blue magenta cyan white )
+    c=( black red green yellow blue magenta cyan white white default )
 
     while [[ -n "$text" && "$no_match" -eq 0 ]]; do
         # Example: \e[0;31m
@@ -23,12 +24,12 @@ setopt typesetsilent extendedglob
             out="$match[1]"
             # Save color
             col="-1"
-            (( ${match[2]:-0} >= 30 && ${match[2]:-0} <= 37 )) && col="$match[2]"
-            (( ${match[3]:-0} >= 30 && ${match[3]:-0} <= 37 )) && col="$match[3]"
+            (( ${match[2]:-0} >= 30 && ${match[2]:-0} <= 39 )) && col="$match[2]"
+            (( ${match[3]:-0} >= 30 && ${match[3]:-0} <= 39 )) && col="$match[3]"
             # Save background color
             bcol="-1"
-            (( ${match[2]:-0} >= 40 && ${match[2]:-0} <= 47 )) && bcol="$match[2]"
-            (( ${match[3]:-0} >= 40 && ${match[3]:-0} <= 47 )) && bcol="$match[3]"
+            (( ${match[2]:-0} >= 40 && ${match[2]:-0} <= 49 )) && bcol="$match[2]"
+            (( ${match[3]:-0} >= 40 && ${match[3]:-0} <= 49 )) && bcol="$match[3]"
             # Save attribute
             attr="-1"
             (( ${match[2]:--1} >= 0 && ${match[2]:--1} <= 27 )) && attr="$match[2]"
@@ -85,14 +86,14 @@ setopt typesetsilent extendedglob
         if (( no_match == 0 )); then
             # Color code dominates - simplification
             # for performance
-            if (( col >= 30 && col <= 37 )); then
-                (( bcol >= 40 && bcol <= 47 )) && currentb="${c[bcol-39]}"
+            if (( col >= 30 && col <= 39 )); then
+                (( bcol >= 40 && bcol <= 49 )) && currentb="${c[bcol-39]}"
                 current="${c[col-29]}"
                 # col, bcol, attr are currently
                 # not possible at the same time,
                 # but this code supports that
                 [[ "$attr" = "1" ]] && zcurses attr "$win" "$current/$currentb" +bold || zcurses attr "$win" "$current/$currentb"
-            elif (( bcol >= 40 && bcol <= 47 )); then
+            elif (( bcol >= 40 && bcol <= 49 )); then
                 currentb="${c[bcol-39]}"
                 [[ "$attr" = "1" ]] && zcurses attr "$win" "$current/$currentb" +bold || zcurses attr "$win" "$current/$currentb"
             elif [[ "$attr" -eq 0 ]]; then

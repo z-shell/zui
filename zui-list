@@ -169,7 +169,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # Operates on disp_list array.
 -zui_list_translate_color_marks_in_disp_list() {
     # [all] [fg] [bg]
-    disp_list=( "${disp_list[@]//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\027'])([$'\03'-$'\07'$'\013'-$'\014'$'\016']|)([$'\017'-$'\026']|)([^${ZUI[COLOR_END]}]#)${ZUI[COLOR_END]}/${colormap[${match[1]}]}${colormap[${match[2]}]}${colormap[${match[3]}]}$match[4]$RESET}" )
+    disp_list=( "${disp_list[@]//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'])([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[COLOR_END]}]#)${ZUI[COLOR_END]}/${colormap[${match[1]}]}${colormap[${match[2]}]}${colormap[${match[3]}]}$match[4]$RESET}" )
 }
 
 # Changes color marks (default: \3, \4, \5, \6, \7) into ANSI
@@ -180,7 +180,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 -zui_list_translate_color_marks() {
     local buf="$1"
     # [all] [fg] [bg]
-    buf="${buf//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\027'])([$'\03'-$'\07'$'\013'-$'\014'$'\016']|)([$'\017'-$'\026']|)([^${ZUI[COLOR_END]}]#)${ZUI[COLOR_END]}/${colormap[${match[1]}]}${colormap[${match[2]}]}${colormap[${match[3]}]}$match[4]$RESET}"
+    buf="${buf//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'])([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[COLOR_END]}]#)${ZUI[COLOR_END]}/${colormap[${match[1]}]}${colormap[${match[2]}]}${colormap[${match[3]}]}$match[4]$RESET}"
 
     # Mark
     buf="${buf//(#b)${ZUI[MARK]}([^${ZUI[MARK_E]}]#)${ZUI[MARK_E]}/$MARK_CODES$match[1]$MARK_END_CODES}"
@@ -198,7 +198,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 -zui_list_replace_color_marks_with() {
     local buf="$1" target_mark="$2"
     # [all] [fg] [bg]
-    buf=${buf//[$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\027']([$'\03'-$'\07'$'\013'-$'\014'$'\016']|)([$'\017'-$'\026']|)/$target_mark}
+    buf=${buf//[$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031']([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)/$target_mark}
 
     # No existing replaced marks – then just add the mark
     if [[ "${buf/$target_mark/}" = "$buf" ]]; then
@@ -287,11 +287,11 @@ cursor_state=( "main" 1 "status" 1 )
 
 # Escape codes for colors
 local RESET=$'\e[0m' BLACK=$'\e[30m' RED=$'\e[31m' GREEN=$'\e[32m' YELLOW=$'\e[33m'
-local BLUE=$'\e[34m' MAGENTA=$'\e[35m' CYAN=$'\e[36m' WHITE=$'\e[37m'
+local BLUE=$'\e[34m' MAGENTA=$'\e[35m' CYAN=$'\e[36m' WHITE=$'\e[37m' DEFAULT=$'\e[39m'
 
 # Background
 local BG_BLACK=$'\e[40m' BG_RED=$'\e[41m' BG_GREEN=$'\e[42m' BG_YELLOW=$'\e[43m'
-local BG_BLUE=$'\e[44m' BG_MAGENTA=$'\e[45m' BG_CYAN=$'\e[46m' BG_WHITE=$'\e[47m'
+local BG_BLUE=$'\e[44m' BG_MAGENTA=$'\e[45m' BG_CYAN=$'\e[46m' BG_WHITE=$'\e[47m' BG_DEFAULT=$'\e[49m'
 
 # Bold
 local BOLD=$'\e[1m'
@@ -308,6 +308,7 @@ colormap=(
     $ZUI[MAGENTA]     $MAGENTA
     $ZUI[CYAN]        $CYAN
     $ZUI[WHITE]       $WHITE
+    $ZUI[DEFAULT]     $DEFAULT
 
     $ZUI[BG_BLACK]    $BG_BLACK
     $ZUI[BG_RED]      $BG_RED
@@ -317,6 +318,7 @@ colormap=(
     $ZUI[BG_MAGENTA]  $BG_MAGENTA
     $ZUI[BG_CYAN]     $BG_CYAN
     $ZUI[BG_WHITE]    $BG_WHITE
+    $ZUI[BG_DEFAULT]  $BG_DEFAULT
 
     $ZUI[BOLD]        $BOLD
 )
@@ -524,7 +526,7 @@ while (( 1 )); do
                     while (( 1 )); do
                         # [all] [fg] [bg], matches more combinations but solves and is fast
                         mbegin=()
-                        disp_list=( ${(@)disp_list//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\027']([$'\03'-$'\07'$'\013'-$'\014'$'\016']|)([$'\017'-$'\026']|))([^$close]#)$col([^$close]#)$close/$match[1]$match[4]$close$col$match[5]$close$match[1]} )
+                        disp_list=( ${(@)disp_list//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031']([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|))([^$close]#)$col([^$close]#)$close/$match[1]$match[4]$close$col$match[5]$close$match[1]} )
                         [[ -z "${mbegin[1]}" ]] && break
                     done
                 done
