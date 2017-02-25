@@ -22,6 +22,8 @@ zstyle ":plugin:zui" mark "red reverse lineund" # String starting with one or tw
                                                 # color names are for background.
 zstyle ":plugin:zui" altmark "red reverse"      # As "mark", but for terminals without underline support
 
+zstyle ":plugin:zui" status_size "3"            # Height of status window, including border (drawn or not)
+
 # Implementation Zstyles
 zstyle ":plugin:zui" text_mode "no"             # Navigate across each bit of text, not only buttons
                                                 # Rather for implementing, not configuring
@@ -36,6 +38,7 @@ zstyle ":plugin:zui:app:zplugin" border "yes"
 zstyle ":plugin:zui:app:zplugin" bold "yes"
 zstyle ":plugin:zui:app:zplugin" mark "blue WHITE reverse bold lineund"
 zstyle ":plugin:zui:app:zplugin" altmark "green CYAN bold reverse"
+zstyle ":plugin:zui:app:zplugin" status_size "4"    # More space for long messages
 
 zstyle ":plugin:zui:app:zplugin" text_mode "1"
 zstyle ":plugin:zui:app:zplugin" text_select "true"
