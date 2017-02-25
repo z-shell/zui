@@ -44,8 +44,8 @@ integer term_width="${COLUMNS:-$(tput cols)}"
     zcurses init
     zcurses delwin main 2>/dev/null
     zcurses delwin status 2>/dev/null
-    zcurses addwin main $(( term_height - 3 )) "$term_width" 0 0
-    zcurses addwin status "3" "$term_width" $(( term_height - 3 )) 0
+    zcurses addwin main $(( term_height - status_size )) "$term_width" 0 0
+    zcurses addwin status "$status_size" "$term_width" $(( term_height - status_size )) 0
 }
 
 -zui_wrapper_end() {
@@ -55,14 +55,16 @@ integer term_width="${COLUMNS:-$(tput cols)}"
     zcurses end
 }
 
--zui_wrapper_init_windows
+[[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/stdlib.lzui"
 
 [ "$ZUILIST_REMEMBER_STATE" != 1 ] && ZUILIST_REMEMBER_STATE=2
 
-[[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/stdlib.lzui"
--zui_stdlib_get_time
+local status_size
+-zui_stdlib_load_config s:status_size "3" -1 status_size
 
-zui-list "main" $(( term_height-3 )) $term_width "status" "3" "$term_width" " Welcome to ${ZUI[app_name]} $REPLY " "1" "$@"
+-zui_wrapper_init_windows
+-zui_stdlib_get_time
+zui-list "main" $(( term_height-status_size )) $term_width "status" "$status_size" "$term_width" " Welcome to ${ZUI[app_name]} $REPLY " "1" "$@"
 
 if [[ "$REPLY" != "-1" && "$REPLY" = -(#c0,1)[0-9]## ]]; then
     answer=${reply[REPLY]}
