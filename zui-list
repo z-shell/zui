@@ -286,12 +286,12 @@ typeset -A "cursor_state"
 cursor_state=( "main" 1 "status" 1 )
 
 # Escape codes for colors
-local RESET=$'\e[0m' BLACK=$'\e[0;30m' RED=$'\e[0;31m' GREEN=$'\e[0;32m' YELLOW=$'\e[0;33m'
-local BLUE=$'\e[0;34m' MAGENTA=$'\e[0;35m' CYAN=$'\e[0;36m' WHITE=$'\e[0;37m'
+local RESET=$'\e[0m' BLACK=$'\e[30m' RED=$'\e[31m' GREEN=$'\e[32m' YELLOW=$'\e[33m'
+local BLUE=$'\e[34m' MAGENTA=$'\e[35m' CYAN=$'\e[36m' WHITE=$'\e[37m'
 
 # Background
-local BG_BLACK=$'\e[0;40m' BG_RED=$'\e[0;41m' BG_GREEN=$'\e[0;42m' BG_YELLOW=$'\e[0;43m'
-local BG_BLUE=$'\e[0;44m' BG_MAGENTA=$'\e[0;45m' BG_CYAN=$'\e[0;46m' BG_WHITE=$'\e[0;47m'
+local BG_BLACK=$'\e[40m' BG_RED=$'\e[41m' BG_GREEN=$'\e[42m' BG_YELLOW=$'\e[43m'
+local BG_BLUE=$'\e[44m' BG_MAGENTA=$'\e[45m' BG_CYAN=$'\e[46m' BG_WHITE=$'\e[47m'
 
 # Bold
 local BOLD=$'\e[1m'
