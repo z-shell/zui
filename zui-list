@@ -697,6 +697,7 @@ while (( 1 )); do
         [[ "$stborder" = "1" ]] && {
             zcurses attr "$wname_status" "$stbold" "$stborder_cpair"
             zcurses border "$wname_status"
+            zcurses attr "$wname_status" "$stbold" "$stcolorpair"
         }
 
         # status_msg_strlen is being set in -zui_list_status_msg()
