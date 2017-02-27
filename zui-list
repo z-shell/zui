@@ -27,30 +27,50 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
 # Outputs message in color, restores default color
 -zui_curses_colmsg() {
-    zcurses attr "$wname_status" "$1/$stbackground"
-    zcurses string "$wname_status" "$2"
-    zcurses attr "$wname_status" "$stcolorpair"
+    local color="$1" txt="$2" line_var="$3" indent="$4" actlen_var="$5"
+
+    [[ -n "$color" ]] && zcurses attr "$wname_status" "$color/$stbackground"
+
+    while (( ${(P)actlen_var} + ${#txt} > status_width - indent * 2 )); do
+        integer part_count=$(( (status_width - indent * 2) - ${(P)actlen_var} ))
+        zcurses string "$wname_status" "${txt[1,part_count]}"
+        if [[ "${(P)line_var}" = $(( status_height - 1 - stborder )) ]]; then
+            zcurses scroll "$wname_status" +1
+        else
+            : ${(P)line_var::=${(P)line_var}+1}
+        fi
+        zcurses move "$wname_status" "${(P)line_var}" "$indent"
+        txt="${txt[part_count+1,-1]}"
+        : ${(P)actlen_var::=0}
+    done
+
+    if [[ -n "$txt" ]]; then
+        zcurses string "$wname_status" "$txt"
+        : ${(P)actlen_var::=${(P)actlen_var}+${#txt}}
+    fi
+
+    [[ -n "$color" ]] && zcurses attr "$wname_status" "$stcolorpair"
 }
 
 # Outputs a message in the bottom of the screen
 # "[UNIQ]", "Text", "[Grep string]", "Generation time", "$reply[@]" from callback
 -zui_list_status_msg() {
-    # -1 for border, -1 for 0-based indexing
-    zcurses move "$wname_status" 2 0; zcurses clear "$wname_status" eol
-    zcurses move "$wname_status" 1 0; zcurses clear "$wname_status" eol
-    zcurses move "$wname_status" 1 2
+    integer indent=2 line=stborder line_len=0
+
+    zcurses clear "$wname_status"
+    zcurses move "$wname_status" $line $indent
 
     [[ -n "$4" ]] && {
         1="" 2="" 3=""
-        -zui_curses_colmsg yellow "$4 "
+        -zui_curses_colmsg "yellow" "$4 " line $indent line_len
         (( status_msg_strlen += ${#4} + 1 ))
     }
 
     local txt index
     status_msg_strlen=0 # status_msg_strlen is localized in caller
     for txt in $1 $2 $3; do
-        zcurses string "$wname_status" "$txt "
-        (( status_msg_strlen += ${#txt} ))
+        -zui_curses_colmsg "" "$txt " line $indent line_len
+        (( status_msg_strlen += ${#txt} + 1 ))
     done
 
     local -a col
@@ -58,7 +78,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     for txt in "$5" "$6" "$7" "$8" "$9" "$10"; do
         (( ++ index ))
         [[ -n "$txt" ]] && { 
-            -zui_curses_colmsg "${col[index]}" "$txt"
+            -zui_curses_colmsg "${col[index]}" "$txt" line $indent line_len
             (( status_msg_strlen += ${#txt} ))
         }
     done
@@ -658,7 +678,7 @@ while (( 1 )); do
             (( ${+functions[-zui-standard-status-callback]} )) && -zui-standard-status-callback "" $selectable "${segments[ZUILIST_CURRENT_SEGMENT]}"
         fi
 
-        local status_msg_strlen _uniq="" _text="" _grep="" _gen=""
+        local status_msg_strlen=0 _uniq="" _text="" _grep="" _gen=""
         [[ "$ZUILIST_IS_UNIQ_MODE" = "1" ]] && _uniq="[-UNIQ-]"
         [[ -n "$ZUILIST_GREP_STRING" ]] && _grep="[$ZUILIST_GREP_STRING]"
         [[ -n "${ZUI[GENERATION_TIME]}" ]] && _gen="GENERATED IN ${ZUI[GENERATION_TIME]}s"
