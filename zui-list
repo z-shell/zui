@@ -316,8 +316,8 @@ local stcolorpair stborder stborder_cpair stbold stbackground stforeground stbac
 
 -zui_stdlib_load_config s:mark "red reverse lineund" -1 actmark
 -zui_stdlib_load_config s:altmark "red reverse" -1 altmark
--zui_stdlib_load_config b:text_mode 0 2 'ZUI[text_mode]'
--zui_stdlib_load_config b:text_select 0 2 'ZUI[text_select]'
+-zui_stdlib_load_config b:text_mode 1 2 'ZUI[text_mode]'
+-zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
 -zui_stdlib_load_config s:log_append "above" 2 'ZUI[log_append]'
 -zui_stdlib_load_config b:status_pointer 1 2 'ZUI[status_pointer]'
 
