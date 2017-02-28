@@ -783,7 +783,7 @@ while (( 1 )); do
         # $@ holds original input data. So it
         # can be said that here a restart of
         # zui-list is simulated
-        set "${(@)@[1,update_first-1]}" "${update[@]}" "${(@)@[update_first+update_count,-1]}"
+        set -- "${(@)@[1,update_first-1]}" "${update[@]}" "${(@)@[update_first+update_count,-1]}"
 
         typeset -g ZUILIST_REGENERATE_DISP_LIST
         ZUILIST_REGENERATE_DISP_LIST="1"
