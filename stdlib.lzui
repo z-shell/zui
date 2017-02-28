@@ -802,7 +802,7 @@ function -zui_stdlib_add_message() {
     fi
 
     # Clean space-only elements
-    set -- "${@[3,-1]/(#b)[[:space:]]##(#e)/}"
+    set -- "${@[3,-1]/(#s)[[:space:]]##(#e)/}"
 
     integer index msg_len=0
     for (( index = 1; index <= ${#}; index ++ )); do
