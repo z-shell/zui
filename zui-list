@@ -320,6 +320,7 @@ local stcolorpair stborder stborder_cpair stbold stbackground stforeground stbac
 -zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
 -zui_stdlib_load_config s:log_append "above" 2 'ZUI[log_append]'
 -zui_stdlib_load_config b:status_pointer 1 2 'ZUI[status_pointer]'
+-zui_stdlib_load_config s:log_time_format "[%H:%M] " 2 'ZUI[log_time_format]'
 
 # Process configuration
 background="${colorpair#*/}"

@@ -99,7 +99,7 @@
 
     index=0
     local -a col
-    col=( cyan green red magenta yellow blue )
+    col=( yellow cyan green red magenta yellow blue )
 
     for txt in "${elems[@]}"; do
         (( ++ index ))
