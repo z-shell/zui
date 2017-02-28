@@ -213,6 +213,9 @@ local pure_text_selected
     -zui_stdlib_rc_button "bold_$mod" "$mod" "" "" "" "${ZUI[GREEN]}bold${ZUI[COLOR_END]}" 'internal=1; [ $bold = "+bold" ] && bold="-bold" || bold="+bold"'
     -zui_stdlib_rc_button "text_mode_$mod" "$mod" "" "" "" "${ZUI[GREEN]}Text_mode${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_mode] )) && ZUI[text_mode]=0 || ZUI[text_mode]=1; (( ZUI[text_mode_ts_]=2**31 ))'
     -zui_stdlib_rc_button "text_select_$mod" "$mod" "" "" "" "${ZUI[GREEN]}text_select${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_select] )) && ZUI[text_select]=0 || ZUI[text_select]=1; (( ZUI[text_select_ts_]=2**31 ))'
+    -zui_stdlib_rc_button "log_eppend_$mod" "$mod" "" "" "" "${ZUI[GREEN]}log_append${ZUI[COLOR_END]}" 'internal=1; [[ ${ZUI[log_append]} = "below" ]] && ZUI[log_append]=above || ZUI[log_append]=below'
+    -zui_stdlib_rc_button "status_pointer_$mod" "$mod" "" "" "" "${ZUI[GREEN]}status_pointer${ZUI[COLOR_END]}" 'internal=1; (( ZUI[status_pointer] )) && ZUI[status_pointer]=0 || ZUI[status_pointer]=1'
+    -zui_stdlib_rc_button "status_border_$mod" "$mod" "" "" "" "${ZUI[GREEN]}status_border${ZUI[COLOR_END]}" 'internal=1; (( stborder )) && stborder=0 || stborder=1'
 
     # Passed user data
     local user_data=${2:+ \[Obtained regeneration user data: $2\]}
@@ -223,7 +226,9 @@ local pure_text_selected
             "${reply[1]} this module via ${ZUI[YELLOW]}list_restart${ZUI[COLOR_END]} and ${ZUI[CYAN]}external_anchor${ZUI[COLOR_END]}${user_data}"
             "${reply[2]} this module via ${ZUI[YELLOW]}list_restart${ZUI[COLOR_END]} and ${ZUI[CYAN]}function_call${ZUI[COLOR_END]}"
             "${reply[3]} the <NEXT> section via ${ZUI[YELLOW]}list_restart${ZUI[COLOR_END]} and ${ZUI[CYAN]}raw_link${ZUI[COLOR_END]}"
-            "Toggle ${reply[4]} with inlined (no function!) code. ${reply[5]}, ${reply[6]}."
+            "Toggle ${reply[4]} with inlined (no function!) code, ${reply[5]}, ${reply[6]}"
+            "Toggle ${reply[7]} – status logs appended at end, or at top"
+            "Toggle ${reply[8]} – status position pointer, ${reply[9]}"
             "Random number: $RANDOM$((RANDOM%2))"
 
             # This is set in -zui_module1_external_action_1
@@ -241,7 +246,7 @@ local pure_text_selected
     # Content count
     reply2=${#reply[@]}
     # Non-selectables
-    reply3=( 1 6 ${module1_extra_line:+${#reply[@]}} )
+    reply3=( 1 8 ${module1_extra_line:+${#reply[@]}} )
     # Hops
     reply4=( 1 )
     # Local anchors
