@@ -633,6 +633,7 @@ while (( 1 )); do
             -zui-standard-status-callback "${reply[@]}"
             tpe=$?
         }
+        ZUI[pressed_now]=""
 
         (( tpe >= 0 )) && -zui_stdlib_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
 
@@ -742,6 +743,7 @@ while (( 1 )); do
         -zui_stdlib_get_segment "${list[ZUILIST_CURRENT_IDX]}" "$ZUILIST_CURRENT_SEGMENT"
         -zui_stdlib_decode_hyperlink $REPLY
         local id="${reply[1]}"
+        ZUI[pressed_now]="$id"
         integer call_hook=0
         if [[ "$id" = zuianchor* ]]; then
             ZUILIST_CURRENT_IDX="${ZUI[$id]-${reply[2]}}"

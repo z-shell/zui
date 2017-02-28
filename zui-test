@@ -161,13 +161,16 @@ local pure_text_selected
 -zui-standard-status-callback() {
     local id="$1" data1="$2" data2="$3" data3="$4" data4="$5" text="$6" handler
 
+    local pressed=${${${${${ZUI[pressed_now]#zuiiaction}#zuiaction}#zuicheckbox}#zuieanchor}#zuianchor}
+    [[ "$pressed" = log_append* ]] && pressed="LOG: ${(U)ZUI[log_append]} " || pressed="${pressed:+<<Pressed: $pressed>> }"
+
     # Zero ID means we're called on non-button
     if [[ -z "$id" ]]; then
         if [[ -n "$pure_text_selected" ]]; then
-            reply=( "Pure-text selected: " "$data2" )
+            reply=( "$pressed" "Pure-text selected: " "$data2" )
             pure_text_selected=""
         elif (( $data1 )); then
-            reply=( "" "" "Text: " "$data2" )
+            reply=( "$pressed" "" "Text: " "$data2" )
         else
             # Detect if current line is also a hop
             local on_hop
@@ -176,7 +179,7 @@ local pure_text_selected
                 [[ ${ZUILIST_HOP_INDICES[(r)$ZUILIST_CURRENT_IDX]} = $ZUILIST_CURRENT_IDX ]] &&
                 on_hop=", also a hop"
 
-            reply=( "(A non-selectable line$on_hop)" )
+            reply=( "$pressed" "(A non-selectable line$on_hop)" )
         fi
         return 0
     fi
@@ -194,7 +197,7 @@ local pure_text_selected
     handler="$ZUI[zuiiaction$id]"
     [[ -z "$handler" ]] && handler="$ZUI[zuiaction$id]"
 
-    reply=( "Id: $id" " ${__is_action-Index}: $data1" " $exint" " Handler:" " $handler" )
+    reply=( "$pressed" "Id: $id" " ${__is_action-Index}: $data1" " $exint" " Handler:" " $handler" )
 }
 
 #
@@ -578,6 +581,8 @@ fi
 # ID, data1, data2, data3, data4
 if -zui_stdlib_decode_hyperlink "$ZUILIST_WRAPPER_BIT"; then
     local id="${reply[1]}" data1="${reply[2]}" data2="${reply[3]}" data3="${reply[4]}" data4="${reply[5]}"
+
+    ZUI[pressed_now]="$id"
 
     integer call_hook=0
     if [[ "$id" = zuieanchor* ]]; then
