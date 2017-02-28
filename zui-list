@@ -25,63 +25,15 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
 [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/stdlib.lzui"
 
-# Outputs message in color, restores default color
--zui_curses_colmsg() {
-    local color="$1" txt="$2" line_var="$3" indent="$4" actlen_var="$5"
-
-    [[ -n "$color" ]] && zcurses attr "$wname_status" "$color/$stbackground"
-
-    while (( ${(P)actlen_var} + ${#txt} > status_width - indent * 2 )); do
-        integer part_count=$(( (status_width - indent * 2) - ${(P)actlen_var} ))
-        zcurses string "$wname_status" "${txt[1,part_count]}"
-        if [[ "${(P)line_var}" = $(( status_height - 1 - stborder )) ]]; then
-            zcurses scroll "$wname_status" +1
-        else
-            : ${(P)line_var::=${(P)line_var}+1}
-        fi
-        zcurses move "$wname_status" "${(P)line_var}" "$indent"
-        txt="${txt[part_count+1,-1]}"
-        : ${(P)actlen_var::=0}
-    done
-
-    if [[ -n "$txt" ]]; then
-        zcurses string "$wname_status" "$txt"
-        : ${(P)actlen_var::=${(P)actlen_var}+${#txt}}
-    fi
-
-    [[ -n "$color" ]] && zcurses attr "$wname_status" "$stcolorpair"
-}
-
 # Outputs a message in the bottom of the screen
 # "[UNIQ]", "Text", "[Grep string]", "Generation time", "$reply[@]" from callback
 -zui_list_status_msg() {
-    integer indent=2 line=stborder line_len=0
+    integer indent=2 line=stborder
 
     zcurses clear "$wname_status"
     zcurses move "$wname_status" $line $indent
-
-    [[ -n "$4" ]] && {
-        1="" 2="" 3=""
-        -zui_curses_colmsg "yellow" "$4 " line $indent line_len
-        (( status_msg_strlen += ${#4} + 1 ))
-    }
-
-    local txt index
-    status_msg_strlen=0 # status_msg_strlen is localized in caller
-    for txt in $1 $2 $3; do
-        -zui_curses_colmsg "" "$txt " line $indent line_len
-        (( status_msg_strlen += ${#txt} + 1 ))
-    done
-
-    local -a col
-    col=( cyan green red magenta yellow blue )
-    for txt in "$5" "$6" "$7" "$8" "$9" "$10"; do
-        (( ++ index ))
-        [[ -n "$txt" ]] && { 
-            -zui_curses_colmsg "${col[index]}" "$txt" line $indent line_len
-            (( status_msg_strlen += ${#txt} ))
-        }
-    done
+    zcurses string "$wname_status" "$1"
+    (( status_msg_strlen += ${#1} ))
 }
 
 # $1 is window name, $2 is the expected cursor state (0 invisible, 1 visible)
@@ -669,29 +621,27 @@ while (( 1 )); do
         zcurses attr "$wname_status" "$stbold"
 
         reply=( )
-        local selectable=0
-        [[ ${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]} != $ZUILIST_CURRENT_IDX ]] && selectable=1
-        if (( selectable )) && -zui_stdlib_decode_hyperlink "${segments[ZUILIST_CURRENT_SEGMENT]}"
-        then
-            (( ${+functions[-zui-standard-status-callback]} )) && -zui-standard-status-callback "${reply[@]}"
-        else
-            (( ${+functions[-zui-standard-status-callback]} )) && -zui-standard-status-callback "" $selectable "${segments[ZUILIST_CURRENT_SEGMENT]}"
+        local selectable=1 tpe=-1 status_msg_strlen=0
+        [[ -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]}" ]] && selectable=0
+        if (( selectable == 0 )) || ! -zui_stdlib_decode_hyperlink "${segments[ZUILIST_CURRENT_SEGMENT]}"; then
+            reply=( "" $selectable "${segments[ZUILIST_CURRENT_SEGMENT]}" )
         fi
+        (( ${+functions[-zui-standard-status-callback]} )) && {
+            -zui-standard-status-callback "${reply[@]}"
+            tpe=$?
+        }
 
-        local status_msg_strlen=0 _uniq="" _text="" _grep="" _gen=""
-        [[ "$ZUILIST_IS_UNIQ_MODE" = "1" ]] && _uniq="[-UNIQ-]"
-        [[ -n "$ZUILIST_GREP_STRING" ]] && _grep="[$ZUILIST_GREP_STRING]"
-        [[ -n "${ZUI[GENERATION_TIME]}" ]] && _gen="GENERATED IN ${ZUI[GENERATION_TIME]}s"
-        ZUI[GENERATION_TIME]=""
+        (( tpe >= 0 )) && -zui_stdlib_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
 
-        if [[ "$ZUILIST_IS_SEARCH_MODE" = "1" ]]; then
-            -zui_list_status_msg "$_uniq" "Filtering with: ${ZUILIST_SEARCH_BUFFER// /+}"
-        elif [[ ${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]} != $ZUILIST_CURRENT_IDX || -n "$ZUILIST_SEARCH_BUFFER" || "$ZUILIST_IS_UNIQ_MODE" -eq 1 ]]; then
-            _text="Current #$ZUILIST_USER_CURRENT_IDX (of #$ZUILIST_USER_LAST_ELEMENT entries)"
-            -zui_list_status_msg "$_uniq" "$_text" "$_grep" "$_gen" "${reply[@]}"
+        if [[ "$ZUILIST_IS_SEARCH_MODE" = "0" ]]; then
+            -zui-log "$wname_status" "$status_height" "$status_width" "$stborder" "$stcolorpair" \
+                    "$ZUILIST_GREP_STRING" "$ZUILIST_IS_UNIQ_MODE" "$ZUILIST_IS_SEARCH_MODE" \
+                    "${ZUI[GENERATION_TIME]}" "$selectable" "${${ZUILIST_SEARCH_BUFFER:+1}:-0}" \
+                    "$ZUILIST_CURRENT_IDX" "$last_element"
+
+            ZUI[GENERATION_TIME]=""
         else
-            # "[UNIQ]", "Text", "[Grep string]", "Generation time", "$reply[@]" from callback
-            -zui_list_status_msg "" "" "" "$_gen" "${reply[@]}"
+            -zui_list_status_msg "Filtering with: ${ZUILIST_SEARCH_BUFFER// /+}"
         fi
 
         [[ "$stborder" = "1" ]] && {
@@ -701,7 +651,7 @@ while (( 1 )); do
         }
 
         # status_msg_strlen is being set in -zui_list_status_msg()
-        zcurses move "$wname_status" 1 $(( status_msg_strlen + 2 ))
+        zcurses move "$wname_status" "$stborder" $(( status_msg_strlen + 2 ))
         [[ "$ZUILIST_IS_SEARCH_MODE" -ne 1 ]] && -zui_list_cursor_visibility "status" "0" || -zui_list_cursor_visibility "status" "1"
         zcurses refresh "$wname_status" 
     }

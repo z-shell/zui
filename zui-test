@@ -20,6 +20,13 @@ setopt extendedglob typesetsilent warncreateglobal
 
 # Default status window size for this app
 -zui_stdlib_store_default_app_config s:status_size "4"
+# Log message above or below previous ones?
+-zui_stdlib_store_default_app_config s:log_append "above"
+-zui_stdlib_load_config s:log_append "above" 2 'ZUI[log_append]'
+# Show element pointer in status?
+-zui_stdlib_store_default_app_config b:status_pointer 1
+-zui_stdlib_load_config b:status_pointer 1 2 'ZUI[status_pointer]'
+
 # Navigate across text, not only buttons?
 -zui_stdlib_load_config b:text_mode 0 2 'ZUI[text_mode]'
 # Allow selecting text, not only buttons?

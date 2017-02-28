@@ -18,6 +18,7 @@
 
 # If one would want to use the lib without plugin...
 typeset -gA ZUI
+typeset -ga ZUI_MESSAGES
 
 # Ends colors and bold
 ZUI[COLOR_END]=$'\037'      # octal value, decimal 31 - Unit separator
@@ -780,6 +781,15 @@ function -zui_stdlib_has_default_color() {
     autoload is-at-least
     is-at-least 2>/dev/null 5.3 && return 0
     return 1
+}
+
+# Appends given message to ZUI_MESSAGES
+#
+# $1 - message type
+# $2 - timestamp
+# $3, $4, ... - message bits / lines
+function -zui_stdlib_add_message() {
+    ZUI_MESSAGES+=( "${(j: :)${(q)@}}" )
 }
 
 # vim:ft=zsh

@@ -27,7 +27,7 @@ fi
 
 autoload -- zui-list zui-list-draw zui-list-input zui-list-wrapper
 autoload -- zui-process-buffer zui-process-buffer2 zui-usetty-wrapper
-autoload -- zui-test
+autoload -- -zui-log zui-test
 
 zle -N zui-test
 bindkey "^O^P" zui-test
@@ -37,6 +37,7 @@ bindkey "^O^P" zui-test
 #
 
 typeset -gAH ZUI
+typeset -ga ZUI_MESSAGES
 
 #
 # Load modules
