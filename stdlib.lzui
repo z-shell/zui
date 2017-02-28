@@ -789,6 +789,16 @@ function -zui_stdlib_has_default_color() {
 # $2 - timestamp
 # $3, $4, ... - message bits / lines
 function -zui_stdlib_add_message() {
+    # Clean space-only elements
+    set -- "${@/(#b)[[:space:]]##(#e)/}"
+
+    integer index msg_len=0
+    for (( index = 3; index <= ${#}; index ++ )); do
+        msg_len+=${#@[index]}
+    done
+
+    set -- "$msg_len" "$@"
+
     ZUI_MESSAGES+=( "${(j: :)${(q)@}}" )
 }
 

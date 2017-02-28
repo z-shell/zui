@@ -64,27 +64,18 @@
 # "[UNIQ]", "Text", "[Grep string]", "Generation time", "$reply[@]" from callback
 -zuilog_output_message() {
     local direction="${1:-above}" line_var="$2" entry="$3" txt
-    integer indent=2 msg_len=0 track_len=0 index=0
-
-    #
-    # Count
-    #
+    integer indent=2 msg_len track_len=0 index=0
 
     local -a elems
     elems=( "${(@Q)${(z@)entry}}" )
-    shift 2 elems
+    msg_len="${elems[1]}"
+    shift 3 elems
 
-    for (( index = 1; index <= ${#elems[@]}; index ++ )); do
-        txt="${elems[index]/(#s)[[:space:]]##(#e)/}"
-        elems[index]="$txt"
-        [[ -n "$txt" ]] && msg_len+=${#txt}
-    done
+    (( msg_len == 0 )) && return
 
     #
     # Scroll
     #
-
-    (( msg_len == 0 )) && return
 
     if [[ "$direction" = "below" ]]; then
         # (P)line_var is 0-based and it points after previous text
