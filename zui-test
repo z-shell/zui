@@ -24,11 +24,10 @@ setopt extendedglob typesetsilent warncreateglobal
 -zui_stdlib_store_default_app_config s:log_append "above"
 # Show element pointer in status?
 -zui_stdlib_store_default_app_config b:status_pointer 1
-
 # Navigate across text, not only buttons?
--zui_stdlib_load_config b:text_mode 0 2 'ZUI[text_mode]'
+-zui_stdlib_store_default_app_config b:text_mode 0
 # Allow selecting text, not only buttons?
--zui_stdlib_load_config b:text_select 0 2 'ZUI[text_select]'
+-zui_stdlib_store_default_app_config b:text_select 0
 
 ##
 ## Main code
