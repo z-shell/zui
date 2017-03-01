@@ -63,7 +63,7 @@
 # Outputs a message in the bottom of the screen
 # "[UNIQ]", "Text", "[Grep string]", "Generation time", "$reply[@]" from callback
 -zuilog_output_message() {
-    local direction="${1:-above}" line_var="$2" entry="$3" txt
+    local direction="${1:-above}" line_var="$2" entry="$3" number="$4" txt
     integer indent=2 msg_len track_len=0 index=0
 
     local -a elems
@@ -74,6 +74,8 @@
     (( msg_len == 0 )) && return
 
     msg_len+=${#elems[1]}
+
+    (( number > 0 )) && msg_len+=3+${#number}
 
     #
     # Scroll
@@ -99,13 +101,15 @@
     # Print
     #
 
-    index=0
+    index=2
     local -a col
-    col=( yellow cyan green cyan red magenta yellow blue )
+    col=( red yellow cyan green cyan red magenta yellow blue )
+
+    (( number > 0 )) && -zuilog_counted_msg "${col[1]}" "[$number] " "$line_var" $indent track_len
 
     for txt in "${elems[@]}"; do
-        (( ++ index ))
         [[ -n "$txt" ]] && { -zuilog_counted_msg "${col[index]}" "$txt" "$line_var" $indent track_len || break; }
+        (( ++ index ))
     done
 
     # Return number of lines of the message
@@ -133,13 +137,18 @@ local _uniq="" _text="" _grep="" _gen=""
 (( selectable + search_buf + uniq )) && _text="Current #$idx (of #$last_element entries)" || _text="---"
 
 integer last="${#ZUI_MESSAGES[@]}" start=last-win_height+win_border line=win_border
-(( start <= 0 )) && start=1
+(( start = start <= 0 ? 1 : start ))
+
+integer message_num=$(( ZUI[message_count] - (last-start+1) + 1 ))
+(( message_num = message_num <= 0 ? 1 : message_num ))
+(( ZUI[log_index] == 0 )) && message_num=0
 
 zcurses clear "$window"
 
 local entry
 for entry in "${(@)ZUI_MESSAGES[start,last]}"; do
-    -zuilog_output_message "${ZUI[log_append]}" "line" "$entry"
+    -zuilog_output_message "${ZUI[log_append]}" "line" "$entry" "$message_num"
+    (( message_num = message_num ? ++ message_num : 0 ))
 
     if [[ "${ZUI[log_append]}" = "below" ]]; then
         (( ++ line ))

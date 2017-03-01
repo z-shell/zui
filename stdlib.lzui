@@ -794,7 +794,11 @@ function -zui_stdlib_add_message() {
     local tpe="$1" ts="${2:-$(date +%s)}" timestr=""
 
     # Clean messages on app mismatch
-    [[ "${ZUI[app]}" != "${ZUI[messages_app]}" ]] && { ZUI_MESSAGES=(); ZUI[messages_app]="${ZUI[app]}"; }
+    [[ "${ZUI[app]}" != "${ZUI[messages_app]}" ]] && {
+        ZUI_MESSAGES=()
+        ZUI[message_count]=0
+        ZUI[messages_app]="${ZUI[app]}"
+    }
 
     if [[ -n "${ZUI[log_time_format]}" ]]; then
         if (( ${+builtins[strftime]} )); then
@@ -815,6 +819,7 @@ function -zui_stdlib_add_message() {
     done
 
     ZUI_MESSAGES+=( "${(q)msg_len} ${(q)tpe} ${(q)ts} ${(q)timestr} ${(j: :)${(q)@}}" )
+    (( ++ ZUI[message_count] ))
 }
 
 # vim:ft=zsh
