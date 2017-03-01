@@ -123,7 +123,7 @@ local pure_text_selected
         # are called from within the list
         bold="+bold"
     elif [[ "$module" = "3" ]]; then
-        zcurses bg "status" "white/blue"
+        -zui_module2_internal_action_1 "$id" "$(( module - 1 ))" "" "" ""
     fi
 }
 
