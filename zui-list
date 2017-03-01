@@ -731,6 +731,10 @@ while (( 1 )); do
     # Main input action examination
     #
 
+    # If a jump is set up by anchor,
+    # these parameter(s) will be set
+    local jump_id="" jump_data=""
+
     if [[ "$action" = "SELECT" ]]; then
         REPLY="$selection"
         reply=( "$list[@]" )
@@ -758,11 +762,8 @@ while (( 1 )); do
         ZUI[pressed_now]="$id"
         integer call_hook=0
         if [[ "$id" = zuianchor* ]]; then
-            ZUILIST_CURRENT_IDX=$(( ${ZUI[$id]-${reply[2]}} ))
-            (( ZUILIST_CURRENT_IDX < 1 )) && ZUILIST_CURRENT_IDX=1
-            (( ZUILIST_CURRENT_IDX > last_element )) && ZUILIST_CURRENT_IDX="$last_element"
-            ZUILIST_CURRENT_SEGMENT=1
-            -zui_list_compute_first_to_show_idx_center
+            jump_id="$id"
+            jump_data="${reply[2]}"
             id="zuiiaction${id#zuianchor}"
             call_hook=1
         elif [[ "$id" = zuicheckbox* ]]; then
@@ -925,6 +926,16 @@ while (( 1 )); do
         set "${(@)@[1,ZUILIST_REPLY_CHECKBOX_NUM-1]}" "$new_line" "${(@)@[ZUILIST_REPLY_CHECKBOX_NUM+1,-1]}"
         typeset -g ZUILIST_REGENERATE_DISP_LIST="1"
         unset ZUILIST_REPLY_CHECKBOX_NUM ZUILIST_REPLY_CHECKBOX_OP
+    fi
+
+    # Anchor to jump? Can be after on-the-fly
+    # regeneration submitted by hook call above
+    if [[ -n "$jump_id" ]]; then
+        ZUILIST_CURRENT_IDX=$(( ${ZUI[$jump_id]:-$jump_data} ))
+        (( ZUILIST_CURRENT_IDX < 1 )) && ZUILIST_CURRENT_IDX=1
+        (( ZUILIST_CURRENT_IDX > last_element )) && ZUILIST_CURRENT_IDX="$last_element"
+        ZUILIST_CURRENT_SEGMENT=1
+        -zui_list_compute_first_to_show_idx_center
     fi
 done
 
