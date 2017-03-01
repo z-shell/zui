@@ -61,7 +61,7 @@ typeset -g ZUILIST_REMEMBER_STATE
 [ "$ZUILIST_REMEMBER_STATE" != 1 ] && ZUILIST_REMEMBER_STATE=2
 
 local status_size
--zui_stdlib_load_config s:status_size "3" -1 status_size
+-zui_stdlib_load_config s:status_size "4" -1 status_size
 
 -zui_wrapper_init_windows
 -zui_stdlib_get_time
