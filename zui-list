@@ -637,8 +637,9 @@ while (( 1 )); do
         reply=( )
         local selectable=1 tpe=-1 status_msg_strlen=0
         [[ -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]}" ]] && selectable=0
+        (( $ZUILIST_IS_UNIQ_MODE + ${${ZUILIST_SEARCH_BUFFER:+1}:-0} )) && selectable=1
         if (( selectable == 0 )) || ! -zui_stdlib_decode_hyperlink "${segments[ZUILIST_CURRENT_SEGMENT]}"; then
-            reply=( "" $selectable "${segments[ZUILIST_CURRENT_SEGMENT]}" )
+            reply=( "" "$selectable" "$ZUILIST_IS_UNIQ_MODE" "${${ZUILIST_SEARCH_BUFFER:+1}:-0}" "${segments[ZUILIST_CURRENT_SEGMENT]}" )
         fi
         (( ${+functions[-zui-standard-status-callback]} )) && {
             -zui-standard-status-callback "${reply[@]}"
