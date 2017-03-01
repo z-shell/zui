@@ -809,16 +809,13 @@ while (( 1 )); do
         integer size_diff=$(( update_size - update_count )) mysize
         local index el var_name
 
-        # Remove indices that lay inside the block being overwritten
-        # NONSELECTABLES
-        mysize="${#ZUILIST_NONSELECTABLE_ELEMENTS[@]}"
-        for (( index = 1; index <= mysize; index ++ )); do
-            el="${ZUILIST_NONSELECTABLE_ELEMENTS[index]}"
-            if [[ "$el" -ge "$update_first" && "$el" -le "$(( update_first + update_count - 1 ))" ]]
-            then
-                ZUILIST_NONSELECTABLE_ELEMENTS[index]=()
-            fi
-        done
+        if [[ -n "$module" ]]; then
+            local -a prev_nonselectables
+            var_name="prev_module${module}_nonselectables"
+            prev_nonselectables=( "${(PA@)var_name}" )
+            # Remove previous nonselectables, ^ is negation, ( ) is filled with "|"-joined previous elements
+            ZUILIST_NONSELECTABLE_ELEMENTS=( ${(@M)ZUILIST_NONSELECTABLE_ELEMENTS:#(#b)^(${~${(j:|:)prev_nonselectables}})} )
+        fi
 
         # Push down (up) elements that are after the growed (shrinked) section
         # NONSELECTABLES
@@ -832,16 +829,12 @@ while (( 1 )); do
             fi
         done
 
-        # Remove indices that lay inside the block being overwritten
-        # HOPS
-        mysize="${#ZUILIST_HOP_INDICES[@]}"
-        for (( index = 1; index <= mysize; index ++ )); do
-            el="${ZUILIST_HOP_INDICES[index]}"
-            if [[ "$el" -ge "$update_first" && "$el" -le "$(( update_first + update_count - 1 ))" ]]
-            then
-                ZUILIST_HOP_INDICES[index]=()
-            fi
-        done
+        if [[ -n "$module" ]]; then
+            local -a prev_hops
+            var_name="prev_module${module}_hops"
+            prev_hops=( "${(PA@)var_name}" )
+            ZUILIST_HOP_INDICES=( ${(@M)ZUILIST_HOP_INDICES:#(#b)^(${~${(j:|:)prev_hops}})} )
+        fi
 
         # Push down (up) elements that are after the growed (shrinked) section
         # HOPS
