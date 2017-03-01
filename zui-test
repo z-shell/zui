@@ -18,7 +18,7 @@ setopt extendedglob typesetsilent warncreateglobal
 
 [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
 
--zui_stdlib_store_default_app_config s:status_size "4"
+-zui_stdlib_store_default_app_config s:status_size "5"
 -zui_stdlib_store_default_app_config s:log_append "above"
 -zui_stdlib_store_default_app_config b:status_pointer 1
 -zui_stdlib_store_default_app_config b:text_mode 0
