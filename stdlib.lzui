@@ -451,6 +451,8 @@ function -zui_stdlib_cleanup() {
            text_mode text_mode_ts_
     )
 
+    [[ -n "${ZUI[app]}" ]] && ZUI[previous_app]="${ZUI[app]}"
+
     local k
     for k in "${keys[@]}"; do
         unset "ZUI[$k]"
@@ -790,6 +792,9 @@ function -zui_stdlib_has_default_color() {
 # $3, $4, ... - message bits / lines
 function -zui_stdlib_add_message() {
     local tpe="$1" ts="${2:-$(date +%s)}" timestr=""
+
+    # Clean messages on app mismatch
+    [[ "${ZUI[app]}" != "${ZUI[messages_app]}" ]] && { ZUI_MESSAGES=(); ZUI[messages_app]="${ZUI[app]}"; }
 
     if [[ -n "${ZUI[log_time_format]}" ]]; then
         if (( ${+builtins[strftime]} )); then
