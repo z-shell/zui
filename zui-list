@@ -185,11 +185,11 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         # Check if current element is in ZUILIST_NONSELECTABLE_ELEMENTS
         # If yes, don't mark current segment. Highlight anyway when
         # searching.
-        [[ -z "$ZUILIST_SEARCH_BUFFER" && "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]}" = "$ZUILIST_CURRENT_IDX" ]] && return
+        [[ -z "$ZUILIST_SEARCH_BUFFER" && "$ZUILIST_IS_UNIQ_MODE" != "1" && -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]}" ]] && return
 
         # There will be no colorifying for current element
         integer current_page_idx=$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))
-        local element="$list[ZUILIST_CURRENT_IDX]"
+        local element="${list[ZUILIST_CURRENT_IDX]}"
         local output=""
 
         [[ "$ZUILIST_CURRENT_SEGMENT" -lt 1 ]] && ZUILIST_CURRENT_SEGMENT=1
