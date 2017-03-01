@@ -323,7 +323,7 @@ local stcolorpair stborder stborder_cpair stbold stbackground stforeground stbac
 -zui_stdlib_load_config b:log_index 1 2 'ZUI[log_index]'
 -zui_stdlib_load_config s:log_size "32" 2 'ZUI[log_size]'
 -zui_stdlib_load_config s:log_time_format "[%H:%M] " 2 'ZUI[log_time_format]'
--zui_stdlib_load_config s:log_colors "red yellow cyan green cyan red magenta yellow blue" 2 'ZUI[log_colors]'
+-zui_stdlib_load_config s:log_colors "white cyan yellow green cyan red magenta yellow blue" 2 'ZUI[log_colors]'
 local -a log_colors
 log_colors=( "${=ZUI[log_colors]}" )
 

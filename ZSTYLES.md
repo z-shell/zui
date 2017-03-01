@@ -30,6 +30,9 @@ zstyle ":plugin:zui" log_time_format "[%H:%M] " # Display hour:minute time stamp
 zstyle ":plugin:zui" log_index "yes"            # Show order number of log messages
 zstyle ":plugin:zui" log_size "32"              # How many log messages to keep in memory
 
+# The colors used for log messages. First two are for message's index and time stamp
+zstyle ":plugin:zui" log_colors "white cyan yellow green cyan red magenta yellow blue"
+
 # Implementation Zstyles
 zstyle ":plugin:zui" text_mode "no"             # Navigate across each bit of text, not only buttons
                                                 # Rather for implementing, not configuring
