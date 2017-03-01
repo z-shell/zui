@@ -758,7 +758,7 @@ while (( 1 )); do
         ZUI[pressed_now]="$id"
         integer call_hook=0
         if [[ "$id" = zuianchor* ]]; then
-            ZUILIST_CURRENT_IDX="${ZUI[$id]-${reply[2]}}"
+            ZUILIST_CURRENT_IDX=$(( ${ZUI[$id]-${reply[2]}} ))
             (( ZUILIST_CURRENT_IDX < 1 )) && ZUILIST_CURRENT_IDX=1
             (( ZUILIST_CURRENT_IDX > last_element )) && ZUILIST_CURRENT_IDX="$last_element"
             ZUILIST_CURRENT_SEGMENT=1
