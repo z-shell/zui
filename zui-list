@@ -389,11 +389,13 @@ if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" = 0 || "$ZUILIST
     ZUILIST_IS_UNIQ_MODE=0
     ZUILIST_CURRENT_SEGMENT=1 # This variable is responsible for horizontal indexing
     ZUILIST_ACTIVE_SEGMENTS=()
+    typeset -ga +U ZUILIST_NONSELECTABLE_ELEMENTS
+    typeset -ga +U ZUILIST_HOP_INDICES
 
     # Zero - because it isn't known, unless we
     # confirm that first element is selectable
     ZUILIST_USER_CURRENT_IDX=0
-    [[ ${ZUILIST_NONSELECTABLE_ELEMENTS[(r)1]} != 1 ]] && ZUILIST_USER_CURRENT_IDX=1
+    [[ -z "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)1]}" ]] && ZUILIST_USER_CURRENT_IDX=1
     ZUILIST_USER_LAST_ELEMENT=$(( last_element - $#ZUILIST_NONSELECTABLE_ELEMENTS ))
 
     # 2 is init once, then remember
@@ -403,6 +405,10 @@ else
     # it was manually altered outside the list. Together with
     # this verify variables.
     -zui_list_verify_vars
+
+    # This retains previous parameters, adds unique flag
+    typeset -ga +U ZUILIST_NONSELECTABLE_ELEMENTS
+    typeset -ga +U ZUILIST_HOP_INDICES
 fi
 
 if [[ "$ZUILIST_START_IN_SEARCH_MODE" -eq 1 ]]; then
