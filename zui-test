@@ -23,6 +23,7 @@ setopt extendedglob typesetsilent warncreateglobal
 -zui_stdlib_store_default_app_config b:status_pointer 1
 -zui_stdlib_store_default_app_config b:text_mode 0
 -zui_stdlib_store_default_app_config b:text_select 0
+-zui_stdlib_store_default_app_config s:log_colors "white cyan red green cyan red magenta yellow blue"
 
 ##
 ## Main code
@@ -191,7 +192,8 @@ local pure_text_selected
     handler="$ZUI[zuiiaction$id]"
     [[ -z "$handler" ]] && handler="$ZUI[zuiaction$id]"
 
-    reply=( "$pressed" "Id: $id" " ${__is_action-Index}: $data1" " $exint" " Handler:" " $handler" )
+    reply=( "$pressed" )
+    [[ -z "$pressed" ]] && reply+=( "Id: $id" " ${__is_action-Index}: $data1" " $exint" " Handler:" " $handler" )
 }
 
 #
