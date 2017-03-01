@@ -164,6 +164,7 @@ local pure_text_selected
         if [[ -n "$pure_text_selected" ]]; then
             reply=( "$pressed" "Pure-text selected: " "$data2" )
             pure_text_selected=""
+        # with empty $id first data is 1/0 selectable or not
         elif (( $data1 )); then
             reply=( "$pressed" "" "Text: " "$data2" )
         else
@@ -174,7 +175,8 @@ local pure_text_selected
                 [[ ${ZUILIST_HOP_INDICES[(r)$ZUILIST_CURRENT_IDX]} = $ZUILIST_CURRENT_IDX ]] &&
                 on_hop=", also a hop"
 
-            reply=( "$pressed" "(A non-selectable line$on_hop)" )
+            reply=( "$pressed" )
+            [[ -z "$pressed" ]] && reply+=( "(A non-selectable line$on_hop)" )
         fi
         return 0
     fi
