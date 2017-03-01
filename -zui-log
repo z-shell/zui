@@ -73,6 +73,8 @@
 
     (( msg_len == 0 )) && return
 
+    msg_len+=${#elems[1]}
+
     #
     # Scroll
     #
