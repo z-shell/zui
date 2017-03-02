@@ -28,7 +28,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # Outputs a message in the bottom of the screen
 # "[UNIQ]", "Text", "[Grep string]", "Generation time", "$reply[@]" from callback
 -zui_list_status_msg() {
-    integer indent=2 line=stborder
+    integer indent=2 line="${ZUI[status_border]}"
 
     zcurses clear "$wname_status"
     zcurses move "$wname_status" $line $indent
@@ -301,7 +301,7 @@ colormap=(
 #
 
 local actmark altmark colorpair border border_cpair bold background foreground backuptheme
-local stcolorpair stborder stborder_cpair stbold stbackground stforeground stbackuptheme
+local stcolorpair stborder_cpair stbold stbackground stforeground stbackuptheme
 -zui_stdlib_load_config s:colorpair "white/black" -1 colorpair
 -zui_stdlib_load_config b:border 0 -1 border
 -zui_stdlib_load_config s:border_cp "yellow/black" -1 border_cpair
@@ -309,7 +309,7 @@ local stcolorpair stborder stborder_cpair stbold stbackground stforeground stbac
 [[ "$bold" = "1" ]] && bold="+bold" || bold="-bold"
 
 -zui_stdlib_load_config s:status_colorpair "white/black" -1 stcolorpair
--zui_stdlib_load_config b:status_border 0 -1 stborder
+-zui_stdlib_load_config b:status_border 0 -1 'ZUI[status_border]'
 -zui_stdlib_load_config s:status_border_cp "green/black" -1 stborder_cpair
 -zui_stdlib_load_config b:status_bold 0 -1 stbold
 [[ "$stbold" = "1" ]] && stbold="+bold" || stbold="-bold"
@@ -650,7 +650,7 @@ while (( 1 )); do
         (( tpe >= 0 )) && -zui_stdlib_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
 
         if [[ "$ZUILIST_IS_SEARCH_MODE" = "0" ]]; then
-            -zui-log "$wname_status" "$status_height" "$status_width" "$stborder" "$stcolorpair" \
+            -zui-log "$wname_status" "$status_height" "$status_width" "${ZUI[status_border]}" "$stcolorpair" \
                     "$ZUILIST_GREP_STRING" "$ZUILIST_IS_UNIQ_MODE" "$ZUILIST_IS_SEARCH_MODE" \
                     "${ZUI[GENERATION_TIME]}" "$selectable" "${${ZUILIST_SEARCH_BUFFER:+1}:-0}" \
                     "$ZUILIST_CURRENT_IDX" "$last_element"
@@ -660,14 +660,14 @@ while (( 1 )); do
             -zui_list_status_msg "Filtering with: ${ZUILIST_SEARCH_BUFFER// /+}"
         fi
 
-        [[ "$stborder" = "1" ]] && {
+        [[ "${ZUI[status_border]}" = "1" ]] && {
             zcurses attr "$wname_status" "$stbold" "$stborder_cpair"
             zcurses border "$wname_status"
             zcurses attr "$wname_status" "$stbold" "$stcolorpair"
         }
 
         # status_msg_strlen is being set in -zui_list_status_msg()
-        zcurses move "$wname_status" "$stborder" $(( status_msg_strlen + 2 ))
+        zcurses move "$wname_status" "${ZUI[status_border]}" $(( status_msg_strlen + 2 ))
         [[ "$ZUILIST_IS_SEARCH_MODE" -ne 1 ]] && -zui_list_cursor_visibility "status" "0" || -zui_list_cursor_visibility "status" "1"
         zcurses refresh "$wname_status" 
     }
