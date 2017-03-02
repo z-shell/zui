@@ -851,7 +851,7 @@ function -zui_stdlib_add_message() {
 # $3 - module's index
 # $4, $5, ... - additional arguments for
 #      the generator
--zui_stdlib_fly_module_regenerate() {
+-zui_stdlib_fly_mod_regen() {
     local generator="$1" id="$2" module="$3"
 
     shift 3
