@@ -743,6 +743,9 @@ function -zui_stdlib_load_config() {
 # loaded. Use this when restarting list
 # and updating ZUI[config] manually, with
 # no Zstyle update
+#
+# $1, $2 ... – keys in ZUI to update, config
+#              variables' names
 function -zui_stdlib_refresh_configs() {
     local ts=${EPOCHSECONDS:-0} config
     (( ts == 0 )) && ts=$( date +%s )
@@ -837,6 +840,47 @@ function -zui_stdlib_add_message() {
 
     # House-keeping
     (( ${#ZUI_MESSAGES[@]} >= ZUI[log_size] + 10 )) && { ZUI_MESSAGES=( "${(@)ZUI_MESSAGES[1+10,-1]}" ); }
+}
+
+# Submits on-the-fly module update. Needs
+# generator to run and module index. The
+# id parameter is unused
+#
+# $1 - name of generator function
+# $2 - button id (unused)
+# $3 - module's index
+# $4, $5, ... - additional arguments for
+#      the generator
+-zui_stdlib_fly_module_regenerate() {
+    local generator="$1" id="$2" module="$3"
+
+    shift 3
+
+    -zui_stdlib_reset_replies
+
+    "$generator" "$module" "$@"
+
+    # Setting the following will also pass the new
+    # content to regeneration-path. I.e. you can
+    # do restart-update (not on-the-fly update) and
+    # module "$module" will still have data from
+    # this *_regenerate call. Note that the data
+    # will be overwritten if restart-update will
+    # regenerate "$module".
+    -zui_stdlib_map_replies "$module"
+
+    # No typical saving of any newly created local
+    # anchors. There is no regeneration loop (i.e.
+    # it is on-the-fly update) and placing anchors
+    # is handled in zui-list.
+    # -zui_stdlib_gather_lanchors regen_lanchors
+
+    # Submit on-the-fly list update. The same data
+    # as in -zui_stdlib_map_replies.
+    -zui_stdlib_submit_fly_from_replies "$module"
+
+    # No output from this function
+    -zui_stdlib_reset_replies
 }
 
 # vim:ft=zsh
