@@ -300,13 +300,13 @@ colormap=(
 #
 
 local actmark altmark background foreground backuptheme
-local stcolorpair stborder_cpair stbold stbackground stforeground stbackuptheme
+local stborder_cpair stbold stbackground stforeground stbackuptheme
 -zui_stdlib_load_config s:colorpair "white/black" 2 'ZUI[colorpair]'
 -zui_stdlib_load_config b:border 0 2 'ZUI[border]'
 -zui_stdlib_load_config s:border_cp "yellow/black" 2 'ZUI[border_cp]'
 -zui_stdlib_load_config b:bold 0 2 'ZUI[bold]'
 
--zui_stdlib_load_config s:status_colorpair "white/black" 2 stcolorpair
+-zui_stdlib_load_config s:status_colorpair "white/black" 2 'ZUI[status_colorpair]'
 -zui_stdlib_load_config b:status_border 0 2 'ZUI[status_border]'
 -zui_stdlib_load_config s:status_border_cp "green/black" 2 stborder_cpair
 -zui_stdlib_load_config b:status_bold 0 2 stbold
@@ -329,9 +329,9 @@ log_colors=( "${=ZUI[log_colors]}" )
 background="${ZUI[colorpair]#*/}"
 foreground="${ZUI[colorpair]%/*}"
 backuptheme="${ZUI[colorpair]}/${ZUI[bold]}"
-stbackground="${stcolorpair#*/}"
-stforeground="${stcolorpair%/*}"
-stbackuptheme="$stcolorpair/$stbold"
+stbackground="${ZUI[status_colorpair]#*/}"
+stforeground="${ZUI[status_colorpair]%/*}"
+stbackuptheme="${ZUI[status_colorpair]}/$stbold"
 local MARK_CODES MARK_END_CODES active_text
 () {
     # Check if terminal supports underline
@@ -375,7 +375,7 @@ local MARK_CODES MARK_END_CODES active_text
 
 # Set background
 zcurses bg "$wname_main" "${ZUI[colorpair]}"
-zcurses bg "$wname_status" "$stcolorpair"
+zcurses bg "$wname_status" "${ZUI[status_colorpair]}"
 
 # Ability to remember the list between calls
 if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" = 0 || "$ZUILIST_REMEMBER_STATE" = 2 ]]; then
@@ -650,7 +650,7 @@ while (( 1 )); do
         (( tpe >= 0 )) && -zui_stdlib_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
 
         if [[ "$ZUILIST_IS_SEARCH_MODE" = "0" ]]; then
-            -zui-log "$wname_status" "$status_height" "$status_width" "${ZUI[status_border]}" "$stcolorpair" \
+            -zui-log "$wname_status" "$status_height" "$status_width" "${ZUI[status_border]}" "${ZUI[status_colorpair]}" \
                     "$ZUILIST_GREP_STRING" "$ZUILIST_IS_UNIQ_MODE" "$ZUILIST_IS_SEARCH_MODE" \
                     "${ZUI[GENERATION_TIME]}" "$selectable" "${${ZUILIST_SEARCH_BUFFER:+1}:-0}" \
                     "$ZUILIST_CURRENT_IDX" "$last_element"
@@ -663,7 +663,7 @@ while (( 1 )); do
         [[ "${ZUI[status_border]}" = "1" ]] && {
             zcurses attr "$wname_status" "$stbold" "$stborder_cpair"
             zcurses border "$wname_status"
-            zcurses attr "$wname_status" "$stbold" "$stcolorpair"
+            zcurses attr "$wname_status" "$stbold" "${ZUI[status_colorpair]}"
         }
 
         # status_msg_strlen is being set in -zui_list_status_msg()

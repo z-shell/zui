@@ -123,7 +123,7 @@ local pure_text_selected
             # Can reveal transparency, if terminal
             # has background image or is transparent
             zcurses bg "status" "white/default"
-            stcolorpair="white/default"
+            ZUI[status_colorpair]="white/default"
         }
 
         # This is internal zui-list variable,
