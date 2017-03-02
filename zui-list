@@ -299,11 +299,11 @@ colormap=(
 # Load configuration – per application if ZUI[app] is set
 #
 
-local actmark altmark border_cpair background foreground backuptheme
+local actmark altmark background foreground backuptheme
 local stcolorpair stborder_cpair stbold stbackground stforeground stbackuptheme
 -zui_stdlib_load_config s:colorpair "white/black" 2 'ZUI[colorpair]'
 -zui_stdlib_load_config b:border 0 2 'ZUI[border]'
--zui_stdlib_load_config s:border_cp "yellow/black" 2 border_cpair
+-zui_stdlib_load_config s:border_cp "yellow/black" 2 'ZUI[border_cp]'
 -zui_stdlib_load_config b:bold 0 2 'ZUI[bold]'
 
 -zui_stdlib_load_config s:status_colorpair "white/black" 2 stcolorpair
@@ -619,7 +619,7 @@ while (( 1 )); do
 
     # The check for "white/black" means: mark header
     # only when default color isn't special
-    zcurses attr "$wname_main" "$wrk_bold" "$border_cpair"
+    zcurses attr "$wname_main" "$wrk_bold" "${ZUI[border_cp]}"
 
     [[ "${ZUI[border]}" = "1" ]] && zcurses border "$wname_main"
     zcurses move "$wname_main" 0 2
