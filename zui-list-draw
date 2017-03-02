@@ -97,7 +97,7 @@ setopt typesetsilent extendedglob
                 currentb="${c[bcol-39]}"
                 [[ "$attr" = "1" ]] && zcurses attr "$win" "$current/$currentb" +bold || zcurses attr "$win" "$current/$currentb"
             elif [[ "$attr" -eq 0 ]]; then
-                zcurses attr "$win" "$bold" "$colorpair"
+                zcurses attr "$win" "$wrk_bold" "$colorpair"
                 current="$foreground"
                 currentb="$background"
             elif [[ "$attr" = "1" ]]; then
@@ -141,7 +141,8 @@ integer end_idx=max_idx
 [ "$end_idx" -gt "$#" ] && end_idx="$#"
 integer y=y_offset
 
-zcurses attr "$win" "$bold" "$colorpair"
+[[ "${ZUI[bold]}" = "1" ]] && local wrk_bold="+bold" || local wrk_bold="-bold"
+zcurses attr "$win" "$wrk_bold" "$colorpair"
 zcurses clear "$win"
 
 integer i text_len

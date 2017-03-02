@@ -305,8 +305,7 @@ local stcolorpair stborder_cpair stbold stbackground stforeground stbackuptheme
 -zui_stdlib_load_config s:colorpair "white/black" 2 colorpair
 -zui_stdlib_load_config b:border 0 2 border
 -zui_stdlib_load_config s:border_cp "yellow/black" 2 border_cpair
--zui_stdlib_load_config b:bold 0 2 bold
-[[ "$bold" = "1" ]] && bold="+bold" || bold="-bold"
+-zui_stdlib_load_config b:bold 0 2 'ZUI[bold]'
 
 -zui_stdlib_load_config s:status_colorpair "white/black" 2 stcolorpair
 -zui_stdlib_load_config b:status_border 0 2 'ZUI[status_border]'
@@ -330,7 +329,7 @@ log_colors=( "${=ZUI[log_colors]}" )
 # Process configuration
 background="${colorpair#*/}"
 foreground="${colorpair%/*}"
-backuptheme="$colorpair/$bold"
+backuptheme="$colorpair/${ZUI[bold]}"
 stbackground="${stcolorpair#*/}"
 stforeground="${stcolorpair%/*}"
 stbackuptheme="$stcolorpair/$stbold"
@@ -617,15 +616,17 @@ while (( 1 )); do
             "$disp_list2[@]"
     fi
 
+    [[ "${ZUI[bold]}" = "1" ]] && local wrk_bold="+bold" || local wrk_bold="-bold"
+
     # The check for "white/black" means: mark header
     # only when default color isn't special
-    zcurses attr "$wname_main" "$bold" "$border_cpair"
+    zcurses attr "$wname_main" "$wrk_bold" "$border_cpair"
 
     [[ "$border" = "1" ]] && zcurses border "$wname_main"
     zcurses move "$wname_main" 0 2
     zcurses string "$wname_main" "$header"
 
-    zcurses attr "$wname_main" "$bold" "$colorpair"
+    zcurses attr "$wname_main" "$wrk_bold" "$colorpair"
 
     -zui_list_cursor_visibility "main" "0"
     zcurses refresh "$wname_main"
