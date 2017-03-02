@@ -300,7 +300,7 @@ colormap=(
 # Load configuration – per application if ZUI[app] is set
 #
 
-local actmark altmark colorpair border border_cpair bold background foreground backuptheme
+local actmark altmark colorpair border border_cpair background foreground backuptheme
 local stcolorpair stborder_cpair stbold stbackground stforeground stbackuptheme
 -zui_stdlib_load_config s:colorpair "white/black" 2 colorpair
 -zui_stdlib_load_config b:border 0 2 border
