@@ -65,7 +65,7 @@ local status_size
 
 -zui_wrapper_init_windows
 -zui_stdlib_get_time
-zui-list "main" $(( term_height-status_size )) $term_width "status" "$status_size" "$term_width" " Welcome to ${ZUI[app_name]} $REPLY " "1" "$@"
+zui-list "main" $(( term_height-status_size )) $term_width "status" "$status_size" "$term_width" " Welcome to ${ZUI[app_name]} $REPLY " "$@"
 
 if [[ "$REPLY" != "-1" && "$REPLY" = -(#c0,1)[0-9]## ]]; then
     local answer="${reply[REPLY]}"

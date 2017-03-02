@@ -237,9 +237,8 @@ integer status_width="$6"
 integer page_height=main_height-2
 integer page_width=main_width-2
 local header="$7"
-local mark_header="$8"
 
-shift 8
+shift 7
 
 typeset -a list disp_list disp_list2
 integer last_element=$#
