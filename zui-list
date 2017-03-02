@@ -309,7 +309,7 @@ local stcolorpair stborder_cpair stbold stbackground stforeground stbackuptheme
 [[ "$bold" = "1" ]] && bold="+bold" || bold="-bold"
 
 -zui_stdlib_load_config s:status_colorpair "white/black" -1 stcolorpair
--zui_stdlib_load_config b:status_border 0 -1 'ZUI[status_border]'
+-zui_stdlib_load_config b:status_border 0 2 'ZUI[status_border]'
 -zui_stdlib_load_config s:status_border_cp "green/black" -1 stborder_cpair
 -zui_stdlib_load_config b:status_bold 0 -1 stbold
 [[ "$stbold" = "1" ]] && stbold="+bold" || stbold="-bold"

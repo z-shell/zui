@@ -30,6 +30,7 @@ setopt extendedglob typesetsilent warncreateglobal
 -zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
 -zui_stdlib_load_config b:status_pointer 1 2 'ZUI[status_pointer]'
 -zui_stdlib_load_config s:log_append "above" 2 'ZUI[log_append]'
+-zui_stdlib_load_config b:status_border 0 2 'ZUI[status_border]'
 
 ##
 ## Main code
@@ -200,9 +201,9 @@ local pure_text_selected
     local mod="$1"
 
     # Prepare toggle button's states
-    local col_tmd col_tsel col_lap col_sptr
-    -zui_stdlib_map_bools "ZUI[text_mode];ZUI[text_select];[[ \"${ZUI[log_append]}\" = below ]];ZUI[status_pointer];" \
-                            "col_tmd;col_tsel;col_lap;col_sptr" "${ZUI[BG_BLUE]}" "${ZUI[GREEN]}"
+    local col_tmd col_tsel col_lap col_sptr col_sb
+    -zui_stdlib_map_bools "ZUI[text_mode];ZUI[text_select];[[ \"${ZUI[log_append]}\" = below ]];ZUI[status_pointer];ZUI[status_border]" \
+                            "col_tmd;col_tsel;col_lap;col_sptr;col_sb" "${ZUI[BG_BLUE]}" "${ZUI[GREEN]}"
 
     reply=( )
     # IDs of anchors have own namespace
@@ -215,7 +216,7 @@ local pure_text_selected
     -zui_stdlib_rc_button "text_select_$mod" "$mod" "" "" "" "${col_tsel}text_select${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_select] )) && ZUI[text_select]=0 || ZUI[text_select]=1; -zui_stdlib_fly_mod_regen -zui_test_module1_generator "'"text_mode_$mod"'" "'"$mod"'"'
     -zui_stdlib_rc_button "log_append_$mod" "$mod" "" "" "" "${col_lap}log_append${ZUI[COLOR_END]}" 'internal=1; [[ ${ZUI[log_append]} = "below" ]] && ZUI[log_append]=above || ZUI[log_append]=below; -zui_stdlib_fly_mod_regen -zui_test_module1_generator "'"text_mode_$mod"'" "'"$mod"'"'
     -zui_stdlib_rc_button "status_pointer_$mod" "$mod" "" "" "" "${col_sptr}status_pointer${ZUI[COLOR_END]}" 'internal=1; (( ZUI[status_pointer] )) && ZUI[status_pointer]=0 || ZUI[status_pointer]=1; -zui_stdlib_fly_mod_regen -zui_test_module1_generator "'"text_mode_$mod"'" "'"$mod"'"'
-    -zui_stdlib_rc_button "status_border_$mod" "$mod" "" "" "" "${ZUI[GREEN]}status_border${ZUI[COLOR_END]}" 'internal=1; (( stborder )) && stborder=0 || stborder=1'
+    -zui_stdlib_rc_button "status_border_$mod" "$mod" "" "" "" "${col_sb}status_border${ZUI[COLOR_END]}" 'internal=1; (( ZUI[status_border] )) && ZUI[status_border]=0 || ZUI[status_border]=1; -zui_stdlib_fly_mod_regen -zui_test_module1_generator "'"text_mode_$mod"'" "'"$mod"'"'
     -zui_stdlib_rc_button "log_colors_$mod" "$mod" "" "" "" "${ZUI[GREEN]}log_colors${ZUI[COLOR_END]}" 'internal=1; log_colors=( $log_colors[-1] ${(@)log_colors[1,-2]} )'
 
     # Passed user data
@@ -564,7 +565,7 @@ ZUI[GENERATION_TIME]="${generation_time[1,4]}"
 
 # We alter the settings on-the-fly, so
 # prevent zui-list from loading them
--zui_stdlib_refresh_configs text_mode text_select status_pointer log_append
+-zui_stdlib_refresh_configs text_mode text_select status_pointer log_append status_border
 
 ZUILIST_HOP_INDICES+=( 1 ) # jump to anchors
 ZUILIST_NONSELECTABLE_ELEMENTS+=( $(( 1 + ${#OUTPUT} + 2 )) )
