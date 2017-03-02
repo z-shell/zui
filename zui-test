@@ -131,25 +131,7 @@ local pure_text_selected
     local id="$1" module="$2"
 
     -zui_stdlib_reset_replies
-    -zui_test_module2_generator "$module" "Extra line"
-
-    # Setting the following will also pass the new
-    # content to regeneration-path, if only this
-    # specific module 2 will not be regenerated
-    # (so some other, e.g. via REGENERATE=,module1,)
-    -zui_stdlib_map_replies "$module"
-
-    # No typical saving of any newly created local
-    # anchors. There is no regeneration loop and
-    # shifting of anchors is handled in zui-list.
-    # -zui_stdlib_gather_lanchors regen_lanchors
-
-    # Submit on-the-fly list update.
-    # The same data.
-    -zui_stdlib_submit_fly_from_replies "$module"
-
-    # No output from this function
-    -zui_stdlib_reset_replies
+    -zui_stdlib_fly_module_regenerate -zui_test_module2_generator "$id" "$module" "Extra line"
 }
 
 #
