@@ -299,7 +299,7 @@ colormap=(
 # Load configuration – per application if ZUI[app] is set
 #
 
-local actmark altmark background foreground backuptheme
+local background foreground backuptheme
 local stbackground stforeground stbackuptheme
 -zui_stdlib_load_config s:colorpair "white/black" 2 'ZUI[colorpair]'
 -zui_stdlib_load_config b:border 0 2 'ZUI[border]'
@@ -311,8 +311,8 @@ local stbackground stforeground stbackuptheme
 -zui_stdlib_load_config s:status_border_cp "green/black" 2 'ZUI[status_border_cp]'
 -zui_stdlib_load_config b:status_bold 0 2 'ZUI[status_bold]'
 
--zui_stdlib_load_config s:mark "red reverse lineund" 2 actmark
--zui_stdlib_load_config s:altmark "red reverse" 2 altmark
+-zui_stdlib_load_config s:mark "red reverse lineund" 2 'ZUI[actmark]'
+-zui_stdlib_load_config s:altmark "red reverse" 2 'ZUI[altmark]'
 -zui_stdlib_load_config b:text_mode 1 2 'ZUI[text_mode]'
 -zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
 -zui_stdlib_load_config b:status_pointer 1 2 'ZUI[status_pointer]'
@@ -333,6 +333,8 @@ stforeground="${ZUI[status_colorpair]%/*}"
 stbackuptheme="${ZUI[status_colorpair]}/${ZUI[status_bold]}"
 local MARK_CODES MARK_END_CODES active_text
 () {
+    local actmark="${ZUI[actmark]}" altmark="${ZUI[altmark]}"
+
     # Check if terminal supports underline
     # Linux has ncv 18, screen* has ncv 3 - underline won't work properly
     (( ${+terminfo} )) && (( ${terminfo[ncv]:-0} & 2 )) && actmark="$altmark"
