@@ -7,7 +7,7 @@ zstyle ":plugin:zui" colorpair "white/black"         # Default text color. For Z
                                                      # is available, it might be e.g. transparent (depends
                                                      # on terminal configuration)
 zstyle ":plugin:zui" border "no"                     # No border around main window
-zstyle ":plugin:zui" border_cp "yellow/black"        # Border color
+zstyle ":plugin:zui" border_cp "yellow/black"        # Border (and header) color
 zstyle ":plugin:zui" bold "no"                       # No default bold
 
 zstyle ":plugin:zui" status_colorpair "white/black"  # The same as "colorpair", but for status window
@@ -42,7 +42,8 @@ zstyle ":plugin:zui" text_select "no"           # Allow selection on non-buttons
 Each application can override those via "...:app:{name}" zstyles, e.g. for application "zplugin":
 
 ```zsh
-zstyle ":plugin:zui:app:zplugin" colorpair "10/17"              # 256 colors – zsh >= 5.3; "default" color also from this version
+zstyle ":plugin:zui:app:zplugin" colorpair "250/17"              # 256 colors – zsh >= 5.3; "default" color also from this version
+zstyle ":plugin:zui:app:zplugin" border_cp "33/17"               # Border (and header) color
 zstyle ":plugin:zui:app:zplugin" border "yes"
 zstyle ":plugin:zui:app:zplugin" bold "yes"
 zstyle ":plugin:zui:app:zplugin" mark "blue WHITE reverse bold lineund"
