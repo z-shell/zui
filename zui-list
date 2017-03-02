@@ -214,6 +214,50 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         disp_list2[current_page_idx]="$REPLY"
 }
 
+-zui_list_compute_mark_codes() {
+    local __actmark="$1" __altmark="$2" __aout="${3:-active_text}" __out="${4:-MARK_CODES}" __out2="${5:-MARK_END_CODES}"
+    local __active_text
+
+    # Check if terminal supports __underline
+    # Linux has ncv 18, screen* has ncv 3 - __underline won't work properly
+    (( ${+terminfo} )) && (( ${terminfo[ncv]:-0} & 2 )) && __actmark="$__altmark"
+    # FreeBSD uses TERM=xterm for newcons but doesn't actually support __underline
+    [[ "$TERM" = "xterm" && -z "$DISPLAY" && "${(L)OSTYPE}" = *bsd* ]] && __actmark="$__altmark"
+
+    local __color="${__actmark%%[[:space:]]*}"
+    local __color2="${${__actmark#*[[:space:]]}%%[[:space:]]*}"
+    local __bold="${__actmark/*bold*/bold}"
+    local __reverse="${__actmark/*(reverse|inverse)*/reverse}"
+    local __blink="${__actmark/*blink*/blink}"
+    local __underline="${__actmark/*underline*/underline}"
+    local __linerev="${__actmark/*linerev*/linerev}"
+    local __lineund="${__actmark/*lineund*/lineund}"
+    local -A __colormap
+    __colormap=( reset 0 black 30 red 31 green 32 yellow 33 blue 34 magenta 35 cyan 36 white 37 default 39
+                       BLACK 30 RED 41 GREEN 42 YELLOW 43 BLUE 44 MAGENTA 45 CYAN 46 WHITE 47 DEFAULT 49 )
+    local -aU __opening __closing
+    [[ -n "${__colormap[$__color]}" ]] && { __opening+=( ${__colormap[$__color]} ); __closing+=( 0 ); }
+    [[ -n "${__colormap[$__color2]}" ]] && { __opening+=( ${__colormap[$__color2]} ); __closing+=( 0 ); }
+    [[ $__linerev = linerev ]] && { __active_text="reverse"; __reverse=""; }
+    [[ $__lineund = lineund ]] && { __active_text="underline"; __underline=""; }
+    [[ $__bold == bold ]] && { __opening+=( 1 ); __closing+=( 21 ); }
+    [[ $__reverse == reverse ]] && { __opening+=( 7 ); __closing+=( 27 ); }
+    [[ $__blink == blink ]] && { __opening+=( 5 ); __closing+=( 25 ); }
+    [[ $__underline == underline ]] && { __opening+=( 4 ); __closing+=( 24 ); }
+
+    local __a __opcodes __clcodes
+    for __a in "${__opening[@]}"; do
+        __opcodes+=$'\e'"[${__a}m"
+    done
+    for __a in "${__closing[@]}"; do
+        __clcodes+=$'\e'"[${__a}m"
+    done
+
+    : ${(P)__aout::=$__active_text}
+    : ${(P)__out::=$__opcodes}
+    : ${(P)__out2::=$__clcodes}
+}
+
 #
 # Main code
 #
@@ -311,7 +355,7 @@ local stbackground stforeground stbackuptheme
 -zui_stdlib_load_config s:status_border_cp "green/black" 2 'ZUI[status_border_cp]'
 -zui_stdlib_load_config b:status_bold 0 2 'ZUI[status_bold]'
 
--zui_stdlib_load_config s:mark "red reverse lineund" 2 'ZUI[actmark]'
+-zui_stdlib_load_config s:mark "red reverse lineund" 2 'ZUI[mark]'
 -zui_stdlib_load_config s:altmark "red reverse" 2 'ZUI[altmark]'
 -zui_stdlib_load_config b:text_mode 1 2 'ZUI[text_mode]'
 -zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
@@ -332,47 +376,8 @@ stbackground="${ZUI[status_colorpair]#*/}"
 stforeground="${ZUI[status_colorpair]%/*}"
 stbackuptheme="${ZUI[status_colorpair]}/${ZUI[status_bold]}"
 local MARK_CODES MARK_END_CODES active_text
-() {
-    local actmark="${ZUI[actmark]}" altmark="${ZUI[altmark]}"
 
-    # Check if terminal supports underline
-    # Linux has ncv 18, screen* has ncv 3 - underline won't work properly
-    (( ${+terminfo} )) && (( ${terminfo[ncv]:-0} & 2 )) && actmark="$altmark"
-    # FreeBSD uses TERM=xterm for newcons but doesn't actually support underline
-    [[ "$TERM" = "xterm" && -z "$DISPLAY" && "${(L)OSTYPE}" = *bsd* ]] && actmark="$altmark"
-
-    local color="${actmark%%[[:space:]]*}"
-    local color2="${${actmark#*[[:space:]]}%%[[:space:]]*}"
-    local bold="${actmark/*bold*/bold}"
-    local reverse="${actmark/*(reverse|inverse)*/reverse}"
-    local blink="${actmark/*blink*/blink}"
-    local underline="${actmark/*underline*/underline}"
-    local linerev="${actmark/*linerev*/linerev}"
-    local lineund="${actmark/*lineund*/lineund}"
-    local -A colormap
-    colormap=( reset 0 black 30 red 31 green 32 yellow 33 blue 34 magenta 35 cyan 36 white 37 default 39
-                       BLACK 30 RED 41 GREEN 42 YELLOW 43 BLUE 44 MAGENTA 45 CYAN 46 WHITE 47 DEFAULT 49 )
-    local -aU opening closing
-    [[ -n "${colormap[$color]}" ]] && { opening+=( ${colormap[$color]} ); closing+=( 0 ); }
-    [[ -n "${colormap[$color2]}" ]] && { opening+=( ${colormap[$color2]} ); closing+=( 0 ); }
-    [[ $linerev = linerev ]] && { active_text="reverse"; reverse=""; }
-    [[ $lineund = lineund ]] && { active_text="underline"; underline=""; }
-    [[ $bold == bold ]] && { opening+=( 1 ); closing+=( 21 ); }
-    [[ $reverse == reverse ]] && { opening+=( 7 ); closing+=( 27 ); }
-    [[ $blink == blink ]] && { opening+=( 5 ); closing+=( 25 ); }
-    [[ $underline == underline ]] && { opening+=( 4 ); closing+=( 24 ); }
-
-    local a opcodes clcodes
-    for a in "${opening[@]}"; do
-        opcodes+=$'\e'"[${a}m"
-    done
-    for a in "${closing[@]}"; do
-        clcodes+=$'\e'"[${a}m"
-    done
-
-    MARK_CODES="$opcodes"
-    MARK_END_CODES="$clcodes"
-}
+-zui_list_compute_mark_codes "${ZUI[mark]}" "${ZUI[altmark]}" active_text MARK_CODES MARK_END_CODES
 
 # Set background
 zcurses bg "$wname_main" "${ZUI[colorpair]}"
