@@ -26,6 +26,7 @@ setopt extendedglob typesetsilent warncreateglobal
 -zui_stdlib_store_default_app_config s:log_colors "white cyan red green cyan red magenta yellow blue"
 
 # We are loading settings only because we alter them on the fly
+-zui_stdlib_load_config b:bold 0 2 'ZUI[bold]'
 -zui_stdlib_load_config b:text_mode 1 2 'ZUI[text_mode]'
 -zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
 -zui_stdlib_load_config b:status_pointer 1 2 'ZUI[status_pointer]'
@@ -201,9 +202,9 @@ local pure_text_selected
     local mod="$1"
 
     # Prepare toggle button's states
-    local col_tmd col_tsel col_lap col_sptr col_sb
-    -zui_stdlib_map_bools "ZUI[text_mode];ZUI[text_select];[[ \"${ZUI[log_append]}\" = below ]];ZUI[status_pointer];ZUI[status_border]" \
-                            "col_tmd;col_tsel;col_lap;col_sptr;col_sb" "${ZUI[BG_BLUE]}" "${ZUI[GREEN]}"
+    local col_bld col_tmd col_tsel col_lap col_sptr col_sb
+    -zui_stdlib_map_bools "ZUI[bold];ZUI[text_mode];ZUI[text_select];[[ \"${ZUI[log_append]}\" = below ]];ZUI[status_pointer];ZUI[status_border]" \
+                            "col_bld;col_tmd;col_tsel;col_lap;col_sptr;col_sb" "${ZUI[BG_BLUE]}" "${ZUI[GREEN]}"
 
     reply=( )
     # IDs of anchors have own namespace
@@ -211,7 +212,7 @@ local pure_text_selected
     -zui_stdlib_rc_button "regenerate2_$mod" "$mod" "" "" "" "${ZUI[MAGENTA]}Regenerate${ZUI[COLOR_END]}" -zui_module1_external_action_1
     -zui_stdlib_rc_button "regenerate3_$mod" "$mod" "" ",module$(( $mod + 1 ))," "" "${ZUI[MAGENTA]}Regenerate${ZUI[COLOR_END]}"
     # internal=1 is a trick, look at comment
-    -zui_stdlib_rc_button "bold_$mod" "$mod" "" "" "" "${ZUI[GREEN]}bold${ZUI[COLOR_END]}" 'internal=1; [ $bold = "+bold" ] && bold="-bold" || bold="+bold"'
+    -zui_stdlib_rc_button "bold_$mod" "$mod" "" "" "" "${col_bld}bold${ZUI[COLOR_END]}" 'internal=1; (( ZUI[bold]=1-ZUI[bold] )); -zui_stdlib_fly_mod_regen -zui_test_module1_generator "'"bold_$mod"'" "'"$mod"'"'
     -zui_stdlib_rc_button "text_mode_$mod" "$mod" "" "" "" "${col_tmd}Text_mode${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_mode] )) && ZUI[text_mode]=0 || ZUI[text_mode]=1; -zui_stdlib_fly_mod_regen -zui_test_module1_generator "'"text_mode_$mod"'" "'"$mod"'"'
     -zui_stdlib_rc_button "text_select_$mod" "$mod" "" "" "" "${col_tsel}text_select${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_select] )) && ZUI[text_select]=0 || ZUI[text_select]=1; -zui_stdlib_fly_mod_regen -zui_test_module1_generator "'"text_mode_$mod"'" "'"$mod"'"'
     -zui_stdlib_rc_button "log_append_$mod" "$mod" "" "" "" "${col_lap}log_append${ZUI[COLOR_END]}" 'internal=1; [[ ${ZUI[log_append]} = "below" ]] && ZUI[log_append]=above || ZUI[log_append]=below; -zui_stdlib_fly_mod_regen -zui_test_module1_generator "'"text_mode_$mod"'" "'"$mod"'"'
@@ -565,7 +566,7 @@ ZUI[GENERATION_TIME]="${generation_time[1,4]}"
 
 # We alter the settings on-the-fly, so
 # prevent zui-list from loading them
--zui_stdlib_refresh_configs text_mode text_select status_pointer log_append status_border
+-zui_stdlib_refresh_configs bold text_mode text_select status_pointer log_append status_border
 
 ZUILIST_HOP_INDICES+=( 1 ) # jump to anchors
 ZUILIST_NONSELECTABLE_ELEMENTS+=( $(( 1 + ${#OUTPUT} + 2 )) )
