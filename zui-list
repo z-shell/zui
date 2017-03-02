@@ -300,7 +300,7 @@ colormap=(
 #
 
 local actmark altmark background foreground backuptheme
-local stborder_cpair stbold stbackground stforeground stbackuptheme
+local stbackground stforeground stbackuptheme
 -zui_stdlib_load_config s:colorpair "white/black" 2 'ZUI[colorpair]'
 -zui_stdlib_load_config b:border 0 2 'ZUI[border]'
 -zui_stdlib_load_config s:border_cp "yellow/black" 2 'ZUI[border_cp]'
@@ -308,9 +308,8 @@ local stborder_cpair stbold stbackground stforeground stbackuptheme
 
 -zui_stdlib_load_config s:status_colorpair "white/black" 2 'ZUI[status_colorpair]'
 -zui_stdlib_load_config b:status_border 0 2 'ZUI[status_border]'
--zui_stdlib_load_config s:status_border_cp "green/black" 2 stborder_cpair
--zui_stdlib_load_config b:status_bold 0 2 stbold
-[[ "$stbold" = "1" ]] && stbold="+bold" || stbold="-bold"
+-zui_stdlib_load_config s:status_border_cp "green/black" 2 'ZUI[status_border_cp]'
+-zui_stdlib_load_config b:status_bold 0 2 'ZUI[status_bold]'
 
 -zui_stdlib_load_config s:mark "red reverse lineund" 2 actmark
 -zui_stdlib_load_config s:altmark "red reverse" 2 altmark
@@ -331,7 +330,7 @@ foreground="${ZUI[colorpair]%/*}"
 backuptheme="${ZUI[colorpair]}/${ZUI[bold]}"
 stbackground="${ZUI[status_colorpair]#*/}"
 stforeground="${ZUI[status_colorpair]%/*}"
-stbackuptheme="${ZUI[status_colorpair]}/$stbold"
+stbackuptheme="${ZUI[status_colorpair]}/${ZUI[status_bold]}"
 local MARK_CODES MARK_END_CODES active_text
 () {
     # Check if terminal supports underline
@@ -632,7 +631,9 @@ while (( 1 )); do
 
     # Status window is optional (1/2)
     [[ -n "$wname_status" ]] && {
-        zcurses attr "$wname_status" "$stbold"
+        [[ "${ZUI[status_bold]}" = "1" ]] && local wrk_stbold="+bold" || local wrk_stbold="-bold"
+
+        zcurses attr "$wname_status" "$wrk_stbold" "${ZUI[status_colorpair]}"
 
         reply=( )
         local selectable=1 tpe=-1 status_msg_strlen=0
@@ -661,9 +662,9 @@ while (( 1 )); do
         fi
 
         [[ "${ZUI[status_border]}" = "1" ]] && {
-            zcurses attr "$wname_status" "$stbold" "$stborder_cpair"
+            zcurses attr "$wname_status" "$wrk_stbold" "${ZUI[status_border_cp]}"
             zcurses border "$wname_status"
-            zcurses attr "$wname_status" "$stbold" "${ZUI[status_colorpair]}"
+            zcurses attr "$wname_status" "$wrk_stbold" "${ZUI[status_colorpair]}"
         }
 
         # status_msg_strlen is being set in -zui_list_status_msg()
