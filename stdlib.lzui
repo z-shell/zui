@@ -883,4 +883,41 @@ function -zui_stdlib_add_message() {
     -zui_stdlib_reset_replies
 }
 
+# Maps boolean values of expressions given in $1
+# (string separated by ';') to parameters given
+# via names in $2 (separated by ';'). For true,
+# $3 is assigned to corresponding parameter, $4
+# for false.
+#
+# If $1 contains [[ or ((, it is evaluated. If
+# it is a positive number or zero, then it is
+# treated as direct bool value. Otherwise it's
+# treated as parameter name, and boolean value
+# of the parameter (it has to be positive number
+# or zero) is examined.
+#
+# -zui_stdlib_map_bools "1;[[ a = b ]];ZUI[text_mode]" \
+#                       "color1;color2;color3" $red $white
+#
+function -zui_stdlib_map_bools() {
+    local __exp="$1" __pm="$2" __tre="$3" __fse="$4"
+
+    local -a __exps __pms
+    __exps=( "${(@s:;:)__exp}" )
+    __pms=( "${(@s:;:)__pm}" )
+
+    integer __index __size=${#__pms[@]}
+    for (( __index=1; __index <= __size; ++ __index )); do
+        __exp="${__exps[__index]}"
+        __pm="${__pms[__index]}"
+        [[ -z "${__exp##[[:space:]]##}" || -z "${__pm##[[:space:]]##}" ]] && continue
+        if [[ "$__exp" = <-> ]] then
+            (( $__exp )) && : ${(P)__pm::=$__tre} || : ${(P)__pm::=$__fse}
+        elif [[ "$__exp" != *\[\[* && "$__exp" != *\(\(* ]]; then
+            [[ "${(P)__exp}" != <-> || "${(P)__exp}" = 0## ]] && : ${(P)__pm::=$__fse} || : ${(P)__pm::=$__tre}
+        else
+            eval "$__exp" && : ${(P)__pm::=$__tre} || : ${(P)__pm::=$__fse}
+        fi
+    done
+}
 # vim:ft=zsh
