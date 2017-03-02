@@ -299,9 +299,9 @@ colormap=(
 # Load configuration – per application if ZUI[app] is set
 #
 
-local actmark altmark colorpair border_cpair background foreground backuptheme
+local actmark altmark border_cpair background foreground backuptheme
 local stcolorpair stborder_cpair stbold stbackground stforeground stbackuptheme
--zui_stdlib_load_config s:colorpair "white/black" 2 colorpair
+-zui_stdlib_load_config s:colorpair "white/black" 2 'ZUI[colorpair]'
 -zui_stdlib_load_config b:border 0 2 'ZUI[border]'
 -zui_stdlib_load_config s:border_cp "yellow/black" 2 border_cpair
 -zui_stdlib_load_config b:bold 0 2 'ZUI[bold]'
@@ -326,9 +326,9 @@ local -a log_colors
 log_colors=( "${=ZUI[log_colors]}" )
 
 # Process configuration
-background="${colorpair#*/}"
-foreground="${colorpair%/*}"
-backuptheme="$colorpair/${ZUI[bold]}"
+background="${ZUI[colorpair]#*/}"
+foreground="${ZUI[colorpair]%/*}"
+backuptheme="${ZUI[colorpair]}/${ZUI[bold]}"
 stbackground="${stcolorpair#*/}"
 stforeground="${stcolorpair%/*}"
 stbackuptheme="$stcolorpair/$stbold"
@@ -374,7 +374,7 @@ local MARK_CODES MARK_END_CODES active_text
 }
 
 # Set background
-zcurses bg "$wname_main" "$colorpair"
+zcurses bg "$wname_main" "${ZUI[colorpair]}"
 zcurses bg "$wname_status" "$stcolorpair"
 
 # Ability to remember the list between calls
@@ -625,7 +625,7 @@ while (( 1 )); do
     zcurses move "$wname_main" 0 2
     zcurses string "$wname_main" "$header"
 
-    zcurses attr "$wname_main" "$wrk_bold" "$colorpair"
+    zcurses attr "$wname_main" "$wrk_bold" "${ZUI[colorpair]}"
 
     -zui_list_cursor_visibility "main" "0"
     zcurses refresh "$wname_main"

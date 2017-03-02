@@ -97,7 +97,7 @@ setopt typesetsilent extendedglob
                 currentb="${c[bcol-39]}"
                 [[ "$attr" = "1" ]] && zcurses attr "$win" "$current/$currentb" +bold || zcurses attr "$win" "$current/$currentb"
             elif [[ "$attr" -eq 0 ]]; then
-                zcurses attr "$win" "$wrk_bold" "$colorpair"
+                zcurses attr "$win" "$wrk_bold" "${ZUI[colorpair]}"
                 current="$foreground"
                 currentb="$background"
             elif [[ "$attr" = "1" ]]; then
@@ -142,7 +142,7 @@ integer end_idx=max_idx
 integer y=y_offset
 
 [[ "${ZUI[bold]}" = "1" ]] && local wrk_bold="+bold" || local wrk_bold="-bold"
-zcurses attr "$win" "$wrk_bold" "$colorpair"
+zcurses attr "$win" "$wrk_bold" "${ZUI[colorpair]}"
 zcurses clear "$win"
 
 integer i text_len
@@ -167,5 +167,5 @@ if [ "$end_idx" -lt "$max_idx" ]; then
     zcurses clear "$win" eol
 fi
 
-zcurses attr "$win" "$colorpair"
+zcurses attr "$win" "${ZUI[colorpair]}"
 # vim: set filetype=zsh:
