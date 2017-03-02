@@ -738,6 +738,20 @@ function -zui_stdlib_load_config() {
     return 0
 }
 
+# Causes -zui_stdlib_load_config to think
+# the configuration variable is freshly
+# loaded. Use this when restarting list
+# and updating ZUI[config] manually, with
+# no Zstyle update
+function -zui_stdlib_refresh_configs() {
+    local ts=${EPOCHSECONDS:-0} config
+    (( ts == 0 )) && ts=$( date +%s )
+
+    for config in "$@"; do
+        (( ${+ZUI[$config]} )) && ZUI[${config}_ts_]=$ts
+    done
+}
+
 # Stores given ZUI[app] configuration if it is not
 # already set by user, i.e. if given Zstyle is empty,
 # it is then set to given value, so that ZUI will
