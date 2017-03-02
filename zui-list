@@ -302,20 +302,20 @@ colormap=(
 
 local actmark altmark colorpair border border_cpair bold background foreground backuptheme
 local stcolorpair stborder_cpair stbold stbackground stforeground stbackuptheme
--zui_stdlib_load_config s:colorpair "white/black" -1 colorpair
--zui_stdlib_load_config b:border 0 -1 border
--zui_stdlib_load_config s:border_cp "yellow/black" -1 border_cpair
--zui_stdlib_load_config b:bold 0 -1 bold
+-zui_stdlib_load_config s:colorpair "white/black" 2 colorpair
+-zui_stdlib_load_config b:border 0 2 border
+-zui_stdlib_load_config s:border_cp "yellow/black" 2 border_cpair
+-zui_stdlib_load_config b:bold 0 2 bold
 [[ "$bold" = "1" ]] && bold="+bold" || bold="-bold"
 
--zui_stdlib_load_config s:status_colorpair "white/black" -1 stcolorpair
+-zui_stdlib_load_config s:status_colorpair "white/black" 2 stcolorpair
 -zui_stdlib_load_config b:status_border 0 2 'ZUI[status_border]'
--zui_stdlib_load_config s:status_border_cp "green/black" -1 stborder_cpair
--zui_stdlib_load_config b:status_bold 0 -1 stbold
+-zui_stdlib_load_config s:status_border_cp "green/black" 2 stborder_cpair
+-zui_stdlib_load_config b:status_bold 0 2 stbold
 [[ "$stbold" = "1" ]] && stbold="+bold" || stbold="-bold"
 
--zui_stdlib_load_config s:mark "red reverse lineund" -1 actmark
--zui_stdlib_load_config s:altmark "red reverse" -1 altmark
+-zui_stdlib_load_config s:mark "red reverse lineund" 2 actmark
+-zui_stdlib_load_config s:altmark "red reverse" 2 altmark
 -zui_stdlib_load_config b:text_mode 1 2 'ZUI[text_mode]'
 -zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
 -zui_stdlib_load_config b:status_pointer 1 2 'ZUI[status_pointer]'
