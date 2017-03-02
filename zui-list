@@ -551,7 +551,7 @@ while (( 1 )); do
 
         # Output colored list
         zui-list-draw "$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
-            "$page_height" "$page_width" 1 2 "$ZUILIST_TEXT_OFFSET" "$wname_main" \
+            "$page_height" "$page_width" 1 2 "$ZUILIST_TEXT_OFFSET" "$wname_main" "$active_text" \
             "$disp_list2[@]"
     else
         # There is no search, but there was in previous loop
@@ -617,7 +617,7 @@ while (( 1 )); do
 
         # Output the list
         zui-list-draw "$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
-            "$page_height" "$page_width" 1 2 "$ZUILIST_TEXT_OFFSET" "$wname_main" \
+            "$page_height" "$page_width" 1 2 "$ZUILIST_TEXT_OFFSET" "$wname_main" "$active_text" \
             "$disp_list2[@]"
     fi
 

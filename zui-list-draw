@@ -131,10 +131,11 @@ local y_offset="$4"
 local x_offset="$5"
 local text_offset="$6"
 local win="$7"
-shift 7
+local active_text="$8"
+shift 8
 integer max_text_len=page_width-x_offset
 
-[[ "$active_text" = "underline" || "$active_text" = "reverse" ]] || local active_text=""
+[[ "$active_text" = "underline" || "$active_text" = "reverse" ]] || active_text=""
 
 integer max_idx=page_height
 integer end_idx=max_idx
