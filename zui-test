@@ -138,7 +138,7 @@ local pure_text_selected
 -zui_module2_internal_action_1() {
     local id="$1" module="$2"
 
-    -zui_stdlib_fly_mod_regen -zui_test_module2_generator "$id" "$module" "Extra line"
+    -zui_stdlib_fly_mod_regen -zuitest_mod2_generator "$id" "$module" "Extra line"
 }
 
 #
@@ -198,7 +198,7 @@ local pure_text_selected
 #
 
 # Generator for module 1
--zui_test_module1_generator() {
+-zuitest_mod1_generator() {
     local mod="$1"
 
     # Prepare toggle button's states
@@ -212,12 +212,12 @@ local pure_text_selected
     -zui_stdlib_rc_button "regenerate2_$mod" "$mod" "" "" "" "${ZUI[MAGENTA]}Regenerate${ZUI[COLOR_END]}" -zui_module1_external_action_1
     -zui_stdlib_rc_button "regenerate3_$mod" "$mod" "" ",module$(( $mod + 1 ))," "" "${ZUI[MAGENTA]}Regenerate${ZUI[COLOR_END]}"
     # internal=1 is a trick, look at comment
-    -zui_stdlib_rc_button "bold_$mod" "$mod" "" "" "" "${col_bld}bold${ZUI[COLOR_END]}" 'internal=1; (( ZUI[bold]=1-ZUI[bold] )); -zui_stdlib_fly_mod_regen -zui_test_module1_generator "'"bold_$mod"'" "'"$mod"'"'
-    -zui_stdlib_rc_button "text_mode_$mod" "$mod" "" "" "" "${col_tmd}Text_mode${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_mode]=1-ZUI[text_mode] )); -zui_stdlib_fly_mod_regen -zui_test_module1_generator "'"text_mode_$mod"'" "'"$mod"'"'
-    -zui_stdlib_rc_button "text_select_$mod" "$mod" "" "" "" "${col_tsel}text_select${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_select]=1-ZUI[text_select] )); -zui_stdlib_fly_mod_regen -zui_test_module1_generator "'"text_select_$mod"'" "'"$mod"'"'
-    -zui_stdlib_rc_button "log_append_$mod" "$mod" "" "" "" "${col_lap}log_append${ZUI[COLOR_END]}" 'internal=1; [[ ${ZUI[log_append]} = "below" ]] && ZUI[log_append]=above || ZUI[log_append]=below; -zui_stdlib_fly_mod_regen -zui_test_module1_generator "'"log_append_$mod"'" "'"$mod"'"'
-    -zui_stdlib_rc_button "status_pointer_$mod" "$mod" "" "" "" "${col_sptr}status_pointer${ZUI[COLOR_END]}" 'internal=1; (( ZUI[status_pointer]=1-ZUI[status_pointer] )); -zui_stdlib_fly_mod_regen -zui_test_module1_generator "'"status_pointer_$mod"'" "'"$mod"'"'
-    -zui_stdlib_rc_button "status_border_$mod" "$mod" "" "" "" "${col_sb}status_border${ZUI[COLOR_END]}" 'internal=1; (( ZUI[status_border]=1-ZUI[status_border] )); -zui_stdlib_fly_mod_regen -zui_test_module1_generator "'"status_border_$mod"'" "'"$mod"'"'
+    -zui_stdlib_rc_button "bold_$mod" "$mod" "" "" "" "${col_bld}bold${ZUI[COLOR_END]}" 'internal=1; (( ZUI[bold]=1-ZUI[bold] )); -zui_stdlib_fly_mod_regen -zuitest_mod1_generator "'"bold_$mod"'" "'"$mod"'"'
+    -zui_stdlib_rc_button "text_mode_$mod" "$mod" "" "" "" "${col_tmd}Text_mode${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_mode]=1-ZUI[text_mode] )); -zui_stdlib_fly_mod_regen -zuitest_mod1_generator "'"text_mode_$mod"'" "'"$mod"'"'
+    -zui_stdlib_rc_button "text_select_$mod" "$mod" "" "" "" "${col_tsel}text_select${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_select]=1-ZUI[text_select] )); -zui_stdlib_fly_mod_regen -zuitest_mod1_generator "'"text_select_$mod"'" "'"$mod"'"'
+    -zui_stdlib_rc_button "log_append_$mod" "$mod" "" "" "" "${col_lap}log_append${ZUI[COLOR_END]}" 'internal=1; [[ ${ZUI[log_append]} = "below" ]] && ZUI[log_append]=above || ZUI[log_append]=below; -zui_stdlib_fly_mod_regen -zuitest_mod1_generator "'"log_append_$mod"'" "'"$mod"'"'
+    -zui_stdlib_rc_button "status_pointer_$mod" "$mod" "" "" "" "${col_sptr}status_pointer${ZUI[COLOR_END]}" 'internal=1; (( ZUI[status_pointer]=1-ZUI[status_pointer] )); -zui_stdlib_fly_mod_regen -zuitest_mod1_generator "'"status_pointer_$mod"'" "'"$mod"'"'
+    -zui_stdlib_rc_button "status_border_$mod" "$mod" "" "" "" "${col_sb}status_border${ZUI[COLOR_END]}" 'internal=1; (( ZUI[status_border]=1-ZUI[status_border] )); -zui_stdlib_fly_mod_regen -zuitest_mod1_generator "'"status_border_$mod"'" "'"$mod"'"'
     -zui_stdlib_rc_button "log_colors_$mod" "$mod" "" "" "" "${ZUI[GREEN]}log_colors${ZUI[COLOR_END]}" 'internal=1; log_colors=( $log_colors[-1] ${(@)log_colors[1,-2]} )'
 
     # Passed user data
@@ -257,7 +257,7 @@ local pure_text_selected
 }
 
 # Generator for module 2
--zui_test_module2_generator() {
+-zuitest_mod2_generator() {
     local mod="$1" extra_line="$2"
 
     local append_third
@@ -355,7 +355,7 @@ if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,module${module},* || "$REGE
     integer module${module}_size prev_module${module}_size
 
     -zui_stdlib_reset_replies
-    -zui_test_module1_generator $module $REGENERATE_ARG
+    -zuitest_mod1_generator $module $REGENERATE_ARG
 
     # This function has to be called after each *_generator
     # function call, to copy reply{,2..5} into above (after
@@ -381,7 +381,7 @@ for (( i=2; i <= total_module_limit; i ++ )); do
         integer module${module}_size prev_module${module}_size
 
         -zui_stdlib_reset_replies
-        -zui_test_module2_generator $module $REGENERATE_ARG
+        -zuitest_mod2_generator $module $REGENERATE_ARG
 
         # This function has to be called after each *_generator
         # function call, to copy reply{,2..5} into above (after
