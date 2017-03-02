@@ -215,7 +215,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 }
 
 -zui_list_compute_mark_codes() {
-    local __actmark="$1" __altmark="$2" __aout="${3:-active_text}" __out="${4:-MARK_CODES}" __out2="${5:-MARK_END_CODES}"
+    local __actmark="$1" __altmark="$2" __out="${3:-MARK_CODES}" __out2="${4:-MARK_END_CODES}" __aout="$5"
     local __active_text
 
     # Check if terminal supports __underline
@@ -253,9 +253,9 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         __clcodes+=$'\e'"[${__a}m"
     done
 
-    : ${(P)__aout::=$__active_text}
     : ${(P)__out::=$__opcodes}
     : ${(P)__out2::=$__clcodes}
+    [[ -n "$__aout" ]] && : ${(P)__aout::=$__active_text}
 }
 
 #
@@ -377,7 +377,7 @@ stforeground="${ZUI[status_colorpair]%/*}"
 stbackuptheme="${ZUI[status_colorpair]}/${ZUI[status_bold]}"
 local MARK_CODES MARK_END_CODES active_text
 
--zui_list_compute_mark_codes "${ZUI[mark]}" "${ZUI[altmark]}" active_text MARK_CODES MARK_END_CODES
+-zui_list_compute_mark_codes "${ZUI[mark]}" "${ZUI[altmark]}" MARK_CODES MARK_END_CODES active_text
 
 # Set background
 zcurses bg "$wname_main" "${ZUI[colorpair]}"
