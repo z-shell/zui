@@ -129,7 +129,7 @@ local pure_text_selected
         # This is internal zui-list variable,
         # accessible because internal actions
         # are called from within the list
-        bold="+bold"
+        ZUI[bold]=1
     elif [[ "$module" = "3" ]]; then
         -zui_module2_internal_action_1 "$id" "$(( module - 1 ))" "" "" ""
     fi
