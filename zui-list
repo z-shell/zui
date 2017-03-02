@@ -155,8 +155,10 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     # [all] [fg] [bg]
     buf="${buf//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'])([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[COLOR_END]}]#)${ZUI[COLOR_END]}/${colormap[${match[1]}]}${colormap[${match[2]}]}${colormap[${match[3]}]}$match[4]$RESET}"
 
-    # Mark
+    # Mark 1
     buf="${buf//(#b)${ZUI[MARK]}([^${ZUI[MARK_E]}]#)${ZUI[MARK_E]}/$MARK_CODES$match[1]$MARK_END_CODES}"
+    # Mark 2 (alternative for segments with background color)
+    buf="${buf//(#b)${ZUI[MARK2]}([^${ZUI[MARK_E]}]#)${ZUI[MARK_E]}/$MARK2_CODES$match[1]$MARK2_END_CODES}"
 
     REPLY="$buf"
 }
@@ -203,7 +205,12 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         for (( i=1; i<=size; i++ )); do
             if [[ "$i" -eq "$active_segment" ]]; then
                 ZUI_PB_WORDS[i]=${ZUI_PB_WORDS[i]//$'\n'/\\n}
-                -zui_list_replace_color_marks_with "${ZUI_PB_WORDS[i]}" "${ZUI[MARK]}"
+                # No background color?
+                if [[ "${ZUI_PB_WORDS[i]}" != *[$'\020'-$'\030']* ]]; then
+                    -zui_list_replace_color_marks_with "${ZUI_PB_WORDS[i]}" "${ZUI[MARK]}"
+                else
+                    -zui_list_replace_color_marks_with "${ZUI_PB_WORDS[i]}" "${ZUI[MARK2]}"
+                fi
                 ZUI_PB_WORDS[i]="$REPLY"
             fi
             buf+="$ZUI_PB_SPACES[i]$ZUI_PB_WORDS[i]"
@@ -256,6 +263,16 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     : ${(P)__out::=$__opcodes}
     : ${(P)__out2::=$__clcodes}
     [[ -n "$__aout" ]] && : ${(P)__aout::=$__active_text}
+}
+
+# Argument is "1" or "2", to select first
+# or second marks for the recomputation
+-zui_list_recompute_mark() {
+    if [[ "$1" = "1" ]]; then
+        -zui_list_compute_mark_codes "${ZUI[mark]}" "${ZUI[altmark]}" MARK_CODES MARK_END_CODES active_text
+    else
+        -zui_list_compute_mark_codes "${ZUI[mark2]}" "${ZUI[altmark2]}" MARK2_CODES MARK2_END_CODES
+    fi
 }
 
 #
@@ -357,6 +374,8 @@ local stbackground stforeground stbackuptheme
 
 -zui_stdlib_load_config s:mark "red reverse lineund" 2 'ZUI[mark]'
 -zui_stdlib_load_config s:altmark "red reverse" 2 'ZUI[altmark]'
+-zui_stdlib_load_config s:mark2 "yellow reverse lineund" 2 'ZUI[mark2]'
+-zui_stdlib_load_config s:altmark2 "yellow reverse" 2 'ZUI[altmark2]'
 -zui_stdlib_load_config b:text_mode 1 2 'ZUI[text_mode]'
 -zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
 -zui_stdlib_load_config b:status_pointer 1 2 'ZUI[status_pointer]'
@@ -375,9 +394,10 @@ backuptheme="${ZUI[colorpair]}/${ZUI[bold]}"
 stbackground="${ZUI[status_colorpair]#*/}"
 stforeground="${ZUI[status_colorpair]%/*}"
 stbackuptheme="${ZUI[status_colorpair]}/${ZUI[status_bold]}"
-local MARK_CODES MARK_END_CODES active_text
+local MARK_CODES MARK_END_CODES MARK2_CODES MARK2_END_CODES active_text
 
--zui_list_compute_mark_codes "${ZUI[mark]}" "${ZUI[altmark]}" MARK_CODES MARK_END_CODES active_text
+-zui_list_recompute_mark 1
+-zui_list_recompute_mark 2
 
 # Set background
 zcurses bg "$wname_main" "${ZUI[colorpair]}"

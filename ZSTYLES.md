@@ -21,6 +21,8 @@ zstyle ":plugin:zui" mark "red reverse lineund" # String starting with one or tw
                                                 # active line. The rest marks active button. Uppercase
                                                 # color names are for background.
 zstyle ":plugin:zui" altmark "red reverse"      # As "mark", but for terminals without underline support
+zstyle ":plugin:zui" mark2 "yellow reverse"     # The same as "mark", but for buttons with background color
+zstyle ":plugin:zui" altmark2 "yellow reverse"  # The same as "altmark", but for "mark2"
 
 zstyle ":plugin:zui" status_size "4"            # Height of status window, including border (drawn or not)
 zstyle ":plugin:zui" status_pointer "yes"       # Show line indicating position in document

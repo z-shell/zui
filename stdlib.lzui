@@ -49,7 +49,8 @@ ZUI[BG_DEFAULT]=$'\030'     # Cancel
 ZUI[BOLD]=$'\031'           # End of medium
 
 # Special code used to mark active button
-ZUI[MARK]=$'\036'           # octal value, decimal 30 - Record separator
+ZUI[MARK]=$'\035'           # octal value, decimal 29 - Group separator
+ZUI[MARK2]=$'\036'          # octal value, decimal 30 - Record separator
 ZUI[MARK_E]=$ZUI[COLOR_END]
 
 # Appends hyperlink into "reply" output array. It's the
