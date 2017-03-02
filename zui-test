@@ -130,7 +130,6 @@ local pure_text_selected
 -zui_module2_internal_action_1() {
     local id="$1" module="$2"
 
-    -zui_stdlib_reset_replies
     -zui_stdlib_fly_mod_regen -zui_test_module2_generator "$id" "$module" "Extra line"
 }
 
