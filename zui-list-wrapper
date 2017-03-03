@@ -17,6 +17,9 @@ integer term_width="${COLUMNS:-$(tput cols)}"
     if [ "$_zui_wrapper_has_terminfo" = "1" ]; then
         [[ "$1" = "1" && -n "$terminfo[smcup]" ]] && return
         [[ "$1" = "0" && -n "$terminfo[rmcup]" ]] && return
+    else
+        [[ "$1" = "1" && -n `tput 2>/dev/null smcup` ]] && return
+        [[ "$1" = "0" && -n `tput 2>/dev/null rmcup` ]] && return
     fi
 
     case "$TERM" in
