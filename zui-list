@@ -472,6 +472,16 @@ done
 last_element="$#list"
 
 while (( 1 )); do
+    if -zui_wrapper_recreate_windows; then
+        main_height=$(( ZUI[term_height] - ZUI[status_size] ))
+        main_width="${ZUI[term_width]}"
+        status_height="${ZUI[status_size]}"
+        status_width="${ZUI[term_width]}"
+        page_height=main_height-2
+        page_width=main_width-2
+        zcurses touch "$wname_main" "$wname_status"
+    fi
+
     # Do searching?
     if [[ -n "$ZUILIST_SEARCH_BUFFER" ]]; then
         # Compute new list?
