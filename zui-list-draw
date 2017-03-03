@@ -138,8 +138,8 @@ integer max_text_len=page_width-x_offset
 [[ "$active_text" = "underline" || "$active_text" = "reverse" ]] || active_text=""
 
 integer max_idx=page_height
-integer end_idx=max_idx
-[ "$end_idx" -gt "$#" ] && end_idx="$#"
+integer end_idx=${#}
+[[ "$end_idx" -gt "$max_idx" ]] && end_idx="$max_idx"
 integer y=y_offset
 
 [[ "${ZUI[bold]}" = "1" ]] && local wrk_bold="+bold" || local wrk_bold="-bold"
