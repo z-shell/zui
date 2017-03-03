@@ -127,9 +127,9 @@ setopt typesetsilent extendedglob
 integer highlight="$1"
 integer page_height="$2"
 integer page_width="$3"
-local y_offset="$4"
-local x_offset="$5"
-local text_offset="$6"
+integer y_offset="$4"
+integer x_offset="$5"
+integer text_offset="$6"
 local win="$7"
 local active_text="$8"
 shift 8
@@ -137,36 +137,33 @@ integer max_text_len=page_width-x_offset
 
 [[ "$active_text" = "underline" || "$active_text" = "reverse" ]] || active_text=""
 
-integer max_idx=page_height
-integer end_idx=${#}
-[[ "$end_idx" -gt "$max_idx" ]] && end_idx="$max_idx"
-integer y=y_offset
+integer i=1 max_idx=page_height end_idx=${#}
+(( end_idx > max_idx )) && end_idx=max_idx
 
 [[ "${ZUI[bold]}" = "1" ]] && local wrk_bold="+bold" || local wrk_bold="-bold"
 zcurses attr "$win" "$wrk_bold" "${ZUI[colorpair]}"
 zcurses clear "$win"
 
-integer i text_len
 local text
-for (( i=1; i<=end_idx; i++ )); do
-    zcurses move "$win" $y "$x_offset"
+for text; do
+    (( i > end_idx )) && break
 
-    if [ "$i" = "$highlight" ]; then
+    zcurses move "$win" "$y_offset" "$x_offset"
+
+    if (( i == highlight )); then
         [[ -n "$active_text" ]] && zcurses attr "$win" +"$active_text"
-        -zui_list_print_with_ansi "$win" "$@[i]" "$text_offset" "$max_text_len"
+        -zui_list_print_with_ansi "$win" "$text" "$text_offset" "$max_text_len"
         [[ -n "$active_text" ]] && zcurses attr "$win" -"$active_text"
     else
-        -zui_list_print_with_ansi "$win" "$@[i]" "$text_offset" "$max_text_len"
+        -zui_list_print_with_ansi "$win" "$text" "$text_offset" "$max_text_len"
     fi
     zcurses clear "$win" eol
 
-    y+=1
+    y_offset+=1
+    i+=1
 done
 
-if [ "$end_idx" -lt "$max_idx" ]; then
-    zcurses move "$win" $y "$x_offset"
-    zcurses clear "$win" eol
-fi
+(( end_idx < max_idx )) && { zcurses move "$win" "$y_offset" "$x_offset"; zcurses clear "$win" eol; }
 
 zcurses attr "$win" "${ZUI[colorpair]}"
 # vim: set filetype=zsh:
