@@ -8,8 +8,7 @@ zmodload zsh/terminfo 2>/dev/null && _zui_wrapper_has_terminfo=1
 
 trap "-zui_wrapper_on_exit" EXIT
 
-integer term_height="${LINES:-$(tput lines)}"
-integer term_width="${COLUMNS:-$(tput cols)}"
+local term_height term_width
 
 # Reason for this function is that on some systems
 # smcup and rmcup are not knowing why left empty
@@ -43,32 +42,47 @@ integer term_width="${COLUMNS:-$(tput cols)}"
 }
 
 -zui_wrapper_init_windows() {
-    -zui_wrapper_alternate_screen 1
-    zcurses init
     zcurses delwin main 2>/dev/null
     zcurses delwin status 2>/dev/null
-    zcurses addwin main $(( term_height - status_size )) "$term_width" 0 0
-    zcurses addwin status "$status_size" "$term_width" $(( term_height - status_size )) 0
+    zcurses addwin main $(( term_height - ZUI[status_size] )) "$term_width" 0 0
+    zcurses addwin status "${ZUI[status_size]}" "$term_width" $(( term_height - ZUI[status_size] )) 0
 }
 
 -zui_wrapper_end() {
-    zcurses init
     zcurses delwin main 2>/dev/null
     zcurses delwin status 2>/dev/null
     zcurses end
 }
 
+-zui_wrapper_recreate_windows() {
+    term_height="${LINES:-$(tput lines)}"
+    term_width="${COLUMNS:-$(tput cols)}"
+
+    if [[ "${ZUI[term_height]}" -ne "$term_height" || "${ZUI[term_width]}" -ne "$term_width" ]]; then
+        ZUI[term_height]="$term_height"
+        ZUI[term_width]="$term_width"
+        # Load window size
+        -zui_stdlib_load_config s:status_size "4" 1 'ZUI[status_size]'
+        -zui_wrapper_init_windows
+    fi
+}
+
+# Standard functions library
 [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/stdlib.lzui"
 
+# Always: init once, then remember
 typeset -g ZUILIST_REMEMBER_STATE
 [ "$ZUILIST_REMEMBER_STATE" != 1 ] && ZUILIST_REMEMBER_STATE=2
 
-local status_size
--zui_stdlib_load_config s:status_size "4" -1 status_size
+ZUI[term_width]=0
+ZUI[term_height]=0
 
--zui_wrapper_init_windows
+-zui_wrapper_alternate_screen 1
+zcurses init
+-zui_wrapper_recreate_windows
+
 -zui_stdlib_get_time
-zui-list "main" $(( term_height-status_size )) $term_width "status" "$status_size" "$term_width" " Welcome to ${ZUI[app_name]} $REPLY " "$@"
+zui-list "main" $(( term_height-ZUI[status_size] )) $term_width "status" "${ZUI[status_size]}" "$term_width" " Welcome to ${ZUI[app_name]} $REPLY " "$@"
 
 if [[ "$REPLY" != "-1" && "$REPLY" = -(#c0,1)[0-9]## ]]; then
     local answer="${reply[REPLY]}"
