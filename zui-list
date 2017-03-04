@@ -275,6 +275,15 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     fi
 }
 
+# Mainly for `zcurses bg`, but has some theme-related scraps
+-zui_list_recompute_bg() {
+    backuptheme="${ZUI[colorpair]}/${ZUI[bold]}"
+    stbackuptheme="${ZUI[status_colorpair]}/${ZUI[status_bold]}"
+
+    zcurses bg "$wname_main" "${ZUI[colorpair]}"
+    zcurses bg "$wname_status" "${ZUI[status_colorpair]}"
+}
+
 #
 # Main code
 #
@@ -360,8 +369,7 @@ colormap=(
 # Load configuration – per application if ZUI[app] is set
 #
 
-local background foreground backuptheme
-local stbackground stforeground stbackuptheme
+local backuptheme stbackuptheme
 -zui_stdlib_load_config s:colorpair "white/black" 2 'ZUI[colorpair]'
 -zui_stdlib_load_config b:border 0 2 'ZUI[border]'
 -zui_stdlib_load_config s:border_cp "yellow/black" 2 'ZUI[border_cp]'
@@ -388,20 +396,11 @@ local -a log_colors
 log_colors=( "${=ZUI[log_colors]}" )
 
 # Process configuration
-background="${ZUI[colorpair]#*/}"
-foreground="${ZUI[colorpair]%/*}"
-backuptheme="${ZUI[colorpair]}/${ZUI[bold]}"
-stbackground="${ZUI[status_colorpair]#*/}"
-stforeground="${ZUI[status_colorpair]%/*}"
-stbackuptheme="${ZUI[status_colorpair]}/${ZUI[status_bold]}"
 local MARK_CODES MARK_END_CODES MARK2_CODES MARK2_END_CODES active_text
 
 -zui_list_recompute_mark 1
 -zui_list_recompute_mark 2
-
-# Set background
-zcurses bg "$wname_main" "${ZUI[colorpair]}"
-zcurses bg "$wname_status" "${ZUI[status_colorpair]}"
+-zui_list_recompute_bg
 
 # Ability to remember the list between calls
 if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" = 0 || "$ZUILIST_REMEMBER_STATE" = 2 ]]; then
@@ -472,15 +471,11 @@ done
 last_element="$#list"
 
 while (( 1 )); do
-    if -zui_wrapper_recreate_windows; then
-        main_height=$(( ZUI[term_height] - ZUI[status_size] ))
-        main_width="${ZUI[term_width]}"
-        status_height="${ZUI[status_size]}"
-        status_width="${ZUI[term_width]}"
+    if -zui_wrapper_recreate_windows main_height main_width status_height status_width; then
         page_height=main_height-2
         page_width=main_width-2
-        zcurses clear "$wname_main"
-        zcurses clear "$wname_status"
+        -zui_list_recompute_bg
+        [[ -n "$wname_status" ]] && zcurses clear "$wname_status"
         ZUILIST_REGENERATE_DISP_LIST=1
     fi
 
