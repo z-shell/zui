@@ -479,7 +479,9 @@ while (( 1 )); do
         status_width="${ZUI[term_width]}"
         page_height=main_height-2
         page_width=main_width-2
-        zcurses touch "$wname_main" "$wname_status"
+        zcurses clear "$wname_main"
+        zcurses clear "$wname_status"
+        ZUILIST_REGENERATE_DISP_LIST=1
     fi
 
     # Do searching?

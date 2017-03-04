@@ -44,6 +44,10 @@ local term_height term_width
 -zui_wrapper_init_windows() {
     zcurses delwin main 2>/dev/null
     zcurses delwin status 2>/dev/null
+
+    # Resize?
+    (( $1 )) && zcurses 2>/dev/null resize_term "${ZUI[term_height]}" "${ZUI[term_width]}"
+
     zcurses addwin main $(( term_height - ZUI[status_size] )) "$term_width" 0 0
     zcurses addwin status "${ZUI[status_size]}" "$term_width" $(( term_height - ZUI[status_size] )) 0
     zcurses refresh stdscr
@@ -60,11 +64,14 @@ local term_height term_width
     term_width=$(tput cols)
 
     if [[ "${ZUI[term_height]}" -ne "$term_height" || "${ZUI[term_width]}" -ne "$term_width" ]]; then
+        integer resize=0
+        (( ZUI[term_height] != 0 )) && resize=1
+
         ZUI[term_height]="$term_height"
         ZUI[term_width]="$term_width"
         # Load window size
         -zui_stdlib_load_config s:status_size "4" 1 'ZUI[status_size]'
-        -zui_wrapper_init_windows
+        -zui_wrapper_init_windows $resize
         return 0
     fi
 
