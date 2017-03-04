@@ -230,8 +230,8 @@ local pure_text_selected
             "${reply[2]} this module via ${ZUI[YELLOW]}list_restart${ZUI[COLOR_END]} and ${ZUI[CYAN]}function_call${ZUI[COLOR_END]}"
             "${reply[3]} the <NEXT> section via ${ZUI[YELLOW]}list_restart${ZUI[COLOR_END]} and ${ZUI[CYAN]}raw_link${ZUI[COLOR_END]}"
             "Toggle ${reply[4]} with inlined (no function!) code, ${reply[5]}, ${reply[6]}"
-            "Toggle ${reply[7]} – status logs appended at end, or at top, rotate ${reply[10]}"
-            "Toggle ${reply[8]} – status position pointer, ${reply[9]}"
+            "Toggle ${reply[7]} - status logs appended at end, or at top, rotate ${reply[10]}"
+            "Toggle ${reply[8]} - status position pointer, ${reply[9]}"
             "Random number: $RANDOM$((RANDOM%2))"
 
             # This is set in -zui_module1_external_action_1
