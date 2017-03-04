@@ -284,6 +284,16 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     zcurses bg "$wname_status" "${ZUI[status_colorpair]}"
 }
 
+-zui_list_handle_resize() {
+    if -zui_wrapper_recreate_windows "$1" main_height main_width status_height status_width; then
+        page_height=main_height-2
+        page_width=main_width-2
+        -zui_list_recompute_bg
+        [[ -n "$wname_status" ]] && zcurses clear "$wname_status"
+        ZUILIST_REGENERATE_DISP_LIST=1
+    fi
+}
+
 #
 # Main code
 #
@@ -471,13 +481,8 @@ done
 last_element="$#list"
 
 while (( 1 )); do
-    if -zui_wrapper_recreate_windows main_height main_width status_height status_width; then
-        page_height=main_height-2
-        page_width=main_width-2
-        -zui_list_recompute_bg
-        [[ -n "$wname_status" ]] && zcurses clear "$wname_status"
-        ZUILIST_REGENERATE_DISP_LIST=1
-    fi
+    # Handle resize, once every 5 seconds
+    -zui_list_handle_resize 0
 
     # Do searching?
     if [[ -n "$ZUILIST_SEARCH_BUFFER" ]]; then
@@ -790,6 +795,9 @@ while (( 1 )); do
         zcurses clear "$wname_main" redraw
         # Status window is optional (2/2)
         [[ -n "$wname_status" ]] && zcurses clear "$wname_status" redraw
+
+        # Handle resize, force terminal-size read
+        -zui_list_handle_resize 1
     elif [[ "$action" = "HYPERLINK" ]]; then
         -zui_stdlib_get_segment "${list[ZUILIST_CURRENT_IDX]}" "$ZUILIST_CURRENT_SEGMENT"
         -zui_stdlib_decode_hyperlink $REPLY

@@ -8,7 +8,8 @@ zmodload zsh/terminfo 2>/dev/null && _zui_wrapper_has_terminfo=1
 
 trap "-zui_wrapper_on_exit" EXIT
 
-local term_height term_width
+local term_height=${LINES:-$(tput lines)} term_width=${COLUMNS:-$(tput cols)}
+ZUI[term_sread_ts]="$EPOCHSECONDS"
 
 # Reason for this function is that on some systems
 # smcup and rmcup are not knowing why left empty
@@ -72,8 +73,14 @@ local term_height term_width
 }
 
 -zui_wrapper_recreate_windows() {
-    term_height=$(tput lines)
-    term_width=$(tput cols)
+    integer force="$1"
+    shift
+
+    if [[ "$force" = "1" || -z "$EPOCHSECONDS" || $(( EPOCHSECONDS - ZUI[term_sread_ts] )) -gt "5" ]]; then
+        term_height=$(tput lines)
+        term_width=$(tput cols)
+        ZUI[term_sread_ts]="$EPOCHSECONDS"
+    fi
 
     if [[ "${ZUI[term_height]}" -ne "$term_height" || "${ZUI[term_width]}" -ne "$term_width" ]]; then
         integer resize=0
@@ -102,7 +109,7 @@ ZUI[term_height]=0
 
 -zui_wrapper_alternate_screen 1
 zcurses init
--zui_wrapper_recreate_windows
+-zui_wrapper_recreate_windows 0
 
 -zui_stdlib_get_time
 zui-list "main" $(( term_height-ZUI[status_size] )) $term_width "status" "${ZUI[status_size]}" "$term_width" " Welcome to ${ZUI[app_name]} $REPLY " "$@"
