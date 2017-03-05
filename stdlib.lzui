@@ -252,7 +252,7 @@ function -zui_stdlib_get_timestamp() {
 
 # Checks if given text is a hyperlink
 function -zui_stdlib_is_hyperlink() {
-    [[ "$1" = (#b)*$'\01'([^$'\01']#)$'\01'([^$'\01']#)$'\01'([^$'\01']#)$'\01'([^$'\01']#)$'\01'([^$'\02']#)$'\02'* ]]
+    [[ "$1" = *$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'* ]]
 }
 
 # Decodes given hyperlink and returns data contained. Testable
