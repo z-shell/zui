@@ -255,8 +255,9 @@ function -zui_stdlib_is_hyperlink() {
     [[ "$1" = *$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'* ]]
 }
 
-# Decodes given hyperlink and returns data contained. Testable
-# - test to check if hyperlink was correctly decoded
+# Decodes given hyperlink and returns data contained.
+# Testable - test to check if hyperlink was correctly
+# decoded.
 #
 # $1 - hyperlink string
 # $2 - optional output array name (default: "reply")
@@ -268,10 +269,11 @@ function -zui_stdlib_is_hyperlink() {
 # $reply[5] - file
 #
 function -zui_stdlib_decode_hyperlink() {
+    local __var_name="${2:-reply}"
+    : ${(PA)__var_name::=}
+
     if [[ "$1" = (#b)*$'\01'([^$'\01']#)$'\01'([^$'\01']#)$'\01'([^$'\01']#)$'\01'([^$'\01']#)$'\01'([^$'\02']#)$'\02'* ]]; then
         local __id="${match[1]}" __data1="${match[2]}" __data2="${match[3]}" __data3="${match[4]}" __data4="${match[5]}"
-        local __var_name="${2:-reply}"
-        : ${(PA)__var_name::=}
         local assgn_str="${__var_name}[1]"
         : ${(P)assgn_str::=${(Q)__id}}
         assgn_str="${__var_name}[2]"
