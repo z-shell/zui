@@ -386,6 +386,14 @@ function -zui_stdlib_get_segment() {
     : ${(P)varname::=${segs[index]}}
 }
 
+# Strips formatting codes from text in
+# 1, saves result into parameter REPLY
+#
+# $1 - text to strip codes from
+function -zui_stdlib_strip_codes() {
+    REPLY="${1//[$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'\037']/}"
+}
+
 # Returns next file to write to in circular buffer set
 # of file names <base>.1 <base>.2 ... <base>.<size>
 #

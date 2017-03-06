@@ -162,7 +162,8 @@ local pure_text_selected
         # with empty $id first data is 1/0 selectable or not
         # then is 1/0 uniq mode, 1/0 non-empty search query
         elif (( $data1 || $data2 || $data3 )); then
-            reply=( "$pressed" "" "Text: " "$data4" )
+            -zui_stdlib_strip_codes "$data4"
+            reply=( "$pressed" "" "Text: " "$REPLY" )
         else
             # Detect if current line is also a hop
             local on_hop
