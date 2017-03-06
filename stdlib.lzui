@@ -491,15 +491,19 @@ function -zui_stdlib_load_global_index_and_size() {
     2=${2:-REPLY}
     3=${3:-REPLY2}
 
+    var_name="module${1}_global_index"
+    [[ "${(P)+var_name}" = "0" ]] && return 1
+
     # Global index
-    var_name="module${module}_global_index"
     tmp="${(P)var_name}"
     : ${(P)2::=$tmp}
 
     # Size
-    var_name="module${module}_size"
+    var_name="module${1}_size"
     tmp="${(P)var_name}"
     : ${(P)3::=$tmp}
+
+    return 0
 }
 
 # Resets parameters reply{,2..5}
