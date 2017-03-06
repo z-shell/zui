@@ -1,8 +1,10 @@
 #
-# Library file (*.lcmdr)
+# Library file (*.lzui)
 #
 # Standard functions
 #
+
+ZUI[stdlib_sourced]="1"
 
 # Available colors to embed in generated text
 #
@@ -177,6 +179,42 @@ function -zui_stdlib_anchor() {
     ZUI[$__pfx$__id]="$__data1"
 }
 
+
+# Decodes given hyperlink and returns data contained.
+# Testable - test to check if hyperlink was correctly
+# decoded.
+#
+# $1 - hyperlink string
+# $2 - optional output array name (default: "reply")
+#
+# $reply[1] - ID (of action)
+# $reply[2] - time stamp
+# $reply[3] - command
+# $reply[4] - active path
+# $reply[5] - file
+#
+function -zui_stdlib_decode_hyperlink() {
+    local __var_name="${2:-reply}"
+    : ${(PA)__var_name::=}
+
+    if [[ "$1" = (#b)*$'\01'([^$'\01']#)$'\01'([^$'\01']#)$'\01'([^$'\01']#)$'\01'([^$'\01']#)$'\01'([^$'\02']#)$'\02'* ]]; then
+        local __id="${match[1]}" __data1="${match[2]}" __data2="${match[3]}" __data3="${match[4]}" __data4="${match[5]}"
+        local assgn_str="${__var_name}[1]"
+        : ${(P)assgn_str::=${(Q)__id}}
+        assgn_str="${__var_name}[2]"
+        : ${(P)assgn_str::=${(Q)__data1}}
+        assgn_str="${__var_name}[3]"
+        : ${(P)assgn_str::=${(Q)__data2}}
+        assgn_str="${__var_name}[4]"
+        : ${(P)assgn_str::=${(Q)__data3}}
+        assgn_str="${__var_name}[5]"
+        : ${(P)assgn_str::=${(Q)__data4}}
+        return 0
+    fi
+
+    return 1
+}
+
 # Resolves absolute path from current working directory and file path
 #
 # $1 - current working directory
@@ -253,41 +291,6 @@ function -zui_stdlib_get_timestamp() {
 # Checks if given text is a hyperlink
 function -zui_stdlib_is_hyperlink() {
     [[ "$1" = *$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'* ]]
-}
-
-# Decodes given hyperlink and returns data contained.
-# Testable - test to check if hyperlink was correctly
-# decoded.
-#
-# $1 - hyperlink string
-# $2 - optional output array name (default: "reply")
-#
-# $reply[1] - ID (of action)
-# $reply[2] - time stamp
-# $reply[3] - command
-# $reply[4] - active path
-# $reply[5] - file
-#
-function -zui_stdlib_decode_hyperlink() {
-    local __var_name="${2:-reply}"
-    : ${(PA)__var_name::=}
-
-    if [[ "$1" = (#b)*$'\01'([^$'\01']#)$'\01'([^$'\01']#)$'\01'([^$'\01']#)$'\01'([^$'\01']#)$'\01'([^$'\02']#)$'\02'* ]]; then
-        local __id="${match[1]}" __data1="${match[2]}" __data2="${match[3]}" __data3="${match[4]}" __data4="${match[5]}"
-        local assgn_str="${__var_name}[1]"
-        : ${(P)assgn_str::=${(Q)__id}}
-        assgn_str="${__var_name}[2]"
-        : ${(P)assgn_str::=${(Q)__data1}}
-        assgn_str="${__var_name}[3]"
-        : ${(P)assgn_str::=${(Q)__data2}}
-        assgn_str="${__var_name}[4]"
-        : ${(P)assgn_str::=${(Q)__data3}}
-        assgn_str="${__var_name}[5]"
-        : ${(P)assgn_str::=${(Q)__data4}}
-        return 0
-    fi
-
-    return 1
 }
 
 # Puts given links in a box, i.e. into sequence of lines
@@ -438,8 +441,6 @@ function -zui_stdlib_circular_paths() {
 
     reply=( "$circpath"/"$base".[[:digit:]]##(omN) )
 }
-
-ZUI[stdlib_sourced]="1"
 
 # This function clears application data
 # from $ZUI global hash. To be called at
