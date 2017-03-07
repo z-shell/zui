@@ -289,6 +289,20 @@ function -zui_stdlib_decode_text_field() {
     return 1
 }
 
+# Tries various decoding functions, testable
+# Returns (REPLY) "1" if hyperlink (anchor,
+# button, raw link) or "2" if text field
+#
+# $1 - hyperlink
+# $2 - output parameter name, for type (default: REPLY)
+function -zui_stdlib_decode() {
+    local __out="${2:-REPLY}"
+    [[ "$1" = $'\01'* ]] && { -zui_stdlib_decode_hyperlink "$1" && { : ${(P)__out::=1}; return 0; }; }
+    [[ "$1" = $'\032'* ]] && { -zui_stdlib_decode_text_field "$1" && { : ${(P)__out::=2}; return 0; }; }
+    : ${(P)__out::=0}
+    return 1
+}
+
 # Resolves absolute path from current working directory and file path
 #
 # $1 - current working directory
