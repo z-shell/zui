@@ -24,6 +24,7 @@ zmodload zsh/terminfo 2>/dev/null
 trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
 [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/stdlib.lzui"
+[[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/syslib.lzui"
 
 # Outputs a message in the bottom of the screen
 # "[UNIQ]", "Text", "[Grep string]", "Generation time", "$reply[@]" from callback
@@ -192,6 +193,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         # There will be no colorifying for current element
         integer current_page_idx=$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))
         local element="${list[ZUILIST_CURRENT_IDX]}"
+
         local output=""
 
         [[ "$ZUILIST_CURRENT_SEGMENT" -lt 1 ]] && ZUILIST_CURRENT_SEGMENT=1
@@ -216,6 +218,11 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
             buf+="$ZUI_PB_SPACES[i]$ZUI_PB_WORDS[i]"
         done
         buf+="$ZUI_PB_SPACES[i]"
+
+        # Remove hyperlinks
+        buf="${buf//$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\02'/}"
+        #                      id                data1             data2             data3              width               sidx                text        
+        buf="${buf//(#b)$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\034']#)$'\034'/${(r:${(P)${(Q)match[1]}}-1::_:)${(P)${(Q)match[3]}}[${(P)${(Q)match[2]}},-1]}${${(P)${(Q)match[3]}}[$(( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 == ${(P)${(Q)match[1]}} ? ${(P)${(Q)match[1]}} + ${(P)${(Q)match[2]}} - 1 : 10000 ))]}${tfield_end_map[$(( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 > ${(P)${(Q)match[1]}} ? 1 : ( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 == ${(P)${(Q)match[1]}} ? 0 : 2) ))]}}"
 
         -zui_list_translate_color_marks "$buf"
         disp_list2[current_page_idx]="$REPLY"
@@ -290,7 +297,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         page_width=main_width-2
         -zui_list_recompute_bg
         [[ -n "$wname_status" ]] && zcurses clear "$wname_status"
-        ZUILIST_REGENERATE_DISP_LIST=1
+        ZUILIST_REGENERATE_LIST=2
     fi
 }
 
@@ -336,7 +343,10 @@ local -a segments
 integer nseg
 
 local -A "cursor_state"
-cursor_state=( "main" 1 "status" 1 )
+cursor_state=( "main" 1 "status" 1 "field" 0 )
+
+local -A tfield_end_map
+tfield_end_map=( 0 "" 1 ">" 2 "_" )
 
 # Escape codes for colors
 local RESET=$'\e[0m' BLACK=$'\e[30m' RED=$'\e[31m' GREEN=$'\e[32m' YELLOW=$'\e[33m'
@@ -488,12 +498,12 @@ while (( 1 )); do
     # Do searching?
     if [[ -n "$ZUILIST_SEARCH_BUFFER" ]]; then
         # Compute new list?
-        if [[ "$ZUILIST_SEARCH_BUFFER" != "$prev_search_buffer" || "$ZUILIST_IS_UNIQ_MODE" -ne "$prev_uniq_mode" || "$ZUILIST_REGENERATE_DISP_LIST" = "1" ]]
+        if [[ "$ZUILIST_SEARCH_BUFFER" != "$prev_search_buffer" || "$ZUILIST_IS_UNIQ_MODE" -ne "$prev_uniq_mode" || "$ZUILIST_REGENERATE_LIST" = "1" ]]
         then
             prev_search_buffer="$ZUILIST_SEARCH_BUFFER"
             prev_uniq_mode="$ZUILIST_IS_UNIQ_MODE"
             # regenerating list -> regenerating disp_list
-            prev_start_idx=-1
+            ZUILIST_REGENERATE_LIST="2"
 
             # Take all elements, including duplicates and non-selectables
             typeset +U list
@@ -522,7 +532,7 @@ while (( 1 )); do
                 # occuring not inside hyper link
                 # Pattern will be ((#s)[^$'\01']#FOO*|*$'\02'[^$'\01']#FOO*)~^((#s)[^$'\01']#BAR*|*$'\02'[^$'\01']#BAR*...)
                 # ~^ means: "not those that have not this"
-                search_pattern=${search_buffer//(#b)([^ ]##)/((#s)[^$'\01']#${match[1]}*|*$'\02'[^$'\01']#${match[1]}*)~^}
+                search_pattern=${search_buffer//(#b)([^ ]##)/((#s)[^$'\01'$'\032']#${match[1]}*|*[$'\02'$'\034'][^$'\01'$'\032']#${match[1]}*)~^}
                 search_pattern="${search_pattern// ##/}"
                 search_pattern="${search_pattern%\~\^}"
                 # Pattern will be (foo|bar)
@@ -547,9 +557,15 @@ while (( 1 )); do
         integer end_idx=$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))
         [[ "$end_idx" -gt "$last_element" ]] && end_idx=last_element
 
-        if [[ "$prev_start_idx" -ne "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ]]; then
+        if [[ "$ZUILIST_REGENERATE_LIST" = "2" || "$prev_start_idx" -ne "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ]]; then
+            ZUILIST_REGENERATE_LIST="0"
             prev_start_idx="$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN"
             disp_list=( "${(@)list[ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN, end_idx]}" )
+
+            # Remove hyperlinks before colorifying
+            disp_list=( "${disp_list[@]//$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\02'/}" )
+            #                                       id                data1             data2             data3              width               sidx                text        
+            disp_list=( "${disp_list[@]//(#b)$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\034']#)$'\034'/${(r:${(P)${(Q)match[1]}}-1::_:)${(P)${(Q)match[3]}}[${(P)${(Q)match[2]}},-1]}${${(P)${(Q)match[3]}}[$(( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 == ${(P)${(Q)match[1]}} ? ${(P)${(Q)match[1]}} + ${(P)${(Q)match[2]}} - 1 : 10000 ))]}${tfield_end_map[$(( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 > ${(P)${(Q)match[1]}} ? 1 : ( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 == ${(P)${(Q)match[1]}} ? 0 : 2) ))]}}" )
 
             if [[ -n "$colsearch_pattern" ]]; then
                 local col="${ZUI[BG_MAGENTA]}" close="${ZUI[COLOR_END]}"
@@ -574,13 +590,11 @@ while (( 1 )); do
             -zui_list_translate_color_marks_in_disp_list
         fi
 
-        # We need second disp_list to be able to disable colorifying for particular elements
+        # We need second disp_list to be able to traverse with mark
+        # freely without regenerating disp_list
         disp_list2=( "${(@)disp_list}" )
 
         [[ "$#disp_list2" -gt 0 ]] && -zui_list_mark_current_segment_in_current_element
-
-        # Remove hyperlinks before displaying
-        disp_list2=( "${disp_list2[@]//$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\02'/}" )
 
         # Output colored list
         zui-list-draw "$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
@@ -591,12 +605,12 @@ while (( 1 )); do
         # OR
         # Uniq mode was entered or left out
         # -> compute new list
-        if [[ -n "$prev_search_buffer" || "$ZUILIST_IS_UNIQ_MODE" -ne "$prev_uniq_mode" || "$ZUILIST_REGENERATE_DISP_LIST" = "1" ]]
+        if [[ -n "$prev_search_buffer" || "$ZUILIST_IS_UNIQ_MODE" -ne "$prev_uniq_mode" || "$ZUILIST_REGENERATE_LIST" = "1" ]]
         then
+            # regenerating list -> regenerating disp_list
+            ZUILIST_REGENERATE_LIST="2"
             prev_search_buffer=""
             prev_uniq_mode="$ZUILIST_IS_UNIQ_MODE"
-            # regenerating list -> regenerating disp_list
-            prev_start_idx=-1
 
             # Take all elements, including duplicates and non-selectables
             typeset +U list
@@ -626,9 +640,15 @@ while (( 1 )); do
         integer end_idx=$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))
         [[ "$end_idx" -gt "$last_element" ]] && end_idx=last_element
 
-        if [[ "$prev_start_idx" -ne "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ]]; then
+        if [[ "$ZUILIST_REGENERATE_LIST" = "2" || "$prev_start_idx" -ne "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN"  ]]; then
+            ZUILIST_REGENERATE_LIST="0"
             prev_start_idx="$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN"
             disp_list=( "${(@)list[ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN, end_idx]}" )
+
+            # Remove hyperlinks
+            disp_list=( "${disp_list[@]//$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\02'/}" )
+            #                                       id                data1             data2             data3              width               sidx                text        
+            disp_list=( "${disp_list[@]//(#b)$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\034']#)$'\034'/${(r:${(P)${(Q)match[1]}}-1::_:)${(P)${(Q)match[3]}}[${(P)${(Q)match[2]}},-1]}${${(P)${(Q)match[3]}}[$(( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 == ${(P)${(Q)match[1]}} ? ${(P)${(Q)match[1]}} + ${(P)${(Q)match[2]}} - 1 : 10000 ))]}${tfield_end_map[$(( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 > ${(P)${(Q)match[1]}} ? 1 : ( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 == ${(P)${(Q)match[1]}} ? 0 : 2) ))]}}" )
 
             # We translate color marks into color codes. list still contains marks,
             # and -zui_list_mark_current_segment_in_current_element will be able
@@ -639,14 +659,11 @@ while (( 1 )); do
             [[ -n "$ZUILIST_COLORING_PATTERN" ]] && -zui_list_colorify_disp_list
         fi
 
-        # We need second disp_list to be able to disable colorifying for particular elements
-        # (this is rather unused currently)
+        # We need second disp_list to be able to traverse with mark
+        # freely without regenerating disp_list
         disp_list2=( "${(@)disp_list}" )
 
         [[ "$#disp_list2" -gt 0 ]] && -zui_list_mark_current_segment_in_current_element
-
-        # Remove hyperlinks before displaying
-        disp_list2=( "${disp_list2[@]//$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\02'/}" )
 
         # Output the list
         zui-list-draw "$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
@@ -712,6 +729,13 @@ while (( 1 )); do
         [[ "$ZUILIST_IS_SEARCH_MODE" -ne 1 ]] && -zui_list_cursor_visibility "status" "0" || -zui_list_cursor_visibility "status" "1"
         zcurses refresh "$wname_status" 
     }
+
+    if [[ -n "${ZUI[current_tfield]}" ]]; then
+        zcurses move "$wname_main" "${ZUI[cursor_y]}" $(( ZUI[cursor_x] + 2 ))
+        -zui_list_cursor_visibility "field" 1
+    else
+        -zui_list_cursor_visibility "field" 0
+    fi
 
     # Draw only?
     [[ "$ZUILIST_DRAW_ONLY" = "1" ]] && return
@@ -847,8 +871,7 @@ while (( 1 )); do
         # zui-list is simulated
         set -- "${(@)@[1,update_first-1]}" "${update[@]}" "${(@)@[update_first+update_count,-1]}"
 
-        typeset -g ZUILIST_REGENERATE_DISP_LIST
-        ZUILIST_REGENERATE_DISP_LIST="1"
+        ZUILIST_REGENERATE_LIST="1"
 
         # How many elements push down (up if negative)
         # indices that are after the modified section
@@ -968,7 +991,7 @@ while (( 1 )); do
         local new_line="${@[ZUILIST_REPLY_CHECKBOX_NUM]}"
         [[ "$ZUILIST_REPLY_CHECKBOX_OP" = "set" ]] && new_line="${new_line/\[_\]/[x]}" || new_line="${new_line/\[x\]/[_]}"
         set "${(@)@[1,ZUILIST_REPLY_CHECKBOX_NUM-1]}" "$new_line" "${(@)@[ZUILIST_REPLY_CHECKBOX_NUM+1,-1]}"
-        typeset -g ZUILIST_REGENERATE_DISP_LIST="1"
+        typeset -g ZUILIST_REGENERATE_LIST="1"
         unset ZUILIST_REPLY_CHECKBOX_NUM ZUILIST_REPLY_CHECKBOX_OP
     fi
 

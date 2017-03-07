@@ -50,6 +50,14 @@ ZUI[BG_DEFAULT]=$'\030'     # Cancel
 # Bold
 ZUI[BOLD]=$'\031'           # End of medium
 
+# Buttons
+ZUI[HYP_SEP]=$'\01'
+ZUI[HYP_END]=$'\02'
+
+# Text fields separator
+ZUI[FLD_SEP]=$'\032'
+ZUI[FLD_END]=$'\034'
+
 # Special code used to mark active button
 ZUI[MARK]=$'\035'           # octal value, decimal 29 - Group separator
 ZUI[MARK2]=$'\036'          # octal value, decimal 30 - Record separator
@@ -179,6 +187,30 @@ function -zui_stdlib_anchor() {
     ZUI[$__pfx$__id]="$__data1"
 }
 
+# Appends text-field hyperlink into output array (default: reply)
+#
+# $1 - action ID
+# $2 - module idx
+# $3 - width variable (minimum and maximum text width - padding with "_")
+# $4 - text start index variable - what part of string to show
+# $5 - text variable
+# $6 - data1
+# $7 - data2
+# $8 - handler (function name)
+# $9 - optional output array name (default: reply)
+#
+function -zui_stdlib_text_field() {
+    local __id="${(q)1}" __module_idx="${(q)2}" __width_var="${(q)3}" __sidx_var="${(q)4}" __text_var="${(q)5}" __data1="${(q)6}" __data2="${(q)7}" __handler="${(q)8}"
+    local __var_name="${9:-reply}"
+    local -a __output
+
+    [[ -n "$__handler" ]] && ZUI[zuitfield$__id]="$__handler"
+
+    __output=( "${(P@)__var_name}" $'\032'"$pfx$__id"$'\032'"$__data1"$'\032'"$__data2"$'\032'"$__module_idx"$'\032'"$__width_var"$'\032'"$__sidx_var"$'\032'"$__text_var"$'\034' )
+
+    unset __id __module_idx __width_var __sidx_var __text_var __data1 __data2 __handler
+    : ${(PA)__var_name::=${__output[@]}}
+}
 
 # Decodes given hyperlink and returns data contained.
 # Testable - test to check if hyperlink was correctly
@@ -209,6 +241,48 @@ function -zui_stdlib_decode_hyperlink() {
         : ${(P)assgn_str::=${(Q)__data3}}
         assgn_str="${__var_name}[5]"
         : ${(P)assgn_str::=${(Q)__data4}}
+        return 0
+    fi
+
+    return 1
+}
+
+# Decodes given text-field and returns data contained.
+# Testable - test to check if hyperlink was correctly
+# decoded.
+#
+# $1 - hyperlink string
+# $2 - optional output array name (default: "reply")
+#
+# $reply[1] - ID (of action)
+# $reply[2] - data1
+# $reply[3] - data2
+# $reply[4] - module index
+# $reply[5] - width parameter name
+# $reply[6] - start idx parameter name
+# $reply[7] - text data parameter name
+#
+function -zui_stdlib_decode_text_field() {
+    local __var_name="${2:-reply}"
+    : ${(PA)__var_name::=}
+
+    #                        id [1]              data1 [2]           data2 [3]           module index [4]    width_var [5]       sidx_var [6]        text_var [7]            
+    if [[ "$1" = (#b)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\034']#)$'\034' ]]; then
+        local __id="${match[1]}" __data1="${match[2]}" __data2="${match[3]}" __module_idx="${match[4]}" __width_var="${match[5]}" __sidx_var="${match[6]}" __param="${match[7]}"
+        local assgn_str="${__var_name}[1]"
+        : ${(P)assgn_str::=${(Q)__id}}
+        assgn_str="${__var_name}[2]"
+        : ${(P)assgn_str::=${(Q)__data1}}
+        assgn_str="${__var_name}[3]"
+        : ${(P)assgn_str::=${(Q)__data2}}
+        assgn_str="${__var_name}[4]"
+        : ${(P)assgn_str::=${(Q)__module_idx}}
+        assgn_str="${__var_name}[5]"
+        : ${(P)assgn_str::=${(Q)__width_var}}
+        assgn_str="${__var_name}[6]"
+        : ${(P)assgn_str::=${(Q)__sidx_var}}
+        assgn_str="${__var_name}[7]"
+        : ${(P)assgn_str::=${(Q)__param}}
         return 0
     fi
 
@@ -291,6 +365,12 @@ function -zui_stdlib_get_timestamp() {
 # Checks if given text is a hyperlink
 function -zui_stdlib_is_hyperlink() {
     [[ "$1" = *$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'* ]]
+}
+
+# Checks if given text is a text field
+function -zui_stdlib_is_text_field() {
+    #                id                data1             data2             module index      width_var         sidx_var          text_var             
+    [[ "$1" = $'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\034']#$'\034' ]]
 }
 
 # Puts given links in a box, i.e. into sequence of lines
