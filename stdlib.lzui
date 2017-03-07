@@ -200,7 +200,7 @@ function -zui_stdlib_anchor() {
 # $9 - optional output array name (default: reply)
 #
 function -zui_stdlib_text_field() {
-    local __id="${(q)1}" __module_idx="${(q)2}" __width_var="${(q)3}" __sidx_var="${(q)4}" __text_var="${(q)5}" __data1="${(q)6}" __data2="${(q)7}" __handler="${(q)8}"
+    local __id="${(q)1}" __module_idx="${(q)2}" __width_var="${(q)3}" __sidx_var="${(q)4}" __text_var="${(q)5}" __data1="${(q)6}" __data2="${(q)7}" __handler="$8"
     local __var_name="${9:-reply}"
     local -a __output
 
