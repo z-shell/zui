@@ -150,20 +150,21 @@ local pure_text_selected
 # It generates additional status text, displayed after
 # "Current #...", from data of highlighted button
 -zui-standard-status-callback() {
-    local id="$1" data1="$2" data2="$3" data3="$4" data4="$5" text="$6" handler
+    local tpe="$1"
 
-    local pressed=${${${${${ZUI[pressed_now]#zuiiaction}#zuiaction}#zuicheckbox}#zuieanchor}#zuianchor}
+    local pressed="${ZUI[pressed_now]#(zuiiaction|zuiaction|zuicheckbox|zuieanchor|zuianchor|zuitfield)}"
     [[ "$pressed" = log_append* ]] && pressed="LOG: ${(U)ZUI[log_append]} " || pressed="${pressed:+<<Pressed: $pressed>> }"
 
-    # Zero ID means we're called on non-button
-    if [[ -z "$id" ]]; then
+    # Zero-type means callback is called on a non-hyperlink
+    if [[ "$tpe" = "0" ]]; then
+        local selectable="$2" uniq="$3" search="$4" line="$5" segment="$6"
         if [[ -n "$pure_text_selected" ]]; then
-            reply=( "$pressed" "Pure-text selected: " "$data4" )
+            reply=( "$pressed" "Pure-text selected: " "$segment" )
             pure_text_selected=""
-        # with empty $id first data is 1/0 selectable or not
-        # then is 1/0 uniq mode, 1/0 non-empty search query
-        elif (( $data1 || $data2 || $data3 )); then
-            -zui_stdlib_strip_codes "$data4"
+        elif (( $selectable || $uniq || $search )); then
+            # 1/0 selectable or not || 1/0 uniq mode || 1/0 non-empty search query
+            # Any of those means no hops and no non-selectables are relevant
+            -zui_stdlib_strip_codes "$segment"
             reply=( "$pressed" "" "Text: " "$REPLY" )
         else
             # Detect if current line is also a hop
@@ -175,24 +176,38 @@ local pure_text_selected
             reply=( "$pressed" )
             [[ -z "$pressed" ]] && reply+=( "(A non-selectable line$on_hop)" )
         fi
-        return 0
+
+        # Resulting type: 1 - log message
+        return 1
+    else
+        # No message on text field input
+        [[ -z "${ZUI[pressed_now]}" && -n "${ZUI[current_tfield]}" ]] && return 0
+
+        local id="$2" data1="$3" data2="$4" data3="$5" data4="$6" text="$7"
+
+        # Module attribute is obligatory for text fields,
+        # but for other hyperlinks it is decision of this
+        # application to use data1 as module index
+        [[ $id = (zuiiaction|zuianchor|zuicheckbox|zuitfield)* ]] && local exint="NO-RESTART" || local exint="RESTART"
+        [[ $id = (zuiaction|zuiiaction|zuicheckbox|zuitfield)* ]] && local attribute="Module"
+        # A raw link? (i.e. no handler and no dynamic function)
+        [[ $id != (zuiaction|zuiiaction|zuicheckbox|zuianchor|zuieanchor|zuitfield)* ]] && {
+            local attribute="Module"
+            exint+=" <raw link>"
+        }
+
+        id="${id#(zuiiaction|zuiaction|zuicheckbox|zuieanchor|zuianchor|zuitfield)}"
+
+        handler="$ZUI[zuiiaction$id]"
+        [[ -z "$handler" ]] && handler="${ZUI[zuiaction$id]}"
+        [[ -z "$handler" ]] && handler="${ZUI[zuitfield$id]}"
+
+        reply=( "$pressed" )
+        [[ -z "$pressed" ]] && reply+=( "Id: $id" " ${attribute-Index}: $data1" " $exint" " Handler:" " $handler" )
+
+        # Resulting type: 1 - log message
+        return 1
     fi
-
-    [[ $id = (zuiiaction|zuianchor|zuicheckbox)* ]] && local exint="NO-RESTART" || local exint="RESTART"
-    [[ $id = (zuiaction|zuiiaction|zuicheckbox)* ]] && local __is_action="Module"
-    # A raw link?
-    [[ $id != (zuiaction|zuiiaction|zuicheckbox|zuianchor|zuieanchor)* ]] && {
-        local __is_action="Module"
-        exint+=" <raw link>"
-    }
-
-    id="${${${${${id#zuiiaction}#zuiaction}#zuicheckbox}#zuieanchor}#zuianchor}"
-
-    handler="$ZUI[zuiiaction$id]"
-    [[ -z "$handler" ]] && handler="$ZUI[zuiaction$id]"
-
-    reply=( "$pressed" )
-    [[ -z "$pressed" ]] && reply+=( "Id: $id" " ${__is_action-Index}: $data1" " $exint" " Handler:" " $handler" )
 }
 
 #

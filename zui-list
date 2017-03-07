@@ -696,16 +696,17 @@ while (( 1 )); do
         local selectable=1 tpe=-1 status_msg_strlen=0
         [[ -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]}" ]] && selectable=0
         (( $ZUILIST_IS_UNIQ_MODE + ${${ZUILIST_SEARCH_BUFFER:+1}:-0} )) && selectable=1
-        if (( selectable == 0 )) || ! -zui_stdlib_decode_hyperlink "${segments[ZUILIST_CURRENT_SEGMENT]}"; then
-            reply=( "" "$selectable" "$ZUILIST_IS_UNIQ_MODE" "${${ZUILIST_SEARCH_BUFFER:+1}:-0}" "${segments[ZUILIST_CURRENT_SEGMENT]}" )
+        if (( selectable == 0 )) || ! -zui_stdlib_decode "${segments[ZUILIST_CURRENT_SEGMENT]}"; then
+            reply=( "$selectable" "$ZUILIST_IS_UNIQ_MODE" "${${ZUILIST_SEARCH_BUFFER:+1}:-0}" "${list[ZUILIST_CURRENT_IDX]}" "${segments[ZUILIST_CURRENT_SEGMENT]}" )
+            REPLY="0"
         fi
         (( ${+functions[-zui-standard-status-callback]} )) && {
-            -zui-standard-status-callback "${reply[@]}"
+            -zui-standard-status-callback "$REPLY" "${reply[@]}"
             tpe=$?
         }
         ZUI[pressed_now]=""
 
-        (( tpe >= 0 )) && -zui_stdlib_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
+        (( tpe > 0 )) && -zui_stdlib_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
 
         if [[ "$ZUILIST_IS_SEARCH_MODE" = "0" ]]; then
             -zui-log "$wname_status" "$status_height" "$status_width" "${ZUI[status_border]}" "${ZUI[status_colorpair]}" \
@@ -825,7 +826,7 @@ while (( 1 )); do
         -zui_list_handle_resize 1
     elif [[ "$action" = "HYPERLINK" ]]; then
         -zui_stdlib_get_segment "${list[ZUILIST_CURRENT_IDX]}" "$ZUILIST_CURRENT_SEGMENT"
-        -zui_stdlib_decode_hyperlink "$REPLY"
+        -zui_stdlib_decode "$REPLY"
         local id="${reply[1]}"
         ZUI[pressed_now]="$id"
         integer call_hook=0

@@ -351,6 +351,7 @@ case "$key" in
                 ZUI[cursor_y]=$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))
                 ZUI[cursor_x]=$(( ZUI[current_tfield_cidx_end] ))
                 ZUI[current_tfield_instr_idx]=$(( ${(P)reply[4]} + ZUI[cursor_x] - ZUI[current_tfield_cidx_start] - 1 ))
+                reply=( $current_idx HYPERLINK )
             else
                 # Selecting non-hyperlink is disallowed?
                 (( ${ZUI[text_select]} )) && reply=( $current_idx SELECT ) || reply=( -1 '' )
