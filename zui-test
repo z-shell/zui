@@ -265,7 +265,7 @@ local pure_text_selected
             "Toggle ${reply[7]} - status logs appended at end, or at top, rotate ${reply[10]}"
             "Toggle ${reply[8]} - status position pointer, ${reply[9]}"
             "Random number: $RANDOM$((RANDOM%2))"
-            "Enter text! |${reply[11]}|, try keys UP/DOWN, |${reply[12]}|"
+            "Enter text! |${reply[11]}|, try keys UP/DOWN, [${reply[12]}]"
 
             # This is set in -zui_module1_external_action_1
             $module1_extra_line
