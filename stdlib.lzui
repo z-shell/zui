@@ -16,7 +16,7 @@ ZUI[stdlib_sourced]="1"
 # Background range: $'\020'-$'\030'. With BOLD it is ...-$'\031'
 # Formatting codes range: $'\03'-$'\07' $'\013'-$'\014' $'\016'-$'\031'
 #
-# \01 and \02 are used for hyperlinks (buttons)
+# \01 and \02 are used by buttons, \032, \034 by text fields
 
 # If one would want to use the lib without plugin...
 typeset -gA ZUI
@@ -87,8 +87,11 @@ function -zui_stdlib_button() {
         ZUI[$pfx$__id]="$__handler"
     }
 
+    # Quote only text, not codes
+    __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'0\037']##)/${(q)match[1]}}"
+
     local -a __output
-    __output=( "${(P@)__var_name}" $'\01'"$pfx$__id"$'\01'"$__data1"$'\01'"$__data2"$'\01'"$__data3"$'\01'"$__data4"$'\02'"${__text}" )
+    __output=( "${(P@)__var_name}" $'\01'"$pfx$__id"$'\01'"$__data1"$'\01'"$__data2"$'\01'"$__data3"$'\01'"$__data4"$'\02'"${__text}"$'\02' )
 
     unset pfx __id __data1 __data2 __data3 __data4 __text __handler
     : ${(PA)__var_name::=${__output[@]}}
@@ -109,7 +112,10 @@ function -zui_stdlib_rc_button() {
         ZUI[$pfx$__id]="$__handler"
     }
 
-    __output=( "${(P@)__var_name}" $'\01'"$pfx$__id"$'\01'"$__data1"$'\01'"$__data2"$'\01'"$__data3"$'\01'"$__data4"$'\02'"[${__text}]" )
+    # Quote only text, not codes
+    __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'0\037']##)/${(q)match[1]}}"
+
+    __output=( "${(P@)__var_name}" $'\01'"$pfx$__id"$'\01'"$__data1"$'\01'"$__data2"$'\01'"$__data3"$'\01'"$__data4"$'\02'"[${__text}]"$'\02' )
 
     unset pfx __id __data1 __data2 __data3 __data4 __text __handler
     : ${(PA)__var_name::=${__output[@]}}
@@ -178,9 +184,11 @@ function -zui_stdlib_anchor() {
         [[ "$__data3" = ,*, ]] && __pfx="zuieanchor"
     }
 
-    # Store return data
+    # Quote only text, not codes
+    __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'0\037']##)/${(q)match[1]}}"
+
     local -a __output
-    __output=( "${(P@)__var_name}" $'\01'"$__pfx$__id"$'\01'"$__data1"$'\01'"$__data2"$'\01'"$__data3"$'\01'"$__data4"$'\02'"${__text}" )
+    __output=( "${(P@)__var_name}" $'\01'"$__pfx$__id"$'\01'"$__data1"$'\01'"$__data2"$'\01'"$__data3"$'\01'"$__data4"$'\02'"${__text}"$'\02' )
     : ${(PA)__var_name::=${__output[@]}}
 
     # Store anchor's target line index
@@ -378,7 +386,7 @@ function -zui_stdlib_get_timestamp() {
 
 # Checks if given text is a hyperlink
 function -zui_stdlib_is_hyperlink() {
-    [[ "$1" = *$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'* ]]
+    [[ "$1" = *$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'[^$'\02']#$'\02'* ]]
 }
 
 # Checks if given text is a text field
@@ -410,7 +418,7 @@ function -zui_stdlib_pack_hyperlinks_into_box() {
         (( now_height >= max_height )) && break
 
         hyp_link="${@[idx]}"
-        __text="${hyp_link#$'\01'*$'\02'}"
+        __text="${hyp_link/(#b)$'\01'*$'\02'([^$'\02']#)$'\02'/${match[1]}}"
         text_len="${#__text}"
 
         # Will hyp_link fit into this line?
