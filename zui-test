@@ -247,6 +247,11 @@ local pure_text_selected
     (( ${+ZUI[my_tfield1_data]} == 0 )) && ZUI[my_tfield1_data]="An example text"
     noglob -zui_stdlib_text_field "tfield1_$mod" "$mod" ZUI[my_tfield1_width] ZUI[my_tfield1_start] ZUI[my_tfield1_data] "" "" 'module1_extra_line="Received text (with no restart): ${ZUI[CYAN]}${ZUI[my_tfield1_data]}${ZUI[COLOR_END]}"; -zui_stdlib_fly_mod_regen -zuitest_mod1_generator "'"tfield1_$mod"'" "'"$mod"'"'
 
+    (( ${+ZUI[my_tfield2_width]} == 0 )) && ZUI[my_tfield2_width]=40
+    (( ${+ZUI[my_tfield2_start]} == 0 )) && ZUI[my_tfield2_start]=1
+    (( ${+ZUI[my_tfield2_data]} == 0 )) && ZUI[my_tfield2_data]="I'm wider and start at the beginning"
+    noglob -zui_stdlib_text_field "tfield2_$mod" "$mod" ZUI[my_tfield2_width] ZUI[my_tfield2_start] ZUI[my_tfield2_data] "" "" 'module1_extra_line="Received 2nd text (with no restart): ${ZUI[CYAN]}${ZUI[my_tfield2_data]}${ZUI[COLOR_END]}"; -zui_stdlib_fly_mod_regen -zuitest_mod1_generator "'"tfield2_$mod"'" "'"$mod"'"'
+
     # Passed user data
     local user_data=${2:+ \[Obtained regeneration user data: $2\]}
 
@@ -260,7 +265,7 @@ local pure_text_selected
             "Toggle ${reply[7]} - status logs appended at end, or at top, rotate ${reply[10]}"
             "Toggle ${reply[8]} - status position pointer, ${reply[9]}"
             "Random number: $RANDOM$((RANDOM%2))"
-            "Enter text! |${reply[11]}|, try keys UP/DOWN"
+            "Enter text! |${reply[11]}|, try keys UP/DOWN, |${reply[12]}|"
 
             # This is set in -zui_module1_external_action_1
             $module1_extra_line
