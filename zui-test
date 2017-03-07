@@ -614,6 +614,7 @@ if -zui_stdlib_decode_hyperlink "$ZUILIST_WRAPPER_BIT"; then
         ZUILIST_CURRENT_IDX=$(( ${ZUI[$id]-$data1} ))
         ZUILIST_CURRENT_SEGMENT=1
         id="zuiaction${id#zuieanchor}"
+        ZUILIST_SEARCH_BUFFER=""
         call_hook=1
     elif [[ "$id" = zuiaction* ]]; then
         call_hook=1

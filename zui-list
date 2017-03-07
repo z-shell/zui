@@ -1001,8 +1001,9 @@ while (( 1 )); do
     if [[ -n "$jump_id" ]]; then
         ZUILIST_CURRENT_IDX=$(( ${ZUI[$jump_id]:-$jump_data} ))
         (( ZUILIST_CURRENT_IDX < 1 )) && ZUILIST_CURRENT_IDX=1
-        (( ZUILIST_CURRENT_IDX > last_element )) && ZUILIST_CURRENT_IDX="$last_element"
+        [[ -z "$ZUILIST_SEARCH_BUFFER" ]] && (( ZUILIST_CURRENT_IDX > last_element )) && ZUILIST_CURRENT_IDX="$last_element"
         ZUILIST_CURRENT_SEGMENT=1
+        ZUILIST_SEARCH_BUFFER=""
         -zui_list_compute_first_to_show_idx_center
     fi
 done
