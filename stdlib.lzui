@@ -206,7 +206,7 @@ function -zui_stdlib_text_field() {
 
     [[ -n "$__handler" ]] && ZUI[zuitfield$__id]="$__handler"
 
-    __output=( "${(P@)__var_name}" $'\032'"$pfx$__id"$'\032'"$__data1"$'\032'"$__data2"$'\032'"$__module_idx"$'\032'"$__width_var"$'\032'"$__sidx_var"$'\032'"$__text_var"$'\034' )
+    __output=( "${(P@)__var_name}" $'\032'"zuitfield$__id"$'\032'"$__data1"$'\032'"$__data2"$'\032'"$__module_idx"$'\032'"$__width_var"$'\032'"$__sidx_var"$'\032'"$__text_var"$'\034' )
 
     unset __id __module_idx __width_var __sidx_var __text_var __data1 __data2 __handler
     : ${(PA)__var_name::=${__output[@]}}
