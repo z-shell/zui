@@ -8,11 +8,11 @@
 # Cleanup $ZUI hash runtime data
 -zui_stdlib_cleanup
 
+# Initialize ZUI app
+-zui_stdlib_init
+
 ZUI[app]="zui-test"
 ZUI[app_name]="ZUI demonstration"
-
-[[ -o interactivecomments ]] && ZUI[INTERACTIVE_COMMENTS]="1" || ZUI[INTERACTIVE_COMMENTS]="0"
-[[ -o promptsubst ]] && ZUI[PROMPT_SUBST]="1" || ZUI[PROMPT_SUBST]="0"
 
 emulate -LR zsh
 setopt extendedglob typesetsilent warncreateglobal
@@ -26,7 +26,7 @@ setopt extendedglob typesetsilent warncreateglobal
 -zui_stdlib_store_default_app_config b:text_select 0
 -zui_stdlib_store_default_app_config s:log_colors "white cyan red green cyan red magenta yellow blue"
 
-# We are loading settings only because we alter them on the fly
+# Settings are loaded only because they're altered on the fly
 -zui_stdlib_load_config b:bold 0 2 'ZUI[bold]'
 -zui_stdlib_load_config b:text_mode 1 2 'ZUI[text_mode]'
 -zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'

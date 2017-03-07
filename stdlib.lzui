@@ -63,6 +63,14 @@ ZUI[MARK]=$'\035'           # octal value, decimal 29 - Group separator
 ZUI[MARK2]=$'\036'          # octal value, decimal 30 - Record separator
 ZUI[MARK_E]=$ZUI[COLOR_END]
 
+# Initializes ZUI application.
+# To be called before any emulate
+# -L or setopt localoptions command.
+function -zui_stdlib_init() {
+    [[ -o interactivecomments ]] && ZUI[INTERACTIVE_COMMENTS]="1" || ZUI[INTERACTIVE_COMMENTS]="0"
+    [[ -o promptsubst ]] && ZUI[PROMPT_SUBST]="1" || ZUI[PROMPT_SUBST]="0"
+}
+
 # Appends hyperlink into output array. It's the standard
 # action button, shown without surrounding "[" and "]".
 #
