@@ -624,7 +624,7 @@ if -zui_stdlib_decode_hyperlink "$ZUILIST_WRAPPER_BIT"; then
         reply[1]="${${${${${reply[1]#zuiiaction}#zuiaction}#zuicheckbox}#zuieanchor}#zuianchor}"
         # Call the handler with all hyper-link
         # data or eval code, not using the data
-        if [[ "${ZUI[$id]}" = *(=|\(\()* ]]; then
+        if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
             eval "${ZUI[$id]}"
 
             # Does in-line code set reply?

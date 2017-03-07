@@ -846,7 +846,7 @@ while (( 1 )); do
             reply[1]="${reply[1]#(zuiiaction|zuiaction|zuicheckbox|zuieanchor|zuianchor)}"
             # Call the handler with all hyper-link
             # data or eval code, not using the data
-            [[ "${ZUI[$id]}" = *(=|\(\()* ]] && eval "${ZUI[$id]}" || "${ZUI[$id]}" "${reply[@]}"
+            [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]] && eval "${ZUI[$id]}" || "${ZUI[$id]}" "${reply[@]}"
         fi
     fi
 
