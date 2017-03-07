@@ -152,6 +152,10 @@ local pure_text_selected
 -zui-standard-status-callback() {
     local tpe="$1"
 
+    # No fast log messages
+    [[ -n "$EPOCHREALTIME" ]] && (( EPOCHREALTIME - ${ZUI[my_prev_log_time]:-(${EPOCHREALTIME}-1)} < 0.14 )) && return 0
+    ZUI[my_prev_log_time]="$EPOCHREALTIME"
+
     local pressed="${ZUI[pressed_now]#(zuiiaction|zuiaction|zuicheckbox|zuieanchor|zuianchor|zuitfield)}"
     [[ "$pressed" = log_append* ]] && pressed="LOG: ${(U)ZUI[log_append]} " || pressed="${pressed:+<<Pressed: $pressed>> }"
 
