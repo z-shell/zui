@@ -200,7 +200,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
         # Lets find interesting segment and mark it with \7...\31
         zui-process-buffer "$element"
-        integer size="${#ZUI_PB_WORDS}" i
+        integer size="${#ZUI_PB_WORDS[@]}" i
         local buf=""
         for (( i=1; i<=size; i++ )); do
             if [[ "$i" -eq "$active_segment" ]]; then
@@ -334,7 +334,8 @@ local MBEGIN MEND MATCH
 local -a mbegin mend match
 local -a segments
 integer nseg
-typeset -A "cursor_state"
+
+local -A "cursor_state"
 cursor_state=( "main" 1 "status" 1 )
 
 # Escape codes for colors
@@ -521,7 +522,7 @@ while (( 1 )); do
                 # occuring not inside hyper link
                 # Pattern will be ((#s)[^$'\01']#FOO*|*$'\02'[^$'\01']#FOO*)~^((#s)[^$'\01']#BAR*|*$'\02'[^$'\01']#BAR*...)
                 # ~^ means: "not those that have not this"
-                search_pattern=${search_buffer//(#b)([^ ]##)/((#s)[^$'\01']#$match[1]*|*$'\02'[^$'\01']#$match[1]*)~^}
+                search_pattern=${search_buffer//(#b)([^ ]##)/((#s)[^$'\01']#${match[1]}*|*$'\02'[^$'\01']#${match[1]}*)~^}
                 search_pattern="${search_pattern// ##/}"
                 search_pattern="${search_pattern%\~\^}"
                 # Pattern will be (foo|bar)
@@ -800,7 +801,7 @@ while (( 1 )); do
         -zui_list_handle_resize 1
     elif [[ "$action" = "HYPERLINK" ]]; then
         -zui_stdlib_get_segment "${list[ZUILIST_CURRENT_IDX]}" "$ZUILIST_CURRENT_SEGMENT"
-        -zui_stdlib_decode_hyperlink $REPLY
+        -zui_stdlib_decode_hyperlink "$REPLY"
         local id="${reply[1]}"
         ZUI[pressed_now]="$id"
         integer call_hook=0

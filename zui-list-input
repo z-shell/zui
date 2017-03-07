@@ -223,7 +223,7 @@ case "$key" in
             ${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$current_idx]} != $current_idx ]]
         then
             # Check if we are at hyperlink. Only then allow selection
-            -zui_stdlib_get_segment "${(P)list_var_current}" $current_segment
+            -zui_stdlib_get_segment "${(P)list_var_current}" "$current_segment"
 
             local -a data
             reply=( )
