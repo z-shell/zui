@@ -44,6 +44,7 @@ typeset -ga ZUI_MESSAGES
 #
 
 zmodload -F zsh/stat b:zstat && ZUI[stat_available]="1" || ZUI[stat_available]="0"
+zmodload zsh/datetime && ZUI[datetime_available]="1" || ZUI[datetime_available]="0"
 
 #
 # Functions
