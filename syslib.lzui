@@ -21,6 +21,7 @@ ZUI[syslib_sourced]="1"
 # $4, ..., $11 - decoded __text field
 function -zui_syslib_get_tfield_cursor_boundaries() {
     local __out1="$1" __out2="$2" __elem="$3" __id="$4"
+    local -a __output
 
     zui-process-buffer "$__elem"
 
@@ -34,18 +35,18 @@ function -zui_syslib_get_tfield_cursor_boundaries() {
             __text="${__seg//$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\02'/}"
             -zui_stdlib_strip_codes "$__text"
             __idx+="${#REPLY}"
-        elif -zui_stdlib_decode_text_field "$__seg"; then
-            if [[ "$__id" = "${reply[1]}" ]]; then
+        elif -zui_stdlib_decode_text_field "$__seg" __output; then
+            if [[ "$__id" = "${__output[1]}" ]]; then
                 : ${(P)__out1::=$__idx}
 
-                __text="${(P)reply[5]}"
-                __text="${__text[${(P)reply[4]},-1]}"
-                __text="${__text[1,${(P)reply[3]}]}"
+                __text="${(P)__output[5]}"
+                __text="${__text[${(P)__output[4]},-1]}"
+                __text="${__text[1,${(P)__output[3]}]}"
                 __idx+="${#__text}"
                 : ${(P)__out2::=$__idx}
                 return 0
             else
-                __text="${(P)reply[5]}"
+                __text="${(P)__output[5]}"
                 __idx+="${#__text}"
             fi
         else
