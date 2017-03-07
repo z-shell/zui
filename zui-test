@@ -309,7 +309,7 @@ local pure_text_selected
     # Second instance of this content?
     if [[ "$mod" = "3" && "$total_module_limit" -eq 3 ]]; then
         reply=( )
-        -zui_stdlib_anchor "append_third_$mod" "3+2" "$mod" ",module${mod},module$(( $mod + 1 ))," "" "${ZUI[MAGENTA]}Append_third!${ZUI[COLOR_END]}" "(( total_module_limit ++ ))"
+        -zui_stdlib_anchor "append_third_$mod" "3+2" "$mod" ",module${mod},module$(( $mod + 1 ))," "" "${ZUI[MAGENTA]}Append third!${ZUI[COLOR_END]}" "(( total_module_limit ++ ))"
         append_third="${reply[1]}"
     fi
 
