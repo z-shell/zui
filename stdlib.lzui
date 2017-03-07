@@ -191,9 +191,9 @@ function -zui_stdlib_anchor() {
 #
 # $1 - action ID
 # $2 - module idx
-# $3 - width variable (minimum and maximum text width - padding with "_")
-# $4 - text start index variable - what part of string to show
-# $5 - text variable
+# $3 - width parameter (min and max text width - padding with "_")
+# $4 - start-index parameter - what part of string to show
+# $5 - text parameter - name of parameter holding text
 # $6 - data1
 # $7 - data2
 # $8 - handler (function name)
@@ -255,12 +255,12 @@ function -zui_stdlib_decode_hyperlink() {
 # $2 - optional output array name (default: "reply")
 #
 # $reply[1] - ID (of action)
-# $reply[2] - data1
-# $reply[3] - data2
-# $reply[4] - module index
-# $reply[5] - width parameter name
-# $reply[6] - start idx parameter name
-# $reply[7] - text data parameter name
+# $reply[2] - module idx
+# $reply[3] - width parameter name
+# $reply[4] - start-index parameter name
+# $reply[5] - text parameter name
+# $reply[6] - data1
+# $reply[7] - data2
 #
 function -zui_stdlib_decode_text_field() {
     local __var_name="${2:-reply}"
@@ -272,17 +272,17 @@ function -zui_stdlib_decode_text_field() {
         local assgn_str="${__var_name}[1]"
         : ${(P)assgn_str::=${(Q)__id}}
         assgn_str="${__var_name}[2]"
-        : ${(P)assgn_str::=${(Q)__data1}}
-        assgn_str="${__var_name}[3]"
-        : ${(P)assgn_str::=${(Q)__data2}}
-        assgn_str="${__var_name}[4]"
         : ${(P)assgn_str::=${(Q)__module_idx}}
-        assgn_str="${__var_name}[5]"
+        assgn_str="${__var_name}[3]"
         : ${(P)assgn_str::=${(Q)__width_var}}
-        assgn_str="${__var_name}[6]"
+        assgn_str="${__var_name}[4]"
         : ${(P)assgn_str::=${(Q)__sidx_var}}
-        assgn_str="${__var_name}[7]"
+        assgn_str="${__var_name}[5]"
         : ${(P)assgn_str::=${(Q)__param}}
+        assgn_str="${__var_name}[6]"
+        : ${(P)assgn_str::=${(Q)__data1}}
+        assgn_str="${__var_name}[7]"
+        : ${(P)assgn_str::=${(Q)__data2}}
         return 0
     fi
 

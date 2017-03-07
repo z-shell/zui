@@ -164,37 +164,37 @@ if [[ -n "${ZUI[current_tfield]}" ]]; then
                 ZUILIST_REGENERATE_LIST="2" # regenerate only display list
                 ;;
             ($'\E')
-                : ${(P)reply[6]::=${ZUI[current_tfield_initial_sidx]}}
-                : ${(P)reply[7]::=${ZUI[current_tfield_initial_data]}}
+                : ${(P)reply[4]::=${ZUI[current_tfield_initial_sidx]}}
+                : ${(P)reply[5]::=${ZUI[current_tfield_initial_data]}}
                 ZUI[current_tfield]=""
                 ;;
             (DOWN|NPAGE)
-                text="${(P)reply[5]}"
+                text="${(P)reply[3]}"
                 (( text = text > 5 ? text - 1 : text ))
-                : ${(P)reply[5]::=$text}
+                : ${(P)reply[3]::=$text}
                 ;;
             (UP|PPAGE)
-                text="${(P)reply[5]}"
+                text="${(P)reply[3]}"
                 (( text ++ ))
-                : ${(P)reply[5]::=$text}
+                : ${(P)reply[3]::=$text}
                 ;;
             (HOME)
                 ZUI[cursor_x]="${ZUI[current_tfield_cidx_start]}"
-                : ${(P)reply[6]::=1}
+                : ${(P)reply[4]::=1}
                 ;;
             (END)
                 ZUI[cursor_x]="${ZUI[current_tfield_cidx_end]}"
-                text="${(P)reply[7]}"
-                text=$(( ${#text} - ${(P)reply[5]} + 1 ))
-                : ${(P)reply[6]::=$text}
+                text="${(P)reply[5]}"
+                text=$(( ${#text} - ${(P)reply[3]} + 1 ))
+                : ${(P)reply[4]::=$text}
                 ;;
             (LEFT)
                 if (( ZUI[cursor_x] > ZUI[current_tfield_cidx_start] )); then
                     (( -- ZUI[cursor_x] ))
                 else
-                    text="${(P)reply[6]}"
+                    text="${(P)reply[4]}"
                     (( text = text > 1 ? text - 1 : text ))
-                    : ${(P)reply[6]::=$text}
+                    : ${(P)reply[4]::=$text}
                 fi
                 ;;
             (RIGHT)
@@ -205,50 +205,50 @@ if [[ -n "${ZUI[current_tfield]}" ]]; then
                     # index so that whole string is shown. Also, allow further
                     # advancement of the index, to scroll string left.
                     # string index + width - 1 < #string + width/2
-                    if (( ${(P)reply[6]} + ${(P)reply[5]} - 1 < ${(P)#reply[7]} + ${(P)reply[5]} / 2 )); then
-                        text="${(P)reply[6]}"
+                    if (( ${(P)reply[4]} + ${(P)reply[3]} - 1 < ${(P)#reply[5]} + ${(P)reply[3]} / 2 )); then
+                        text="${(P)reply[4]}"
                         (( ++ text ))
-                        : ${(P)reply[6]::=$text}
+                        : ${(P)reply[4]::=$text}
                     fi
                 fi
                 ;;
             ($'\b'|$'\C-?'|BACKSPACE)
                 if (( ZUI[cursor_x] > ZUI[current_tfield_cidx_start] )); then
-                    text="${(P)reply[7]}"
+                    text="${(P)reply[5]}"
                     text[${ZUI[current_tfield_instr_idx]}]=""
-                    : ${(P)reply[7]::=$text}
+                    : ${(P)reply[5]::=$text}
                     (( -- ZUI[cursor_x] ))
                 fi
                 ;;
             (DC)
                 if (( ZUI[cursor_x] < ZUI[current_tfield_cidx_end] )); then
-                    text="${(P)reply[7]}"
+                    text="${(P)reply[5]}"
                     text[${ZUI[current_tfield_instr_idx]}+1]=""
-                    : ${(P)reply[7]::=$text}
+                    : ${(P)reply[5]::=$text}
                 fi
                 ;;
             (??*|$'\t')
                 ;;
             (*)
-                text="${(P)reply[7]}"
+                text="${(P)reply[5]}"
                 if (( ZUI[current_tfield_instr_idx] )); then
                     text[${ZUI[current_tfield_instr_idx]}]="${text[${ZUI[current_tfield_instr_idx]}]}$key"
-                    : ${(P)reply[7]::=$text}
+                    : ${(P)reply[5]::=$text}
 
                     # Scroll text right if string protrudes from
                     # right boundary of text field
                     # #string > string index + width - 1
-                    if (( ${(P)#reply[7]} > ${(P)reply[6]} + ${(P)reply[5]} - 1 )); then
-                        text="${(P)reply[6]}"
+                    if (( ${(P)#reply[5]} > ${(P)reply[4]} + ${(P)reply[3]} - 1 )); then
+                        text="${(P)reply[4]}"
                         (( ++ text ))
-                        : ${(P)reply[6]::=$text}
+                        : ${(P)reply[4]::=$text}
                     else
                         (( ++ ZUI[cursor_x] ))
                     fi
                 else
                     # Prepend
                     text="$key$text"
-                    : ${(P)reply[7]::=$text}
+                    : ${(P)reply[5]::=$text}
                     (( ++ ZUI[cursor_x] ))
                 fi
                 ;;
@@ -256,7 +256,7 @@ if [[ -n "${ZUI[current_tfield]}" ]]; then
 
         -zui_syslib_get_tfield_cursor_boundaries 'ZUI[current_tfield_cidx_start]' 'ZUI[current_tfield_cidx_end]' "${(P)list_var_current}" "${reply[1]}"
         (( ZUI[cursor_x] = ZUI[cursor_x] > ZUI[current_tfield_cidx_end] ? ZUI[current_tfield_cidx_end] : ZUI[cursor_x] ))
-        ZUI[current_tfield_instr_idx]=$(( ${(P)reply[6]} + ZUI[cursor_x] - ZUI[current_tfield_cidx_start] - 1 ))
+        ZUI[current_tfield_instr_idx]=$(( ${(P)reply[4]} + ZUI[cursor_x] - ZUI[current_tfield_cidx_start] - 1 ))
     else
         ZUI[current_tfield]=""
     fi
@@ -345,12 +345,12 @@ case "$key" in
                 fi
             elif -zui_stdlib_decode_text_field "$REPLY"; then
                 ZUI[current_tfield]="${reply[1]}"
-                ZUI[current_tfield_initial_sidx]="${(P)reply[6]}"
-                ZUI[current_tfield_initial_data]="${(P)reply[7]}"
+                ZUI[current_tfield_initial_sidx]="${(P)reply[4]}"
+                ZUI[current_tfield_initial_data]="${(P)reply[5]}"
                 -zui_syslib_get_tfield_cursor_boundaries 'ZUI[current_tfield_cidx_start]' 'ZUI[current_tfield_cidx_end]' "${(P)list_var_current}" "${reply[1]}"
                 ZUI[cursor_y]=$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))
                 ZUI[cursor_x]=$(( ZUI[current_tfield_cidx_end] ))
-                ZUI[current_tfield_instr_idx]=$(( ${(P)reply[6]} + ZUI[cursor_x] - ZUI[current_tfield_cidx_start] - 1 ))
+                ZUI[current_tfield_instr_idx]=$(( ${(P)reply[4]} + ZUI[cursor_x] - ZUI[current_tfield_cidx_start] - 1 ))
             else
                 # Selecting non-hyperlink is disallowed?
                 (( ${ZUI[text_select]} )) && reply=( $current_idx SELECT ) || reply=( -1 '' )
