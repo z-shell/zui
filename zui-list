@@ -825,7 +825,7 @@ while (( 1 )); do
         # Handle resize, force terminal-size read
         -zui_list_handle_resize 1
     elif [[ "$action" = "HYPERLINK" ]]; then
-        -zui_stdlib_get_segment "${list[ZUILIST_CURRENT_IDX]}" "$ZUILIST_CURRENT_SEGMENT"
+        -zui_stdlib_get_segment "${list[selection]}" "$ZUILIST_CURRENT_SEGMENT"
         -zui_stdlib_decode "$REPLY"
         local id="${reply[1]}"
         ZUI[pressed_now]="$id"
@@ -843,7 +843,7 @@ while (( 1 )); do
 
         # Is there hook to launch?
         if [[ $call_hook -gt 0 && -n "${ZUI[$id]}" ]]; then
-            reply[1]="${${${${${reply[1]#zuiiaction}#zuiaction}#zuicheckbox}#zuieanchor}#zuianchor}"
+            reply[1]="${reply[1]#(zuiiaction|zuiaction|zuicheckbox|zuieanchor|zuianchor)}"
             # Call the handler with all hyper-link
             # data or eval code, not using the data
             [[ "${ZUI[$id]}" = *(=|\(\()* ]] && eval "${ZUI[$id]}" || "${ZUI[$id]}" "${reply[@]}"
