@@ -87,10 +87,6 @@ integer total_module_limit=3
 # internal action.
 integer internal
 
-# Holds the selected text (in text_mode and
-# text_select mode)
-local pure_text_selected
-
 #
 # External Actions
 #
@@ -162,9 +158,8 @@ local pure_text_selected
     # Zero-type means callback is called on a non-hyperlink
     if [[ "$tpe" = "0" ]]; then
         local selectable="$2" uniq="$3" search="$4" line="$5" segment="$6"
-        if [[ -n "$pure_text_selected" ]]; then
+        if [[ -n "${ZUI[pure_text_selected]}" ]]; then
             reply=( "$pressed" "Pure-text selected: " "$segment" )
-            pure_text_selected=""
         elif (( $selectable || $uniq || $search )); then
             # 1/0 selectable or not || 1/0 uniq mode || 1/0 non-empty search query
             # Any of those means no hops and no non-selectables are relevant
@@ -668,7 +663,7 @@ if -zui_stdlib_decode_hyperlink "$ZUILIST_WRAPPER_BIT"; then
     REGENERATE+="$REGENERATE_ALWAYS"
 else
     # Non-hyperlink text-bit selection
-    pure_text_selected="$ZUILIST_WRAPPER_BIT"
+    ZUI[pure_text_selected]="$ZUILIST_WRAPPER_BIT"
 fi
 
 ### REGENERATION REQUEST LOOP ###

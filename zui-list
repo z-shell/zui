@@ -705,6 +705,7 @@ while (( 1 )); do
             tpe=$?
         }
         ZUI[pressed_now]=""
+        ZUI[pure_text_selected]=""
 
         (( tpe > 0 )) && -zui_stdlib_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
 
