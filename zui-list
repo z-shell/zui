@@ -848,6 +848,13 @@ while (( 1 )); do
             # data or eval code, not using the data
             [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]] && eval "${ZUI[$id]}" || "${ZUI[$id]}" "${reply[@]}"
         fi
+    elif [[ "$action" = TFIELD* ]]; then
+        -zui_stdlib_get_segment "${list[selection]}" "$ZUILIST_CURRENT_SEGMENT"
+        -zui_stdlib_decode "$REPLY" && local id="${reply[1]}" || local id="-"
+        if [[ "$action" = TFIELD_LEFT && -n "${ZUI[$id]}" ]]; then
+            reply[1]="${reply[1]#(zuiiaction|zuiaction|zuicheckbox|zuieanchor|zuianchor)}"
+            [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]] && eval "${ZUI[$id]}" || "${ZUI[$id]}" "${reply[@]}"
+        fi
     fi
 
     # Now check if there are any update-on-the-fly packages submitted
