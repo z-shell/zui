@@ -14,7 +14,7 @@ setopt extendedglob typesetsilent warncreateglobal
 ## Parameters
 ##
 
-local MATCH; local -i MBEGIN MEND
+local MATCH REPLY; local -i MBEGIN MEND
 local -a match mbegin mend
 
 # Measure and limit generation time
