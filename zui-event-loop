@@ -5,48 +5,23 @@
 [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
 [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/syslib.lzui"
 
-# Cleanup $ZUI hash runtime data
--zui_stdlib_cleanup
-
-# Initialize ZUI app
--zui_stdlib_init
-
-ZUI[app]="zui-test"
-ZUI[app_name]="ZUI demonstration"
-
 emulate -LR zsh
 setopt extendedglob typesetsilent warncreateglobal
 
 [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
 
--zui_stdlib_store_default_app_config s:status_size "5"
--zui_stdlib_store_default_app_config s:log_append "above"
--zui_stdlib_store_default_app_config b:status_pointer 1
--zui_stdlib_store_default_app_config b:text_mode 0
--zui_stdlib_store_default_app_config b:text_select 0
--zui_stdlib_store_default_app_config s:log_colors "white cyan red green cyan red magenta yellow blue"
-
-# Settings are loaded only because they're altered on the fly
--zui_stdlib_load_config b:bold 0 2 'ZUI[bold]'
--zui_stdlib_load_config b:text_mode 1 2 'ZUI[text_mode]'
--zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
--zui_stdlib_load_config b:status_pointer 1 2 'ZUI[status_pointer]'
--zui_stdlib_load_config s:log_append "above" 2 'ZUI[log_append]'
--zui_stdlib_load_config b:status_border 0 2 'ZUI[status_border]'
-
 ##
-## Main code
+## Parameters
 ##
+
+local MATCH; local -i MBEGIN MEND
+local -a match mbegin mend
 
 # Measure and limit generation time
 typeset -F SECONDS=0.0
-local -F start_seconds
+local -F zuiel_start_seconds
 
-#
-# Variables
-#
-
-# Replies from generation modules
+# Replies from module generators
 # reply - content
 # reply2 - content size
 # reply3 - nonselectables (to be globalized)
@@ -60,521 +35,261 @@ integer reply2
 # subject to index globalization (translation
 # of local in-module indices to normal, global
 # list indices)
-local -aU regen_lanchors
+local -aU zuiel_regen_lanchors
 
-# Module counter - used to declare parameters
-# of given module (they are distinct only in
-# counter embedded in them)
-local module
+# Module and instance counters. Both used to
+# declare parameters of generated module's
+# instance (the parameters are distinct only
+# in counter embedded in them). In general
+# they're used to iterate modules' instances.
+integer zel_mod zel_ice
 
 # Used to access parameters via name
-local var_name
+local zuiel_var_name
 
-# Used in e.g. for loops as index
-integer i
-
-# A variable used for demonstration purposes
-local module1_extra_line
-
-# Maximum number of modules to generate,
-# the dynamic ones will saturate that value
-integer total_module_limit=3
-
-# A special parameter to be used in handlers
-# that are to-eval code, not function names.
-# By doing "internal=1" somewhere in the code
-# the anchor, button will be configured as
-# internal action.
-integer internal
-
-#
-# External Actions
-#
-
--zui_module1_external_action_1() {
-    local var_name="module${2}_extra_line"
-    : ${(P)var_name::=Function set this line, regeneration used it}
-
-    # Request regeneration - module ID
-    # and regeneration argument (empty)
-    reply=( ",module${2}," "" )
-}
-
--zui_top_anchors_external_action_1() {
-    print "[Module1] anchor button - I've jumped even though list has been restarted!"
-}
-
-#
-# Internal actions
-#
-
-# Anchor internal action - data1 is index in time
-# of creation of the anchor (it an be changed via
-# on-the-fly updates submitted by stdlib function
-# -zui_stdlib_submit_list_update)
--zui_top_anchors_internal_action_1() {
-    local id="$1" line="$2" module="$3"
-
-    if [[ "$module" = "2" ]]; then
-        -zui_stdlib_has_default_color && {
-            # Can reveal transparency, if terminal
-            # has background image or is transparent
-            zcurses bg "status" "white/default"
-            ZUI[status_colorpair]="white/default"
-        }
-
-        # This is internal zui-list variable,
-        # accessible because internal actions
-        # are called from within the list
-        ZUI[bold]=1
-    elif [[ "$module" = "3" ]]; then
-        -zui_module2_internal_action_1 "$id" "$(( module - 1 ))" "" "" ""
-    fi
-}
-
--zui_module2_internal_action_1() {
-    local id="$1" module="$2"
-
-    -zui_stdlib_fly_mod_regen -zuitest_mod2_generator "$id" "$module" "Extra line"
-}
-
-#
-# Other callbacks
-#
-
-# Optional, unset explicitly if unused
-# It generates additional status text, displayed after
-# "Current #...", from data of highlighted button
--zui-standard-status-callback() {
-    local tpe="$1"
-
-    # No fast log messages
-    [[ -n "$EPOCHREALTIME" ]] && (( EPOCHREALTIME - ${ZUI[my_prev_log_time]:-(${EPOCHREALTIME}-1)} < 0.14 )) && return 0
-    ZUI[my_prev_log_time]="$EPOCHREALTIME"
-
-    local pressed="${ZUI[pressed_now]#(zuiiaction|zuiaction|zuicheckbox|zuieanchor|zuianchor|zuitfield)}"
-    [[ "$pressed" = log_append* ]] && pressed="LOG: ${(U)ZUI[log_append]} " || pressed="${pressed:+<<Pressed: $pressed>> }"
-
-    # Zero-type means callback is called on a non-hyperlink
-    if [[ "$tpe" = "0" ]]; then
-        local selectable="$2" uniq="$3" search="$4" line="$5" segment="$6"
-        if [[ -n "${ZUI[pure_text_selected]}" ]]; then
-            reply=( "$pressed" "Pure-text selected: " "$segment" )
-        elif (( $selectable || $uniq || $search )); then
-            # 1/0 selectable or not || 1/0 uniq mode || 1/0 non-empty search query
-            # Any of those means no hops and no non-selectables are relevant
-            -zui_stdlib_strip_codes "$segment"
-            reply=( "$pressed" "" "Text: " "$REPLY" )
-        else
-            # Detect if current line is also a hop
-            local on_hop
-            if [[ "${(t)ZUILIST_HOP_INDICES}" = array* && -n "${ZUILIST_HOP_INDICES[(r)$ZUILIST_CURRENT_IDX]}" ]]; then
-                on_hop=", also a hop"
-            fi
-
-            reply=( "$pressed" )
-            [[ -z "$pressed" ]] && reply+=( "(A non-selectable line$on_hop)" )
-        fi
-
-        # Resulting type: 1 - log message
-        return 1
-    else
-        # No message on text field input
-        [[ -z "${ZUI[pressed_now]}" && -n "${ZUI[current_tfield]}" ]] && return 0
-
-        local id="$2" data1="$3" data2="$4" data3="$5" data4="$6" text="$7"
-
-        # Module attribute is obligatory for text fields,
-        # but for other hyperlinks it is decision of this
-        # application to use data1 as module index
-        [[ $id = (zuiiaction|zuianchor|zuicheckbox|zuitfield)* ]] && local exint="NO-RESTART" || local exint="RESTART"
-        [[ $id = (zuiaction|zuiiaction|zuicheckbox|zuitfield)* ]] && local attribute="Module"
-        # A raw link? (i.e. no handler and no dynamic function)
-        [[ $id != (zuiaction|zuiiaction|zuicheckbox|zuianchor|zuieanchor|zuitfield)* ]] && {
-            local attribute="Module"
-            exint+=" <raw link>"
-        }
-
-        id="${id#(zuiiaction|zuiaction|zuicheckbox|zuieanchor|zuianchor|zuitfield)}"
-
-        handler="$ZUI[zuiiaction$id]"
-        [[ -z "$handler" ]] && handler="${ZUI[zuiaction$id]}"
-        [[ -z "$handler" ]] && handler="${ZUI[zuitfield$id]}"
-
-        reply=( "$pressed" )
-        [[ -z "$pressed" ]] && reply+=( "Id: $id" " ${attribute-Index}: $data1" " $exint" " Handler:" " $handler" )
-
-        # Resulting type: 1 - log message
-        return 1
-    fi
-}
-
-#
-# Generators for modules
-#
-
-# Generator for module 1
--zuitest_mod1_generator() {
-    local mod="$1"
-
-    # Prepare toggle button's states
-    local col_bld col_tmd col_tsel col_lap col_sptr col_sb
-    -zui_stdlib_map_bools "ZUI[bold];ZUI[text_mode];ZUI[text_select];[[ \"${ZUI[log_append]}\" = below ]];ZUI[status_pointer];ZUI[status_border]" \
-                            "col_bld;col_tmd;col_tsel;col_lap;col_sptr;col_sb" "${ZUI[BG_BLUE]}" "${ZUI[GREEN]}"
-
-    reply=( )
-    # IDs of anchors have own namespace
-    -zui_stdlib_anchor "regenerate1_$mod" "1" "" ",module${mod}," "${RANDOM}$((RANDOM%2))" "[${ZUI[MAGENTA]}Regenerate${ZUI[COLOR_END]}]"
-    -zui_stdlib_rc_button "regenerate2_$mod" "$mod" "" "" "" "${ZUI[MAGENTA]}Regenerate${ZUI[COLOR_END]}" -zui_module1_external_action_1
-    -zui_stdlib_rc_button "regenerate3_$mod" "$mod" "" ",module$(( $mod + 1 ))," "" "${ZUI[MAGENTA]}Regenerate${ZUI[COLOR_END]}"
-    # internal=1 is a trick, look at comment
-    -zui_stdlib_rc_button "bold_$mod" "$mod" "" "" "" "${col_bld}bold${ZUI[COLOR_END]}" 'internal=1; (( ZUI[bold]=1-ZUI[bold] )); -zui_stdlib_fly_mod_regen -zuitest_mod1_generator "'"bold_$mod"'" "'"$mod"'"'
-    -zui_stdlib_rc_button "text_mode_$mod" "$mod" "" "" "" "${col_tmd}Text_mode${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_mode]=1-ZUI[text_mode] )); -zui_stdlib_fly_mod_regen -zuitest_mod1_generator "'"text_mode_$mod"'" "'"$mod"'"'
-    -zui_stdlib_rc_button "text_select_$mod" "$mod" "" "" "" "${col_tsel}text_select${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_select]=1-ZUI[text_select] )); -zui_stdlib_fly_mod_regen -zuitest_mod1_generator "'"text_select_$mod"'" "'"$mod"'"'
-    -zui_stdlib_rc_button "log_append_$mod" "$mod" "" "" "" "${col_lap}log_append${ZUI[COLOR_END]}" 'internal=1; [[ ${ZUI[log_append]} = "below" ]] && ZUI[log_append]=above || ZUI[log_append]=below; -zui_stdlib_fly_mod_regen -zuitest_mod1_generator "'"log_append_$mod"'" "'"$mod"'"'
-    -zui_stdlib_rc_button "status_pointer_$mod" "$mod" "" "" "" "${col_sptr}status_pointer${ZUI[COLOR_END]}" 'internal=1; (( ZUI[status_pointer]=1-ZUI[status_pointer] )); -zui_stdlib_fly_mod_regen -zuitest_mod1_generator "'"status_pointer_$mod"'" "'"$mod"'"'
-    -zui_stdlib_rc_button "status_border_$mod" "$mod" "" "" "" "${col_sb}status_border${ZUI[COLOR_END]}" 'internal=1; (( ZUI[status_border]=1-ZUI[status_border] )); -zui_stdlib_fly_mod_regen -zuitest_mod1_generator "'"status_border_$mod"'" "'"$mod"'"'
-    -zui_stdlib_rc_button "log_colors_$mod" "$mod" "" "" "" "${ZUI[GREEN]}log_colors${ZUI[COLOR_END]}" 'internal=1; log_colors=( $log_colors[-1] ${(@)log_colors[1,-2]} )'
-
-    # Don't overwrite user changes
-    (( ${+ZUI[my_tfield1_width]} == 0 )) && ZUI[my_tfield1_width]=20
-    (( ${+ZUI[my_tfield1_start]} == 0 )) && ZUI[my_tfield1_start]=4
-    (( ${+ZUI[my_tfield1_data]} == 0 )) && ZUI[my_tfield1_data]="An example text"
-    noglob -zui_stdlib_text_field "tfield1_$mod" "$mod" ZUI[my_tfield1_width] ZUI[my_tfield1_start] ZUI[my_tfield1_data] "" "" 'module1_extra_line="Received text (with no restart): ${ZUI[CYAN]}${ZUI[my_tfield1_data]}${ZUI[COLOR_END]}"; -zui_stdlib_fly_mod_regen -zuitest_mod1_generator "'"tfield1_$mod"'" "'"$mod"'"'
-
-    (( ${+ZUI[my_tfield2_width]} == 0 )) && ZUI[my_tfield2_width]=40
-    (( ${+ZUI[my_tfield2_start]} == 0 )) && ZUI[my_tfield2_start]=1
-    (( ${+ZUI[my_tfield2_data]} == 0 )) && ZUI[my_tfield2_data]="I'm wider and start at the beginning"
-    noglob -zui_stdlib_text_field "tfield2_$mod" "$mod" ZUI[my_tfield2_width] ZUI[my_tfield2_start] ZUI[my_tfield2_data] "" "" 'module1_extra_line="Received 2nd text (with no restart): ${ZUI[CYAN]}${ZUI[my_tfield2_data]}${ZUI[COLOR_END]}"; -zui_stdlib_fly_mod_regen -zuitest_mod1_generator "'"tfield2_$mod"'" "'"$mod"'"'
-
-    # Passed user data
-    local user_data=${2:+ \[Obtained regeneration user data: $2\]}
-
-    # Content
-    reply=(
-            "Hello World from ${ZUI[GREEN]}Module ${mod}${ZUI[COLOR_END]} (non-selectable line, a header)"
-            "${reply[1]} this module via ${ZUI[YELLOW]}list_restart${ZUI[COLOR_END]} and ${ZUI[CYAN]}external_anchor${ZUI[COLOR_END]}${user_data}"
-            "${reply[2]} this module via ${ZUI[YELLOW]}list_restart${ZUI[COLOR_END]} and ${ZUI[CYAN]}function_call${ZUI[COLOR_END]}"
-            "${reply[3]} the <NEXT> section via ${ZUI[YELLOW]}list_restart${ZUI[COLOR_END]} and ${ZUI[CYAN]}raw_link${ZUI[COLOR_END]}"
-            "Toggle ${reply[4]} with inlined (no function!) code, ${reply[5]}, ${reply[6]}"
-            "Toggle ${reply[7]} - status logs appended at end, or at top, rotate ${reply[10]}"
-            "Toggle ${reply[8]} - status position pointer, ${reply[9]}"
-            "Random number: $RANDOM$((RANDOM%2))"
-            "Enter text! |${reply[11]}|, try keys UP/DOWN, [${reply[12]}]"
-
-            # This is set in -zui_module1_external_action_1
-            $module1_extra_line
-            )
-
-    # Jump 2 lines after last line. Note that
-    # the line index is written as:
-    # - maximum local line number
-    # - remaining lines to reach next module
-    local -a next
-    -zui_stdlib_anchor "nextjump_$mod" "${#reply[@]}+2" "" "" "" "[${ZUI[YELLOW]}NEXT${ZUI[COLOR_END]}]" "" next
-    reply[4]="${reply[4]/<NEXT>/${next[1]}}"
-
-    # Content count
-    reply2=${#reply[@]}
-    # Non-selectables
-    reply3=( 1 8 ${module1_extra_line:+${#reply[@]}} )
-    # Hops
-    reply4=( 1 )
-    # Local anchors
-    reply5=( regenerate1_$mod nextjump_$mod )
-}
-
-# Generator for module 2
--zuitest_mod2_generator() {
-    local mod="$1" extra_line="$2"
-
-    local append_third
-    local regenerate jump
-
-    # First instance of this content?
-    if [[ "$mod" = "2" ]]; then
-        reply=( )
-        # IDs of anchors have own namespace
-        -zui_stdlib_rc_button "regenerate4_$mod" "$mod" "" "" "" "${ZUI[BOLD]}${ZUI[BLUE]}Regenerate${ZUI[COLOR_END]}" -zui_module2_internal_action_1
-        -zui_stdlib_anchor "jump1_$mod" "1" "" "" "" "[${ZUI[YELLOW]}Jump${ZUI[COLOR_END]}]"
-        regenerate="${reply[1]} this module ${ZUI[RED]}ON-THE-FLY${ZUI[COLOR_END]}, ${ZUI[YELLOW]}without${ZUI[COLOR_END]} list restart"
-        jump="${reply[2]} to 1st line"
-    fi
-
-    # Second instance of this content?
-    if [[ "$mod" = "3" && "$total_module_limit" -eq 3 ]]; then
-        reply=( )
-        -zui_stdlib_anchor "append_third_$mod" "3+2" "$mod" ",module${mod},module$(( $mod + 1 ))," "" "${ZUI[MAGENTA]}Append third!${ZUI[COLOR_END]}" "(( total_module_limit ++ ))"
-        append_third="${reply[1]}"
-    fi
-
-    if [[ "$mod" = "2" ]]; then
-        local rand_line="Random number: ${ZUI[YELLOW]}$RANDOM$((RANDOM%2))${ZUI[COLOR_END]}"
-    else
-        local rand_line="Random number: $RANDOM$((RANDOM%2))"
-    fi
-    # Content
-    reply=(
-        "The same generator called ${ZUI[CYAN]}#$(( mod - 1 ))${ZUI[COLOR_END]} time"
-        "${ZUI[GREEN]}Not selectable line${ZUI[COLOR_END]}"
-        $regenerate
-        $jump
-        "$rand_line"
-        $extra_line
-        $append_third
-    )
-    # Content count
-    reply2=${#reply[@]}
-    # Non-selectables
-    reply3=( 1 2 )
-    # Hops
-    reply4=( 1 )
-    # Local anchors (:+ - replace if not null)
-    reply5=( ${jump:+jump1_$mod} ${append_third:+append_third_$mod} )
-}
-
-#
-# Business logic follows
-#
-
-local curcontext=":zle:$WIDGET"
-local MATCH; local -i MBEGIN MEND
-local -a match mbegin mend
-
-#
-# General zstyles
-#
-
-###
-### REGENERATION REQUEST LOOP ###
-###
+# Loop parameters
+local zuiel_key zuiel_val1 zuiel_val2 zuiel_val3
 
 # Set REGENERATE_ALWAYS to e.g. ,module3,
 # to always regenerate third module
 local REGENERATE="initial" REGENERATE_ARG="" REGENERATE_ALWAYS=""
 
+# Holds ordered modules and their factors
+local -A zuiel_module_hash
+
+# Working variable of construction loop
+local -a ZUIEL_OUTPUT zuiel_output zuiel_nonselectables zuiel_hops zuiel_lanchors
+local -a zuiel_prev_nonselectables zuiel_prev_hops
+local -a zuiel_top_anchors
+local zuiel_prev_size zuiel_n zuiel_a
+integer ZUIEL_LINE_COUNT zuiel_size
+
+# Trick variable to make handlers internal actions
+local internal
+
+###
+### Parse input
+###
+
+zel_mod=0
+for zuiel_val1; do
+    (( ++ zel_mod ))
+    zuiel_val2="${zuiel_val1%%:*}"
+    zuiel_val3="${zuiel_val1#*:}"
+
+    # No number, but some "prefix:" ?
+    if [[ "$zuiel_val2" != <-> && "$zuiel_val2" != "$zuiel_val1" ]]; then
+        # Add regeneration hook
+        [[ "$zuiel_val2" = "regen" ]] && zuiel_module_hash[regen_${zuiel_val3}]=1
+        [[ "$zuiel_val2" = "fly-regen" ]] && zuiel_module_hash[fly-regen_${zuiel_val3}]=1
+        continue
+    elif [[ "$zuiel_val2" != <-> ]]; then
+        # Without prefix, default factor is 1
+        zuiel_val2="1"
+    fi
+
+    # Add module generator at position $module
+    zuiel_module_hash[${zel_mod}_${zuiel_val3}]="$zuiel_val2"
+done
+
+###                           ###
+### REGENERATION REQUEST LOOP ###
+###                           ###
+
 while (( 1 )); do
 
 # Measure generation time
-start_seconds=$SECONDS
+zuiel_start_seconds=$SECONDS
 
 # Clear the recreated-lanchors array
-regen_lanchors=( )
+zuiel_regen_lanchors=( )
 
 #
 # Common regeneration block
 #
 
-if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,all,* ]]
-then
-    :
-fi
+# Call regeneration hook if given
+zuiel_key="${zuiel_module_hash[(i)regen_*]}"
+[[ -n "$zuiel_key" ]] && "${zuiel_key#regen_}" "$REGENERATE" "$REGENERATE_ARG"
 
-#
-# Module 1
-#
+##
+## Generation sub-loop
+##
 
-module=1
+for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
+    # Get module key in storing hash
+    zuiel_key="${zuiel_module_hash[(i)${zel_mod}_*]}"
 
-if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,module${module},* || "$REGENERATE" = *,all,* ]]; then
-    # Module 1
-    local -a module${module}_output module${module}_nonselectables module${module}_hops module${module}_lanchors
-    local -a prev_module${module}_nonselectables prev_module${module}_hops
-    integer module${module}_size prev_module${module}_size
+    # Check such module exists
+    [[ -z "$zuiel_key" ]] && break;
+    zuiel_val1="${zuiel_module_hash[$zuiel_key]}"   # factor
+    zuiel_val2="${zuiel_key#[[:digit:]]#_}"         # generator
 
-    -zui_stdlib_reset_replies
-    -zuitest_mod1_generator $module $REGENERATE_ARG
+    # Generate required number of instances
+    for (( zel_ice=1; zel_ice <= zuiel_val1; ++ zel_ice )); do
+        if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,mod${zel_mod}_ice${zel_ice},* || "$REGENERATE" = *,all,* ]]; then
+            # Module $zel_mod, instance $zel_ice
+            local -a mod${zel_mod}_ice${zel_ice}_output mod${zel_mod}_ice${zel_ice}_nonselectables mod${zel_mod}_ice${zel_ice}_hops
+            local -a mod${zel_mod}_ice${zel_ice}_lanchors prev_mod${zel_mod}_ice${zel_ice}_nonselectables prev_mod${zel_mod}_ice${zel_ice}_hops
+            integer mod${zel_mod}_ice${zel_ice}_size prev_mod${zel_mod}_ice${zel_ice}_size
 
-    # This function has to be called after each *_generator
-    # function call, to copy reply{,2..5} into above (after
-    # "# Module 1" line) variables
-    -zui_stdlib_map_replies $module
+            -zui_stdlib_reset_replies
+            "$zuiel_val2" "$zel_mod" "$zel_ice" $REGENERATE_ARG
 
-    # Save any newly created local anchors
-    -zui_stdlib_gather_lanchors $module regen_lanchors
-fi
+            # This function has to be called after each *_generator
+            # function call, to copy reply{,2..5} into above (after
+            # "# Module $zel_mod ..." line) variables
+            -zui_stdlib_map_replies "$zel_mod" "$zel_ice"
 
-#
-# Automatic Module 2 & Module 3
-#
-
-for (( i=2; i <= total_module_limit; i ++ )); do
-
-    module=$i
-
-    if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,module${module},* || "$REGENERATE" = *,all,* ]]; then
-        # Module 2..4
-        local -a module${module}_output module${module}_nonselectables module${module}_hops module${module}_lanchors
-        local -a prev_module${module}_nonselectables prev_module${module}_hops
-        integer module${module}_size prev_module${module}_size
-
-        -zui_stdlib_reset_replies
-        -zuitest_mod2_generator $module $REGENERATE_ARG
-
-        # This function has to be called after each *_generator
-        # function call, to copy reply{,2..5} into above (after
-        # "# Module 2..4" line) variables
-        -zui_stdlib_map_replies $module
-
-        # Save any newly created local anchors
-        -zui_stdlib_gather_lanchors $module regen_lanchors
-    fi
-
+            # Save any newly created local anchors
+            -zui_stdlib_gather_lanchors "$zel_mod" "$zel_ice" zuiel_regen_lanchors
+        fi
+    done
 done
 
-#
-# Store all results into OUTPUT, ZUILIST_NONSELECTABLE_ELEMENTS, ZUILIST_HOP_INDICES
-#
+##
+## Construction sub-loop
+##
 
 typeset -ga ZUILIST_NONSELECTABLE_ELEMENTS ZUILIST_HOP_INDICES
 ZUILIST_NONSELECTABLE_ELEMENTS=()
 ZUILIST_HOP_INDICES=()
 
-local -a OUTPUT output nonselectables hops lanchors
-local -a prev_nonselectables prev_hops
-local -a top_anchors
-local prev_size n a
-integer LINE_COUNT size
+ZUIEL_OUTPUT=( )
+ZUIEL_LINE_COUNT=0
+zuiel_top_anchors=( )
 
-OUTPUT=( )
-LINE_COUNT=0
-top_anchors=( )
+for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
+    zuiel_key="${zuiel_module_hash[(i)${zel_mod}_*]}"
 
-for (( i = 1; i <= 1000; i ++ )); do
-    n="module$i"
+    # Check such module exists
+    [[ -z "$zuiel_key" ]] && break;
+    zuiel_val1="${zuiel_module_hash[$zuiel_key]}"
 
-    # Check if there are any modules
-    var_name="${n}_output"
-    [[ "${(P)+var_name}" = "0" ]] && break
+    for (( zel_ice=1; zel_ice <= zuiel_val1; ++ zel_ice )); do
+        zuiel_n="mod${zel_mod}_ice${zel_ice}"
 
-    # Get output
-    output=( "${(PA@)var_name}" )
+        # Check if there are any modules
+        zuiel_var_name="${zuiel_n}_output"
+        [[ "${(P)+zuiel_var_name}" = "0" ]] && break
 
-    # Get output size
-    var_name="${n}_size"
-    size="${(P)var_name}"
+        # Get zuiel_output
+        zuiel_output=( "${(PA@)zuiel_var_name}" )
 
-    # Get nonselectables
-    var_name="${n}_nonselectables"
-    nonselectables=( "${(PA@)var_name}" )
+        # Get zuiel_output zuiel_size
+        zuiel_var_name="${zuiel_n}_size"
+        zuiel_size="${(P)zuiel_var_name}"
 
-    # Get hops
-    var_name="${n}_hops"
-    hops=( "${(PA@)var_name}" )
+        # Get zuiel_nonselectables
+        zuiel_var_name="${zuiel_n}_nonselectables"
+        zuiel_nonselectables=( "${(PA@)zuiel_var_name}" )
 
-    # Get local anchors
-    var_name="${n}_lanchors"
-    lanchors=( "${(PA@)var_name}" )
+        # Get zuiel_hops
+        zuiel_var_name="${zuiel_n}_hops"
+        zuiel_hops=( "${(PA@)zuiel_var_name}" )
 
-    # Get previous size
-    var_name="prev_${n}_size"
-    prev_size="${(P)var_name}"
+        # Get local anchors
+        zuiel_var_name="${zuiel_n}_lanchors"
+        zuiel_lanchors=( "${(PA@)zuiel_var_name}" )
 
-    # Get previous nonselectables
-    var_name="prev_${n}_nonselectables"
-    prev_nonselectables=( "${(PA@)var_name}" )
+        # Get previous zuiel_size
+        zuiel_var_name="prev_${zuiel_n}_size"
+        zuiel_prev_size="${(P)zuiel_var_name}"
 
-    # Get previous hops
-    var_name="prev_${n}_hops"
-    prev_hops=( "${(PA@)var_name}" )
+        # Get previous zuiel_nonselectables
+        zuiel_var_name="prev_${zuiel_n}_nonselectables"
+        zuiel_prev_nonselectables=( "${(PA@)zuiel_var_name}" )
 
-    if (( size > 0 )); then
-        OUTPUT+=( "" )
-        LINE_COUNT+=1
-        # + 1 for the anchors at top
-        ZUILIST_NONSELECTABLE_ELEMENTS+=( "$(( LINE_COUNT + 1 ))" )
-    fi
+        # Get previous zuiel_hops
+        zuiel_var_name="prev_${zuiel_n}_hops"
+        zuiel_prev_hops=( "${(PA@)zuiel_var_name}" )
 
-    # Translate returned indices to global ones
-    # The + 1 is for anchors at the top
-    nonselectables=( "${nonselectables[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + LINE_COUNT + 1 ))}" )
-    hops=( "${hops[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + LINE_COUNT + 1 ))}" )
+        if (( zuiel_size > 0 )); then
+            ZUIEL_OUTPUT+=( "" )
+            ZUIEL_LINE_COUNT+=1
+            # + 1 for the anchors at top
+            ZUILIST_NONSELECTABLE_ELEMENTS+=( "$(( ZUIEL_LINE_COUNT + 1 ))" )
+        fi
 
-    # Add translated, current hops and nonselectables
-    ZUILIST_NONSELECTABLE_ELEMENTS+=( "${nonselectables[@]}" )
-    ZUILIST_HOP_INDICES+=( "${hops[@]}" )
+        # Translate returned indices to global ones
+        # The + 1 is for anchors at the top
+        zuiel_nonselectables=( "${zuiel_nonselectables[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUIEL_LINE_COUNT + 1 ))}" )
+        zuiel_hops=( "${zuiel_hops[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUIEL_LINE_COUNT + 1 ))}" )
 
-    # Also store the indices into prev_* arrays
-    var_name="prev_${n}_nonselectables"
-    : "${(PA)var_name::=${nonselectables[@]}}";
-    var_name="prev_${n}_hops"
-    : "${(PA)var_name::=${hops[@]}}";
-    var_name="prev_${n}_size"
-    : "${(P)var_name::=${size}}";
+        # Add translated, current zuiel_hops and zuiel_nonselectables
+        ZUILIST_NONSELECTABLE_ELEMENTS+=( "${zuiel_nonselectables[@]}" )
+        ZUILIST_HOP_INDICES+=( "${zuiel_hops[@]}" )
 
-    # Translate module's new local anchors,
-    # into normal, global list indices
-    for a in "${lanchors[@]}"; do
-        [[ "${+ZUI[zuianchor$a]}" = "1" ]] && a="zuianchor$a" || {
-            [[ "${+ZUI[zuieanchor$a]}" = "1" ]] && a="zuieanchor$a"
-        }
-        # + 1 for anchors at top; retain "+number" part
-        ZUI[$a]=$(( ${ZUI[$a]%[-+]*} + LINE_COUNT + 1 ))"${ZUI[$a]##[0-9]##}"
-    done
+        # Also store the indices into prev_* arrays
+        zuiel_var_name="prev_${zuiel_n}_nonselectables"
+        : "${(PA)zuiel_var_name::=${zuiel_nonselectables[@]}}";
+        zuiel_var_name="prev_${zuiel_n}_hops"
+        : "${(PA)zuiel_var_name::=${zuiel_hops[@]}}";
+        zuiel_var_name="prev_${zuiel_n}_size"
+        : "${(P)zuiel_var_name::=${zuiel_size}}";
 
-    # Remove from list of anchors needing to-global
-    # translation. This makes anchors distinct from
-    # other data, other "...${n}..." parameters, as
-    # data is moved to ZUI hash once, and the array
-    # "${n}_lanchors" is instantly emptied.
-    var_name="${n}_lanchors"
-    : ${(PA)var_name::=}
-
-    # Create top anchors, for selected sections
-    reply=( )
-    if [[ "$i" = "1" ]]; then
-        # First argument of -zui_stdlib_anchor is
-        # reserved to index to jump to. Second
-        # argument, in case of automatically (in
-        # a loop) generated modules can be required
-        # to be index of the module ($i of this
-        # loop)
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "aglobal$i" "${hops[1]}" "$i" "" "" "[${ZUI[MAGENTA]}Module1${ZUI[COLOR_END]}]" -zui_top_anchors_external_action_1
-    elif [[ "$i" -ge "2" && "$i" -le "3" ]]; then
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "aglobal$i" "${hops[1]}" "$i" "" "" "[${ZUI[CYAN]}Module${i}${ZUI[COLOR_END]}]" -zui_top_anchors_internal_action_1
-    else
-        [[ -n "${hops[1]}" ]] && -zui_stdlib_anchor "aglobal$i" "${hops[1]}" "$i" "" "" "[${ZUI[YELLOW]}Module${i}${ZUI[COLOR_END]}]" -zui_top_anchors_internal_action_1
-    fi
-    top_anchors+=( "${reply[@]}" )
-
-    # Store where in the list module is
-    # located, via typical "moduleX_..."
-    # variable
-    local ${n}_global_index
-    var_name="${n}_global_index"
-    # + 1 for anchors at top, + 1 because
-    # we point at next line after separator
-    : ${(P)var_name::=$(( LINE_COUNT + 1 + 1 ))}
-
-    # Shift down (up) local anchors that weren't
-    # recreated in this regeneration loop run,
-    # i.e. aren't in regen_lanchors array. If an
-    # anchor ID contains string "global" then it
-    # will not be modified - will be considered
-    # a fixed global anchor.
-    if [[ $(( size - prev_size )) -ne 0 ]]; then
-        for a in ${ZUI[(I)zuianchor*~*global*]} ${ZUI[(I)zuieanchor*~*global*]}; do
-            # Skip anchors recreated at this regeneration loop
-            [[ "${regen_lanchors[(r)${a#zuianchor}]}" = ${a#zuianchor} || 
-               "${regen_lanchors[(r)${a#zuieanchor}]}" = ${a#zuieanchor} ]] && continue
-
-            # Anchor after current module? The %[-+]* removes
-            # "+number" part used to point to other modules
-            # while still using local anchors. This addition
-            # doesn't change the fact that the anchor belongs
-            # to its module, i.e. "a" in "a+b" matters.
-            #
-            # + 1 for anchors at top, + 1 because we point at
-            # module, at next line after empty separator line
-            if [[ "${ZUI[$a]%[-+]*}" -gt $(( LINE_COUNT + 1 + 1 + (size - 1) )) ]]; then
-                # Retain "+number" part
-                ZUI[$a]=$(( ${ZUI[$a]%[-+]*} + size - prev_size ))"${ZUI[$a]##[0-9]##}"
-            fi
+        # Translate module's new local anchors,
+        # into normal, global list indices
+        for zuiel_a in "${zuiel_lanchors[@]}"; do
+            [[ "${+ZUI[zuianchor$zuiel_a]}" = "1" ]] && zuiel_a="zuianchor$zuiel_a" || {
+                [[ "${+ZUI[zuieanchor$zuiel_a]}" = "1" ]] && zuiel_a="zuieanchor$zuiel_a"
+            }
+            # + 1 for anchors at top; retain "+number" part
+            ZUI[$zuiel_a]=$(( ${ZUI[$zuiel_a]%[-+]*} + ZUIEL_LINE_COUNT + 1 ))"${ZUI[$zuiel_a]##[0-9]##}"
         done
-    fi
 
-    OUTPUT+=( "${output[@]}" )
-    LINE_COUNT+=size
+        # Remove from list of anchors needing to-global
+        # translation. This makes anchors distinct from
+        # other data, other "...${zuiel_n}..." parameters, as
+        # data is moved to ZUI hash once, and the array
+        # "${zuiel_n}_lanchors" is instantly emptied.
+        zuiel_var_name="${zuiel_n}_lanchors"
+        : ${(PA)zuiel_var_name::=}
+
+        # Create top anchors
+        reply=( )
+        [[ -n "${zuiel_hops[1]}" ]] && -zui_stdlib_anchor "aglobal_m${zel_mod}_i${zel_ice}" "${zuiel_hops[1]}" "$zel_mod" "$zel_ice" "" "[${ZUI[CYAN]}Module${zel_mod}/${zel_ice}${ZUI[COLOR_END]}]" '(( ${+functions[-zui-global-anchors-callback]} )) && { -zui-global-anchors-callback  "'"aglobal_m${zel_mod}_i${zel_ice}"'" "'"${zuiel_hops[1]}"'" "'"$zel_mod"'" "'"$zel_ice"'"; internal=1; }'
+        zuiel_top_anchors+=( "${reply[@]}" )
+
+        # Store where in the list module is
+        # located, via typical "moduleX_..."
+        # variable
+        local ${zuiel_n}_global_index
+        zuiel_var_name="${zuiel_n}_global_index"
+        # + 1 for anchors at top, + 1 because
+        # we point at next line after separator
+        : ${(P)zuiel_var_name::=$(( ZUIEL_LINE_COUNT + 1 + 1 ))}
+
+        # Shift down (up) local anchors that weren't
+        # recreated in this regeneration loop run,
+        # i.e. aren't in zuiel_regen_lanchors array. If an
+        # anchor ID contains string "global" then it
+        # will not be modified - will be considered
+        # a fixed global anchor.
+        if [[ $(( zuiel_size - zuiel_prev_size )) -ne 0 ]]; then
+            for zuiel_a in ${ZUI[(I)zuianchor*~*global*]} ${ZUI[(I)zuieanchor*~*global*]}; do
+                # Skip anchors recreated at this regeneration loop
+                [[ "${zuiel_regen_lanchors[(r)${zuiel_a#zuianchor}]}" = ${zuiel_a#zuianchor} ||
+                   "${zuiel_regen_lanchors[(r)${zuiel_a#zuieanchor}]}" = ${zuiel_a#zuieanchor} ]] && continue
+
+                # Anchor after current module? The %[-+]* removes
+                # "+number" part used to point to other modules
+                # while still using local anchors. This addition
+                # doesn't change the fact that the anchor belongs
+                # to its module, i.e. "zuiel_a" in "zuiel_a+b" matters.
+                #
+                # + 1 for anchors at top, + 1 because we point at
+                # module, at next line after empty separator line
+                if [[ "${ZUI[$zuiel_a]%[-+]*}" -gt $(( ZUIEL_LINE_COUNT + 1 + 1 + (zuiel_size - 1) )) ]]; then
+                    # Retain "+number" part
+                    ZUI[$zuiel_a]=$(( ${ZUI[$zuiel_a]%[-+]*} + zuiel_size - zuiel_prev_size ))"${ZUI[$zuiel_a]##[0-9]##}"
+                fi
+            done
+        fi
+
+        ZUIEL_OUTPUT+=( "${zuiel_output[@]}" )
+        ZUIEL_LINE_COUNT+=zuiel_size
+    done
 done
 
 # Reset regeneration variables and prev_current_project
@@ -585,7 +300,7 @@ REGENERATE_ARG=""
 # Generation time
 #
 
-local generation_time="$(( SECONDS - start_seconds ))"
+local generation_time="$(( SECONDS - zuiel_start_seconds ))"
 ZUI[GENERATION_TIME]="${generation_time[1,4]}"
 
 #
@@ -597,11 +312,11 @@ ZUI[GENERATION_TIME]="${generation_time[1,4]}"
 -zui_stdlib_refresh_configs bold text_mode text_select status_pointer log_append status_border
 
 ZUILIST_HOP_INDICES+=( 1 ) # jump to anchors
-ZUILIST_NONSELECTABLE_ELEMENTS+=( $(( 1 + ${#OUTPUT} + 2 )) )
+ZUILIST_NONSELECTABLE_ELEMENTS+=( $(( 1 + ${#ZUIEL_OUTPUT[@]} + 2 )) )
 local ZUILIST_WRAPPER_BIT=""
-zui-usetty-wrapper zui-list-wrapper "${top_anchors[*]}" "${OUTPUT[@]}" "" "${ZUI[YELLOW]}Fine grained list (re-)generation time: $generation_time${ZUI[COLOR_END]}"
+zui-usetty-wrapper zui-list-wrapper "${zuiel_top_anchors[*]}" "${ZUIEL_OUTPUT[@]}" "" "${ZUI[YELLOW]}Fine grained list (re-)generation time: $generation_time${ZUI[COLOR_END]}"
 
-if [ -z "$ZUILIST_WRAPPER_BIT" ]; then
+if [[ -z "$ZUILIST_WRAPPER_BIT" ]]; then
     zle && { zle .redisplay; zle .reset-prompt; }
 
     # Cleanup $ZUI hash runtime data

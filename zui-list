@@ -863,14 +863,14 @@ while (( 1 )); do
     -zui_stdlib_decode_list_update "${ZUI[fly_update]}" update
     ZUI[fly_update]=""
 
-    if [[ ${update[3]} -ge 1 ]]; then
-        # If not empty, we're updating whole
-        # module and want this be treated as
-        # module regeneration
-        local module=$update[1]
-        integer update_first=$update[2]
-        integer update_count=$update[3]
-        shift 3 update
+    if [[ "${update[3]}" -ge 1 ]]; then
+        # If the two not empty, we're updating whole
+        # module and want this be treated as module
+        # regeneration
+        local mod=${update[1]} ice=${update[2]}
+        integer update_first=$update[3]
+        integer update_count=$update[4]
+        shift 4 update
         integer update_size=${#update}
 
         # Update $@ array of this function - it
@@ -892,9 +892,9 @@ while (( 1 )); do
         integer size_diff=$(( update_size - update_count )) mysize
         local index el var_name
 
-        if [[ -n "$module" ]]; then
+        if [[ -n "$mod" && -n "$ice" ]]; then
             local -a prev_nonselectables
-            var_name="prev_module${module}_nonselectables"
+            var_name="prev_mod${mod}_ice${ice}_nonselectables"
             prev_nonselectables=( "${(PA@)var_name}" )
             # Remove previous nonselectables, ^ is negation, ( ) is filled with "|"-joined previous elements
             ZUILIST_NONSELECTABLE_ELEMENTS=( ${(@M)ZUILIST_NONSELECTABLE_ELEMENTS:#(#b)^(${~${(j:|:)prev_nonselectables}})} )
@@ -912,9 +912,9 @@ while (( 1 )); do
             fi
         done
 
-        if [[ -n "$module" ]]; then
+        if [[ -n "$mod" && -n "$ice" ]]; then
             local -a prev_hops
-            var_name="prev_module${module}_hops"
+            var_name="prev_mod${mod}_ice${ice}_hops"
             prev_hops=( "${(PA@)var_name}" )
             ZUILIST_HOP_INDICES=( ${(@M)ZUILIST_HOP_INDICES:#(#b)^(${~${(j:|:)prev_hops}})} )
         fi
@@ -933,13 +933,18 @@ while (( 1 )); do
 
         # Push down (up) *_global_index parameters
         for (( index = 1; index <= 1000; index ++ )); do
-            var_name="module${index}_global_index"
-            [[ "${(P)+var_name}" = "0" ]] && break
+            for (( el = 1; el <= 1000; el ++ )); do
+                var_name="mod${index}_ice${el}_global_index"
+                [[ "${(P)+var_name}" = "0" ]] && break
 
-            el="${(P)var_name}"
-            if [[ -n "$el" && "$el" -gt "$(( update_first + update_count - 1 ))" ]]; then
-                : ${(P)var_name::=$(( el + size_diff ))}
-            fi
+                el="${(P)var_name}"
+                if [[ -n "$el" && "$el" -gt "$(( update_first + update_count - 1 ))" ]]; then
+                    : ${(P)var_name::=$(( el + size_diff ))}
+                fi
+            done
+
+            # No first section of current module?
+            (( el == 1 )) && break
         done
 
         # Now add new hops and nonselectables
@@ -956,16 +961,16 @@ while (( 1 )); do
         ZUILIST_NONSELECTABLE_ELEMENTS+=( "${nonselectables[@]}" )
         ZUILIST_HOP_INDICES+=( "${hops[@]}" )
 
-        if [[ -n "$module" ]]; then
+        if [[ -n "$mod" && -n "$ice" ]]; then
             # Treat as module update - fill prev_*
             # parameters and also *_global_index
-            var_name="prev_module${module}_nonselectables"
+            var_name="prev_mod${mod}_ice${ice}_nonselectables"
             : "${(PA)var_name::=${nonselectables[@]}}";
-            var_name="prev_module${module}_hops"
+            var_name="prev_mod${mod}_ice${ice}_hops"
             : "${(PA)var_name::=${hops[@]}}";
-            var_name="prev_module${module}_size"
+            var_name="prev_mod${mod}_ice${ice}_size"
             : "${(P)var_name::=$update_size}";
-            var_name="module${module}_global_index"
+            var_name="mod${mod}_ice${ice}_global_index"
             : "${(P)var_name::=$update_first}";
         fi
 
@@ -992,15 +997,15 @@ while (( 1 )); do
         # list update - this means lanchors have
         # been submitted to module${idx}_lanchors
         # parameter. They are now fully processed.
-        if [[ -n "$module" ]]; then
-            var_name="module${module}_lanchors"
+        if [[ -n "$mod" && -n "$ice" ]]; then
+            var_name="mod${mod}_ice${ice}_lanchors"
             : ${(PA)var_name::=}
         fi
 
         # Cleanup
         unset update update_size nonselectables
         unset update_first update_count hops
-        unset index mysize el var_name
+        unset index mysize el var_name mod ice
     elif (( ${+ZUILIST_REPLY_CHECKBOX_NUM} )); then
         local new_line="${@[ZUILIST_REPLY_CHECKBOX_NUM]}"
         [[ "$ZUILIST_REPLY_CHECKBOX_OP" = "set" ]] && new_line="${new_line/\[_\]/[x]}" || new_line="${new_line/\[x\]/[_]}"
