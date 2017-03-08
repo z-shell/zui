@@ -50,4 +50,21 @@ zmodload zsh/datetime && ZUI[datetime_available]="1" || ZUI[datetime_available]=
 # Functions
 #
 
+# Cleanup and init stubs, to be first stdlib
+# functions called, sourcing the libraries
+
+function -zui_stdlib_cleanup() {
+    unfunction -- -zui_stdlib_cleanup
+    [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
+    [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/syslib.lzui"
+    -zui_stdlib_cleanup "$@"
+}
+
+function -zui_stdlib_init() {
+    unfunction -- -zui_stdlib_init
+    [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
+    [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/syslib.lzui"
+    -zui_stdlib_init "$@"
+}
+
 # vim:ft=zsh
