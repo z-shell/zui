@@ -1,0 +1,35 @@
+# Started from Zle or from command line
+
+-zui_stdlib_cleanup
+-zui_stdlib_init
+
+ZUI[app]="zui-demo-hello-world"
+ZUI[app_name]="ZUI Hello World"
+
+emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
+
+[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
+
+-zui_stdlib_store_default_app_config b:border 1
+-zui_stdlib_store_default_app_config s:status_size 3
+-zui_stdlib_store_default_app_config b:status_border 1
+
+# Generator for module 1
+demo_mod1_generator() {
+    local mod="$1" ice="$2"
+
+    # Content, no hyper-links
+    reply=( "Hello World from ${ZUI[YELLOW]}ZUI${ZUI[COLOR_END]}! Module $mod, instance $ice." )
+
+    # Content count     Non-selectable lines    Hops to jump with [ and ]   Local anchors
+    reply2=${#reply[@]} reply3=(  )             reply4=( 1 )                reply5=( )
+}
+
+## Start application ##
+zui-event-loop 1:demo_mod1_generator
+
+-zui_stdlib_cleanup
+
+return 0
+
+# vim:ft=zsh
