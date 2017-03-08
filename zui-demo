@@ -11,7 +11,7 @@
 ZUI[app]="zui-demo"
 ZUI[app_name]="ZUI demo"
 
-emulate -LR zsh -o extendedglob typesetsilent warncreateglobal
+emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
 [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
 
