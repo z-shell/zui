@@ -1,0 +1,46 @@
+# Started from Zle or from command line
+
+-zui_stdlib_cleanup
+-zui_stdlib_init
+
+ZUI[app]="zui-demo-hello-world"
+ZUI[app_name]="ZUI Hello World"
+
+emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
+
+[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
+
+-zui_stdlib_store_default_app_config b:border 1
+-zui_stdlib_store_default_app_config s:status_size 3
+-zui_stdlib_store_default_app_config b:status_border 1
+
+# Extra line of text, loaded from text field
+local extra_line
+
+# Generator for module 1
+demo_mod1_generator() {
+    local mod="$1" ice="$2"
+
+    # Variables of the text field
+    (( ${+ZUI[my_tfield1_width]} == 0 )) && ZUI[my_tfield1_width]=50
+    (( ${+ZUI[my_tfield1_start]} == 0 )) && ZUI[my_tfield1_start]=1
+    (( ${+ZUI[my_tfield1_data]} == 0 )) && ZUI[my_tfield1_data]="Enter accepts, ESC cancels, UP/DOWN resizes"
+
+    reply=()
+    noglob -zui_stdlib_text_field "tfield1_$mod" "$mod" ZUI[my_tfield1_width] ZUI[my_tfield1_start] ZUI[my_tfield1_data] "" "" 'extra_line="Received text: ${ZUI[CYAN]}${ZUI[my_tfield1_data]}${ZUI[COLOR_END]}"; -zui_stdlib_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
+
+    # Content, no hyper-links
+    reply=( "${ZUI[YELLOW]}ZUI${ZUI[COLOR_END]} text-field example: [${reply[1]}]" $extra_line )
+
+    # Content count     Non-selectable lines    Hops to jump with [ and ]   Local anchors
+    reply2=${#reply[@]} reply3=( 2 )            reply4=( 1 )                reply5=( )
+}
+
+## Start application ##
+zui-event-loop 1:demo_mod1_generator
+
+-zui_stdlib_cleanup
+
+return 0
+
+# vim:ft=zsh
