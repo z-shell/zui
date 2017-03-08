@@ -86,7 +86,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         last_element_difference=0
         current_difference=0
     else
-        last_element_difference=${#ZUILIST_NONSELECTABLE_ELEMENTS}
+        last_element_difference=${#ZUILIST_NONSELECTABLE_ELEMENTS[@]}
         current_difference=0
         local idx
         for idx in "${(n)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
@@ -713,7 +713,7 @@ while (( 1 )); do
             -zui-log "$wname_status" "$status_height" "$status_width" "${ZUI[status_border]}" "${ZUI[status_colorpair]}" \
                     "$ZUILIST_GREP_STRING" "$ZUILIST_IS_UNIQ_MODE" "$ZUILIST_IS_SEARCH_MODE" \
                     "${ZUI[GENERATION_TIME]}" "$selectable" "${${ZUILIST_SEARCH_BUFFER:+1}:-0}" \
-                    "$ZUILIST_CURRENT_IDX" "$last_element"
+                    "$ZUILIST_USER_CURRENT_IDX" "$ZUILIST_USER_LAST_ELEMENT"
 
             ZUI[GENERATION_TIME]=""
         else
