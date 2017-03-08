@@ -890,7 +890,7 @@ while (( 1 )); do
         # How many elements push down (up if negative)
         # indices that are after the modified section
         integer size_diff=$(( update_size - update_count )) mysize
-        local index el var_name
+        local index index2 el var_name
 
         if [[ -n "$mod" && -n "$ice" ]]; then
             local -a prev_nonselectables
@@ -932,13 +932,13 @@ while (( 1 )); do
         done
 
         # Push down (up) *_global_index parameters
-        for (( index = 1; index <= 1000; index ++ )); do
-            for (( el = 1; el <= 1000; el ++ )); do
-                var_name="mod${index}_ice${el}_global_index"
+        for (( index = 1; index <= 1000; ++ index )); do
+            for (( index2 = 1; index2 <= 1000; ++ index2 )); do
+                var_name="mod${index}_ice${index2}_global_index"
                 [[ "${(P)+var_name}" = "0" ]] && break
 
                 el="${(P)var_name}"
-                if [[ -n "$el" && "$el" -gt "$(( update_first + update_count - 1 ))" ]]; then
+                if [[ -n "$el" && "$el" -gt $(( update_first + update_count - 1 )) ]]; then
                     : ${(P)var_name::=$(( el + size_diff ))}
                 fi
             done
