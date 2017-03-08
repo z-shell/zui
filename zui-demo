@@ -1,0 +1,319 @@
+#
+# Started from zle or from command line
+#
+
+# Cleanup $ZUI hash runtime data
+-zui_stdlib_cleanup
+
+# Initialize ZUI app
+-zui_stdlib_init
+
+ZUI[app]="zuidemo"
+ZUI[app_name]="ZUI demo"
+
+emulate -LR zsh
+setopt extendedglob typesetsilent warncreateglobal
+
+[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
+
+-zui_stdlib_store_default_app_config s:status_size "5"
+-zui_stdlib_store_default_app_config s:log_append "above"
+-zui_stdlib_store_default_app_config b:status_pointer 1
+-zui_stdlib_store_default_app_config b:text_mode 0
+-zui_stdlib_store_default_app_config b:text_select 0
+-zui_stdlib_store_default_app_config s:log_colors "white cyan red green cyan red magenta yellow blue"
+
+# Settings are loaded only because they're altered on the fly
+# Normally zui-list, zui-list-wrapper load configuration
+-zui_stdlib_load_config b:bold 0 2 'ZUI[bold]'
+-zui_stdlib_load_config b:text_mode 1 2 'ZUI[text_mode]'
+-zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
+-zui_stdlib_load_config b:status_pointer 1 2 'ZUI[status_pointer]'
+-zui_stdlib_load_config s:log_append "above" 2 'ZUI[log_append]'
+-zui_stdlib_load_config b:status_border 0 2 'ZUI[status_border]'
+
+##
+## Variables (parameters)
+##
+
+local MATCH; local -i MBEGIN MEND
+local -a match mbegin mend
+
+# A variable that's initially empty,
+# and generator 1 uses it as line
+local mod1_ice1_extra_line
+
+# A special parameter to be used in handlers
+# that are to-eval code, not function names.
+# By doing "internal=1" somewhere in the code
+# the anchor, button will be configured as
+# internal action.
+local internal
+
+##
+## External Actions
+##
+
+-demo_mod1_external_action_1() {
+    local id="$1" mod="$2" ice="$3"
+    local var_name="mod${mod}_ice${ice}_extra_line"
+    : ${(P)var_name::=Function set this line, regeneration used it}
+
+    # Request regeneration with no user data
+    reply=( ",mod${mod}_ice${ice}," "" )
+}
+
+##
+## Internal actions
+##
+
+# Anchor internal action - data1 is index in time
+# of creation of the anchor (it an be changed via
+# on-the-fly updates submitted by stdlib function
+# -zui_stdlib_submit_list_update)
+-zui-global-anchors-callback() {
+    local id="$1" initial_line="$2" mod="$3" ice="$4"
+
+    if [[ "$mod" = "1" ]]; then
+        -zui_stdlib_has_default_color && {
+            # Can reveal transparency, if terminal
+            # has background image or is transparent
+            zcurses bg "status" "white/default"
+            ZUI[status_colorpair]="white/default"
+        }
+
+        # This is internal zui-list variable,
+        # accessible because internal actions
+        # are called from within the list
+        ZUI[bold]=1
+    elif [[ "$mod" = "2" ]]; then
+        mod2_internal_action "$id" "$mod" "$ice" "$initial_line" ""
+    fi
+}
+
+mod2_internal_action() {
+    local id="$1" mod="$2" ice="$3" data3="$4" data4=""
+
+    # Line at generation time, and at run time,
+    # after transformations of other modules
+    # could shift it up or down
+    -zui_stdlib_fly_mod_regen demo_mod2_generator "$mod" "$ice" "Extra line from top anchor (initial line: $data3, actual line: ${ZUI[zuianchor$id]})"
+}
+
+##
+## Other callbacks
+##
+
+# Optional, unset explicitly if unused
+# It generates additional status text, displayed after
+# "Current #...", from data of highlighted button
+-zui-standard-status-callback() {
+    local tpe="$1"
+
+    # No fast log messages
+    [[ -n "$EPOCHREALTIME" ]] && (( EPOCHREALTIME - ${ZUI[my_prev_log_time]:-(${EPOCHREALTIME}-1)} < 0.14 )) && return 0
+    ZUI[my_prev_log_time]="$EPOCHREALTIME"
+
+    local pressed="${ZUI[pressed_now]#(zuiiaction|zuiaction|zuicheckbox|zuieanchor|zuianchor|zuitfield)}"
+    [[ "$pressed" = log_append* ]] && pressed="LOG: ${(U)ZUI[log_append]} " || pressed="${pressed:+<<Pressed: $pressed>> }"
+
+    # Zero-type means callback is called on a non-hyperlink
+    if [[ "$tpe" = "0" ]]; then
+        local selectable="$2" uniq="$3" search="$4" line="$5" segment="$6"
+        if [[ -n "${ZUI[pure_text_selected]}" ]]; then
+            reply=( "$pressed" "Pure-text selected: " "$segment" )
+        elif (( $selectable || $uniq || $search )); then
+            # 1/0 selectable or not || 1/0 uniq mode || 1/0 non-empty search query
+            # Any of those means no hops and no non-selectables are relevant
+            -zui_stdlib_strip_codes "$segment"
+            reply=( "$pressed" "" "Text: " "$REPLY" )
+        else
+            # Detect if current line is also a hop
+            local on_hop
+            if [[ "${(t)ZUILIST_HOP_INDICES}" = array* && -n "${ZUILIST_HOP_INDICES[(r)$ZUILIST_CURRENT_IDX]}" ]]; then
+                on_hop=", also a hop"
+            fi
+
+            reply=( "$pressed" )
+            [[ -z "$pressed" ]] && reply+=( "(A non-selectable line$on_hop)" )
+        fi
+
+        # Resulting type: 1 - log message
+        return 1
+    else
+        # No message on text field input
+        [[ -z "${ZUI[pressed_now]}" && -n "${ZUI[current_tfield]}" ]] && return 0
+
+        local id="$2" data1="$3" data2="$4" data3="$5" data4="$6" text="$7"
+
+        # Module attribute is obligatory for text fields,
+        # but for other hyperlinks it is decision of this
+        # application to use data1 as module index
+        [[ $id = (zuiiaction|zuianchor|zuicheckbox|zuitfield)* ]] && local exint="NO-RESTART" || local exint="RESTART"
+        [[ $id = (zuiaction|zuiiaction|zuicheckbox|zuitfield)* ]] && local attribute="Module"
+        # A raw link? (i.e. no handler and no dynamic function)
+        [[ $id != (zuiaction|zuiiaction|zuicheckbox|zuianchor|zuieanchor|zuitfield)* ]] && {
+            local attribute="Module"
+            exint+=" <raw link>"
+        }
+
+        id="${id#(zuiiaction|zuiaction|zuicheckbox|zuieanchor|zuianchor|zuitfield)}"
+
+        handler="$ZUI[zuiiaction$id]"
+        [[ -z "$handler" ]] && handler="${ZUI[zuiaction$id]}"
+        [[ -z "$handler" ]] && handler="${ZUI[zuitfield$id]}"
+
+        reply=( "$pressed" )
+        [[ -z "$pressed" ]] && reply+=( "Id: $id" " ${attribute-Index}: $data1" " $exint" " Handler:" " $handler" )
+
+        # Resulting type: 1 - log message
+        return 1
+    fi
+}
+
+##
+## Generators for modules
+##
+
+# Generator for module 1
+demo_mod1_generator() {
+    local mod="$1" ice="$2"
+
+    # Prepare toggle button's states
+    local col_bld col_tmd col_tsel col_lap col_sptr col_sb
+    -zui_stdlib_map_bools "ZUI[bold];ZUI[text_mode];ZUI[text_select];[[ \"${ZUI[log_append]}\" = below ]];ZUI[status_pointer];ZUI[status_border]" \
+                            "col_bld;col_tmd;col_tsel;col_lap;col_sptr;col_sb" "${ZUI[BG_BLUE]}" "${ZUI[GREEN]}"
+
+    reply=( )
+    # To request regeneration via anchor (it will jump to given
+    # line, and also regenerate the given modules) or via raw
+    # link (button with no handler) pass sequence of ",modX_iceY,"
+    # strings as penultimate, and user-data as last argument.
+    # Anchor should have no handler or inline-code handler.
+    -zui_stdlib_anchor "regenerateA_$mod" "1" "" ",mod1_ice1," "${RANDOM}$((RANDOM%2))" "[${ZUI[MAGENTA]}Regenerate${ZUI[COLOR_END]}]"
+    -zui_stdlib_rc_button "regenerateB_$mod" "$mod" "$ice" "" "" "${ZUI[MAGENTA]}Regenerate${ZUI[COLOR_END]}" -demo_mod1_external_action_1
+    -zui_stdlib_rc_button "regenerateC_$mod" "" "" ",mod2_ice1," "" "${ZUI[MAGENTA]}Regenerate${ZUI[COLOR_END]}"
+    # internal=1 is a trick to make action internal
+    -zui_stdlib_rc_button "bold_$mod" "" "" "" "" "${col_bld}bold${ZUI[COLOR_END]}" 'internal=1; (( ZUI[bold]=1-ZUI[bold] )); -zui_stdlib_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
+    -zui_stdlib_rc_button "text_mode_$mod" "" "" "" "" "${col_tmd}Text_mode${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_mode]=1-ZUI[text_mode] )); -zui_stdlib_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
+    -zui_stdlib_rc_button "text_select_$mod" "" "" "" "" "${col_tsel}text_select${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_select]=1-ZUI[text_select] )); -zui_stdlib_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
+    -zui_stdlib_rc_button "log_append_$mod" "" "" "" "" "${col_lap}log_append${ZUI[COLOR_END]}" 'internal=1; [[ ${ZUI[log_append]} = "below" ]] && ZUI[log_append]=above || ZUI[log_append]=below; -zui_stdlib_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
+    -zui_stdlib_rc_button "status_pointer_$mod" "" "" "" "" "${col_sptr}status_pointer${ZUI[COLOR_END]}" 'internal=1; (( ZUI[status_pointer]=1-ZUI[status_pointer] )); -zui_stdlib_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
+    -zui_stdlib_rc_button "status_border_$mod" "" "" "" "" "${col_sb}status_border${ZUI[COLOR_END]}" 'internal=1; (( ZUI[status_border]=1-ZUI[status_border] )); -zui_stdlib_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
+    -zui_stdlib_rc_button "log_colors_$mod" "" "" "" "" "${ZUI[GREEN]}log_colors${ZUI[COLOR_END]}" 'internal=1; log_colors=( $log_colors[-1] ${(@)log_colors[1,-2]} )'
+
+    # Don't overwrite user changes
+    (( ${+ZUI[my_tfield1_width]} == 0 )) && ZUI[my_tfield1_width]=20
+    (( ${+ZUI[my_tfield1_start]} == 0 )) && ZUI[my_tfield1_start]=4
+    (( ${+ZUI[my_tfield1_data]} == 0 )) && ZUI[my_tfield1_data]="An example text"
+    noglob -zui_stdlib_text_field "tfield1_$mod" "$mod" ZUI[my_tfield1_width] ZUI[my_tfield1_start] ZUI[my_tfield1_data] "" "" 'mod1_ice1_extra_line="Received text (with no restart): ${ZUI[CYAN]}${ZUI[my_tfield1_data]}${ZUI[COLOR_END]}"; -zui_stdlib_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
+
+    (( ${+ZUI[my_tfield2_width]} == 0 )) && ZUI[my_tfield2_width]=40
+    (( ${+ZUI[my_tfield2_start]} == 0 )) && ZUI[my_tfield2_start]=1
+    (( ${+ZUI[my_tfield2_data]} == 0 )) && ZUI[my_tfield2_data]="I'm wider and start at the beginning"
+    noglob -zui_stdlib_text_field "tfield2_$mod" "$mod" ZUI[my_tfield2_width] ZUI[my_tfield2_start] ZUI[my_tfield2_data] "" "" 'mod1_ice1_extra_line="Received 2nd text (with no restart): ${ZUI[CYAN]}${ZUI[my_tfield2_data]}${ZUI[COLOR_END]}"; -zui_stdlib_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
+
+    # Passed user data
+    local user_data=${3:+ \[Obtained regeneration user data: $3\]}
+
+    # Content
+    reply=(
+            "Hello World from ${ZUI[GREEN]}Module ${mod}${ZUI[COLOR_END]} (non-selectable line, a header)"
+            "${reply[1]} this module via ${ZUI[YELLOW]}list_restart${ZUI[COLOR_END]} and ${ZUI[CYAN]}external_anchor${ZUI[COLOR_END]}${user_data}"
+            "${reply[2]} this module via ${ZUI[YELLOW]}list_restart${ZUI[COLOR_END]} and ${ZUI[CYAN]}function_call${ZUI[COLOR_END]}"
+            "${reply[3]} the <NEXT> section via ${ZUI[YELLOW]}list_restart${ZUI[COLOR_END]} and ${ZUI[CYAN]}raw_link${ZUI[COLOR_END]}"
+            "Toggle ${reply[4]} with inlined (no function!) code, ${reply[5]}, ${reply[6]}"
+            "Toggle ${reply[7]} - status logs appended at end, or at top, rotate ${reply[10]}"
+            "Toggle ${reply[8]} - status position pointer, ${reply[9]}"
+            "Random number: $RANDOM$((RANDOM%2))"
+            "Enter text! |${reply[11]}|, try keys UP/DOWN, [${reply[12]}]"
+
+            # This is set in -demo_mod1_external_action_1
+            $mod1_ice1_extra_line
+            )
+
+    # Jump 2 lines after last line. Note that
+    # the line index is written as:
+    # - maximum local line number
+    # - remaining lines to reach next module
+    local -a next
+    -zui_stdlib_anchor "jumpA_$mod" "${#reply[@]}+2" "" "" "" "[${ZUI[YELLOW]}NEXT${ZUI[COLOR_END]}]" "" next
+    reply[4]="${reply[4]/<NEXT>/${next[1]}}"
+
+    # Content count
+    reply2=${#reply[@]}
+    # Non-selectables
+    reply3=( 1 8 ${mod1_ice1_extra_line:+${#reply[@]}} )
+    # Hops
+    reply4=( 1 )
+    # Local anchors
+    reply5=( regenerateA_$mod jumpA_$mod )
+}
+
+# Generator for module 2
+demo_mod2_generator() {
+    local mod="$1" ice="$2" extra_line="$3"
+
+    local append_third
+    local regenerate jump
+
+    # First instance of this content?
+    if [[ "$ice" = "1" ]]; then
+        reply=( )
+        # IDs of anchors have own namespace
+        -zui_stdlib_rc_button "regenerateD_${mod}_${ice}" "$mod" "$ice" "" "" "${ZUI[BOLD]}${ZUI[BLUE]}Regenerate${ZUI[COLOR_END]}" mod2_internal_action
+        -zui_stdlib_anchor "jumpB_${mod}_${ice}" "1" "" "" "" "[${ZUI[YELLOW]}Jump${ZUI[COLOR_END]}]"
+        regenerate="${reply[1]} this module ${ZUI[RED]}ON-THE-FLY${ZUI[COLOR_END]}, ${ZUI[YELLOW]}without${ZUI[COLOR_END]} list restart"
+        jump="${reply[2]} to 1st line"
+    fi
+
+    -zui_stdlib_get_mod_factor "$mod"
+
+    # Second instance of this content?
+    # Also, is it last instance?
+    if [[ "$ice" = "2" && "$REPLY" = "2" ]]; then
+        reply=( )
+        -zui_stdlib_anchor "append_third_${mod}_${ice}" "3+2" "" ",mod${mod}_ice${ice},mod${mod}_ice$(( ice + 1 ))," "" "${ZUI[MAGENTA]}Append third!${ZUI[COLOR_END]}" "-zui_stdlib_set_mod_factor $mod 3"
+        append_third="${reply[1]}"
+    fi
+
+    # Here no check to $mod, as it's known
+    # it is second module generator
+    if [[ "$ice" = "1" ]]; then
+        local rand_line="Random number: ${ZUI[YELLOW]}$RANDOM$((RANDOM%2))${ZUI[COLOR_END]}"
+    else
+        local rand_line="Random number: $RANDOM$((RANDOM%2))"
+    fi
+
+    # Content
+    reply=(
+        "The same generator called ${ZUI[CYAN]}#$(( mod - 1 ))${ZUI[COLOR_END]} time"
+        "${ZUI[GREEN]}Not selectable line${ZUI[COLOR_END]}"
+        $regenerate
+        $jump
+        "$rand_line"
+        $extra_line
+        $append_third
+    )
+    # Content count
+    reply2=${#reply[@]}
+    # Non-selectables
+    reply3=( 1 2 )
+    # Hops
+    reply4=( 1 )
+    # Local anchors (:+ - replace if not null)
+    reply5=( ${jump:+jumpB_${mod}_${ice}} ${append_third:+append_third_${mod}_${ice}} )
+}
+
+##
+## Start application
+##
+
+zui-event-loop 1:demo_mod1_generator 2:demo_mod2_generator
+
+# Cleanup $ZUI hash runtime data
+-zui_stdlib_cleanup
+
+return 0
+
+# vim:ft=zsh
