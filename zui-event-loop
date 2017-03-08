@@ -312,9 +312,8 @@ ZUI[GENERATION_TIME]="${generation_time[1,4]}"
 -zui_stdlib_refresh_configs bold text_mode text_select status_pointer log_append status_border
 
 ZUILIST_HOP_INDICES+=( 1 ) # jump to anchors
-ZUILIST_NONSELECTABLE_ELEMENTS+=( $(( 1 + ${#ZUIEL_OUTPUT[@]} + 2 )) )
 local ZUILIST_WRAPPER_BIT=""
-zui-usetty-wrapper zui-list-wrapper "${zuiel_top_anchors[*]}" "${ZUIEL_OUTPUT[@]}" "" "${ZUI[YELLOW]}Fine grained list (re-)generation time: $generation_time${ZUI[COLOR_END]}"
+zui-usetty-wrapper zui-list-wrapper "${zuiel_top_anchors[*]}" "${ZUIEL_OUTPUT[@]}"
 
 if [[ -z "$ZUILIST_WRAPPER_BIT" ]]; then
     zle && { zle .redisplay; zle .reset-prompt; }
