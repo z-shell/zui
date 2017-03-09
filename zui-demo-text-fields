@@ -3,8 +3,8 @@
 -zui_stdlib_cleanup
 -zui_stdlib_init
 
-ZUI[app]="zui-demo-hello-world"
-ZUI[app_name]="ZUI Hello World"
+ZUI[app]="zui-demo-text-fields"
+ZUI[app_name]="ZUI Text Fields"
 
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
