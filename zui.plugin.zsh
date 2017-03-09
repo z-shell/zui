@@ -27,7 +27,7 @@ fi
 
 autoload -- zui-list zui-list-draw zui-list-input zui-list-wrapper -zui-log zui-event-loop
 autoload -- zui-process-buffer zui-process-buffer2 zui-usetty-wrapper
-autoload -- zui-demo zui-demo-hello-world zui-demo-text-fields zui-demo-fly
+autoload -- zui-demo zui-demo-hello-world zui-demo-text-fields zui-demo-fly zui-demo-append
 
 zle -N zui-demo
 bindkey "^O^Z" zui-demo

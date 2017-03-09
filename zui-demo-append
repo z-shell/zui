@@ -1,0 +1,46 @@
+# Started from Zle or from command line
+#
+# A demo showing how to add module instances to already generated document
+
+-zui_stdlib_cleanup
+-zui_stdlib_init
+
+ZUI[app]="zui-demo-fly"
+ZUI[app_name]="ZUI On-The-Fly Append"
+
+emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
+
+[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
+
+-zui_stdlib_store_default_app_config b:border 1
+-zui_stdlib_store_default_app_config b:status_border 1
+-zui_stdlib_store_default_app_config b:text_mode 0
+
+# Generator for module 1
+demo_mod1_generator() {
+    local mod="$1" ice="$2"
+
+    # Anchor only in last instance
+    -zui_stdlib_get_mod_factor "$mod"
+    if [[ "$ice" = "$REPLY" ]]; then
+        # 1+2 - from 1st line of this module, jump 2 beyond this module
+        # Regenerate $mod/$ice, and $mod/$ice+1, first running handler
+        local -a output
+        -zui_stdlib_anchor "append_next" "1+2" "" ",mod${mod}_ice${ice},mod${mod}_ice$(( ice + 1 ))," "" "${ZUI[MAGENTA]}Append next!${ZUI[COLOR_END]}" "-zui_stdlib_set_mod_factor $mod $(( REPLY + 1 ))" output
+    fi
+
+    # Content
+    reply=( "This is module $mod, instance $ice" ${output[1]} )
+
+    # Content count     Non-selectable lines    Hops to jump with [ and ]   Local anchors (if reply[1] not empty ...)
+    reply2=${#reply[@]} reply3=( 1 )            reply4=( 1 )                reply5=( ${output[1]:+append_next} )
+}
+
+## Start application ##
+zui-event-loop 1:demo_mod1_generator
+
+-zui_stdlib_cleanup
+
+return 0
+
+# vim:ft=zsh
