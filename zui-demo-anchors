@@ -35,7 +35,7 @@ demo_mod1_generator() {
         "Random number: $RANDOM"
     )
 
-    # Non-selectable lines  Hops to jump with [ and ]   Local anchors
+    # Non-selectable lines  Hops to jump with [ and ]   Local anchors (line numbers will be translated to global)
     reply2=( 3 )            reply3=( 1 )                reply4=( aregen1 anchor aregen2 )
 }
 
