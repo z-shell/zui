@@ -35,7 +35,7 @@ demo_mod1_generator() {
     -zui_stdlib_rc_button "internal" "$mod" "$ice" "internal action" "" "${ZUI[MAGENTA]}link4${ZUI[COLOR_END]}" demo_internal_action # has "internal" in name
     -zui_stdlib_rc_button "internal_inline" "" "" "" "" "${ZUI[MAGENTA]}link5${ZUI[COLOR_END]}" 'internal=1; -zui_stdlib_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'" "inline handler (internal)"'
 
-    # Content, no hyper-links
+    # Content
     reply=(
         "RESTART: Raw-link: ${reply[1]}, hyperlink with external action: ${reply[2]}, with inline (external) code: ${reply[3]}"
         "NO-RESTART: Hyperlink with internal action: ${reply[4]}, with inline (internal) code: ${reply[5]}"

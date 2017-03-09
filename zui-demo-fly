@@ -25,7 +25,7 @@ demo_mod1_generator() {
     -zui_stdlib_rc_button "restart" "" "" ",mod1_ice1," "" "${ZUI[MAGENTA]}restart${ZUI[COLOR_END]}"
     -zui_stdlib_rc_button "on-the-fly" "" "" "" "" "${ZUI[MAGENTA]}on-the-fly${ZUI[COLOR_END]}" 'internal=1; -zui_stdlib_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
 
-    # Content, no hyper-links
+    # Content
     reply=( "${ZUI[YELLOW]}ZUI${ZUI[COLOR_END]} can regenerate module instance with ${reply[1]} or ${reply[2]}!" "Random number: $RANDOM" )
 
     # Non-selectable lines  Hops to jump with [ and ]   Local anchors

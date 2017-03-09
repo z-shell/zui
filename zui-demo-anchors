@@ -28,7 +28,7 @@ demo_mod1_generator() {
     -zui_stdlib_anchor "anchor" "3+2" "" "" "" "[${ZUI[MAGENTA]}next${ZUI[COLOR_END]}]"
     -zui_stdlib_anchor "aregen2" "3+2" "" "" "" "[${ZUI[MAGENTA]}next${ZUI[COLOR_END]}]" 'internal=1; -zui_stdlib_fly_mod_regen demo_mod2_generator 2 1'
 
-    # Content, no hyper-links
+    # Content
     reply=(
         "RESTART: Jump to ${reply[1]} line ${ZUI[CYAN]}and${ZUI[COLOR_END]} regenerate"
         "NO-RESTART: Jump to ${reply[2]} module, regenerate ${reply[3]} module ${ZUI[CYAN]}and${ZUI[COLOR_END]} jump to it"
