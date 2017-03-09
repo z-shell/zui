@@ -1,0 +1,73 @@
+# Started from Zle or from command line
+#
+# Shows all types of hyperlinks, from raw-links to internal-inline links
+
+-zui_stdlib_cleanup
+-zui_stdlib_init
+
+ZUI[app]="zui-demo-buttons"
+ZUI[app_name]="ZUI Buttons"
+
+emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
+
+[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
+
+-zui_stdlib_store_default_app_config b:border 1
+-zui_stdlib_store_default_app_config b:status_size 5
+-zui_stdlib_store_default_app_config b:text_mode 0
+
+# Trick variable to make handler no-restart
+local internal
+
+# Own logs queue
+local -a logs
+
+# Generator for module 1
+demo_mod1_generator() {
+    local mod="$1" ice="$2" arg="$3"
+
+    [[ -n "$arg" ]] && logs+=( "Regenerated with: $arg" )
+
+    reply=()
+    -zui_stdlib_rc_button "raw_link" "" "" ",mod1_ice1," "raw-link" "${ZUI[MAGENTA]}link1${ZUI[COLOR_END]}"
+    -zui_stdlib_rc_button "external" "$mod" "$ice" "external action" "" "${ZUI[MAGENTA]}link2${ZUI[COLOR_END]}" demo_external_action
+    -zui_stdlib_rc_button "external_inline" "" "" "" "" "${ZUI[MAGENTA]}link3${ZUI[COLOR_END]}" 'reply=( ",mod1_ice1," "inline handler (external)" )'
+    -zui_stdlib_rc_button "internal" "$mod" "$ice" "internal action" "" "${ZUI[MAGENTA]}link4${ZUI[COLOR_END]}" demo_internal_action # has "internal" in name
+    -zui_stdlib_rc_button "internal_inline" "" "" "" "" "${ZUI[MAGENTA]}link5${ZUI[COLOR_END]}" 'internal=1; -zui_stdlib_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'" "inline handler (internal)"'
+
+    # Content, no hyper-links
+    reply=(
+        "RESTART: Raw-link: ${reply[1]}, hyperlink with external action: ${reply[2]}, with inline (external) code: ${reply[3]}"
+        "NO-RESTART: Hyperlink with internal action: ${reply[4]}, with inline (internal) code: ${reply[5]}"
+        "Random number: $RANDOM"
+    )
+
+    # Non-selectable lines  Hops to jump with [ and ]   Local anchors
+    reply2=( 3 )            reply3=( 1 )                reply4=( )
+}
+
+demo_external_action() {
+    local id="$1" mod="$2" ice="$3" data3="$4" data4="$4"
+    # Request regeneration, pass on data3 as REGENERATE_ARG
+    reply=( ",mod${mod}_ice${ice}," "$data3" )
+}
+
+demo_internal_action() {
+    local id="$1" mod="$2" ice="$3" data3="$4" data4="$4"
+    -zui_stdlib_fly_mod_regen demo_mod1_generator "$mod" "$ice" "$data3"
+}
+
+-zui-standard-status-callback() {
+    [[ "${#logs[@]}" -gt 0 ]] && { reply=( "Message: " "${logs[1]}" ); logs=( ${(@)logs[2,-1]} ); return 1; }
+    # Resulting type: 0 - no message
+    return 0
+}
+
+## Start application ##
+zui-event-loop 1:demo_mod1_generator
+
+-zui_stdlib_cleanup
+
+return 0
+
+# vim:ft=zsh
