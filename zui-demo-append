@@ -32,8 +32,8 @@ demo_mod1_generator() {
     # Content
     reply=( "This is module $mod, instance $ice" ${output[1]} )
 
-    # Content count     Non-selectable lines    Hops to jump with [ and ]   Local anchors (if reply[1] not empty ...)
-    reply2=${#reply[@]} reply3=( 1 )            reply4=( 1 )                reply5=( ${output[1]:+append_next} )
+    # Non-selectable lines  Hops to jump with [ and ]   Local anchors (if output[1] not empty ...)
+    reply2=( 1 )            reply3=( 1 )                reply4=( ${output[1]:+append_next} )
 }
 
 ## Start application ##

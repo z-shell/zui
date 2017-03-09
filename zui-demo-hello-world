@@ -19,8 +19,8 @@ demo_mod1_generator() {
     # Content, no hyper-links
     reply=( "Hello World from ${ZUI[YELLOW]}ZUI${ZUI[COLOR_END]}! Module $mod, instance $ice." )
 
-    # Content count     Non-selectable lines    Hops to jump with [ and ]   Local anchors
-    reply2=${#reply[@]} reply3=(  )             reply4=( 1 )                reply5=( )
+    # Non-selectable lines   Hops to jump with [ and ]   Local anchors
+    reply2=( )               reply3=( 1 )                reply4=( )
 }
 
 ## Start application ##

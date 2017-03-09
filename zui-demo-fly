@@ -28,8 +28,8 @@ demo_mod1_generator() {
     # Content, no hyper-links
     reply=( "${ZUI[YELLOW]}ZUI${ZUI[COLOR_END]} can regenerate module instance with ${reply[1]} or ${reply[2]}!" "Random number: $RANDOM" )
 
-    # Content count     Non-selectable lines    Hops to jump with [ and ]   Local anchors
-    reply2=${#reply[@]} reply3=( 2 )            reply4=( 1 )                reply5=( )
+    # Non-selectable lines  Hops to jump with [ and ]   Local anchors
+    reply2=( 2 )            reply3=( 1 )                reply4=( )
 }
 
 # Show handler code in status window

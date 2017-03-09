@@ -239,14 +239,12 @@ demo_mod1_generator() {
     -zui_stdlib_anchor "jumpA_$mod" "${#reply[@]}+2" "" "" "" "[${ZUI[YELLOW]}NEXT${ZUI[COLOR_END]}]" "" next
     reply[4]="${reply[4]/<NEXT>/${next[1]}}"
 
-    # Content count
-    reply2=${#reply[@]}
     # Non-selectables
-    reply3=( 1 8 ${mod1_ice1_extra_line:+${#reply[@]}} )
+    reply2=( 1 8 ${mod1_ice1_extra_line:+${#reply[@]}} )
     # Hops
-    reply4=( 1 )
+    reply3=( 1 )
     # Local anchors
-    reply5=( regenerateA_$mod jumpA_$mod )
+    reply4=( regenerateA_$mod jumpA_$mod )
 }
 
 # Generator for module 2
@@ -294,14 +292,12 @@ demo_mod2_generator() {
         $extra_line
         $append_third
     )
-    # Content count
-    reply2=${#reply[@]}
     # Non-selectables
-    reply3=( 1 2 )
+    reply2=( 1 2 )
     # Hops
-    reply4=( 1 )
+    reply3=( 1 )
     # Local anchors (:+ - replace if not null)
-    reply5=( ${jump:+jumpB_${mod}_${ice}} ${append_third:+append_third_${mod}_${ice}} )
+    reply4=( ${jump:+jumpB_${mod}_${ice}} ${append_third:+append_third_${mod}_${ice}} )
 }
 
 ##

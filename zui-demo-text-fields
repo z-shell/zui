@@ -32,8 +32,8 @@ demo_mod1_generator() {
     # Content, no hyper-links
     reply=( "${ZUI[YELLOW]}ZUI${ZUI[COLOR_END]} text-field example: ${reply[1]}" $xtra )
 
-    # Content count     Non-selectable lines    Hops to jump with [ and ]   Local anchors
-    reply2=${#reply[@]} reply3=( ${xtra:+2} )   reply4=( 1 )                reply5=( )
+    # Non-selectable lines    Hops to jump with [ and ]   Local anchors
+    reply2=( ${xtra:+2} )     reply3=( 1 )                reply4=( )
 }
 
 ## Start application ##
