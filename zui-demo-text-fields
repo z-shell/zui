@@ -15,7 +15,7 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 -zui_stdlib_store_default_app_config b:status_border 1
 
 # Extra line of text, loaded from text field
-local extra_line
+local xtra
 
 # Generator for module 1
 demo_mod1_generator() {
@@ -27,13 +27,13 @@ demo_mod1_generator() {
     (( ${+ZUI[my_tfield1_data]} == 0 )) && ZUI[my_tfield1_data]="Enter accepts, ESC cancels, UP/DOWN resizes"
 
     reply=()
-    noglob -zui_stdlib_text_field "tfield1_$mod" "$mod" ZUI[my_tfield1_width] ZUI[my_tfield1_start] ZUI[my_tfield1_data] "" "" 'extra_line="Received text: ${ZUI[CYAN]}${ZUI[my_tfield1_data]}${ZUI[COLOR_END]}"; -zui_stdlib_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
+    noglob -zui_stdlib_text_field "tfield1_$mod" "$mod" ZUI[my_tfield1_width] ZUI[my_tfield1_start] ZUI[my_tfield1_data] "" "" 'xtra="Received text: ${ZUI[CYAN]}${ZUI[my_tfield1_data]}${ZUI[COLOR_END]}"; -zui_stdlib_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
 
     # Content, no hyper-links
-    reply=( "${ZUI[YELLOW]}ZUI${ZUI[COLOR_END]} text-field example: ${reply[1]}" $extra_line )
+    reply=( "${ZUI[YELLOW]}ZUI${ZUI[COLOR_END]} text-field example: ${reply[1]}" $xtra )
 
     # Content count     Non-selectable lines    Hops to jump with [ and ]   Local anchors
-    reply2=${#reply[@]} reply3=( 2 )            reply4=( 1 )                reply5=( )
+    reply2=${#reply[@]} reply3=( ${xtra:+2} )   reply4=( 1 )                reply5=( )
 }
 
 ## Start application ##
