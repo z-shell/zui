@@ -11,8 +11,6 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
 
 -zui_stdlib_store_default_app_config b:border 1
--zui_stdlib_store_default_app_config s:status_size 3
--zui_stdlib_store_default_app_config b:status_border 1
 
 # Generator for module 1
 demo_mod1_generator() {
