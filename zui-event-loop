@@ -317,10 +317,6 @@ zui-usetty-wrapper zui-list-wrapper "${zuiel_top_anchors[*]}" "${ZUIEL_OUTPUT[@]
 
 if [[ -z "$ZUILIST_WRAPPER_BIT" ]]; then
     zle && { zle .redisplay; zle .reset-prompt; }
-
-    # Cleanup $ZUI hash runtime data
-    -zui_stdlib_cleanup
-
     return 0
 fi
 
@@ -382,9 +378,6 @@ fi
 
 ### REGENERATION REQUEST LOOP ###
 done
-
-# Cleanup $ZUI hash runtime data
--zui_stdlib_cleanup
 
 return 0
 
