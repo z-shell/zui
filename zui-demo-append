@@ -37,7 +37,7 @@ demo_mod1_generator() {
 }
 
 ## Start application ##
-zui-event-loop 1:demo_mod1_generator
+zui-event-loop 2:demo_mod1_generator
 
 -zui_stdlib_cleanup
 
