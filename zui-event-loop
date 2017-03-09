@@ -23,15 +23,13 @@ local -F zuiel_start_seconds
 
 # Replies from module generators
 # reply - content
-# reply2 - content size
-# reply3 - nonselectables (to be globalized)
-# reply4 - hops (to be globalized)
-# reply5 - anchors' IDs (to be globalized)
-local -a reply reply3 reply4 reply5
-integer reply2
+# reply2 - nonselectables (to be globalized)
+# reply3 - hops (to be globalized)
+# reply4 - anchors' IDs (to be globalized)
+local -a reply reply2 reply3 reply4
 
 # Gathers all (re-)generated local anchors,
-# those that are returned in reply5 and are
+# those that are returned in reply4 and are
 # subject to index globalization (translation
 # of local in-module indices to normal, global
 # list indices)

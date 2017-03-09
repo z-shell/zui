@@ -646,12 +646,10 @@ function -zui_stdlib_reset_replies() {
     local var_name="reply"
     : ${(PA)var_name::=}
     var_name="reply2"
-    : ${(P)var_name::=0}
+    : ${(PA)var_name::=}
     var_name="reply3"
     : ${(PA)var_name::=}
     var_name="reply4"
-    : ${(PA)var_name::=}
-    var_name="reply5"
     : ${(PA)var_name::=}
 }
 
@@ -683,9 +681,9 @@ function -zui_stdlib_submit_fly_from_gen_replies() {
     previous_size="${(P)var_name}"
 
     -zui_stdlib_submit_list_update "$mod" "$ice" "$global_index" "$(( global_index + previous_size - 1 ))" "${reply[@]}"
-    -zui_stdlib_submit_nonselectables "${reply3[@]}"
-    -zui_stdlib_submit_hops "${reply4[@]}"
-    -zui_stdlib_submit_lanchors "${reply5[@]}"
+    -zui_stdlib_submit_nonselectables "${reply2[@]}"
+    -zui_stdlib_submit_hops "${reply3[@]}"
+    -zui_stdlib_submit_lanchors "${reply4[@]}"
 }
 
 # Internal action can call this function in
@@ -783,7 +781,7 @@ function -zui_stdlib_decode_lanchors() {
     : ${(PA)__var_name::="${(Q)__lanchors[@]}"}
 }
 
-# Maps reply{,2..5} parameters onto module
+# Maps reply{,2..4} parameters onto module
 # parameters:
 #    mod${midx}_ice${iidx}_output mod${midx}_ice${iidx}_nonselectables
 #    mod${midx}_ice${iidx}_hops mod${midx}_lice${iidx}_anchors
@@ -796,13 +794,13 @@ function -zui_stdlib_map_replies() {
     var_name="mod${1}_ice${2}_output"
     : ${(PA)var_name::="${reply[@]}"}
     var_name="mod${1}_ice${2}_size"
-    : ${(PA)var_name::=$reply2}
+    : ${(PA)var_name::=${#reply[@]}}
     var_name="mod${1}_ice${2}_nonselectables"
-    : ${(PA)var_name::="${reply3[@]}"}
+    : ${(PA)var_name::="${reply2[@]}"}
     var_name="mod${1}_ice${2}_hops"
-    : ${(PA)var_name::="${reply4[@]}"}
+    : ${(PA)var_name::="${reply3[@]}"}
     var_name="mod${1}_ice${2}_lanchors"
-    : ${(PA)var_name::="${reply5[@]}"}
+    : ${(PA)var_name::="${reply4[@]}"}
 }
 
 # Appends module_${1}_lanchors into array
