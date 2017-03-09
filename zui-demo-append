@@ -5,7 +5,7 @@
 -zui_stdlib_cleanup
 -zui_stdlib_init
 
-ZUI[app]="zui-demo-fly"
+ZUI[app]="zui-demo-append"
 ZUI[app_name]="ZUI On-The-Fly Append"
 
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
