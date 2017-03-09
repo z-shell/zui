@@ -304,7 +304,9 @@ demo_mod2_generator() {
 ## Start application
 ##
 
-zui-event-loop 1:demo_mod1_generator 2:demo_mod2_generator
+# Pass configuration altered on-the-fly
+# so that it's not overwritten at restart
+zui-event-loop 1:demo_mod1_generator 2:demo_mod2_generator cfg-refresh:bold,text_mode,text_select,status_pointer,log_append,status_border
 
 # Cleanup $ZUI hash runtime data
 -zui_stdlib_cleanup

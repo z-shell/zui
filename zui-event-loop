@@ -80,6 +80,8 @@ for zuiel_val1; do
         # Add regeneration hook
         [[ "$zuiel_val2" = "regen" ]] && zuiel_module_hash[regen_${zuiel_val3}]=1
         [[ "$zuiel_val2" = "fly-regen" ]] && zuiel_module_hash[fly-regen_${zuiel_val3}]=1
+        # Add configurations to refresh
+        [[ "$zuiel_val2" = "cfg-refresh" ]] && ZUI[configs_to_refresh]="${zuiel_val3}"
         continue
     elif [[ "$zuiel_val2" != <-> ]]; then
         # Without prefix, default factor is 1
@@ -307,7 +309,7 @@ ZUI[GENERATION_TIME]="${generation_time[1,4]}"
 
 # We alter the settings on-the-fly, so
 # prevent zui-list from loading them
--zui_stdlib_refresh_configs bold text_mode text_select status_pointer log_append status_border
+-zui_stdlib_refresh_configs "${(@s:,:)ZUI[configs_to_refresh]}"
 
 ZUILIST_HOP_INDICES+=( 1 ) # jump to anchors
 local ZUILIST_WRAPPER_BIT=""
