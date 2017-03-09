@@ -50,7 +50,7 @@ ZUI[term_sread_ts]="$EPOCHSECONDS"
     (( $1 )) && {
         #zcurses 2>/dev/null resize_term "${ZUI[term_height]}" "${ZUI[term_width]}" endwin
         zcurses end
-        zcurses refresh;
+        zcurses refresh
 
         if [[ -n "$2" && -n "$3" && -n "$4" && -n "$5" ]]; then
             integer __main_height=$(( ZUI[term_height] - ZUI[status_size] ))
@@ -61,9 +61,9 @@ ZUI[term_sread_ts]="$EPOCHSECONDS"
         fi
     }
 
+    zcurses refresh stdscr
     zcurses addwin main $(( term_height - ZUI[status_size] )) "$term_width" 0 0
     zcurses addwin status "${ZUI[status_size]}" "$term_width" $(( term_height - ZUI[status_size] )) 0
-    zcurses refresh stdscr
 }
 
 -zui_wrapper_end() {

@@ -1,5 +1,5 @@
 #
-# Started from zle or from command line
+# Started from Zle or from command line
 #
 
 # Cleanup $ZUI hash runtime data
