@@ -16,7 +16,7 @@ ZUI[stdlib_sourced]="1"
 # Background range: $'\020'-$'\030'. With BOLD it is ...-$'\031'
 # Formatting codes range: $'\03'-$'\07' $'\013'-$'\014' $'\016'-$'\031'
 #
-# \01 and \02 are used by buttons, \032, \034 by text fields
+# \01 and \02 are used by buttons, \032, \02 by text fields
 
 # If one would want to use the lib without plugin...
 typeset -gA ZUI
@@ -50,13 +50,17 @@ ZUI[BG_DEFAULT]=$'\030'     # Cancel
 # Bold
 ZUI[BOLD]=$'\031'           # End of medium
 
-# Buttons
+# Buttons' separator
 ZUI[HYP_SEP]=$'\01'
-ZUI[HYP_END]=$'\02'
 
-# Text fields separator
+# Text fields's separator
 ZUI[FLD_SEP]=$'\032'
-ZUI[FLD_END]=$'\034'
+
+# List boxes' separator
+ZUI[LST_SEP]=$'\034'
+
+# Hyperlink end
+ZUI[HYP_END]=$'\02'
 
 # Special code used to mark active button
 ZUI[MARK]=$'\035'           # octal value, decimal 29 - Group separator
@@ -222,7 +226,7 @@ function -zui_stdlib_text_field() {
 
     [[ -n "$__handler" ]] && ZUI[zuitfield$__id]="$__handler"
 
-    __output=( "${(P@)__var_name}" $'\032'"zuitfield$__id"$'\032'"$__data1"$'\032'"$__data2"$'\032'"$__module_idx"$'\032'"$__width_var"$'\032'"$__sidx_var"$'\032'"$__text_var"$'\034' )
+    __output=( "${(P@)__var_name}" $'\032'"zuitfield$__id"$'\032'"$__data1"$'\032'"$__data2"$'\032'"$__module_idx"$'\032'"$__width_var"$'\032'"$__sidx_var"$'\032'"$__text_var"$'\02' )
 
     unset __id __module_idx __width_var __sidx_var __text_var __data1 __data2 __handler
     : ${(PA)__var_name::=${__output[@]}}
@@ -283,7 +287,7 @@ function -zui_stdlib_decode_text_field() {
     : ${(PA)__var_name::=}
 
     #                        id [1]              data1 [2]           data2 [3]           module index [4]    width_var [5]       sidx_var [6]        text_var [7]            
-    if [[ "$1" = (#b)*$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\034']#)$'\034'* ]]; then
+    if [[ "$1" = (#b)*$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\02']#)$'\02'* ]]; then
         local __id="${match[1]}" __data1="${match[2]}" __data2="${match[3]}" __module_idx="${match[4]}" __width_var="${match[5]}" __sidx_var="${match[6]}" __param="${match[7]}"
         local assgn_str="${__var_name}[1]"
         : ${(P)assgn_str::=${(Q)__id}}
@@ -400,7 +404,7 @@ function -zui_stdlib_is_hyperlink() {
 # Checks if given text is a text field
 function -zui_stdlib_is_text_field() {
     #                id                data1             data2             module index      width_var         sidx_var          text_var             
-    [[ "$1" = *$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\034']#$'\034'* ]]
+    [[ "$1" = *$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\02']#$'\02'* ]]
 }
 
 # Puts given links in a box, i.e. into sequence of lines
