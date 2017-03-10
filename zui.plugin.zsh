@@ -27,10 +27,10 @@ fi
 
 autoload -- zui-list zui-list-draw zui-list-input zui-list-wrapper -zui-log zui-event-loop
 autoload -- zui-process-buffer zui-process-buffer2 zui-usetty-wrapper
-autoload -- zui-demo zui-demo-hello-world zui-demo-text-fields zui-demo-fly zui-demo-append zui-demo-buttons zui-demo-anchors
+autoload -- zui-demo-various zui-demo-hello-world zui-demo-text-fields zui-demo-fly zui-demo-append zui-demo-buttons zui-demo-anchors
 
-zle -N zui-demo
-bindkey "^O^Z" zui-demo
+zle -N zui-demo-various
+bindkey "^O^Z" zui-demo-various
 
 #
 # Global parameters
