@@ -115,7 +115,7 @@ mod3_internal_action() {
     [[ -n "$EPOCHREALTIME" ]] && (( EPOCHREALTIME - ${ZUI[my_prev_log_time]:-(${EPOCHREALTIME}-1)} < 0.14 )) && return 0
     ZUI[my_prev_log_time]="$EPOCHREALTIME"
 
-    local pressed="${ZUI[pressed_now]#(zuiiaction|zuiaction|zuicheckbox|zuieanchor|zuianchor|zuitfield)}"
+    local pressed="${ZUI[pressed_now]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield)}"
     [[ "$pressed" = log_append* ]] && pressed="LOG: ${(U)ZUI[log_append]} " || pressed="${pressed:+<<Pressed: $pressed>> }"
 
     # Zero-type means callback is called on a non-hyperlink
@@ -150,15 +150,15 @@ mod3_internal_action() {
         # Module attribute is obligatory for text fields,
         # but for other hyperlinks it is decision of this
         # application to use data1 as module index
-        [[ $id = (zuiiaction|zuianchor|zuicheckbox|zuitfield)* ]] && local exint="NO-RESTART" || local exint="RESTART"
-        [[ $id = (zuiaction|zuiiaction|zuicheckbox|zuitfield)* ]] && local attribute="Module"
+        [[ $id = (zuiiaction|zuianchor|zuitfield)* ]] && local exint="NO-RESTART" || local exint="RESTART"
+        [[ $id = (zuiaction|zuiiaction|zuitfield)* ]] && local attribute="Module"
         # A raw link? (i.e. no handler and no dynamic function)
-        [[ $id != (zuiaction|zuiiaction|zuicheckbox|zuianchor|zuieanchor|zuitfield)* ]] && {
+        [[ $id != (zuiaction|zuiiaction|zuianchor|zuieanchor|zuitfield)* ]] && {
             local attribute="Module"
             exint+=" <raw link>"
         }
 
-        id="${id#(zuiiaction|zuiaction|zuicheckbox|zuieanchor|zuianchor|zuitfield)}"
+        id="${id#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield)}"
 
         handler="$ZUI[zuiiaction$id]"
         [[ -z "$handler" ]] && handler="${ZUI[zuiaction$id]}"
