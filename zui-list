@@ -477,9 +477,9 @@ fi
 local key keypad
 
 # Clear input buffer
-zcurses timeout main 0
-zcurses input main key keypad
-zcurses timeout main -1
+zcurses timeout "$wname_main" 0
+zcurses input "$wname_main" key keypad
+zcurses timeout "$wname_main" -1
 key=""
 keypad=""
 
@@ -743,7 +743,7 @@ while (( 1 )); do
     [[ "$ZUILIST_DRAW_ONLY" = "1" ]] && return
 
     # Wait for input
-    zcurses input main key keypad
+    zcurses input "$wname_main" key keypad
 
     # Get the special (i.e. "keypad") key or regular key
     if [[ -n "$key" ]]; then
