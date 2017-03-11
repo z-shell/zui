@@ -843,8 +843,6 @@ while (( 1 )); do
             jump_data="${reply[2]}"
             id="zuiiaction${id#zuianchor}"
             call_hook=1
-        elif [[ "$id" = zuicheckbox* ]]; then
-            call_hook=1
         elif [[ "$id" = zuiiaction* ]]; then
             call_hook=1
         fi
@@ -1033,12 +1031,6 @@ while (( 1 )); do
         unset update update_size nonselectables
         unset update_first update_count hops
         unset index mysize el var_name mod ice
-    elif (( ${+ZUILIST_REPLY_CHECKBOX_NUM} )); then
-        local new_line="${@[ZUILIST_REPLY_CHECKBOX_NUM]}"
-        [[ "$ZUILIST_REPLY_CHECKBOX_OP" = "set" ]] && new_line="${new_line/\[_\]/[x]}" || new_line="${new_line/\[x\]/[_]}"
-        set "${(@)@[1,ZUILIST_REPLY_CHECKBOX_NUM-1]}" "$new_line" "${(@)@[ZUILIST_REPLY_CHECKBOX_NUM+1,-1]}"
-        typeset -g ZUILIST_REGENERATE_LIST="1"
-        unset ZUILIST_REPLY_CHECKBOX_NUM ZUILIST_REPLY_CHECKBOX_OP
     fi
 
     # Anchor to jump? Can be after on-the-fly
