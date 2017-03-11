@@ -64,13 +64,13 @@ setopt typesetsilent extendedglob
     integer left=current_segment right=current_segment
 
     # Left
-    while ! -zui_stdlib_is_hyperlink "${segments[left]}" && ! -zui_stdlib_is_text_field "${segments[left]}"; do
+    while ! -zui_stdlib_is_hyperlink "${segments[left]}" && ! -zui_stdlib_is_text_field "${segments[left]}" && ! -zui_stdlib_is_list_box "${segments[left]}"; do
         (( -- left ))
         [[ "$left" -le 0 ]] && break
     done
 
     # Right
-    while ! -zui_stdlib_is_hyperlink "${segments[right]}" && ! -zui_stdlib_is_text_field "${segments[right]}"; do
+    while ! -zui_stdlib_is_hyperlink "${segments[right]}" && ! -zui_stdlib_is_text_field "${segments[right]}" && ! -zui_stdlib_is_list_box "${segments[right]}"; do
         (( ++ right ))
         [[ "$right" -gt "$nseg" ]] && break
     done
@@ -104,7 +104,7 @@ setopt typesetsilent extendedglob
 
     # Left
     [[ "$1" = "0" ]] && {
-        while ! -zui_stdlib_is_hyperlink "${segments[left]}" && ! -zui_stdlib_is_text_field "${segments[left]}" || (( left == current_segment )); do
+        while ! -zui_stdlib_is_hyperlink "${segments[left]}" && ! -zui_stdlib_is_text_field "${segments[left]}" && ! -zui_stdlib_is_list_box "${segments[left]}" || (( left == current_segment )); do
             (( -- left ))
             [[ "$left" -le 0 ]] && break
         done
@@ -115,7 +115,7 @@ setopt typesetsilent extendedglob
         fi
     } || {
         # Right
-        while ! -zui_stdlib_is_hyperlink "${segments[right]}" && ! -zui_stdlib_is_text_field "${segments[right]}" || (( right == current_segment )); do
+        while ! -zui_stdlib_is_hyperlink "${segments[right]}" && ! -zui_stdlib_is_text_field "${segments[right]}" && ! -zui_stdlib_is_list_box "${segments[right]}" || (( right == current_segment )); do
             (( ++ right ))
             [[ "$right" -gt "$nseg" ]] && break
         done
@@ -357,6 +357,11 @@ case "$key" in
                 ZUI[cursor_x]=$(( ZUI[current_tfield_cidx_end] ))
                 ZUI[current_tfield_instr_idx]=$(( ${(P)reply[4]} + ZUI[cursor_x] - ZUI[current_tfield_cidx_start] - 1 ))
                 reply=( $current_idx HYPERLINK )
+            elif -zui_stdlib_decode_list_box "$REPLY"; then
+                local min_x max_x y_pos
+                -zui_syslib_get_tfield_cursor_boundaries min_x max_x "${(P)list_var_current}" "${reply[1]}"
+                y_pos=$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))
+                -zui-list-box-loop "$page_height" "$page_width" "$y_pos" $(( min_x + 2 )) "${reply[@]}" && { reply=( $current_idx LBOX_LEFT ); } || { reply=( -1 '' ); }
             else
                 # Selecting non-hyperlink is disallowed?
                 (( ${ZUI[text_select]} )) && reply=( $current_idx SELECT ) || reply=( -1 '' )

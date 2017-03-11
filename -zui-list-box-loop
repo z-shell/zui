@@ -1,0 +1,95 @@
+# Draws list-box drop-down list
+
+local __page_height="$1" __page_width="$2" __ypos="$3" __xpos="$4" __id="$5" __width_var="$6" __idx_var="$7" __opts_var="$8" __data2="$9" __data2="$10" __data3="$11"
+
+# Get maximum width
+local -a options
+options=( "${(@Ps:;:)__opts_var}" )
+
+# Compute window x-dimension and position
+local txt
+integer width=7 size="${#options[@]}"
+for txt in "${options[@]}"; do
+    (( width = ${#txt} > width ? ${#txt} : width ))
+done
+
+if (( __ypos + size + 2 > __page_height + 1 )); then
+    (( __ypos=__ypos-size-2 ))
+else
+    (( __ypos+=1 ))
+fi
+
+if (( __xpos + width + 4 > __page_width )); then
+    # Basic protection, can be inaccurate
+    (( __xpos=__page_width - width - 4 ))
+fi
+
+zcurses delwin lbox 2>/dev/null
+zcurses addwin lbox $(( size + 2 )) $(( width + 4 )) "$__ypos" "$__xpos"
+
+# Clear input buffer
+zcurses timeout lbox 0
+zcurses input lbox key keypad
+zcurses timeout lbox -1
+key=""
+keypad=""
+
+integer hidx
+while (( 1 )); do
+    # Draw list box
+    zcurses clear lbox
+
+    integer count=1
+    hidx=${(P)__idx_var}
+    for txt in "${options[@]}"; do
+        zcurses move lbox "$count" 2
+
+        if (( count == hidx )); then
+            zcurses attr lbox +reverse
+            zcurses string lbox "$txt"
+            zcurses attr lbox -reverse
+        else
+            zcurses string lbox "$txt"
+        fi
+
+        (( ++ count ))
+    done
+
+    zcurses border lbox
+    zcurses refresh lbox
+
+    # Wait for input
+    local key keypad final_key
+    zcurses input "$wname_main" key keypad
+
+    # Get the special (i.e. "keypad") key or regular key
+    if [[ -n "$key" ]]; then
+        final_key="$key"
+    elif [[ -n "$keypad" ]]; then
+        final_key="$keypad"
+    fi
+
+    case "$final_key" in
+        (UP|k|BTAB)
+            hidx=${(P)__idx_var}
+            (( hidx = hidx > 1 ? hidx-1 : hidx ))
+            : ${(P)__idx_var::=$hidx}
+            ;;
+        (DOWN|j|$'\t')
+            hidx=${(P)__idx_var}
+            (( hidx = hidx < ${#options[@]} ? hidx+1 : hidx ))
+            : ${(P)__idx_var::=$hidx}
+            ;;
+        ($'\n')
+            break
+            ;;
+        (??*)
+            ;;
+        (*)
+            ;;
+    esac
+done
+
+zcurses delwin lbox 2>/dev/null
+
+# vim:ft=zsh

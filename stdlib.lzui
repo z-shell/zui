@@ -233,6 +233,31 @@ function -zui_stdlib_text_field() {
     : ${(PA)__var_name::=${__output[@]}}
 }
 
+# Appends list-box hyperlink into output array (default: reply)
+#
+# $1 - action ID
+# $2 - width parameter (min and max text width - padding with spaces)
+# $3 - index parameter - what option is active
+# $4 - options parameter - name of parameter holding ";" separated options
+# $5 - data1
+# $6 - data2
+# $7 - data3
+# $8 - handler (function name)
+# $9 - optional output array name (default: reply)
+#
+function -zui_stdlib_list_box() {
+    local __id="${(q)1}" __width_var="${(q)2}" __idx_var="${(q)3}" __opts_var="${(q)4}" __data1="${(q)5}" __data2="${(q)6}" __data3="${(q)7}" __handler="$8"
+    local __var_name="${9:-reply}"
+    local -a __output
+
+    [[ -n "$__handler" ]] && ZUI[zuilbox$__id]="$__handler"
+
+    __output=( "${(P@)__var_name}" $'\034'"zuilbox$__id"$'\034'"$__data1"$'\034'"$__data2"$'\034'"$__data3"$'\034'"$__width_var"$'\034'"$__idx_var"$'\034'"$__opts_var"$'\02' )
+
+    unset __id __width_var __idx_var __opts_var __data1 __data2 __data3 __handler
+    : ${(PA)__var_name::=${__output[@]}}
+}
+
 # Decodes given hyperlink and returns data contained.
 # Testable - test to check if hyperlink was correctly
 # decoded.
@@ -310,9 +335,52 @@ function -zui_stdlib_decode_text_field() {
     return 1
 }
 
+# Decodes given list-box and returns data contained.
+# Testable - test to check if hyperlink was correctly
+# decoded.
+#
+# $1 - hyperlink string
+# $2 - optional output array name (default: "reply")
+#
+# $reply[1] - ID (of action)
+# $reply[2] - width parameter name
+# $reply[3] - start-index parameter name
+# $reply[4] - text parameter name
+# $reply[5] - data1
+# $reply[6] - data2
+# $reply[7] - data3
+#
+function -zui_stdlib_decode_list_box() {
+    local __var_name="${2:-reply}"
+    : ${(PA)__var_name::=}
+
+    #                        id [1]              data1 [2]           data2 [3]           data3 [4]           width_var [5]       idx_var [6]        text_var [7]            
+    if [[ "$1" = (#b)*$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\02']#)$'\02'* ]]; then
+        local __id="${match[1]}" __data1="${match[2]}" __data2="${match[3]}" __data3="${match[4]}" __width_var="${match[5]}" __idx_var="${match[6]}" __param="${match[7]}"
+        local assgn_str="${__var_name}[1]"
+        : ${(P)assgn_str::=${(Q)__id}}
+        assgn_str="${__var_name}[2]"
+        : ${(P)assgn_str::=${(Q)__width_var}}
+        assgn_str="${__var_name}[3]"
+        : ${(P)assgn_str::=${(Q)__idx_var}}
+        assgn_str="${__var_name}[4]"
+        : ${(P)assgn_str::=${(Q)__param}}
+        assgn_str="${__var_name}[5]"
+        : ${(P)assgn_str::=${(Q)__data1}}
+        assgn_str="${__var_name}[6]"
+        : ${(P)assgn_str::=${(Q)__data2}}
+        assgn_str="${__var_name}[7]"
+        : ${(P)assgn_str::=${(Q)__data3}}
+        return 0
+    fi
+
+    return 1
+}
+
 # Tries various decoding functions, testable
 # Returns (REPLY) "1" if hyperlink (anchor,
-# button, raw link) or "2" if text field
+# button, raw link), "2" if text field, "3"
+# if list-box
 #
 # $1 - hyperlink
 # $2 - output parameter name, for type (default: REPLY)
@@ -320,6 +388,7 @@ function -zui_stdlib_decode() {
     local __out="${2:-REPLY}"
     [[ "$1" = *$'\01'* ]] && { -zui_stdlib_decode_hyperlink "$1" && { : ${(P)__out::=1}; return 0; }; }
     [[ "$1" = *$'\032'* ]] && { -zui_stdlib_decode_text_field "$1" && { : ${(P)__out::=2}; return 0; }; }
+    [[ "$1" = *$'\034'* ]] && { -zui_stdlib_decode_list_box "$1" && { : ${(P)__out::=3}; return 0; }; }
     : ${(P)__out::=0}
     return 1
 }
@@ -404,8 +473,14 @@ function -zui_stdlib_is_hyperlink() {
 
 # Checks if given text is a text field
 function -zui_stdlib_is_text_field() {
-    #                id                data1             data2             module index      width_var         sidx_var          text_var             
+    #                 id                data1             data2             module index      width_var         sidx_var          text_var             
     [[ "$1" = *$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\02']#$'\02'* ]]
+}
+
+# Checks if given text is a list box
+function -zui_stdlib_is_list_box() {
+    #                 id                data1             data2             data3             width_var         sidx_var          text_var             
+    [[ "$1" = *$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\02']#$'\02'* ]]
 }
 
 # Puts given links in a box, i.e. into sequence of lines
@@ -593,7 +668,7 @@ function -zui_stdlib_circular_paths() {
 function -zui_stdlib_cleanup() {
     local -a keys
     # Anchors, checkboxes, actions, internal actions
-    keys=( ${ZUI[(I)zuianchor*]} ${ZUI[(I)zuieanchor*]} ${ZUI[(I)zuicheckbox*]}
+    keys=( ${ZUI[(I)zuianchor*]} ${ZUI[(I)zuieanchor*]} ${ZUI[(I)zuitfield*]} ${ZUI[(I)zuilbox*]}
            ${ZUI[(I)zuiaction*]} ${ZUI[(I)zuiiaction*]} ${ZUI[(I)fly_*]}
            app app_name PROMPT_SUBST INTERACTIVE_COMMENTS GENERATION_TIME
            text_mode text_mode_ts_

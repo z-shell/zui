@@ -338,7 +338,7 @@ if -zui_stdlib_decode_hyperlink "$ZUILIST_WRAPPER_BIT"; then
     fi
 
     if [[ $call_hook -gt 0 && -n "${ZUI[$id]}" ]]; then
-        reply[1]="${${${${${reply[1]#zuiiaction}#zuiaction}#zuicheckbox}#zuieanchor}#zuianchor}"
+        reply[1]="${reply[1]#(zuiiaction|zuiaction|zuicheckbox|zuieanchor|zuianchor|zuitfield|zuilbox)}"
         # Call the handler with all hyper-link
         # data or eval code, not using the data
         if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
