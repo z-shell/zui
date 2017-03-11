@@ -757,12 +757,8 @@ while (( 1 )); do
         final_key="$key"
     elif [[ -n "$keypad" ]]; then
         final_key="$keypad"
-    else
-        [[ -n "$wname_status" ]] && {
-            -zui_list_status_msg "" "Inproper input detected"
-            zcurses refresh "$wname_status"
-            sleep 1
-        }
+    elif [[ -n "$wname_status" ]]; then
+        -zui_stdlib_add_message 1 "${EPOCHSECONDS:-0}" "" "" "Warning: " "Improper input detected"
     fi
 
     integer track_cur_idx="$ZUILIST_CURRENT_IDX"
