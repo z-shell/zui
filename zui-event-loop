@@ -82,6 +82,8 @@ for zuiel_val1; do
         [[ "$zuiel_val2" = "fly-regen" ]] && zuiel_module_hash[fly-regen_${zuiel_val3}]=1
         # Add configurations to refresh
         [[ "$zuiel_val2" = "cfg-refresh" ]] && ZUI[configs_to_refresh]="${zuiel_val3}"
+        # Add array
+        [[ "$zuiel_val2" = "a" ]] && zuiel_module_hash[${zel_mod}_zuia]="$zuiel_val3"
         continue
     elif [[ "$zuiel_val2" != <-> ]]; then
         # Without prefix, default factor is 1
@@ -122,29 +124,32 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
 
     # Check such module exists
     [[ -z "$zuiel_key" ]] && break;
-    zuiel_val1="${zuiel_module_hash[$zuiel_key]}"   # factor
-    zuiel_val2="${zuiel_key#[[:digit:]]#_}"         # generator
 
-    # Generate required number of instances
-    for (( zel_ice=1; zel_ice <= zuiel_val1; ++ zel_ice )); do
-        if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,mod${zel_mod}_ice${zel_ice},* || "$REGENERATE" = *,all,* ]]; then
-            # Module $zel_mod, instance $zel_ice
-            local -a mod${zel_mod}_ice${zel_ice}_output mod${zel_mod}_ice${zel_ice}_nonselectables mod${zel_mod}_ice${zel_ice}_hops
-            local -a mod${zel_mod}_ice${zel_ice}_lanchors prev_mod${zel_mod}_ice${zel_ice}_nonselectables prev_mod${zel_mod}_ice${zel_ice}_hops
-            integer mod${zel_mod}_ice${zel_ice}_size prev_mod${zel_mod}_ice${zel_ice}_size
+    if [[ "$zuiel_key" != [[:digit:]]##_zuia ]]; then
+        zuiel_val1="${zuiel_module_hash[$zuiel_key]}"   # factor
+        zuiel_val2="${zuiel_key#[[:digit:]]#_}"         # generator
 
-            -zui_stdlib_reset_replies
-            "$zuiel_val2" "$zel_mod" "$zel_ice" $REGENERATE_ARG
+        # Generate required number of instances
+        for (( zel_ice=1; zel_ice <= zuiel_val1; ++ zel_ice )); do
+            if [[ "$REGENERATE" = "initial" || "$REGENERATE" = *,mod${zel_mod}_ice${zel_ice},* || "$REGENERATE" = *,all,* ]]; then
+                # Module $zel_mod, instance $zel_ice
+                local -a mod${zel_mod}_ice${zel_ice}_output mod${zel_mod}_ice${zel_ice}_nonselectables mod${zel_mod}_ice${zel_ice}_hops
+                local -a mod${zel_mod}_ice${zel_ice}_lanchors prev_mod${zel_mod}_ice${zel_ice}_nonselectables prev_mod${zel_mod}_ice${zel_ice}_hops
+                integer mod${zel_mod}_ice${zel_ice}_size prev_mod${zel_mod}_ice${zel_ice}_size
 
-            # This function has to be called after each *_generator
-            # function call, to copy reply{,2..5} into above (after
-            # "# Module $zel_mod ..." line) variables
-            -zui_stdlib_map_replies "$zel_mod" "$zel_ice"
+                -zui_stdlib_reset_replies
+                "$zuiel_val2" "$zel_mod" "$zel_ice" $REGENERATE_ARG
 
-            # Save any newly created local anchors
-            -zui_stdlib_gather_lanchors "$zel_mod" "$zel_ice" zuiel_regen_lanchors
-        fi
-    done
+                # This function has to be called after each *_generator
+                # function call, to copy reply{,2..5} into above (after
+                # "# Module $zel_mod ..." line) variables
+                -zui_stdlib_map_replies "$zel_mod" "$zel_ice"
+
+                # Save any newly created local anchors
+                -zui_stdlib_gather_lanchors "$zel_mod" "$zel_ice" zuiel_regen_lanchors
+            fi
+        done
+    fi
 done
 
 ##
@@ -164,132 +169,155 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
 
     # Check such module exists
     [[ -z "$zuiel_key" ]] && break;
-    zuiel_val1="${zuiel_module_hash[$zuiel_key]}"
 
-    for (( zel_ice=1; zel_ice <= zuiel_val1; ++ zel_ice )); do
-        zuiel_n="mod${zel_mod}_ice${zel_ice}"
-
-        # Check if there are any modules
-        zuiel_var_name="${zuiel_n}_output"
-        [[ "${(P)+zuiel_var_name}" = "0" ]] && break
-
-        # Get zuiel_output
-        zuiel_output=( "${(PA@)zuiel_var_name}" )
-
-        # Get zuiel_output zuiel_size
-        zuiel_var_name="${zuiel_n}_size"
-        zuiel_size="${(P)zuiel_var_name}"
-
-        # Get zuiel_nonselectables
-        zuiel_var_name="${zuiel_n}_nonselectables"
-        zuiel_nonselectables=( "${(PA@)zuiel_var_name}" )
-
-        # Get zuiel_hops
-        zuiel_var_name="${zuiel_n}_hops"
-        zuiel_hops=( "${(PA@)zuiel_var_name}" )
-
-        # Get local anchors
-        zuiel_var_name="${zuiel_n}_lanchors"
-        zuiel_lanchors=( "${(PA@)zuiel_var_name}" )
-
-        # Get previous zuiel_size
-        zuiel_var_name="prev_${zuiel_n}_size"
-        zuiel_prev_size="${(P)zuiel_var_name}"
-
-        # Get previous zuiel_nonselectables
-        zuiel_var_name="prev_${zuiel_n}_nonselectables"
-        zuiel_prev_nonselectables=( "${(PA@)zuiel_var_name}" )
-
-        # Get previous zuiel_hops
-        zuiel_var_name="prev_${zuiel_n}_hops"
-        zuiel_prev_hops=( "${(PA@)zuiel_var_name}" )
-
+    # Array?
+    if [[ "$zuiel_key" = [[:digit:]]##_zuia ]]; then
         if (( zuiel_size > 0 )); then
             ZUIEL_OUTPUT+=( "" )
             ZUIEL_LINE_COUNT+=1
-            # + 1 for the anchors at top
-            ZUILIST_NONSELECTABLE_ELEMENTS+=( "$(( ZUIEL_LINE_COUNT + 1 ))" )
         fi
 
-        # Translate returned indices to global ones
-        # The + 1 is for anchors at the top
-        zuiel_nonselectables=( "${zuiel_nonselectables[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUIEL_LINE_COUNT + 1 ))}" )
-        zuiel_hops=( "${zuiel_hops[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUIEL_LINE_COUNT + 1 ))}" )
+        zuiel_val1="${zuiel_module_hash[$zuiel_key]}"
+        zuiel_val2="${zuiel_val1%%-*}"
+        if [[ "$zuiel_val1" != "$zuiel_val2" && "$zuiel_val2" = "u" ]]; then
+            zuiel_val1="${zuiel_val1#u-}"
+            # Append making unique
+            ZUIEL_OUTPUT+=( "${(PA@u)zuiel_val1}" )
+        else
+            # Append normally
+            ZUIEL_OUTPUT+=( "${(PA@)zuiel_val1}" )
+        fi
 
-        # Add translated, current zuiel_hops and zuiel_nonselectables
-        ZUILIST_NONSELECTABLE_ELEMENTS+=( "${zuiel_nonselectables[@]}" )
-        ZUILIST_HOP_INDICES+=( "${zuiel_hops[@]}" )
+        # Should probably resign from ZUIEL_LINE_COUNT
+        ZUIEL_LINE_COUNT="${#ZUIEL_OUTPUT[@]}"
+    else
+        zuiel_val1="${zuiel_module_hash[$zuiel_key]}"
 
-        # Also store the indices into prev_* arrays
-        zuiel_var_name="prev_${zuiel_n}_nonselectables"
-        : "${(PA)zuiel_var_name::=${zuiel_nonselectables[@]}}";
-        zuiel_var_name="prev_${zuiel_n}_hops"
-        : "${(PA)zuiel_var_name::=${zuiel_hops[@]}}";
-        zuiel_var_name="prev_${zuiel_n}_size"
-        : "${(P)zuiel_var_name::=${zuiel_size}}";
+        for (( zel_ice=1; zel_ice <= zuiel_val1; ++ zel_ice )); do
+            zuiel_n="mod${zel_mod}_ice${zel_ice}"
 
-        # Translate module's new local anchors,
-        # into normal, global list indices
-        for zuiel_a in "${zuiel_lanchors[@]}"; do
-            [[ "${+ZUI[zuianchor$zuiel_a]}" = "1" ]] && zuiel_a="zuianchor$zuiel_a" || {
-                [[ "${+ZUI[zuieanchor$zuiel_a]}" = "1" ]] && zuiel_a="zuieanchor$zuiel_a"
-            }
-            # + 1 for anchors at top; retain "+number" part
-            ZUI[$zuiel_a]=$(( ${ZUI[$zuiel_a]%[-+]*} + ZUIEL_LINE_COUNT + 1 ))"${ZUI[$zuiel_a]##[0-9]##}"
-        done
+            # Check if there are any modules
+            zuiel_var_name="${zuiel_n}_output"
+            [[ "${(P)+zuiel_var_name}" = "0" ]] && break
 
-        # Remove from list of anchors needing to-global
-        # translation. This makes anchors distinct from
-        # other data, other "...${zuiel_n}..." parameters, as
-        # data is moved to ZUI hash once, and the array
-        # "${zuiel_n}_lanchors" is instantly emptied.
-        zuiel_var_name="${zuiel_n}_lanchors"
-        : ${(PA)zuiel_var_name::=}
+            # Get zuiel_output
+            zuiel_output=( "${(PA@)zuiel_var_name}" )
 
-        # Create top anchors
-        reply=( )
-        [[ -n "${zuiel_hops[1]}" ]] && -zui_stdlib_anchor "aglobal_m${zel_mod}_i${zel_ice}" "${zuiel_hops[1]}" "$zel_mod" "$zel_ice" "" "[${ZUI[CYAN]}Module${zel_mod}/${zel_ice}${ZUI[COLOR_END]}]" '(( ${+functions[-zui-global-anchors-callback]} )) && { -zui-global-anchors-callback  "'"aglobal_m${zel_mod}_i${zel_ice}"'" "'"${zuiel_hops[1]}"'" "'"$zel_mod"'" "'"$zel_ice"'"; internal=1; }'
-        zuiel_top_anchors+=( "${reply[@]}" )
+            # Get zuiel_output zuiel_size
+            zuiel_var_name="${zuiel_n}_size"
+            zuiel_size="${(P)zuiel_var_name}"
 
-        # Store where in the list module is
-        # located, via typical "moduleX_..."
-        # variable
-        local ${zuiel_n}_global_index
-        zuiel_var_name="${zuiel_n}_global_index"
-        # + 1 for anchors at top, + 1 because
-        # we point at next line after separator
-        : ${(P)zuiel_var_name::=$(( ZUIEL_LINE_COUNT + 1 + 1 ))}
+            # Get zuiel_nonselectables
+            zuiel_var_name="${zuiel_n}_nonselectables"
+            zuiel_nonselectables=( "${(PA@)zuiel_var_name}" )
 
-        # Shift down (up) local anchors that weren't
-        # recreated in this regeneration loop run,
-        # i.e. aren't in zuiel_regen_lanchors array. If an
-        # anchor ID contains string "global" then it
-        # will not be modified - will be considered
-        # a fixed global anchor.
-        if [[ $(( zuiel_size - zuiel_prev_size )) -ne 0 ]]; then
-            for zuiel_a in ${ZUI[(I)zuianchor*~*global*]} ${ZUI[(I)zuieanchor*~*global*]}; do
-                # Skip anchors recreated at this regeneration loop
-                [[ "${zuiel_regen_lanchors[(r)${zuiel_a#zuianchor}]}" = ${zuiel_a#zuianchor} ||
-                   "${zuiel_regen_lanchors[(r)${zuiel_a#zuieanchor}]}" = ${zuiel_a#zuieanchor} ]] && continue
+            # Get zuiel_hops
+            zuiel_var_name="${zuiel_n}_hops"
+            zuiel_hops=( "${(PA@)zuiel_var_name}" )
 
-                # Anchor after current module? The %[-+]* removes
-                # "+number" part used to point to other modules
-                # while still using local anchors. This addition
-                # doesn't change the fact that the anchor belongs
-                # to its module, i.e. "zuiel_a" in "zuiel_a+b" matters.
-                #
-                # + 1 for anchors at top, + 1 because we point at
-                # module, at next line after empty separator line
-                if [[ "${ZUI[$zuiel_a]%[-+]*}" -gt $(( ZUIEL_LINE_COUNT + 1 + 1 + (zuiel_size - 1) )) ]]; then
-                    # Retain "+number" part
-                    ZUI[$zuiel_a]=$(( ${ZUI[$zuiel_a]%[-+]*} + zuiel_size - zuiel_prev_size ))"${ZUI[$zuiel_a]##[0-9]##}"
-                fi
+            # Get local anchors
+            zuiel_var_name="${zuiel_n}_lanchors"
+            zuiel_lanchors=( "${(PA@)zuiel_var_name}" )
+
+            # Get previous zuiel_size
+            zuiel_var_name="prev_${zuiel_n}_size"
+            zuiel_prev_size="${(P)zuiel_var_name}"
+
+            # Get previous zuiel_nonselectables
+            zuiel_var_name="prev_${zuiel_n}_nonselectables"
+            zuiel_prev_nonselectables=( "${(PA@)zuiel_var_name}" )
+
+            # Get previous zuiel_hops
+            zuiel_var_name="prev_${zuiel_n}_hops"
+            zuiel_prev_hops=( "${(PA@)zuiel_var_name}" )
+
+            if (( zuiel_size > 0 )); then
+                ZUIEL_OUTPUT+=( "" )
+                ZUIEL_LINE_COUNT+=1
+                # + 1 for the anchors at top
+                ZUILIST_NONSELECTABLE_ELEMENTS+=( "$(( ZUIEL_LINE_COUNT + 1 ))" )
+            fi
+
+            # Translate returned indices to global ones
+            # The + 1 is for anchors at the top
+            zuiel_nonselectables=( "${zuiel_nonselectables[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUIEL_LINE_COUNT + 1 ))}" )
+            zuiel_hops=( "${zuiel_hops[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUIEL_LINE_COUNT + 1 ))}" )
+
+            # Add translated, current zuiel_hops and zuiel_nonselectables
+            ZUILIST_NONSELECTABLE_ELEMENTS+=( "${zuiel_nonselectables[@]}" )
+            ZUILIST_HOP_INDICES+=( "${zuiel_hops[@]}" )
+
+            # Also store the indices into prev_* arrays
+            zuiel_var_name="prev_${zuiel_n}_nonselectables"
+            : "${(PA)zuiel_var_name::=${zuiel_nonselectables[@]}}";
+            zuiel_var_name="prev_${zuiel_n}_hops"
+            : "${(PA)zuiel_var_name::=${zuiel_hops[@]}}";
+            zuiel_var_name="prev_${zuiel_n}_size"
+            : "${(P)zuiel_var_name::=${zuiel_size}}";
+
+            # Translate module's new local anchors,
+            # into normal, global list indices
+            for zuiel_a in "${zuiel_lanchors[@]}"; do
+                [[ "${+ZUI[zuianchor$zuiel_a]}" = "1" ]] && zuiel_a="zuianchor$zuiel_a" || {
+                    [[ "${+ZUI[zuieanchor$zuiel_a]}" = "1" ]] && zuiel_a="zuieanchor$zuiel_a"
+                }
+                # + 1 for anchors at top; retain "+number" part
+                ZUI[$zuiel_a]=$(( ${ZUI[$zuiel_a]%[-+]*} + ZUIEL_LINE_COUNT + 1 ))"${ZUI[$zuiel_a]##[0-9]##}"
             done
-        fi
 
-        ZUIEL_OUTPUT+=( "${zuiel_output[@]}" )
-        ZUIEL_LINE_COUNT+=zuiel_size
-    done
+            # Remove from list of anchors needing to-global
+            # translation. This makes anchors distinct from
+            # other data, other "...${zuiel_n}..." parameters, as
+            # data is moved to ZUI hash once, and the array
+            # "${zuiel_n}_lanchors" is instantly emptied.
+            zuiel_var_name="${zuiel_n}_lanchors"
+            : ${(PA)zuiel_var_name::=}
+
+            # Create top anchors
+            reply=( )
+            [[ -n "${zuiel_hops[1]}" ]] && -zui_stdlib_anchor "aglobal_m${zel_mod}_i${zel_ice}" "${zuiel_hops[1]}" "$zel_mod" "$zel_ice" "" "[${ZUI[CYAN]}Module${zel_mod}/${zel_ice}${ZUI[COLOR_END]}]" '(( ${+functions[-zui-global-anchors-callback]} )) && { -zui-global-anchors-callback  "'"aglobal_m${zel_mod}_i${zel_ice}"'" "'"${zuiel_hops[1]}"'" "'"$zel_mod"'" "'"$zel_ice"'"; internal=1; }'
+            zuiel_top_anchors+=( "${reply[@]}" )
+
+            # Store where in the list module is
+            # located, via typical "moduleX_..."
+            # variable
+            local ${zuiel_n}_global_index
+            zuiel_var_name="${zuiel_n}_global_index"
+            # + 1 for anchors at top, + 1 because
+            # we point at next line after separator
+            : ${(P)zuiel_var_name::=$(( ZUIEL_LINE_COUNT + 1 + 1 ))}
+
+            # Shift down (up) local anchors that weren't
+            # recreated in this regeneration loop run,
+            # i.e. aren't in zuiel_regen_lanchors array. If an
+            # anchor ID contains string "global" then it
+            # will not be modified - will be considered
+            # a fixed global anchor.
+            if [[ $(( zuiel_size - zuiel_prev_size )) -ne 0 ]]; then
+                for zuiel_a in ${ZUI[(I)zuianchor*~*global*]} ${ZUI[(I)zuieanchor*~*global*]}; do
+                    # Skip anchors recreated at this regeneration loop
+                    [[ "${zuiel_regen_lanchors[(r)${zuiel_a#zuianchor}]}" = ${zuiel_a#zuianchor} ||
+                       "${zuiel_regen_lanchors[(r)${zuiel_a#zuieanchor}]}" = ${zuiel_a#zuieanchor} ]] && continue
+
+                    # Anchor after current module? The %[-+]* removes
+                    # "+number" part used to point to other modules
+                    # while still using local anchors. This addition
+                    # doesn't change the fact that the anchor belongs
+                    # to its module, i.e. "zuiel_a" in "zuiel_a+b" matters.
+                    #
+                    # + 1 for anchors at top, + 1 because we point at
+                    # module, at next line after empty separator line
+                    if [[ "${ZUI[$zuiel_a]%[-+]*}" -gt $(( ZUIEL_LINE_COUNT + 1 + 1 + (zuiel_size - 1) )) ]]; then
+                        # Retain "+number" part
+                        ZUI[$zuiel_a]=$(( ${ZUI[$zuiel_a]%[-+]*} + zuiel_size - zuiel_prev_size ))"${ZUI[$zuiel_a]##[0-9]##}"
+                    fi
+                done
+            fi
+
+            ZUIEL_OUTPUT+=( "${zuiel_output[@]}" )
+            ZUIEL_LINE_COUNT+=zuiel_size
+        done
+    fi
 done
 
 # Reset regeneration variables and prev_current_project
