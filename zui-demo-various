@@ -121,12 +121,15 @@ mod3_internal_action() {
     # Zero-type means callback is called on a non-hyperlink
     if [[ "$tpe" = "0" ]]; then
         local selectable="$2" uniq="$3" search="$4" line="$5" segment="$6"
+        -zui_stdlib_strip_codes "$segment"
+        # Set select_mode to "restart" to use two ifs below
         if [[ -n "${ZUI[pure_text_selected]}" ]]; then
-            reply=( "$pressed" "Pure-text selected: " "$segment" )
+            reply=( "$pressed" "Pure-text selected: " "$REPLY" )
+        elif [[ -n "${ZUI[line_selected]}" ]]; then
+            reply=( "$pressed" "Line selected: " "$REPLY" )
         elif (( $selectable || $uniq || $search )); then
             # 1/0 selectable or not || 1/0 uniq mode || 1/0 non-empty search query
             # Any of those means no hops and no non-selectables are relevant
-            -zui_stdlib_strip_codes "$segment"
             reply=( "$pressed" "" "Text: " "$REPLY" )
         else
             # Detect if current line is also a hop
