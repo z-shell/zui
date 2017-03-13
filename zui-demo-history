@@ -1,0 +1,34 @@
+# Started from Zle or from command line
+
+-zui_stdlib_cleanup
+-zui_stdlib_init
+
+ZUI[app]="zui-demo-history"
+ZUI[app_name]="ZUI History"
+
+emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
+
+[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
+
+-zui_stdlib_store_default_app_config b:border 1
+
+# Generator for module 1
+demo_mod1_generator() {
+    local mod="$1" ice="$2"
+
+    # Content, no hyper-links
+    reply=( "${ZUI[YELLOW]}ZUI${ZUI[COLOR_END]} history example! Module $mod, instance $ice." )
+
+    # Non-selectable lines   Hops to jump with [ and ]   Local anchors
+    reply2=( )               reply3=( 1 )                reply4=( )
+}
+
+## Start application ##
+# a:u- is: array, unique elements
+zui-event-loop 1:demo_mod1_generator a:u-history 1:demo_mod1_generator
+
+-zui_stdlib_cleanup
+
+return 0
+
+# vim:ft=zsh
