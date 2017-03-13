@@ -497,6 +497,16 @@ function -zui_stdlib_is_list_box() {
     [[ "$1" = *$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\02']#$'\02'* ]]
 }
 
+# Checks if given text has any hyperlinks
+# (buttons/anchors, text fields, list boxes)
+function -zui_stdlib_has_any_hyperlinks() {
+    [[ "$1" = *$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'[^$'\02']#$'\02'* ]] ||
+    #                 id                data1             data2             module index      width_var         sidx_var          text_var             
+    [[ "$1" = *$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\02']#$'\02'* ]] ||
+    #                 id                data1             data2             data3             width_var         sidx_var          text_var             
+    [[ "$1" = *$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\02']#$'\02'* ]]
+}
+
 # Puts given links in a box, i.e. into sequence of lines
 # that are limited in length. The sequence is returned
 # in reply array. The length of a link is the length of
