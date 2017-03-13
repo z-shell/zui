@@ -377,10 +377,9 @@ function -zui_stdlib_decode_list_box() {
     return 1
 }
 
-# Tries various decoding functions, testable
-# Returns (REPLY) "1" if hyperlink (anchor,
-# button, raw link), "2" if text field, "3"
-# if list-box
+# Tries various decoding functions, testable. Returns (in REPLY)
+# "1" if hyperlink (anchor, button, raw link), "2" if text field,
+# "3" if list-box
 #
 # $1 - hyperlink
 # $2 - output parameter name, for type (default: REPLY)
