@@ -335,7 +335,7 @@ shift 7
 typeset -a list disp_list disp_list2
 integer last_element=$#
 local action
-local final_key
+local final_key tmp
 integer selection
 integer last_element_difference=0
 integer current_difference=0
@@ -811,9 +811,26 @@ while (( 1 )); do
     local jump_id="" jump_data=""
 
     if [[ "$action" = "SELECT" ]]; then
-        REPLY="$selection"
-        reply=( "$list[@]" )
-        break
+        -zui_stdlib_get_segment "${list[selection]}" "$ZUILIST_CURRENT_SEGMENT" tmp
+        # Is it a hyperlink selection? If not, then examine select_mode
+        # to know if the text selection (ZUI[text_select] is examined in
+        # zui-list-input) should be passed outside the list
+        if -zui_stdlib_is_any_hyperlink "$tmp" || [[ "${ZUI[select_mode]}" = (restart|quit) ]]; then
+            REPLY="$selection"
+            reply=( "$list[@]" )
+            break
+        fi
+
+        # ZUI[select_mode] == callback
+        # No passing outside, will invoke callback, but need to
+        # know if on whole line, or on single text-bit segment
+        if [[ "${ZUI[text_mode]}" = "off" ]] || [[ "${ZUI[text_mode]}" = "hyp" ]] && ! -zui_stdlib_has_any_hyperlinks "${list[selection]}"; then
+            # Text-bit navigation is disabled - this must be whole line selection
+            # ... is enabled for with-hyperlinks lines, but line is without hyperlinks - ...
+            (( ${+functions[-zui-stdlib-standard-select-callback]} )) && -zui-stdlib-standard-select-callback "line" "${list[selection]}"
+        else
+            (( ${+functions[-zui-stdlib-standard-select-callback]} )) && -zui-stdlib-standard-select-callback "segment" "$tmp"
+        fi
     elif [[ "$action" = F[1-4] ]]; then
         REPLY="$action"
         reply=( "$list[@]" )
