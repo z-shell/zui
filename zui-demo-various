@@ -8,7 +8,7 @@
 # Initialize ZUI app
 -zui_stdlib_init
 
-ZUI[app]="zui-demo"
+ZUI[app]="zui-demo-various"
 ZUI[app_name]="ZUI demo"
 
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
