@@ -861,6 +861,7 @@ while (( 1 )); do
         -zui_stdlib_get_segment "${list[selection]}" "$ZUILIST_CURRENT_SEGMENT"
         -zui_stdlib_decode "$REPLY" && local id="${reply[1]}" || local id="-"
         if [[ "$action" = TFIELD_LEFT && -n "${ZUI[$id]}" ]]; then
+            ZUILIST_REGENERATE_LIST="2" # regenerate only display list
             reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
             if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
                 eval "${ZUI[$id]}"
@@ -872,6 +873,7 @@ while (( 1 )); do
         -zui_stdlib_get_segment "${list[selection]}" "$ZUILIST_CURRENT_SEGMENT"
         -zui_stdlib_decode "$REPLY" && local id="${reply[1]}" || local id="-"
         if [[ "$action" = LBOX_LEFT && -n "${ZUI[$id]}" ]]; then
+            ZUILIST_REGENERATE_LIST="2" # regenerate only display list
             reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
             if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
                 eval "${ZUI[$id]}"

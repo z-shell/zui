@@ -163,7 +163,6 @@ if [[ -n "${ZUI[current_tfield]}" ]]; then
         case "$key" in
             ($'\n')
                 ZUI[current_tfield]=""
-                ZUILIST_REGENERATE_LIST="2" # regenerate only display list
                 reply=( $current_idx TFIELD_LEFT )
                 ;;
             ($'\E')
