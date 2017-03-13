@@ -827,9 +827,9 @@ while (( 1 )); do
         if [[ "${ZUI[text_mode]}" = "off" ]] || [[ "${ZUI[text_mode]}" = "hyp" ]] && ! -zui_stdlib_has_any_hyperlinks "${list[selection]}"; then
             # Text-bit navigation is disabled - this must be whole line selection
             # ... is enabled for with-hyperlinks lines, but line is without hyperlinks - ...
-            (( ${+functions[-zui-stdlib-standard-select-callback]} )) && -zui-stdlib-standard-select-callback "line" "${list[selection]}"
+            (( ${+functions[-zui-standard-select-callback]} )) && -zui-standard-select-callback "line" "${list[selection]}"
         else
-            (( ${+functions[-zui-stdlib-standard-select-callback]} )) && -zui-stdlib-standard-select-callback "segment" "$tmp"
+            (( ${+functions[-zui-standard-select-callback]} )) && -zui-standard-select-callback "segment" "$tmp"
         fi
     elif [[ "$action" = F[1-4] ]]; then
         REPLY="$action"
