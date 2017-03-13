@@ -392,6 +392,21 @@ function -zui_stdlib_decode() {
     return 1
 }
 
+# Tests if given text is a hyperlink. Returns (in REPLY)
+# "1" if plain hyperlink (anchor, button, raw link), "2"
+# if text field, "3" if list-box
+#
+# $1 - hyperlink
+# $2 - output parameter name, for type (default: REPLY)
+function -zui_stdlib_is_any_hyperlink() {
+    local __out="${2:-REPLY}"
+    [[ "$1" = *$'\01'* ]] && { -zui_stdlib_is_hyperlink "$1" && { : ${(P)__out::=1}; return 0; }; }
+    [[ "$1" = *$'\032'* ]] && { -zui_stdlib_is_text_field "$1" && { : ${(P)__out::=2}; return 0; }; }
+    [[ "$1" = *$'\034'* ]] && { -zui_stdlib_is_list_box "$1" && { : ${(P)__out::=3}; return 0; }; }
+    : ${(P)__out::=0}
+    return 1
+}
+
 # Resolves absolute path from current working directory and file path
 #
 # $1 - current working directory
