@@ -14,7 +14,8 @@ setopt extendedglob typesetsilent warncreateglobal
 ## Parameters
 ##
 
-local MATCH REPLY; local -i MBEGIN MEND
+typeset -g REPLY=""
+local MATCH; local -i MBEGIN MEND
 local -a match mbegin mend
 
 # Measure and limit generation time
@@ -340,68 +341,89 @@ ZUI[GENERATION_TIME]="${generation_time[1,4]}"
 -zui_stdlib_refresh_configs "${(@s:,:)ZUI[configs_to_refresh]}"
 
 ZUILIST_HOP_INDICES+=( 1 ) # jump to anchors
-local ZUILIST_WRAPPER_BIT=""
+local ZUILIST_WRAPPER_BIT="" ZUILIST_WRAPPER_LINE="" zuiel_bit_set=0 zuiel_line_set=0
 zui-usetty-wrapper zui-list-wrapper "${zuiel_top_anchors[*]}" "${ZUIEL_OUTPUT[@]}"
 
-if [[ -z "$ZUILIST_WRAPPER_BIT" ]]; then
-    zle && { zle .redisplay; zle .reset-prompt; }
-    return 0
+if [[ "${ZUI[text_mode]}" = (all|nohyp) ]] || -zui_stdlib_has_any_hyperlinks "$ZUILIST_WRAPPER_LINE"; then
+    # No selection -> quit
+    if [[ -z "$ZUILIST_WRAPPER_BIT" || "${ZUI[select_mode]}" = "quit" ]] && ! -zui_stdlib_is_any_hyperlink "$ZUILIST_WRAPPER_BIT"; then
+        if [[ -z "$ZUILIST_WRAPPER_BIT" || "${ZUI[text_select]}" = "1" ]]; then
+            REPLY="$ZUILIST_WRAPPER_BIT"
+            zle && { zle .redisplay; zle .reset-prompt; }
+            return 0
+        fi
+    fi
+    zuiel_bit_set=1
+else # No hyperlinks, and text_mode is off|hyp
+    if [[ -z "$ZUILIST_WRAPPER_LINE" || "${ZUI[select_mode]}" = "quit" ]]; then
+        if [[ -z "$ZUILIST_WRAPPER_LINE" || "${ZUI[text_select]}" = "1" ]]; then
+            REPLY="$ZUILIST_WRAPPER_LINE"
+            zle && { zle .redisplay; zle .reset-prompt; }
+            return 0
+        fi
+    fi
+    zuiel_line_set=1
 fi
 
-# ID, data1, data2, data3, data4
-if -zui_stdlib_decode_hyperlink "$ZUILIST_WRAPPER_BIT"; then
-    local id="${reply[1]}" data1="${reply[2]}" data2="${reply[3]}" data3="${reply[4]}" data4="${reply[5]}"
+if (( zuiel_bit_set )); then
+    # ID, data1, data2, data3, data4
+    if -zui_stdlib_decode_hyperlink "$ZUILIST_WRAPPER_BIT"; then
+        local id="${reply[1]}" data1="${reply[2]}" data2="${reply[3]}" data3="${reply[4]}" data4="${reply[5]}"
 
-    ZUI[pressed_now]="$id"
+        ZUI[pressed_now]="$id"
 
-    integer call_hook=0
-    if [[ "$id" = zuieanchor* ]]; then
-        ZUILIST_CURRENT_IDX=$(( ${ZUI[$id]-$data1} ))
-        ZUILIST_CURRENT_SEGMENT=1
-        id="zuiaction${id#zuieanchor}"
-        ZUILIST_SEARCH_BUFFER=""
-        call_hook=1
-    elif [[ "$id" = zuiaction* ]]; then
-        call_hook=1
-    fi
-
-    if [[ $call_hook -gt 0 && -n "${ZUI[$id]}" ]]; then
-        reply[1]="${reply[1]#(zuiiaction|zuiaction|zuicheckbox|zuieanchor|zuianchor|zuitfield|zuilbox)}"
-        # Call the handler with all hyper-link
-        # data or eval code, not using the data
-        if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
-            eval "${ZUI[$id]}"
-
-            # Does in-line code set reply?
-            if [[ "${ZUI[$id]}" = *reply=* ]]; then
-                REGENERATE="${reply[1]}"
-                REGENERATE_ARG="${reply[2]}"
-            else
-                REGENERATE="$data3"
-                REGENERATE_ARG="$data4"
-            fi
-        else
-            "${ZUI[$id]}" "${reply[@]}"
-
-            # Handler can request regeneration
-            REGENERATE="${reply[1]}"
-            REGENERATE_ARG="${reply[2]}"
+        integer call_hook=0
+        if [[ "$id" = zuieanchor* ]]; then
+            ZUILIST_CURRENT_IDX=$(( ${ZUI[$id]-$data1} ))
+            ZUILIST_CURRENT_SEGMENT=1
+            id="zuiaction${id#zuieanchor}"
+            ZUILIST_SEARCH_BUFFER=""
+            call_hook=1
+        elif [[ "$id" = zuiaction* ]]; then
+            call_hook=1
         fi
 
-    else
-        # Without handler regeneration can be requested
-        # only by link itself, by data3 and data4 of the
-        # link (data1 can be used by anchor - hold target
-        # line number, while data2 optionally can hold
-        # module number)
-        REGENERATE="$data3"
-        REGENERATE_ARG="$data4"
-    fi
+        if [[ $call_hook -gt 0 && -n "${ZUI[$id]}" ]]; then
+            reply[1]="${reply[1]#(zuiiaction|zuiaction|zuicheckbox|zuieanchor|zuianchor|zuitfield|zuilbox)}"
+            # Call the handler with all hyper-link
+            # data or eval code, not using the data
+            if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
+                eval "${ZUI[$id]}"
 
-    REGENERATE+="$REGENERATE_ALWAYS"
+                # Does in-line code set reply?
+                if [[ "${ZUI[$id]}" = *reply=* ]]; then
+                    REGENERATE="${reply[1]}"
+                    REGENERATE_ARG="${reply[2]}"
+                else
+                    REGENERATE="$data3"
+                    REGENERATE_ARG="$data4"
+                fi
+            else
+                "${ZUI[$id]}" "${reply[@]}"
+
+                # Handler can request regeneration
+                REGENERATE="${reply[1]}"
+                REGENERATE_ARG="${reply[2]}"
+            fi
+
+        else
+            # Without handler regeneration can be requested
+            # only by link itself, by data3 and data4 of the
+            # link (data1 can be used by anchor - hold target
+            # line number, while data2 optionally can hold
+            # module number)
+            REGENERATE="$data3"
+            REGENERATE_ARG="$data4"
+        fi
+
+        REGENERATE+="$REGENERATE_ALWAYS"
+    else
+        # Non-hyperlink text-bit selection
+        ZUI[pure_text_selected]="$ZUILIST_WRAPPER_BIT"
+    fi
 else
-    # Non-hyperlink text-bit selection
-    ZUI[pure_text_selected]="$ZUILIST_WRAPPER_BIT"
+    # Non-hyperlink whole-line selection
+    ZUI[line_selected]="$ZUILIST_WRAPPER_LINE"
 fi
 
 ### REGENERATION REQUEST LOOP ###

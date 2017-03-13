@@ -149,8 +149,8 @@ local list_var_current="${14}[\$current_idx]"
 local text
 local -a wrk_reply
 
-# Trigger nearest hyperlink searching,
-# even when ZUI[text_mode] is 1
+# Trigger nearest hyperlink searching even
+# when ZUI[text_mode] yields no search
 integer search_for_hyperlink=0
 
 #
@@ -362,7 +362,7 @@ case "$key" in
                 y_pos=$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))
                 -zui-list-box-loop "$page_height" "$page_width" "$y_pos" $(( min_x + 2 )) "${reply[@]}" && { reply=( $current_idx LBOX_LEFT ); } || { reply=( -1 '' ); }
             else
-                # Selecting non-hyperlink is disallowed?
+                # Selecting non-hyperlink is allowed?
                 (( ${ZUI[text_select]} )) && reply=( $current_idx SELECT ) || reply=( -1 '' )
             fi
         fi
@@ -454,8 +454,22 @@ case "$key" in
                     -zui_listin_compute_first_to_show_idx_up_many
                 fi
             else
-                # || Search left accepting lack of success
-                (( ${ZUI[text_mode]} )) && (( -- current_segment )) || -zui_listin_set_next_hyperlink 0
+                if [[ "${ZUI[text_mode]}" = "off" ]]; then
+                    # Search left accepting lack of success
+                    -zui_listin_set_next_hyperlink 0
+                elif -zui_stdlib_has_any_hyperlinks "${(P)list_var_current}"; then
+                    if [[ "${ZUI[text_mode]}" = (hyp|all) ]]; then
+                        (( -- current_segment ))
+                    else
+                        -zui_listin_set_next_hyperlink 0
+                    fi
+                else
+                    if [[ "${ZUI[text_mode]}" = (nohyp|all) ]]; then
+                        (( -- current_segment ))
+                    else
+                        -zui_listin_set_next_hyperlink 0
+                    fi
+                fi
             fi
         fi
         ;;
@@ -488,8 +502,22 @@ case "$key" in
                     -zui_listin_compute_first_to_show_idx_down_many
                 fi
             else
-                # || Search right accepting lack of success
-                (( ${ZUI[text_mode]} )) && (( ++ current_segment )) || -zui_listin_set_next_hyperlink 1
+                if [[ "${ZUI[text_mode]}" = "off" ]]; then
+                    # Search right accepting lack of success
+                    -zui_listin_set_next_hyperlink 1
+                elif -zui_stdlib_has_any_hyperlinks "${(P)list_var_current}"; then
+                    if [[ "${ZUI[text_mode]}" = (hyp|all) ]]; then
+                        (( ++ current_segment ))
+                    else
+                        -zui_listin_set_next_hyperlink 1
+                    fi
+                else
+                    if [[ "${ZUI[text_mode]}" = (nohyp|all) ]]; then
+                        (( ++ current_segment ))
+                    else
+                        -zui_listin_set_next_hyperlink 1
+                    fi
+                fi
             fi
             [[ "$current_segment" -gt "$nseg" ]] && current_segment="$nseg"
         fi
@@ -613,8 +641,22 @@ case "$key" in
                     -zui_listin_compute_first_to_show_idx_up_many
                 fi
             else
-                # || Search left accepting lack of success
-                (( ${ZUI[text_mode]} )) && (( -- current_segment )) || -zui_listin_set_next_hyperlink 0
+                if [[ "${ZUI[text_mode]}" = "off" ]]; then
+                    # Search left accepting lack of success
+                    -zui_listin_set_next_hyperlink 0
+                elif -zui_stdlib_has_any_hyperlinks "${(P)list_var_current}"; then
+                    if [[ "${ZUI[text_mode]}" = (hyp|all) ]]; then
+                        (( -- current_segment ))
+                    else
+                        -zui_listin_set_next_hyperlink 0
+                    fi
+                else
+                    if [[ "${ZUI[text_mode]}" = (nohyp|all) ]]; then
+                        (( -- current_segment ))
+                    else
+                        -zui_listin_set_next_hyperlink 0
+                    fi
+                fi
             fi
         fi
         ;;
@@ -646,8 +688,22 @@ case "$key" in
                     -zui_listin_compute_first_to_show_idx_down_many
                 fi
             else
-                # || Search right accepting lack of success
-                (( ${ZUI[text_mode]} )) && (( ++ current_segment )) || -zui_listin_set_next_hyperlink 1
+                if [[ "${ZUI[text_mode]}" = "off" ]]; then
+                    # Search right accepting lack of success
+                    -zui_listin_set_next_hyperlink 1
+                elif -zui_stdlib_has_any_hyperlinks "${(P)list_var_current}"; then
+                    if [[ "${ZUI[text_mode]}" = (hyp|all) ]]; then
+                        (( ++ current_segment ))
+                    else
+                        -zui_listin_set_next_hyperlink 1
+                    fi
+                else
+                    if [[ "${ZUI[text_mode]}" = (nohyp|all) ]]; then
+                        (( ++ current_segment ))
+                    else
+                        -zui_listin_set_next_hyperlink 1
+                    fi
+                fi
             fi
             [[ "$current_segment" -gt "$nseg" ]] && current_segment="$nseg"
         fi
@@ -691,9 +747,12 @@ esac
 
 fi
 
-# Make current_segment point to
-# hyperlink, if it exists in line
-(( ${ZUI[text_mode]} && search_for_hyperlink == 0 )) || -zui_listin_search_for_hyperlink
+# Make current_segment point to hyperlink, if it exists in line
+if -zui_stdlib_has_any_hyperlinks "${(P)list_var_current}"; then
+    [[ "${ZUI[text_mode]}" = (hyp|all) && "$search_for_hyperlink" = "0" ]] || -zui_listin_search_for_hyperlink
+else
+    [[ "${ZUI[text_mode]}" = (nohyp|all) && "$search_for_hyperlink" = "0" ]] || -zui_listin_search_for_hyperlink
+fi
 
 reply[3]="$current_idx"
 reply[4]="$current_segment"

@@ -36,9 +36,16 @@ zstyle ":plugin:zui" log_size "32"              # How many log messages to keep 
 zstyle ":plugin:zui" log_colors "white cyan yellow green cyan red magenta yellow blue"
 
 # Implementation Zstyles
-zstyle ":plugin:zui" text_mode "yes"            # Navigate across each bit of text, not only buttons
-                                                # Rather for implementing, not configuring
-zstyle ":plugin:zui" text_select "yes"          # Allow selection on non-hyperlinks
+zstyle ":plugin:zui" select_mode "callback"     # What to do on non-hyperlink selection. Will invoke -zui-standard-sel\
+                                                # ect-callback() passing segment or whole line as argument. Can be also
+                                                # "restart" – will restart the list, setting ZUI[pure_text_selected] or
+                                                # ZUI[line_selected]. Also "quit" – will quit event loop setting REPLY
+zstyle ":plugin:zui" text_mode "all"            # Navigate across each bit of text, not only hyperlinks. "hyp" – only
+                                                # at lines with hyperlinks, "nohyp" – only at lines with no hyperlinks,
+                                                # "off" - text-bit navigation fully turned off
+zstyle ":plugin:zui" text_select "yes"          # Allow selection on non-hyperlinks (full lines when text_mode is "off"
+                                                # or "hyp" – meaning text-bit mode fully turned off or enabled only for
+                                                # lines with hyperlinks, leaving text-only lines undivided)
 ```
 
 Each application can override those via "...:app:{name}" zstyles, e.g. for application "zplugin":
@@ -52,7 +59,7 @@ zstyle ":plugin:zui:app:zplugin" mark "blue WHITE reverse bold lineund"
 zstyle ":plugin:zui:app:zplugin" altmark "green CYAN bold reverse"
 zstyle ":plugin:zui:app:zplugin" status_size "4"                # More space for long messages
 
-zstyle ":plugin:zui:app:zplugin" text_mode "0"
+zstyle ":plugin:zui:app:zplugin" text_mode "nohyp"              # Text-navigation when no hyperlinks
 zstyle ":plugin:zui:app:zplugin" text_select "false"
 zstyle ":plugin:zui:app:zplugin" log_time_format "[%H:%M:%S] "  # hour:minute:second time stamp of log messages
 ```

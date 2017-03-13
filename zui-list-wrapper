@@ -101,6 +101,11 @@ ZUI[term_sread_ts]="$EPOCHSECONDS"
 [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/stdlib.lzui"
 [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/syslib.lzui"
 
+# Configuration
+-zui_stdlib_load_config s:select_mode "callback" 2 'ZUI[select_mode]'   # quit, restart or callback
+-zui_stdlib_load_config s:text_mode "all" 2 'ZUI[text_mode]'
+-zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
+
 # Always: init once, then remember
 typeset -g ZUILIST_REMEMBER_STATE
 [ "$ZUILIST_REMEMBER_STATE" != 1 ] && ZUILIST_REMEMBER_STATE=2
@@ -117,12 +122,15 @@ zui-list "main" $(( term_height-ZUI[status_size] )) $term_width "status" "${ZUI[
 
 if [[ "$REPLY" != "-1" && "$REPLY" = -(#c0,1)[0-9]## ]]; then
     local answer="${reply[REPLY]}"
-    local -a segments
-    segments=( "${(z@)answer}" )
-    [[ "$ZUILIST_CURRENT_SEGMENT" -gt "${#segments[@]}" ]] && ZUILIST_CURRENT_SEGMENT="${#segments[@]}"
-    ZUILIST_WRAPPER_BIT="${segments[ZUILIST_CURRENT_SEGMENT]}"
+    ZUILIST_WRAPPER_LINE="$answer"
+    if [[ "${ZUI[text_mode]}" = (all|nohyp) ]] || -zui_stdlib_has_any_hyperlinks "$answer"; then
+        local -a segments
+        segments=( "${(z@)answer}" )
+        [[ "$ZUILIST_CURRENT_SEGMENT" -gt "${#segments[@]}" ]] && ZUILIST_CURRENT_SEGMENT="${#segments[@]}"
+        ZUILIST_WRAPPER_BIT="${segments[ZUILIST_CURRENT_SEGMENT]}"
+    fi
 else
-    ZUILIST_WRAPPER_BIT=""
+    ZUILIST_WRAPPER_BIT="" ZUILIST_WRAPPER_LINE=""
 fi
 
 # vim:ft=zsh

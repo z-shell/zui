@@ -18,14 +18,14 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 -zui_stdlib_store_default_app_config s:status_size "5"
 -zui_stdlib_store_default_app_config s:log_append "above"
 -zui_stdlib_store_default_app_config b:status_pointer 1
--zui_stdlib_store_default_app_config b:text_mode 0
+-zui_stdlib_store_default_app_config s:text_mode "off"
 -zui_stdlib_store_default_app_config b:text_select 0
 -zui_stdlib_store_default_app_config s:log_colors "white cyan red green cyan red magenta yellow blue"
 
 # Settings are loaded only because they're altered on the fly
 # Normally zui-list, zui-list-wrapper load configuration
 -zui_stdlib_load_config b:bold 0 2 'ZUI[bold]'
--zui_stdlib_load_config b:text_mode 1 2 'ZUI[text_mode]'
+-zui_stdlib_load_config s:text_mode "off" 2 'ZUI[text_mode]'
 -zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
 -zui_stdlib_load_config b:status_pointer 1 2 'ZUI[status_pointer]'
 -zui_stdlib_load_config s:log_append "above" 2 'ZUI[log_append]'
@@ -225,18 +225,23 @@ demo_mod2_generator() {
     # boolean to corresponding variable in second string,
     # using bool true - $3, bool false - $4.
     local col_bld col_tmd col_tsel col_lap col_sptr col_sb
-    -zui_stdlib_map_bools "ZUI[bold];ZUI[text_mode];ZUI[text_select];[[ \"${ZUI[log_append]}\" = below ]];ZUI[status_pointer];ZUI[status_border]" \
-                            "col_bld;col_tmd;col_tsel;col_lap;col_sptr;col_sb" "${ZUI[BG_BLUE]}" "${ZUI[GREEN]}"
+    -zui_stdlib_map_bools "ZUI[bold];ZUI[text_select];[[ \"${ZUI[log_append]}\" = below ]];ZUI[status_pointer];ZUI[status_border]" \
+                            "col_bld;col_tsel;col_lap;col_sptr;col_sb" "${ZUI[BG_BLUE]}" "${ZUI[GREEN]}"
 
     reply=( )
     # internal=1 is a trick to make action internal
     -zui_stdlib_rc_button "bold_$mod" "" "" "" "" "${col_bld}bold${ZUI[COLOR_END]}" 'internal=1; (( ZUI[bold]=1-ZUI[bold] )); -zui_stdlib_fly_mod_regen demo_mod2_generator "'"$mod"'" "'"$ice"'"'
-    -zui_stdlib_rc_button "text_mode_$mod" "" "" "" "" "${col_tmd}Text_mode${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_mode]=1-ZUI[text_mode] )); -zui_stdlib_fly_mod_regen demo_mod2_generator "'"$mod"'" "'"$ice"'"'
     -zui_stdlib_rc_button "text_select_$mod" "" "" "" "" "${col_tsel}text_select${ZUI[COLOR_END]}" 'internal=1; (( ZUI[text_select]=1-ZUI[text_select] )); -zui_stdlib_fly_mod_regen demo_mod2_generator "'"$mod"'" "'"$ice"'"'
     -zui_stdlib_rc_button "log_append_$mod" "" "" "" "" "${col_lap}log_append${ZUI[COLOR_END]}" 'internal=1; [[ ${ZUI[log_append]} = "below" ]] && ZUI[log_append]=above || ZUI[log_append]=below; -zui_stdlib_fly_mod_regen demo_mod2_generator "'"$mod"'" "'"$ice"'"'
     -zui_stdlib_rc_button "status_pointer_$mod" "" "" "" "" "${col_sptr}status_pointer${ZUI[COLOR_END]}" 'internal=1; (( ZUI[status_pointer]=1-ZUI[status_pointer] )); -zui_stdlib_fly_mod_regen demo_mod2_generator "'"$mod"'" "'"$ice"'"'
     -zui_stdlib_rc_button "status_border_$mod" "" "" "" "" "${col_sb}status_border${ZUI[COLOR_END]}" 'internal=1; (( ZUI[status_border]=1-ZUI[status_border] )); -zui_stdlib_fly_mod_regen demo_mod2_generator "'"$mod"'" "'"$ice"'"'
     -zui_stdlib_rc_button "log_colors_$mod" "" "" "" "" "${ZUI[GREEN]}log_colors${ZUI[COLOR_END]}" 'internal=1; log_colors=( $log_colors[-1] ${(@)log_colors[1,-2]} )'
+
+    # Variables of the list box
+    (( ${+ZUI[my_lbox1_width]} == 0 )) && ZUI[my_lbox1_width]=5
+    (( ${+ZUI[my_lbox1_idx]} == 0 )) && ZUI[my_lbox1_idx]=1
+    (( ${+ZUI[my_lbox1_opts]} == 0 )) && ZUI[my_lbox1_opts]="off;hyp;nohyp;all"
+    noglob -zui_stdlib_list_box "lbox1_$mod" ZUI[my_lbox1_width] ZUI[my_lbox1_idx] ZUI[my_lbox1_opts] "" "" "" 'ZUI[text_mode]=${${(s:;:)ZUI[my_lbox1_opts]}[${ZUI[my_lbox1_idx]}]}'
 
     # Don't overwrite user changes
     (( ${+ZUI[my_tfield1_width]} == 0 )) && ZUI[my_tfield1_width]=20
@@ -251,9 +256,9 @@ demo_mod2_generator() {
 
     # Content
     reply=(
-            "Toggle ${reply[1]} with inlined (no function!) code, ${reply[2]}, ${reply[3]}"
-            "Toggle ${reply[4]} - status logs appended at end, or at top, rotate ${reply[7]}"
-            "Toggle ${reply[5]} - status position pointer, ${reply[6]}"
+            "Toggle ${reply[1]} with inlined (no function!) code, text mode: <${reply[7]}>, ${reply[2]}"
+            "Toggle ${reply[3]} - status logs appended at end, or at top, rotate ${reply[6]}"
+            "Toggle ${reply[4]} - status position pointer, ${reply[5]}"
             "Random number: $RANDOM"
             "Enter text! |${reply[8]}|, try keys UP/DOWN, [${reply[9]}]"
 
@@ -306,7 +311,8 @@ demo_mod3_generator() {
     )
 
     # Non-selectables             Hops              Local anchors (:+ - replace if not null)
-    reply2=( 1 $rand_line_nr )    reply3=( 1 )      reply4=( ${jump:+jumpB_${mod}_${ice}} ${append_third:+append_third_${mod}_${ice}} )
+    # 1 is omitted
+    reply2=( $rand_line_nr )      reply3=( 1 )      reply4=( ${jump:+jumpB_${mod}_${ice}} ${append_third:+append_third_${mod}_${ice}} )
 }
 
 ##

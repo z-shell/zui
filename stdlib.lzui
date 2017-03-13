@@ -1146,7 +1146,7 @@ function -zui_stdlib_add_message() {
 # of the parameter (it has to be positive number
 # or zero) is examined.
 #
-# -zui_stdlib_map_bools "1;[[ a = b ]];ZUI[text_mode]" \
+# -zui_stdlib_map_bools "1;[[ a = b ]];ZUI[text_select]" \
 #                       "color1;color2;color3" $red $white
 #
 function -zui_stdlib_map_bools() {
