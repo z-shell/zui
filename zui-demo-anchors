@@ -14,7 +14,7 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
 
 -zui_stdlib_store_default_app_config b:border 1
--zui_stdlib_store_default_app_config b:text_mode 0
+-zui_stdlib_store_default_app_config s:text_mode off
 
 # Trick variable to make handler no-restart
 local internal

@@ -14,7 +14,7 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
 -zui_stdlib_store_default_app_config b:border 1
 -zui_stdlib_store_default_app_config b:status_border 1
--zui_stdlib_store_default_app_config b:text_mode 0
+-zui_stdlib_store_default_app_config s:text_mode off
 
 # Generator for module 1
 demo_mod1_generator() {
