@@ -727,7 +727,7 @@ function -zui_stdlib_cleanup() {
         unset "ZUI[$k]"
     done
 
-    (( ${+functions[-zui-global-anchors-callback]} )) && unfunction -- -zui-global-anchors-callback
+    (( ${+functions[-zui-standard-global-anchors-callback]} )) && unfunction -- -zui-standard-global-anchors-callback
     (( ${+functions[-zui-standard-status-callback]} )) && unfunction -- -zui-standard-status-callback
     (( ${+functions[-zui-standard-text-select-callback]} )) && unfunction -- -zui-standard-text-select-callback
 }

@@ -75,7 +75,7 @@ local internal
 # of creation of the anchor (it an be changed via
 # on-the-fly updates submitted by stdlib function
 # -zui_stdlib_submit_list_update)
--zui-global-anchors-callback() {
+-zui-standard-global-anchors-callback() {
     local id="$1" initial_line="$2" mod="$3" ice="$4"
 
     if [[ "$mod" = "1" ]]; then
