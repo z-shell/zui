@@ -140,7 +140,7 @@ mod3_internal_action() {
         else
             # Detect if current line is also a hop
             local on_hop
-            if [[ "${(t)ZUILIST_HOP_INDICES}" = array* && -n "${ZUILIST_HOP_INDICES[(r)$ZUILIST_CURRENT_IDX]}" ]]; then
+            if [[ "${(t)ZUILIST_HOP_INDICES}" = array* && -n "${ZUILIST_HOP_INDICES[(r)${ZUI[CURRENT_IDX]}]}" ]]; then
                 on_hop=", also a hop"
             fi
 

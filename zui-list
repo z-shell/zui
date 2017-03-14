@@ -63,14 +63,14 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     if [[ "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" -lt "1" ||
         "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" -gt "$last_element" ]]
     then
-        ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN=$(( ((ZUILIST_CURRENT_IDX-1)/page_height)*page_height+1 ))
+        ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN=$(( ((ZUI[CURRENT_IDX]-1)/page_height)*page_height+1 ))
     fi
 }
 
 # Compute first to show index - page is
 # scrolled to center to show given index
 -zui_list_compute_first_to_show_idx_center() {
-    (( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN=ZUILIST_CURRENT_IDX-page_height/2 ))
+    (( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN=ZUI[CURRENT_IDX]-page_height/2 ))
     -zui_list_compute_exact_page_if_needed
 }
 
@@ -90,21 +90,21 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         current_difference=0
         local idx
         for idx in "${(n)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
-            [[ "$idx" -le "$ZUILIST_CURRENT_IDX" ]] && current_difference+=1 || break
+            [[ "$idx" -le "${ZUI[CURRENT_IDX]}" ]] && current_difference+=1 || break
         done
     fi
 }
 
 # List was processed, check if variables aren't off range
 -zui_list_verify_vars() {
-    [[ "$ZUILIST_CURRENT_IDX" -gt "$last_element" ]] && ZUILIST_CURRENT_IDX="$last_element"
-    [[ "$ZUILIST_CURRENT_IDX" -eq 0 && "$last_element" -ne 0 ]] && ZUILIST_CURRENT_IDX=1
+    [[ "${ZUI[CURRENT_IDX]}" -gt "$last_element" ]] && ZUI[CURRENT_IDX]="$last_element"
+    [[ "${ZUI[CURRENT_IDX]}" -eq 0 && "$last_element" -ne 0 ]] && ZUI[CURRENT_IDX]=1
 
     # Verify that element is just visible, if not then compute exact page
-    if [[ "$ZUILIST_CURRENT_IDX" -lt "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ||
-        "$ZUILIST_CURRENT_IDX" -gt "$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))" ]]
+    if [[ "${ZUI[CURRENT_IDX]}" -lt "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ||
+        "${ZUI[CURRENT_IDX]}" -gt "$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))" ]]
     then
-        (( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN = ((ZUILIST_CURRENT_IDX-1)/page_height) * page_height + 1 ))
+        (( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN = ((ZUI[CURRENT_IDX]-1)/page_height) * page_height + 1 ))
     fi
 }
 
@@ -112,11 +112,11 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 -zui_list_setup_user_vars() {
     if [[ "$1" = "1" ]]; then
         # Basic values when there are no non-selectables
-        ZUILIST_USER_CURRENT_IDX="$ZUILIST_CURRENT_IDX"
+        ZUILIST_USER_CURRENT_IDX="${ZUI[CURRENT_IDX]}"
         ZUILIST_USER_LAST_ELEMENT="$last_element"
     else
         -zui_list_compute_user_vars_difference
-        ZUILIST_USER_CURRENT_IDX=$(( ZUILIST_CURRENT_IDX - current_difference ))
+        ZUILIST_USER_CURRENT_IDX=$(( ZUI[CURRENT_IDX] - current_difference ))
         ZUILIST_USER_LAST_ELEMENT=$(( last_element - last_element_difference ))
     fi
 }
@@ -188,11 +188,11 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         # Check if current element is in ZUILIST_NONSELECTABLE_ELEMENTS
         # If yes, don't mark current segment. Highlight anyway when
         # searching.
-        [[ -z "$ZUILIST_SEARCH_BUFFER" && "$ZUILIST_IS_UNIQ_MODE" != "1" && -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]}" ]] && return
+        [[ -z "$ZUILIST_SEARCH_BUFFER" && "$ZUILIST_IS_UNIQ_MODE" != "1" && -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)${ZUI[CURRENT_IDX]}]}" ]] && return
 
         # There will be no colorifying for current element
-        integer current_page_idx=$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))
-        local element="${__list[ZUILIST_CURRENT_IDX]}"
+        integer current_page_idx=$(( ZUI[CURRENT_IDX] - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))
+        local element="${__list[${ZUI[CURRENT_IDX]}]}"
 
         local output=""
 
@@ -432,7 +432,7 @@ local MARK_CODES MARK_END_CODES MARK2_CODES MARK2_END_CODES active_text
 # Ability to remember the list between calls
 if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" = 0 || "$ZUILIST_REMEMBER_STATE" = 2 ]]; then
     ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN=1
-    ZUILIST_CURRENT_IDX=1
+    ZUI[CURRENT_IDX]=1
     ZUILIST_IS_SEARCH_MODE=0
     ZUILIST_SEARCH_BUFFER=""
     ZUILIST_TEXT_OFFSET=0
@@ -557,7 +557,7 @@ while (( 1 )); do
         fi
 
         -zui_list_setup_user_vars 1
-        segments=( "${(z@)__list[ZUILIST_CURRENT_IDX]}" )
+        segments=( "${(z@)__list[${ZUI[CURRENT_IDX]}]}" )
         nseg="$#segments"
 
         integer end_idx=$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))
@@ -605,7 +605,7 @@ while (( 1 )); do
         [[ "$#disp_list2" -gt 0 ]] && -zui_list_mark_current_segment_in_current_element
 
         # Output colored list
-        zui-list-draw "$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
+        zui-list-draw "$(( ZUI[CURRENT_IDX] - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
             "$page_height" "$page_width" 1 2 "$ZUILIST_TEXT_OFFSET" "$wname_main" "$active_text" \
             "$disp_list2[@]"
     else
@@ -642,7 +642,7 @@ while (( 1 )); do
 
         # If the argument is 1, then: don't bother with non-selectables
         -zui_list_setup_user_vars "$ZUILIST_IS_UNIQ_MODE"
-        segments=( "${(z@)__list[ZUILIST_CURRENT_IDX]}" )
+        segments=( "${(z@)__list[${ZUI[CURRENT_IDX]}]}" )
         nseg="$#segments"
 
         integer end_idx=$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))
@@ -676,7 +676,7 @@ while (( 1 )); do
         [[ "$#disp_list2" -gt 0 ]] && -zui_list_mark_current_segment_in_current_element
 
         # Output the list
-        zui-list-draw "$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
+        zui-list-draw "$(( ZUI[CURRENT_IDX] - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
             "$page_height" "$page_width" 1 2 "$ZUILIST_TEXT_OFFSET" "$wname_main" "$active_text" \
             "$disp_list2[@]"
     fi
@@ -704,10 +704,10 @@ while (( 1 )); do
 
         reply=( )
         local selectable=1 tpe=-1 status_msg_strlen=0
-        [[ -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]}" ]] && selectable=0
+        [[ -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)${ZUI[CURRENT_IDX]}]}" ]] && selectable=0
         (( $ZUILIST_IS_UNIQ_MODE + ${${ZUILIST_SEARCH_BUFFER:+1}:-0} )) && selectable=1
         if (( selectable == 0 )) || ! -zui_stdlib_decode "${segments[ZUILIST_CURRENT_SEGMENT]}"; then
-            reply=( "$selectable" "$ZUILIST_IS_UNIQ_MODE" "${${ZUILIST_SEARCH_BUFFER:+1}:-0}" "${__list[ZUILIST_CURRENT_IDX]}" "${segments[ZUILIST_CURRENT_SEGMENT]}" )
+            reply=( "$selectable" "$ZUILIST_IS_UNIQ_MODE" "${${ZUILIST_SEARCH_BUFFER:+1}:-0}" "${__list[${ZUI[CURRENT_IDX]}]}" "${segments[ZUILIST_CURRENT_SEGMENT]}" )
             REPLY="0"
         fi
         (( ${+functions[-zui-standard-status-callback]} )) && {
@@ -766,15 +766,15 @@ while (( 1 )); do
         -zui_stdlib_add_message 1 "${EPOCHSECONDS:-0}" "" "" "Warning: " "Improper input detected"
     fi
 
-    integer track_cur_idx="$ZUILIST_CURRENT_IDX"
-    zui-list-input "$ZUILIST_CURRENT_IDX" "$ZUILIST_CURRENT_SEGMENT" "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" \
+    integer track_cur_idx="${ZUI[CURRENT_IDX]}"
+    zui-list-input "${ZUI[CURRENT_IDX]}" "$ZUILIST_CURRENT_SEGMENT" "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" \
                     "$page_height" "$page_width" "$last_element" "$nseg" "$ZUILIST_TEXT_OFFSET" \
                     "$final_key" "$ZUILIST_IS_SEARCH_MODE" "$ZUILIST_SEARCH_BUFFER" \
                     "$ZUILIST_IS_UNIQ_MODE" "$ZUILIST_DISABLE_SEARCH" "__list"
 
     selection="$reply[1]"
     action="$reply[2]"
-    ZUILIST_CURRENT_IDX="$reply[3]"
+    ZUI[CURRENT_IDX]="$reply[3]"
     ZUILIST_CURRENT_SEGMENT="$reply[4]"
     ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN="$reply[5]"
     ZUILIST_TEXT_OFFSET="$reply[6]"
@@ -792,10 +792,10 @@ while (( 1 )); do
         # segment change cannot occur at the same time)
         ZUILIST_ACTIVE_SEGMENTS[$track_cur_idx]="$ZUILIST_CURRENT_SEGMENT"
 
-        if [[ "$track_cur_idx" != "$ZUILIST_CURRENT_IDX" ]]; then
+        if [[ "$track_cur_idx" != "${ZUI[CURRENT_IDX]}" ]]; then
             # Restore segment or set to 1
-            if (( ${+ZUILIST_ACTIVE_SEGMENTS[$ZUILIST_CURRENT_IDX]} )); then
-                ZUILIST_CURRENT_SEGMENT="${ZUILIST_ACTIVE_SEGMENTS[$ZUILIST_CURRENT_IDX]}"
+            if (( ${+ZUILIST_ACTIVE_SEGMENTS[${ZUI[CURRENT_IDX]}]} )); then
+                ZUILIST_CURRENT_SEGMENT="${ZUILIST_ACTIVE_SEGMENTS[${ZUI[CURRENT_IDX]}]}"
             else
                 ZUILIST_CURRENT_SEGMENT=1
             fi
@@ -1058,9 +1058,9 @@ while (( 1 )); do
     # Anchor to jump? Can be after on-the-fly
     # regeneration submitted by hook call above
     if [[ -n "$jump_id" ]]; then
-        ZUILIST_CURRENT_IDX=$(( ${ZUI[$jump_id]:-$jump_data} ))
-        (( ZUILIST_CURRENT_IDX < 1 )) && ZUILIST_CURRENT_IDX=1
-        [[ -z "$ZUILIST_SEARCH_BUFFER" ]] && (( ZUILIST_CURRENT_IDX > last_element )) && ZUILIST_CURRENT_IDX="$last_element"
+        ZUI[CURRENT_IDX]=$(( ${ZUI[$jump_id]:-$jump_data} ))
+        (( ZUI[CURRENT_IDX] < 1 )) && ZUI[CURRENT_IDX]=1
+        [[ -z "$ZUILIST_SEARCH_BUFFER" ]] && (( ZUI[CURRENT_IDX] > last_element )) && ZUI[CURRENT_IDX]="$last_element"
         ZUILIST_CURRENT_SEGMENT=1
         ZUILIST_SEARCH_BUFFER=""
         -zui_list_compute_first_to_show_idx_center
