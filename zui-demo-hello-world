@@ -1,14 +1,11 @@
 # Started from Zle or from command line
 
--zui_stdlib_cleanup deserialize:zui-demo-hello-world
--zui_stdlib_init
-
-ZUI[app]="zui-demo-hello-world"
-ZUI[app_name]="ZUI Hello World"
+-zui_stdlib_cleanup deserialize:"zui-demo-hello-world"
+-zui_stdlib_init app:"zui-demo-hello-world" app_name:"ZUI Hello World"
 
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
-[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
+-zui_stdlib_init2 # after emulate -LR
 
 -zui_stdlib_store_default_app_config b:border 1
 
