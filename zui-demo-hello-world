@@ -2,9 +2,7 @@
 
 -zui_stdlib_cleanup deserialize:"zui-demo-hello-world"
 -zui_stdlib_init app:"zui-demo-hello-world" app_name:"ZUI Hello World"
-
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
-
 -zui_stdlib_init2 # after emulate -LR
 
 -zui_stdlib_store_default_app_config b:border 1
