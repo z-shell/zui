@@ -429,37 +429,28 @@ local MARK_CODES MARK_END_CODES MARK2_CODES MARK2_END_CODES active_text
 -zui_list_recompute_mark 2
 -zui_list_recompute_bg
 
-# Ability to remember the list between calls
-if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" = 0 || "$ZUILIST_REMEMBER_STATE" = 2 ]]; then
-    ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]=1
-    ZUI[CURRENT_IDX]=1
-    ZUI[SEARCH_MODE]=0
-    ZUI[SEARCH_BUFFER]=""
-    ZUILIST_TEXT_OFFSET=0
-    ZUI[UNIQ_MODE]=0
-    ZUI[CURRENT_SEGMENT]=1 # This parameter is responsible for horizontal indexing
-    ZUILIST_ACTIVE_SEGMENTS=()
-    typeset -ga +U ZUILIST_NONSELECTABLE_ELEMENTS
-    typeset -ga +U ZUILIST_HOP_INDICES
+# Init list's state
+[[ "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" != <-> ]] && ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]=1
+[[ "${ZUI[CURRENT_IDX]}" != <-> ]] && ZUI[CURRENT_IDX]=1
+[[ "${ZUI[SEARCH_MODE]}" != <-> ]] && ZUI[SEARCH_MODE]=0
+[[ "$ZUILIST_TEXT_OFFSET" != <-> ]] && ZUILIST_TEXT_OFFSET=0
+[[ "${ZUI[UNIQ_MODE]}" != <-> ]] && ZUI[UNIQ_MODE]=0
+[[ "${ZUI[CURRENT_SEGMENT]}" != <-> ]] && ZUI[CURRENT_SEGMENT]=1
+ZUILIST_ACTIVE_SEGMENTS=()
 
-    # Zero - because it isn't known, unless we
-    # confirm that first element is selectable
-    ZUILIST_USER_CURRENT_IDX=0
-    [[ -z "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)1]}" ]] && ZUILIST_USER_CURRENT_IDX=1
-    ZUILIST_USER_LAST_ELEMENT=$(( last_element - $#ZUILIST_NONSELECTABLE_ELEMENTS ))
+# This retains previous parameters, removes unique flag
+typeset -ga +U ZUILIST_NONSELECTABLE_ELEMENTS
+typeset -ga +U ZUILIST_HOP_INDICES
 
-    # 2 is init once, then remember
-    [[ "$ZUILIST_REMEMBER_STATE" -eq 2 ]] && ZUILIST_REMEMBER_STATE=1
-else
-    # Recompute ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] in case it
-    # was manually altered outside the list. Together with
-    # this verify variables.
-    -zui_list_verify_vars
+# Zero - because it isn't known, unless we confirm that first element is selectable
+ZUILIST_USER_CURRENT_IDX=0
+[[ -z "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)1]}" ]] && ZUILIST_USER_CURRENT_IDX=1
+ZUILIST_USER_LAST_ELEMENT=$(( last_element - $#ZUILIST_NONSELECTABLE_ELEMENTS ))
 
-    # This retains previous parameters, adds unique flag
-    typeset -ga +U ZUILIST_NONSELECTABLE_ELEMENTS
-    typeset -ga +U ZUILIST_HOP_INDICES
-fi
+# Recompute ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] in case it
+# was incorrectly manually altered outside the list, also
+# verify current index
+-zui_list_verify_vars
 
 if [[ "$ZUILIST_START_IN_SEARCH_MODE" -eq 1 ]]; then
     ZUILIST_START_IN_SEARCH_MODE=0

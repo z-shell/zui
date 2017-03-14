@@ -106,10 +106,6 @@ ZUI[term_sread_ts]="$EPOCHSECONDS"
 -zui_stdlib_load_config s:text_mode "all" 2 'ZUI[text_mode]'
 -zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
 
-# Always: init once, then remember
-typeset -g ZUILIST_REMEMBER_STATE
-[ "$ZUILIST_REMEMBER_STATE" != 1 ] && ZUILIST_REMEMBER_STATE=2
-
 ZUI[term_width]=0
 ZUI[term_height]=0
 
