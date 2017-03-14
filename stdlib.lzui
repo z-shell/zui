@@ -67,12 +67,17 @@ ZUI[MARK]=$'\035'           # octal value, decimal 29 - Group separator
 ZUI[MARK2]=$'\036'          # octal value, decimal 30 - Record separator
 ZUI[MARK_E]=$ZUI[COLOR_END]
 
-# Initializes ZUI application.
-# To be called before any emulate
-# -L or setopt localoptions command.
+# Initializes ZUI application. To be called before any emulate -L
+# Can take two arguments, prefixed with app: or app_name:, to set
+# ZUI[app] or ZUI[app_name]
 function -zui_stdlib_init() {
     [[ -o interactivecomments ]] && ZUI[INTERACTIVE_COMMENTS]="1" || ZUI[INTERACTIVE_COMMENTS]="0"
     [[ -o promptsubst ]] && ZUI[PROMPT_SUBST]="1" || ZUI[PROMPT_SUBST]="0"
+
+    [[ "$1" = app:* ]] && ZUI[app]=${1#app:}
+    [[ "$2" = app:* ]] && ZUI[app]=${2#app:}
+    [[ "$1" = app_name:* ]] && ZUI[app_name]=${1#app_name:}
+    [[ "$2" = app_name:* ]] && ZUI[app_name]=${2#app_name:}
 }
 
 # Appends hyperlink into output array. It's the standard
