@@ -2,7 +2,7 @@
 #
 # A demo showing how to add module instances to already generated document
 
--zui_stdlib_cleanup
+-zui_stdlib_cleanup deserialize:zui-demo-append
 -zui_stdlib_init
 
 ZUI[app]="zui-demo-append"
@@ -39,7 +39,7 @@ demo_mod1_generator() {
 ## Start application ##
 zui-event-loop 2:demo_mod1_generator
 
--zui_stdlib_cleanup
+-zui_stdlib_cleanup serialize
 
 return 0
 

@@ -1,6 +1,6 @@
 # Started from Zle or from command line
 
--zui_stdlib_cleanup
+-zui_stdlib_cleanup deserialize:zui-demo-history
 -zui_stdlib_init
 
 ZUI[app]="zui-demo-history"
@@ -32,7 +32,7 @@ zui-event-loop 1:demo_mod1_generator a:u-history 1:demo_mod1_generator
 
 print -zr -- "$REPLY"
 
--zui_stdlib_cleanup
+-zui_stdlib_cleanup serialize
 
 return 0
 

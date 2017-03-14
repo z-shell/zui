@@ -3,7 +3,7 @@
 # Shows all types of anchors: external/regenerating, internal,
 # internal/regenerating, pointing outside own module
 
--zui_stdlib_cleanup
+-zui_stdlib_cleanup deserialize:zui-demo-anchors
 -zui_stdlib_init
 
 ZUI[app]="zui-demo-anchors"
@@ -50,7 +50,7 @@ demo_mod2_generator() {
 ## Start application ##
 zui-event-loop 1:demo_mod1_generator 1:demo_mod2_generator
 
--zui_stdlib_cleanup
+-zui_stdlib_cleanup serialize
 
 return 0
 

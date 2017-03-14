@@ -2,7 +2,7 @@
 #
 # Shows all types of hyperlinks, from raw-links to internal-inline links
 
--zui_stdlib_cleanup
+-zui_stdlib_cleanup deserialize:zui-demo-buttons
 -zui_stdlib_init
 
 ZUI[app]="zui-demo-buttons"
@@ -66,7 +66,7 @@ demo_internal_action() {
 ## Start application ##
 zui-event-loop 1:demo_mod1_generator
 
--zui_stdlib_cleanup
+-zui_stdlib_cleanup serialize
 
 return 0
 
