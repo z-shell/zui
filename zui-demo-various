@@ -3,7 +3,7 @@
 #
 
 # Cleanup $ZUI hash runtime data
--zui_stdlib_cleanup
+-zui_stdlib_cleanup deserialize:zui-demo-various
 
 # Initialize ZUI app
 -zui_stdlib_init
@@ -334,7 +334,7 @@ zui-event-loop 1:demo_mod1_generator 1:demo_mod2_generator 2:demo_mod3_generator
                  cfg-refresh:bold,text_mode,text_select,status_pointer,log_append,status_border
 
 # Cleanup $ZUI hash runtime data
--zui_stdlib_cleanup
+-zui_stdlib_cleanup serialize
 
 return 0
 
