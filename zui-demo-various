@@ -15,6 +15,11 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
 [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
 
+-zui-standard-text-select-callback() {
+    -zui_stdlib_strip_codes "$2"
+    print -r -- "Obtained text selection: [$1] $REPLY" >> /tmp/zui.out
+}
+
 -zui_stdlib_store_default_app_config s:status_size "5"
 -zui_stdlib_store_default_app_config s:log_append "above"
 -zui_stdlib_store_default_app_config b:status_pointer 1
