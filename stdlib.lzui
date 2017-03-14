@@ -723,7 +723,7 @@ function -zui_stdlib_cleanup() {
     [[ -n "${ZUI[app]}" ]] && ZUI[previous_app]="${ZUI[app]}"
 
     local k
-    for k in "${keys[@]}"; do
+    for k in "${keys[@]}" ${ZUI[(I)my_*]}; do
         unset "ZUI[$k]"
     done
 
