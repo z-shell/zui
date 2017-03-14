@@ -756,7 +756,7 @@ function -zui_stdlib_serialize() {
     local dst="${1:-${ZUI[app]}}"
 
     local -a skeys
-    skeys=( ${ZUI[(I)my_*]} CURRENT_IDX FROM_WHAT_IDX_LIST_IS_SHOWN CURRENT_SEGMENT )
+    skeys=( ${ZUI[(I)my_*]} CURRENT_IDX FROM_WHAT_IDX_LIST_IS_SHOWN CURRENT_SEGMENT SEARCH_MODE SEARCH_BUFFER UNIQ_MODE )
 
     local k out
     for k in "${skeys[@]}"; do
