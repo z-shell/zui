@@ -695,6 +695,11 @@ function -zui_stdlib_cleanup() {
     keys=( ${ZUI[(I)zuianchor*]} ${ZUI[(I)zuieanchor*]} ${ZUI[(I)zuitfield*]} ${ZUI[(I)zuilbox*]}
            ${ZUI[(I)zuiaction*]} ${ZUI[(I)zuiiaction*]} ${ZUI[(I)fly_*]}
            app app_name PROMPT_SUBST INTERACTIVE_COMMENTS GENERATION_TIME
+
+           # zui-list state fields
+           CURRENT_IDX FROM_WHAT_IDX_LIST_IS_SHOWN CURRENT_SEGMENT SEARCH_MODE SEARCH_BUFFER UNIQ_MODE
+
+           # Configuration keys
            text_mode text_mode_ts_
            colorpair colorpair_ts_
            border border_ts_
