@@ -60,17 +60,17 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # Conditional, fully robust page-to-show computation
 -zui_list_compute_exact_page_if_needed() {
     # Fallback: in case of any problems compute exact page
-    if [[ "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" -lt "1" ||
-        "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" -gt "$last_element" ]]
+    if [[ "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" -lt "1" ||
+        "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" -gt "$last_element" ]]
     then
-        ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN=$(( ((ZUI[CURRENT_IDX]-1)/page_height)*page_height+1 ))
+        ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]=$(( ((ZUI[CURRENT_IDX]-1)/page_height)*page_height+1 ))
     fi
 }
 
 # Compute first to show index - page is
 # scrolled to center to show given index
 -zui_list_compute_first_to_show_idx_center() {
-    (( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN=ZUI[CURRENT_IDX]-page_height/2 ))
+    (( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]=ZUI[CURRENT_IDX]-page_height/2 ))
     -zui_list_compute_exact_page_if_needed
 }
 
@@ -101,10 +101,10 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     [[ "${ZUI[CURRENT_IDX]}" -eq 0 && "$last_element" -ne 0 ]] && ZUI[CURRENT_IDX]=1
 
     # Verify that element is just visible, if not then compute exact page
-    if [[ "${ZUI[CURRENT_IDX]}" -lt "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ||
-        "${ZUI[CURRENT_IDX]}" -gt "$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))" ]]
+    if [[ "${ZUI[CURRENT_IDX]}" -lt "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" ||
+        "${ZUI[CURRENT_IDX]}" -gt "$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + page_height - 1 ))" ]]
     then
-        (( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN = ((ZUI[CURRENT_IDX]-1)/page_height) * page_height + 1 ))
+        (( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] = ((ZUI[CURRENT_IDX]-1)/page_height) * page_height + 1 ))
     fi
 }
 
@@ -191,7 +191,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         [[ -z "$ZUILIST_SEARCH_BUFFER" && "$ZUILIST_IS_UNIQ_MODE" != "1" && -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)${ZUI[CURRENT_IDX]}]}" ]] && return
 
         # There will be no colorifying for current element
-        integer current_page_idx=$(( ZUI[CURRENT_IDX] - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))
+        integer current_page_idx=$(( ZUI[CURRENT_IDX] - ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + 1 ))
         local element="${__list[${ZUI[CURRENT_IDX]}]}"
 
         local output=""
@@ -431,7 +431,7 @@ local MARK_CODES MARK_END_CODES MARK2_CODES MARK2_END_CODES active_text
 
 # Ability to remember the list between calls
 if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" = 0 || "$ZUILIST_REMEMBER_STATE" = 2 ]]; then
-    ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN=1
+    ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]=1
     ZUI[CURRENT_IDX]=1
     ZUILIST_IS_SEARCH_MODE=0
     ZUILIST_SEARCH_BUFFER=""
@@ -451,8 +451,8 @@ if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" = 0 || "$ZUILIST
     # 2 is init once, then remember
     [[ "$ZUILIST_REMEMBER_STATE" -eq 2 ]] && ZUILIST_REMEMBER_STATE=1
 else
-    # Recompute ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN in case
-    # it was manually altered outside the list. Together with
+    # Recompute ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] in case it
+    # was manually altered outside the list. Together with
     # this verify variables.
     -zui_list_verify_vars
 
@@ -560,13 +560,13 @@ while (( 1 )); do
         segments=( "${(z@)__list[${ZUI[CURRENT_IDX]}]}" )
         nseg="$#segments"
 
-        integer end_idx=$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))
+        integer end_idx=$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + page_height - 1 ))
         [[ "$end_idx" -gt "$last_element" ]] && end_idx=last_element
 
-        if [[ "$ZUILIST_REGENERATE_LIST" = "2" || "$prev_start_idx" -ne "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ]]; then
+        if [[ "$ZUILIST_REGENERATE_LIST" = "2" || "$prev_start_idx" -ne "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" ]]; then
             ZUILIST_REGENERATE_LIST="0"
-            prev_start_idx="$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN"
-            disp_list=( "${(@)__list[ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN, end_idx]}" )
+            prev_start_idx="${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"
+            disp_list=( "${(@)__list[${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]},end_idx]}" )
 
             # Remove hyperlinks before colorifying
             disp_list=( "${disp_list[@]//(#b)$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'/${(Q)match[1]}}" )
@@ -605,7 +605,7 @@ while (( 1 )); do
         [[ "$#disp_list2" -gt 0 ]] && -zui_list_mark_current_segment_in_current_element
 
         # Output colored list
-        zui-list-draw "$(( ZUI[CURRENT_IDX] - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
+        zui-list-draw "$(( ZUI[CURRENT_IDX] - ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + 1 ))" \
             "$page_height" "$page_width" 1 2 "$ZUILIST_TEXT_OFFSET" "$wname_main" "$active_text" \
             "$disp_list2[@]"
     else
@@ -645,13 +645,13 @@ while (( 1 )); do
         segments=( "${(z@)__list[${ZUI[CURRENT_IDX]}]}" )
         nseg="$#segments"
 
-        integer end_idx=$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))
+        integer end_idx=$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + page_height - 1 ))
         [[ "$end_idx" -gt "$last_element" ]] && end_idx=last_element
 
-        if [[ "$ZUILIST_REGENERATE_LIST" = "2" || "$prev_start_idx" -ne "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN"  ]]; then
+        if [[ "$ZUILIST_REGENERATE_LIST" = "2" || "$prev_start_idx" -ne "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"  ]]; then
             ZUILIST_REGENERATE_LIST="0"
-            prev_start_idx="$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN"
-            disp_list=( "${(@)__list[ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN, end_idx]}" )
+            prev_start_idx="${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"
+            disp_list=( "${(@)__list[${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]},end_idx]}" )
 
             # Remove hyperlinks
             disp_list=( "${disp_list[@]//(#b)$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'/${(Q)match[1]}}" )
@@ -676,7 +676,7 @@ while (( 1 )); do
         [[ "$#disp_list2" -gt 0 ]] && -zui_list_mark_current_segment_in_current_element
 
         # Output the list
-        zui-list-draw "$(( ZUI[CURRENT_IDX] - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))" \
+        zui-list-draw "$(( ZUI[CURRENT_IDX] - ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + 1 ))" \
             "$page_height" "$page_width" 1 2 "$ZUILIST_TEXT_OFFSET" "$wname_main" "$active_text" \
             "$disp_list2[@]"
     fi
@@ -767,7 +767,7 @@ while (( 1 )); do
     fi
 
     integer track_cur_idx="${ZUI[CURRENT_IDX]}"
-    zui-list-input "${ZUI[CURRENT_IDX]}" "$ZUILIST_CURRENT_SEGMENT" "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" \
+    zui-list-input "${ZUI[CURRENT_IDX]}" "$ZUILIST_CURRENT_SEGMENT" "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" \
                     "$page_height" "$page_width" "$last_element" "$nseg" "$ZUILIST_TEXT_OFFSET" \
                     "$final_key" "$ZUILIST_IS_SEARCH_MODE" "$ZUILIST_SEARCH_BUFFER" \
                     "$ZUILIST_IS_UNIQ_MODE" "$ZUILIST_DISABLE_SEARCH" "__list"
@@ -776,7 +776,7 @@ while (( 1 )); do
     action="$reply[2]"
     ZUI[CURRENT_IDX]="$reply[3]"
     ZUILIST_CURRENT_SEGMENT="$reply[4]"
-    ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN="$reply[5]"
+    ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]="$reply[5]"
     ZUILIST_TEXT_OFFSET="$reply[6]"
     ZUILIST_IS_SEARCH_MODE="$reply[7]"
     ZUILIST_SEARCH_BUFFER="$reply[8]"
