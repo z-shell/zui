@@ -329,8 +329,7 @@ case "$key" in
     ($'\n'|ENTER)
         # Is that element selectable?
         # Check for this only when there is no search
-        if [[ "$ZUILIST_SEARCH_BUFFER" != "" || "$ZUILIST_IS_UNIQ_MODE" -eq 1 ||
-            ${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$current_idx]} != $current_idx ]]
+        if [[ -n "$buffer" || "$uniq" -eq 1 || -z ${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$current_idx]} ]]
         then
             # Check if we are at hyperlink. Only then allow selection
             -zui_stdlib_get_segment "${(P)list_var_current}" "$current_segment"
@@ -384,8 +383,7 @@ case "$key" in
             reply=( "$current_segment" "BR_MOVE_RIGHT" )
         else
 
-        [[ "${(t)ZUILIST_HOP_INDICES}" = "array" || "${(t)ZUILIST_HOP_INDICES}" = "array-local" ]] &&
-        [[ -z "$ZUILIST_SEARCH_BUFFER" ]] && [[ "$ZUILIST_IS_UNIQ_MODE" -eq 0 ]] &&
+        [[ "${(t)ZUILIST_HOP_INDICES}" = "array" || "${(t)ZUILIST_HOP_INDICES}" = "array-local" ]] && [[ -z "$buffer" && "$uniq" -eq 0 ]] &&
         for idx in "${(n)ZUILIST_HOP_INDICES[@]}"; do
             if [[ "$idx" -gt "$current_idx" ]]; then
                 current_idx=$idx
@@ -401,8 +399,7 @@ case "$key" in
             reply=( "$current_segment" "BR_MOVE_LEFT" )
         else
 
-        [[ "${(t)ZUILIST_HOP_INDICES}" = "array" || "${(t)ZUILIST_HOP_INDICES}" = "array-local" ]] &&
-        [[ -z "$ZUILIST_SEARCH_BUFFER" ]] && [[ "$ZUILIST_IS_UNIQ_MODE" -eq 0 ]] &&
+        [[ "${(t)ZUILIST_HOP_INDICES}" = "array" || "${(t)ZUILIST_HOP_INDICES}" = "array-local" ]] && [[ -z "$buffer" && "$uniq" -eq 0 ]] &&
         for idx in "${(nO)ZUILIST_HOP_INDICES[@]}"; do
             if [[ "$idx" -lt "$current_idx" ]]; then
                 current_idx=$idx
