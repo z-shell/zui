@@ -722,6 +722,12 @@ function -zui_stdlib_cleanup() {
 
     [[ -n "${ZUI[app]}" ]] && ZUI[previous_app]="${ZUI[app]}"
 
+    # Serialize?
+    if [[ "$1" = serialize* ]]; then
+        local dst="${${1#serialize}#:}"
+        -zui_stdlib_serialize "${dst:-${ZUI[app]}}"
+    fi
+
     local k
     for k in "${keys[@]}" ${ZUI[(I)my_*]}; do
         unset "ZUI[$k]"
@@ -730,6 +736,12 @@ function -zui_stdlib_cleanup() {
     (( ${+functions[-zui-standard-global-anchors-callback]} )) && unfunction -- -zui-standard-global-anchors-callback
     (( ${+functions[-zui-standard-status-callback]} )) && unfunction -- -zui-standard-status-callback
     (( ${+functions[-zui-standard-text-select-callback]} )) && unfunction -- -zui-standard-text-select-callback
+
+    # Deserialize?
+    if [[ "$1" = deserialize* ]]; then
+        local src="${${1#deserialize}#:}"
+        -zui_stdlib_deserialize "${src:-${ZUI[app]}}"
+    fi
 }
 
 # Stores my_* keys of ZUI hash into
