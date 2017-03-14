@@ -696,6 +696,28 @@ function -zui_stdlib_cleanup() {
            ${ZUI[(I)zuiaction*]} ${ZUI[(I)zuiiaction*]} ${ZUI[(I)fly_*]}
            app app_name PROMPT_SUBST INTERACTIVE_COMMENTS GENERATION_TIME
            text_mode text_mode_ts_
+           colorpair colorpair_ts_
+           border border_ts_
+           border_cp border_cp_ts_
+           bold bold_ts_
+           status_colorpair status_colorpair_ts_
+           status_border status_border_ts_
+           status_border_cp status_border_cp_ts_
+           status_bold status_bold_ts_
+           status_size status_size_ts_
+           mark mark_ts_
+           altmark altmark_ts_
+           mark2 mark2_ts_
+           altmark2 altmark2_ts_
+           select_mode select_mode_ts_
+           text_mode text_mode_ts_
+           text_select text_select_ts_
+           status_pointer status_pointer_ts_
+           log_append log_append_ts_
+           log_index log_index_ts_
+           log_size log_size_ts_
+           log_time_format log_time_format_ts_
+           log_colors log_colors_ts_
     )
 
     [[ -n "${ZUI[app]}" ]] && ZUI[previous_app]="${ZUI[app]}"
