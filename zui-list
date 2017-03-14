@@ -196,9 +196,9 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
         local output=""
 
-        [[ "$ZUILIST_CURRENT_SEGMENT" -lt 1 ]] && ZUILIST_CURRENT_SEGMENT=1
-        [[ "$ZUILIST_CURRENT_SEGMENT" -gt "$nseg" ]] && ZUILIST_CURRENT_SEGMENT="$nseg"
-        integer active_segment="$ZUILIST_CURRENT_SEGMENT"
+        [[ "${ZUI[CURRENT_SEGMENT]}" -lt 1 ]] && ZUI[CURRENT_SEGMENT]=1
+        [[ "${ZUI[CURRENT_SEGMENT]}" -gt "$nseg" ]] && ZUI[CURRENT_SEGMENT]="$nseg"
+        integer active_segment="${ZUI[CURRENT_SEGMENT]}"
 
         # Lets find interesting segment and mark it with \7...\31
         zui-process-buffer "$element"
@@ -437,7 +437,7 @@ if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" = 0 || "$ZUILIST
     ZUILIST_SEARCH_BUFFER=""
     ZUILIST_TEXT_OFFSET=0
     ZUILIST_IS_UNIQ_MODE=0
-    ZUILIST_CURRENT_SEGMENT=1 # This variable is responsible for horizontal indexing
+    ZUI[CURRENT_SEGMENT]=1 # This parameter is responsible for horizontal indexing
     ZUILIST_ACTIVE_SEGMENTS=()
     typeset -ga +U ZUILIST_NONSELECTABLE_ELEMENTS
     typeset -ga +U ZUILIST_HOP_INDICES
@@ -706,8 +706,8 @@ while (( 1 )); do
         local selectable=1 tpe=-1 status_msg_strlen=0
         [[ -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)${ZUI[CURRENT_IDX]}]}" ]] && selectable=0
         (( $ZUILIST_IS_UNIQ_MODE + ${${ZUILIST_SEARCH_BUFFER:+1}:-0} )) && selectable=1
-        if (( selectable == 0 )) || ! -zui_stdlib_decode "${segments[ZUILIST_CURRENT_SEGMENT]}"; then
-            reply=( "$selectable" "$ZUILIST_IS_UNIQ_MODE" "${${ZUILIST_SEARCH_BUFFER:+1}:-0}" "${__list[${ZUI[CURRENT_IDX]}]}" "${segments[ZUILIST_CURRENT_SEGMENT]}" )
+        if (( selectable == 0 )) || ! -zui_stdlib_decode "${segments[${ZUI[CURRENT_SEGMENT]}]}"; then
+            reply=( "$selectable" "$ZUILIST_IS_UNIQ_MODE" "${${ZUILIST_SEARCH_BUFFER:+1}:-0}" "${__list[${ZUI[CURRENT_IDX]}]}" "${segments[${ZUI[CURRENT_SEGMENT]}]}" )
             REPLY="0"
         fi
         (( ${+functions[-zui-standard-status-callback]} )) && {
@@ -767,7 +767,7 @@ while (( 1 )); do
     fi
 
     integer track_cur_idx="${ZUI[CURRENT_IDX]}"
-    zui-list-input "${ZUI[CURRENT_IDX]}" "$ZUILIST_CURRENT_SEGMENT" "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" \
+    zui-list-input "${ZUI[CURRENT_IDX]}" "${ZUI[CURRENT_SEGMENT]}" "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" \
                     "$page_height" "$page_width" "$last_element" "$nseg" "$ZUILIST_TEXT_OFFSET" \
                     "$final_key" "$ZUILIST_IS_SEARCH_MODE" "$ZUILIST_SEARCH_BUFFER" \
                     "$ZUILIST_IS_UNIQ_MODE" "$ZUILIST_DISABLE_SEARCH" "__list"
@@ -775,7 +775,7 @@ while (( 1 )); do
     selection="$reply[1]"
     action="$reply[2]"
     ZUI[CURRENT_IDX]="$reply[3]"
-    ZUILIST_CURRENT_SEGMENT="$reply[4]"
+    ZUI[CURRENT_SEGMENT]="$reply[4]"
     ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]="$reply[5]"
     ZUILIST_TEXT_OFFSET="$reply[6]"
     ZUILIST_IS_SEARCH_MODE="$reply[7]"
@@ -790,14 +790,14 @@ while (( 1 )); do
     if [[ "$ZUILIST_TRACK_SEGMENTS" = "1" ]]; then
         # Remember segment change (element change and
         # segment change cannot occur at the same time)
-        ZUILIST_ACTIVE_SEGMENTS[$track_cur_idx]="$ZUILIST_CURRENT_SEGMENT"
+        ZUILIST_ACTIVE_SEGMENTS[$track_cur_idx]="${ZUI[CURRENT_SEGMENT]}"
 
         if [[ "$track_cur_idx" != "${ZUI[CURRENT_IDX]}" ]]; then
             # Restore segment or set to 1
             if (( ${+ZUILIST_ACTIVE_SEGMENTS[${ZUI[CURRENT_IDX]}]} )); then
-                ZUILIST_CURRENT_SEGMENT="${ZUILIST_ACTIVE_SEGMENTS[${ZUI[CURRENT_IDX]}]}"
+                ZUI[CURRENT_SEGMENT]="${ZUILIST_ACTIVE_SEGMENTS[${ZUI[CURRENT_IDX]}]}"
             else
-                ZUILIST_CURRENT_SEGMENT=1
+                ZUI[CURRENT_SEGMENT]=1
             fi
         fi
     fi
@@ -811,7 +811,7 @@ while (( 1 )); do
     local jump_id="" jump_data=""
 
     if [[ "$action" = "SELECT" ]]; then
-        -zui_stdlib_get_segment "${__list[selection]}" "$ZUILIST_CURRENT_SEGMENT" tmp
+        -zui_stdlib_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}" tmp
         # Is it a hyperlink selection? If not, then examine select_mode
         # to know if the text selection (ZUI[text_select] is examined in
         # zui-list-input) should be passed outside the list
@@ -853,7 +853,7 @@ while (( 1 )); do
         # Handle resize, force terminal-size read
         -zui_list_handle_resize 1
     elif [[ "$action" = "HYPERLINK" ]]; then
-        -zui_stdlib_get_segment "${__list[selection]}" "$ZUILIST_CURRENT_SEGMENT"
+        -zui_stdlib_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
         -zui_stdlib_decode "$REPLY"
         local id="${reply[1]}"
         ZUI[pressed_now]="$id"
@@ -879,7 +879,7 @@ while (( 1 )); do
             fi
         fi
     elif [[ "$action" = TFIELD* ]]; then
-        -zui_stdlib_get_segment "${__list[selection]}" "$ZUILIST_CURRENT_SEGMENT"
+        -zui_stdlib_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
         -zui_stdlib_decode "$REPLY" && local id="${reply[1]}" || local id="-"
         if [[ "$action" = TFIELD_LEFT && -n "${ZUI[$id]}" ]]; then
             ZUILIST_REGENERATE_LIST="2" # regenerate only display list
@@ -891,7 +891,7 @@ while (( 1 )); do
             fi
         fi
     elif [[ "$action" = LBOX* ]]; then
-        -zui_stdlib_get_segment "${__list[selection]}" "$ZUILIST_CURRENT_SEGMENT"
+        -zui_stdlib_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
         -zui_stdlib_decode "$REPLY" && local id="${reply[1]}" || local id="-"
         if [[ "$action" = LBOX_LEFT && -n "${ZUI[$id]}" ]]; then
             ZUILIST_REGENERATE_LIST="2" # regenerate only display list
@@ -1061,7 +1061,7 @@ while (( 1 )); do
         ZUI[CURRENT_IDX]=$(( ${ZUI[$jump_id]:-$jump_data} ))
         (( ZUI[CURRENT_IDX] < 1 )) && ZUI[CURRENT_IDX]=1
         [[ -z "$ZUILIST_SEARCH_BUFFER" ]] && (( ZUI[CURRENT_IDX] > last_element )) && ZUI[CURRENT_IDX]="$last_element"
-        ZUILIST_CURRENT_SEGMENT=1
+        ZUI[CURRENT_SEGMENT]=1
         ZUILIST_SEARCH_BUFFER=""
         -zui_list_compute_first_to_show_idx_center
     fi

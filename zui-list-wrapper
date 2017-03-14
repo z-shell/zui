@@ -126,8 +126,8 @@ if [[ "$REPLY" != "-1" && "$REPLY" = -(#c0,1)[0-9]## ]]; then
     if [[ "${ZUI[text_mode]}" = (all|nohyp) ]] || -zui_stdlib_has_any_hyperlinks "$answer"; then
         local -a segments
         segments=( "${(z@)answer}" )
-        [[ "$ZUILIST_CURRENT_SEGMENT" -gt "${#segments}" ]] && ZUILIST_CURRENT_SEGMENT="${#segments}"
-        ZUILIST_WRAPPER_BIT="${segments[ZUILIST_CURRENT_SEGMENT]}"
+        [[ "${ZUI[CURRENT_SEGMENT]}" -gt "${#segments}" ]] && ZUI[CURRENT_SEGMENT]="${#segments}"
+        ZUILIST_WRAPPER_BIT="${segments[${ZUI[CURRENT_SEGMENT]}]}"
     fi
 else
     ZUILIST_WRAPPER_BIT="" ZUILIST_WRAPPER_LINE=""

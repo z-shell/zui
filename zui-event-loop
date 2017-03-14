@@ -375,7 +375,7 @@ if (( zuiel_bit_set )); then
         integer call_hook=0
         if [[ "$id" = zuieanchor* ]]; then
             ZUI[CURRENT_IDX]=$(( ${ZUI[$id]-$data1} ))
-            ZUILIST_CURRENT_SEGMENT=1
+            ZUI[CURRENT_SEGMENT]=1
             id="zuiaction${id#zuieanchor}"
             ZUILIST_SEARCH_BUFFER=""
             call_hook=1
