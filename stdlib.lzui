@@ -697,7 +697,7 @@ function -zui_stdlib_cleanup() {
            app app_name PROMPT_SUBST INTERACTIVE_COMMENTS GENERATION_TIME
 
            # zui-list state fields
-           CURRENT_IDX FROM_WHAT_IDX_LIST_IS_SHOWN CURRENT_SEGMENT SEARCH_MODE SEARCH_BUFFER UNIQ_MODE
+           CURRENT_IDX FROM_WHAT_IDX_LIST_IS_SHOWN CURRENT_SEGMENT SEARCH_MODE SEARCH_BUFFER UNIQ_MODE TEXT_OFFSET
 
            # Configuration keys
            text_mode text_mode_ts_
@@ -756,7 +756,7 @@ function -zui_stdlib_serialize() {
     local dst="${1:-${ZUI[app]}}"
 
     local -a skeys
-    skeys=( ${ZUI[(I)my_*]} CURRENT_IDX FROM_WHAT_IDX_LIST_IS_SHOWN CURRENT_SEGMENT SEARCH_MODE SEARCH_BUFFER UNIQ_MODE )
+    skeys=( ${ZUI[(I)my_*]} CURRENT_IDX FROM_WHAT_IDX_LIST_IS_SHOWN CURRENT_SEGMENT SEARCH_MODE SEARCH_BUFFER UNIQ_MODE TEXT_OFFSET )
 
     local k out
     for k in "${skeys[@]}"; do
