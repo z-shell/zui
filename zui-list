@@ -410,7 +410,7 @@ local backuptheme stbackuptheme
 -zui_stdlib_load_config s:altmark "red reverse" 2 'ZUI[altmark]'
 -zui_stdlib_load_config s:mark2 "yellow reverse lineund" 2 'ZUI[mark2]'
 -zui_stdlib_load_config s:altmark2 "yellow reverse" 2 'ZUI[altmark2]'
--zui_stdlib_load_config s:select_mode "callback" 2 'ZUI[select_mode]'
+-zui_stdlib_load_config s:select_mode "no-restart" 2 'ZUI[select_mode]'
 -zui_stdlib_load_config s:text_mode "all" 2 'ZUI[text_mode]'
 -zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
 -zui_stdlib_load_config b:status_pointer 1 2 'ZUI[status_pointer]'

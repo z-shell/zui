@@ -102,7 +102,7 @@ ZUI[term_sread_ts]="$EPOCHSECONDS"
 [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/syslib.lzui"
 
 # Configuration
--zui_stdlib_load_config s:select_mode "callback" 2 'ZUI[select_mode]'   # quit, restart or callback
+-zui_stdlib_load_config s:select_mode "no-restart" 2 'ZUI[select_mode]'   # quit, restart or callback
 -zui_stdlib_load_config s:text_mode "all" 2 'ZUI[text_mode]'
 -zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
 
