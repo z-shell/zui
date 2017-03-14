@@ -1,6 +1,6 @@
 # Started from Zle or from command line
 
--zui_stdlib_cleanup
+-zui_stdlib_cleanup deserialize:zui-demo-list-boxes
 -zui_stdlib_init
 
 ZUI[app]="zui-demo-list-boxes"
@@ -39,7 +39,7 @@ demo_mod1_generator() {
 ## Start application ##
 zui-event-loop 1:demo_mod1_generator
 
--zui_stdlib_cleanup
+-zui_stdlib_cleanup serialize
 
 return 0
 
