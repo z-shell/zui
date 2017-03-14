@@ -188,7 +188,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         # Check if current element is in ZUILIST_NONSELECTABLE_ELEMENTS
         # If yes, don't mark current segment. Highlight anyway when
         # searching.
-        [[ -z "$ZUILIST_SEARCH_BUFFER" && "${ZUI[UNIQ_MODE]}" != "1" && -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)${ZUI[CURRENT_IDX]}]}" ]] && return
+        [[ -z "${ZUI[SEARCH_BUFFER]}" && "${ZUI[UNIQ_MODE]}" != "1" && -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)${ZUI[CURRENT_IDX]}]}" ]] && return
 
         # There will be no colorifying for current element
         integer current_page_idx=$(( ZUI[CURRENT_IDX] - ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + 1 ))
@@ -434,7 +434,7 @@ if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" = 0 || "$ZUILIST
     ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]=1
     ZUI[CURRENT_IDX]=1
     ZUILIST_IS_SEARCH_MODE=0
-    ZUILIST_SEARCH_BUFFER=""
+    ZUI[SEARCH_BUFFER]=""
     ZUILIST_TEXT_OFFSET=0
     ZUI[UNIQ_MODE]=0
     ZUI[CURRENT_SEGMENT]=1 # This parameter is responsible for horizontal indexing
@@ -467,7 +467,7 @@ if [[ "$ZUILIST_START_IN_SEARCH_MODE" -eq 1 ]]; then
 fi
 
 if [[ -n "$ZUILIST_SET_SEARCH_TO" ]]; then
-    ZUILIST_SEARCH_BUFFER="$ZUILIST_SET_SEARCH_TO"
+    ZUI[SEARCH_BUFFER]="$ZUILIST_SET_SEARCH_TO"
     ZUILIST_SET_SEARCH_TO=""
 fi
 
@@ -502,11 +502,11 @@ while (( 1 )); do
     -zui_list_handle_resize 0
 
     # Do searching?
-    if [[ -n "$ZUILIST_SEARCH_BUFFER" ]]; then
+    if [[ -n "${ZUI[SEARCH_BUFFER]}" ]]; then
         # Compute new list?
-        if [[ "$ZUILIST_SEARCH_BUFFER" != "$prev_search_buffer" || "${ZUI[UNIQ_MODE]}" -ne "$prev_uniq_mode" || "$ZUILIST_REGENERATE_LIST" = "1" ]]
+        if [[ "${ZUI[SEARCH_BUFFER]}" != "$prev_search_buffer" || "${ZUI[UNIQ_MODE]}" -ne "$prev_uniq_mode" || "$ZUILIST_REGENERATE_LIST" = "1" ]]
         then
-            prev_search_buffer="$ZUILIST_SEARCH_BUFFER"
+            prev_search_buffer="${ZUI[SEARCH_BUFFER]}"
             prev_uniq_mode="${ZUI[UNIQ_MODE]}"
             # regenerating list -> regenerating disp_list
             ZUILIST_REGENERATE_LIST="2"
@@ -528,7 +528,7 @@ while (( 1 )); do
             last_element="${#__list}"
 
             # Next do the filtering
-            local search_buffer="${ZUILIST_SEARCH_BUFFER%% ##}"
+            local search_buffer="${ZUI[SEARCH_BUFFER]%% ##}"
             search_buffer="${search_buffer## ##}"
             search_buffer="${search_buffer//(#m)[][*?|#~^()><\\]/\\$MATCH}"
             local search_pattern=""
@@ -705,9 +705,9 @@ while (( 1 )); do
         reply=( )
         local selectable=1 tpe=-1 status_msg_strlen=0
         [[ -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)${ZUI[CURRENT_IDX]}]}" ]] && selectable=0
-        (( ${ZUI[UNIQ_MODE]} + ${${ZUILIST_SEARCH_BUFFER:+1}:-0} )) && selectable=1
+        (( ${ZUI[UNIQ_MODE]} + ${${ZUI[SEARCH_BUFFER]:+1}:-0} )) && selectable=1
         if (( selectable == 0 )) || ! -zui_stdlib_decode "${segments[${ZUI[CURRENT_SEGMENT]}]}"; then
-            reply=( "$selectable" "${ZUI[UNIQ_MODE]}" "${${ZUILIST_SEARCH_BUFFER:+1}:-0}" "${__list[${ZUI[CURRENT_IDX]}]}" "${segments[${ZUI[CURRENT_SEGMENT]}]}" )
+            reply=( "$selectable" "${ZUI[UNIQ_MODE]}" "${${ZUI[SEARCH_BUFFER]:+1}:-0}" "${__list[${ZUI[CURRENT_IDX]}]}" "${segments[${ZUI[CURRENT_SEGMENT]}]}" )
             REPLY="0"
         fi
         (( ${+functions[-zui-standard-status-callback]} )) && {
@@ -723,12 +723,12 @@ while (( 1 )); do
         if [[ "$ZUILIST_IS_SEARCH_MODE" = "0" ]]; then
             -zui-log "$wname_status" "$status_height" "$status_width" "${ZUI[status_border]}" "${ZUI[status_colorpair]}" \
                     "$ZUILIST_GREP_STRING" "${ZUI[UNIQ_MODE]}" "$ZUILIST_IS_SEARCH_MODE" \
-                    "${ZUI[GENERATION_TIME]}" "$selectable" "${${ZUILIST_SEARCH_BUFFER:+1}:-0}" \
+                    "${ZUI[GENERATION_TIME]}" "$selectable" "${${ZUI[SEARCH_BUFFER]:+1}:-0}" \
                     "$ZUILIST_USER_CURRENT_IDX" "$ZUILIST_USER_LAST_ELEMENT"
 
             ZUI[GENERATION_TIME]=""
         else
-            -zui_list_status_msg "Filtering with: ${ZUILIST_SEARCH_BUFFER// /+}"
+            -zui_list_status_msg "Filtering with: ${ZUI[SEARCH_BUFFER]// /+}"
         fi
 
         [[ "${ZUI[status_border]}" = "1" ]] && {
@@ -769,7 +769,7 @@ while (( 1 )); do
     integer track_cur_idx="${ZUI[CURRENT_IDX]}"
     zui-list-input "${ZUI[CURRENT_IDX]}" "${ZUI[CURRENT_SEGMENT]}" "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" \
                     "$page_height" "$page_width" "$last_element" "$nseg" "$ZUILIST_TEXT_OFFSET" \
-                    "$final_key" "$ZUILIST_IS_SEARCH_MODE" "$ZUILIST_SEARCH_BUFFER" \
+                    "$final_key" "$ZUILIST_IS_SEARCH_MODE" "${ZUI[SEARCH_BUFFER]}" \
                     "${ZUI[UNIQ_MODE]}" "$ZUILIST_DISABLE_SEARCH" "__list"
 
     selection="$reply[1]"
@@ -779,7 +779,7 @@ while (( 1 )); do
     ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]="$reply[5]"
     ZUILIST_TEXT_OFFSET="$reply[6]"
     ZUILIST_IS_SEARCH_MODE="$reply[7]"
-    ZUILIST_SEARCH_BUFFER="$reply[8]"
+    ZUI[SEARCH_BUFFER]="$reply[8]"
     ZUI[UNIQ_MODE]="$reply[9]"
 
     #
@@ -1060,9 +1060,9 @@ while (( 1 )); do
     if [[ -n "$jump_id" ]]; then
         ZUI[CURRENT_IDX]=$(( ${ZUI[$jump_id]:-$jump_data} ))
         (( ZUI[CURRENT_IDX] < 1 )) && ZUI[CURRENT_IDX]=1
-        [[ -z "$ZUILIST_SEARCH_BUFFER" ]] && (( ZUI[CURRENT_IDX] > last_element )) && ZUI[CURRENT_IDX]="$last_element"
+        [[ -z "${ZUI[SEARCH_BUFFER]}" ]] && (( ZUI[CURRENT_IDX] > last_element )) && ZUI[CURRENT_IDX]="$last_element"
         ZUI[CURRENT_SEGMENT]=1
-        ZUILIST_SEARCH_BUFFER=""
+        ZUI[SEARCH_BUFFER]=""
         -zui_list_compute_first_to_show_idx_center
     fi
 done
