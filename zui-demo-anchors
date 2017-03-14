@@ -3,15 +3,12 @@
 # Shows all types of anchors: external/regenerating, internal,
 # internal/regenerating, pointing outside own module
 
--zui_stdlib_cleanup deserialize:zui-demo-anchors
--zui_stdlib_init
-
-ZUI[app]="zui-demo-anchors"
-ZUI[app_name]="ZUI Anchors"
+-zui_stdlib_cleanup deserialize:"zui-demo-anchors"
+-zui_stdlib_init app:"zui-demo-anchors" app_name:"ZUI Anchors"
 
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
-[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
+-zui_stdlib_init2 # after emulate -LR
 
 -zui_stdlib_store_default_app_config b:border 1
 -zui_stdlib_store_default_app_config s:text_mode off

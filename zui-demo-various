@@ -2,18 +2,14 @@
 # Started from Zle or from command line
 #
 
-# Cleanup $ZUI hash runtime data
--zui_stdlib_cleanup deserialize:zui-demo-various
-
+# Cleanup $ZUI hash runtime data, deserialize previous state
+-zui_stdlib_cleanup deserialize:"zui-demo-various"
 # Initialize ZUI app
--zui_stdlib_init
-
-ZUI[app]="zui-demo-various"
-ZUI[app_name]="ZUI Large Demo"
+-zui_stdlib_init app:"zui-demo-various" app_name:"ZUI Large Demo"
 
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
-[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
+-zui_stdlib_init2 # after emulate -LR
 
 -zui-standard-text-select-callback() {
     -zui_stdlib_strip_codes "$2"

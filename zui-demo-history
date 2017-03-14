@@ -1,14 +1,11 @@
 # Started from Zle or from command line
 
--zui_stdlib_cleanup deserialize:zui-demo-history
--zui_stdlib_init
-
-ZUI[app]="zui-demo-history"
-ZUI[app_name]="ZUI History"
+-zui_stdlib_cleanup deserialize:"zui-demo-history"
+-zui_stdlib_init app:"zui-demo-history" app_name:"ZUI History"
 
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
-[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
+-zui_stdlib_init2 # after emulate -LR
 
 -zui_stdlib_store_default_app_config b:border 1
 -zui_stdlib_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection

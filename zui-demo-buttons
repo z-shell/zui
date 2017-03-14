@@ -2,15 +2,12 @@
 #
 # Shows all types of hyperlinks, from raw-links to internal-inline links
 
--zui_stdlib_cleanup deserialize:zui-demo-buttons
--zui_stdlib_init
-
-ZUI[app]="zui-demo-buttons"
-ZUI[app_name]="ZUI Buttons"
+-zui_stdlib_cleanup deserialize:"zui-demo-buttons"
+-zui_stdlib_init app:"zui-demo-buttons" app_name:"ZUI Buttons"
 
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
-[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
+-zui_stdlib_init2 # after emulate -LR
 
 -zui_stdlib_store_default_app_config b:border 1
 -zui_stdlib_store_default_app_config b:status_size 5
