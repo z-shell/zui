@@ -433,7 +433,7 @@ local MARK_CODES MARK_END_CODES MARK2_CODES MARK2_END_CODES active_text
 [[ "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" != <-> ]] && ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]=1
 [[ "${ZUI[CURRENT_IDX]}" != <-> ]] && ZUI[CURRENT_IDX]=1
 [[ "${ZUI[SEARCH_MODE]}" != <-> ]] && ZUI[SEARCH_MODE]=0
-[[ "$ZUILIST_TEXT_OFFSET" != <-> ]] && ZUILIST_TEXT_OFFSET=0
+[[ "${ZUI[TEXT_OFFSET]}" != <-> ]] && ZUI[TEXT_OFFSET]=0
 [[ "${ZUI[UNIQ_MODE]}" != <-> ]] && ZUI[UNIQ_MODE]=0
 [[ "${ZUI[CURRENT_SEGMENT]}" != <-> ]] && ZUI[CURRENT_SEGMENT]=1
 ZUILIST_ACTIVE_SEGMENTS=()
@@ -597,7 +597,7 @@ while (( 1 )); do
 
         # Output colored list
         zui-list-draw "$(( ZUI[CURRENT_IDX] - ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + 1 ))" \
-            "$page_height" "$page_width" 1 2 "$ZUILIST_TEXT_OFFSET" "$wname_main" "$active_text" \
+            "$page_height" "$page_width" 1 2 "${ZUI[TEXT_OFFSET]}" "$wname_main" "$active_text" \
             "$disp_list2[@]"
     else
         # There is no search, but there was in previous loop
@@ -668,7 +668,7 @@ while (( 1 )); do
 
         # Output the list
         zui-list-draw "$(( ZUI[CURRENT_IDX] - ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + 1 ))" \
-            "$page_height" "$page_width" 1 2 "$ZUILIST_TEXT_OFFSET" "$wname_main" "$active_text" \
+            "$page_height" "$page_width" 1 2 "${ZUI[TEXT_OFFSET]}" "$wname_main" "$active_text" \
             "$disp_list2[@]"
     fi
 
@@ -759,7 +759,7 @@ while (( 1 )); do
 
     integer track_cur_idx="${ZUI[CURRENT_IDX]}"
     zui-list-input "${ZUI[CURRENT_IDX]}" "${ZUI[CURRENT_SEGMENT]}" "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" \
-                    "$page_height" "$page_width" "$last_element" "$nseg" "$ZUILIST_TEXT_OFFSET" \
+                    "$page_height" "$page_width" "$last_element" "$nseg" "${ZUI[TEXT_OFFSET]}" \
                     "$final_key" "${ZUI[SEARCH_MODE]}" "${ZUI[SEARCH_BUFFER]}" \
                     "${ZUI[UNIQ_MODE]}" "$ZUILIST_DISABLE_SEARCH" "__list"
 
@@ -768,7 +768,7 @@ while (( 1 )); do
     ZUI[CURRENT_IDX]="$reply[3]"
     ZUI[CURRENT_SEGMENT]="$reply[4]"
     ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]="$reply[5]"
-    ZUILIST_TEXT_OFFSET="$reply[6]"
+    ZUI[TEXT_OFFSET]="$reply[6]"
     ZUI[SEARCH_MODE]="$reply[7]"
     ZUI[SEARCH_BUFFER]="$reply[8]"
     ZUI[UNIQ_MODE]="$reply[9]"
