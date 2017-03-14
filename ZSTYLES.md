@@ -36,10 +36,12 @@ zstyle ":plugin:zui" log_size "32"              # How many log messages to keep 
 zstyle ":plugin:zui" log_colors "white cyan yellow green cyan red magenta yellow blue"
 
 # Implementation Zstyles
-zstyle ":plugin:zui" select_mode "callback"     # What to do on non-hyperlink selection. Will invoke -zui-standard-sel\
-                                                # ect-callback() passing segment or whole line as argument. Can be also
-                                                # "restart" – will restart the list, setting ZUI[pure_text_selected] or
-                                                # ZUI[line_selected]. Also "quit" – will quit event loop setting REPLY
+zstyle ":plugin:zui" select_mode "no-restart"   # What to do on non-hyperlink selection. Will invoke -zui-standard-sel\
+                                                # ect-callback() passing segment or whole line as argument. Plus, will
+                                                # set ZUI[pure_text_selected] or ZUI[line_selected]. If set to "restart"
+                                                # then list restart will be performed, otherwise the same. If set to
+                                                # "quit" then event loop will be exited, and REPLY will be set to line
+                                                # or segment, otherwise the same
 zstyle ":plugin:zui" text_mode "all"            # Navigate across each bit of text, not only hyperlinks. "hyp" – only
                                                 # at lines with hyperlinks, "nohyp" – only at lines with no hyperlinks,
                                                 # "off" - text-bit navigation fully turned off

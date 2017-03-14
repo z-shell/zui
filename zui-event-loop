@@ -345,22 +345,22 @@ local ZUILIST_WRAPPER_BIT="" ZUILIST_WRAPPER_LINE="" zuiel_bit_set=0 zuiel_line_
 zui-usetty-wrapper zui-list-wrapper "${zuiel_top_anchors[*]}" "${ZUIEL_OUTPUT[@]}"
 
 if [[ "${ZUI[text_mode]}" = (all|nohyp) ]] || -zui_stdlib_has_any_hyperlinks "$ZUILIST_WRAPPER_LINE"; then
+    ZUI[pure_text_selected]="$ZUILIST_WRAPPER_BIT"
+    (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "segment" "$ZUILIST_WRAPPER_BIT"
     # No selection -> quit
     if [[ -z "$ZUILIST_WRAPPER_BIT" || "${ZUI[select_mode]}" = "quit" ]] && ! -zui_stdlib_is_any_hyperlink "$ZUILIST_WRAPPER_BIT"; then
-        if [[ -z "$ZUILIST_WRAPPER_BIT" || "${ZUI[text_select]}" = "1" ]]; then
-            REPLY="$ZUILIST_WRAPPER_BIT"
-            zle && { zle .redisplay; zle .reset-prompt; }
-            return 0
-        fi
+        REPLY="$ZUILIST_WRAPPER_BIT"
+        zle && { zle .redisplay; zle .reset-prompt; }
+        return 0
     fi
     zuiel_bit_set=1
 else # No hyperlinks, and text_mode is off|hyp
+    ZUI[line_selected]="$ZUILIST_WRAPPER_LINE"
+    (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "line" "$ZUILIST_WRAPPER_LINE"
     if [[ -z "$ZUILIST_WRAPPER_LINE" || "${ZUI[select_mode]}" = "quit" ]]; then
-        if [[ -z "$ZUILIST_WRAPPER_LINE" || "${ZUI[text_select]}" = "1" ]]; then
-            REPLY="$ZUILIST_WRAPPER_LINE"
-            zle && { zle .redisplay; zle .reset-prompt; }
-            return 0
-        fi
+        REPLY="$ZUILIST_WRAPPER_LINE"
+        zle && { zle .redisplay; zle .reset-prompt; }
+        return 0
     fi
     zuiel_line_set=1
 fi
@@ -419,11 +419,11 @@ if (( zuiel_bit_set )); then
         REGENERATE+="$REGENERATE_ALWAYS"
     else
         # Non-hyperlink text-bit selection
-        ZUI[pure_text_selected]="$ZUILIST_WRAPPER_BIT"
+        :
     fi
 else
     # Non-hyperlink whole-line selection
-    ZUI[line_selected]="$ZUILIST_WRAPPER_LINE"
+    :
 fi
 
 ### REGENERATION REQUEST LOOP ###
