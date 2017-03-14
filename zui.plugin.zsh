@@ -25,6 +25,9 @@ fi
 # Setup
 #
 
+# Support reloading
+(( ${+functions[zui-list]} )) && { unfunction -- zui-list zui-list-draw zui-list-input zui-list-wrapper -zui-log zui-event-loop -zui-list-box-loop zui-process-buffer zui-process-buffer2 zui-usetty-wrapper zui-demo-various zui-demo-hello-world zui-demo-text-fields zui-demo-fly zui-demo-append zui-demo-buttons zui-demo-anchors zui-demo-list-boxes zui-demo-history 2>/dev/null; unset ZUI; }
+
 autoload -- zui-list zui-list-draw zui-list-input zui-list-wrapper -zui-log zui-event-loop -zui-list-box-loop
 autoload -- zui-process-buffer zui-process-buffer2 zui-usetty-wrapper
 autoload -- zui-demo-various zui-demo-hello-world zui-demo-text-fields zui-demo-fly zui-demo-append zui-demo-buttons
@@ -54,18 +57,22 @@ zmodload zsh/datetime && ZUI[datetime_available]="1" || ZUI[datetime_available]=
 # Cleanup and init stubs, to be first stdlib
 # functions called, sourcing the libraries
 
-function -zui_stdlib_cleanup() {
-    unfunction -- -zui_stdlib_cleanup
-    [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
-    [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/syslib.lzui"
-    -zui_stdlib_cleanup "$@"
+(( 0 == ${+functions[-zui_stdlib_cleanup]} )) && {
+    function -zui_stdlib_cleanup() {
+        unfunction -- -zui_stdlib_cleanup
+        [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
+        [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/syslib.lzui"
+        -zui_stdlib_cleanup "$@"
+    }
 }
 
-function -zui_stdlib_init() {
-    unfunction -- -zui_stdlib_init
-    [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
-    [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/syslib.lzui"
-    -zui_stdlib_init "$@"
+(( 0 == ${+functions[-zui_stdlib_init]} )) && {
+    function -zui_stdlib_init() {
+        unfunction -- -zui_stdlib_init
+        [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
+        [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/syslib.lzui"
+        -zui_stdlib_init "$@"
+    }
 }
 
 # vim:ft=zsh
