@@ -732,6 +732,39 @@ function -zui_stdlib_cleanup() {
     (( ${+functions[-zui-standard-text-select-callback]} )) && unfunction -- -zui-standard-text-select-callback
 }
 
+# Stores my_* keys of ZUI hash into
+# "serialized_${ZUI[app]}" key, which
+# can be read with *deserialize() call
+function -zui_stdlib_serialize() {
+    local dst="${1:-${ZUI[app]}}"
+
+    local -a skeys
+    skeys=( ${ZUI[(I)my_*]} )
+
+    local k out
+    for k in "${skeys[@]}"; do
+        out+="${(q)k} ${(q)ZUI[$k]} "
+    done
+
+    ZUI[serialized_$dst]="${out% }"
+}
+
+# Reads ZUI[serialized_${ZUI[app]}] and maps
+# the content onto ZUI keys, normally my_*
+# keys. Use this to restore application state
+# after exit and consecutive start.
+function -zui_stdlib_deserialize() {
+    local src="${1:-${ZUI[app]}}"
+
+    local -a data
+    data=( "${(Q@)${(z@)ZUI[serialized_$src]}}" )
+
+    if (( ${#data[@]} % 2 == 0 && ${#data[@]} > 0 )); then
+        ZUI+=( "${data[@]}" )
+        unset "ZUI[serialized_$src]"
+    fi
+}
+
 # Use this to quickly load variables:
 #
 # - mod${midx}_ice${iidx}_global_index
