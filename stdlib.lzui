@@ -80,6 +80,14 @@ function -zui_stdlib_init() {
     [[ "$2" = app_name:* ]] && ZUI[app_name]=${2#app_name:}
 }
 
+# Initializes ZUI application. To
+# be called after any emulate -L
+function -zui_stdlib_init2() {
+    unsetopt localoptions
+    [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
+    [[ "${ZUI[INTERACTIVE_COMMENTS]}" = "1" ]] && setopt interactivecomments
+}
+
 # Appends hyperlink into output array. It's the standard
 # action button, shown without surrounding "[" and "]".
 #
