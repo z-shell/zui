@@ -433,7 +433,7 @@ local MARK_CODES MARK_END_CODES MARK2_CODES MARK2_END_CODES active_text
 if [[ -z "$ZUILIST_REMEMBER_STATE" || "$ZUILIST_REMEMBER_STATE" = 0 || "$ZUILIST_REMEMBER_STATE" = 2 ]]; then
     ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]=1
     ZUI[CURRENT_IDX]=1
-    ZUILIST_IS_SEARCH_MODE=0
+    ZUI[SEARCH_MODE]=0
     ZUI[SEARCH_BUFFER]=""
     ZUILIST_TEXT_OFFSET=0
     ZUI[UNIQ_MODE]=0
@@ -463,7 +463,7 @@ fi
 
 if [[ "$ZUILIST_START_IN_SEARCH_MODE" -eq 1 ]]; then
     ZUILIST_START_IN_SEARCH_MODE=0
-    ZUILIST_IS_SEARCH_MODE=1
+    ZUI[SEARCH_MODE]=1
 fi
 
 if [[ -n "$ZUILIST_SET_SEARCH_TO" ]]; then
@@ -720,9 +720,9 @@ while (( 1 )); do
 
         (( tpe > 0 )) && -zui_stdlib_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
 
-        if [[ "$ZUILIST_IS_SEARCH_MODE" = "0" ]]; then
+        if [[ "${ZUI[SEARCH_MODE]}" = "0" ]]; then
             -zui-log "$wname_status" "$status_height" "$status_width" "${ZUI[status_border]}" "${ZUI[status_colorpair]}" \
-                    "$ZUILIST_GREP_STRING" "${ZUI[UNIQ_MODE]}" "$ZUILIST_IS_SEARCH_MODE" \
+                    "$ZUILIST_GREP_STRING" "${ZUI[UNIQ_MODE]}" "${ZUI[SEARCH_MODE]}" \
                     "${ZUI[GENERATION_TIME]}" "$selectable" "${${ZUI[SEARCH_BUFFER]:+1}:-0}" \
                     "$ZUILIST_USER_CURRENT_IDX" "$ZUILIST_USER_LAST_ELEMENT"
 
@@ -739,7 +739,7 @@ while (( 1 )); do
 
         # status_msg_strlen is being set in -zui_list_status_msg()
         zcurses move "$wname_status" "${ZUI[status_border]}" $(( status_msg_strlen + 2 ))
-        [[ "$ZUILIST_IS_SEARCH_MODE" -ne 1 ]] && -zui_list_cursor_visibility "status" "0" || -zui_list_cursor_visibility "status" "1"
+        [[ "${ZUI[SEARCH_MODE]}" -ne 1 ]] && -zui_list_cursor_visibility "status" "0" || -zui_list_cursor_visibility "status" "1"
         zcurses refresh "$wname_status" 
     }
 
@@ -769,7 +769,7 @@ while (( 1 )); do
     integer track_cur_idx="${ZUI[CURRENT_IDX]}"
     zui-list-input "${ZUI[CURRENT_IDX]}" "${ZUI[CURRENT_SEGMENT]}" "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" \
                     "$page_height" "$page_width" "$last_element" "$nseg" "$ZUILIST_TEXT_OFFSET" \
-                    "$final_key" "$ZUILIST_IS_SEARCH_MODE" "${ZUI[SEARCH_BUFFER]}" \
+                    "$final_key" "${ZUI[SEARCH_MODE]}" "${ZUI[SEARCH_BUFFER]}" \
                     "${ZUI[UNIQ_MODE]}" "$ZUILIST_DISABLE_SEARCH" "__list"
 
     selection="$reply[1]"
@@ -778,7 +778,7 @@ while (( 1 )); do
     ZUI[CURRENT_SEGMENT]="$reply[4]"
     ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]="$reply[5]"
     ZUILIST_TEXT_OFFSET="$reply[6]"
-    ZUILIST_IS_SEARCH_MODE="$reply[7]"
+    ZUI[SEARCH_MODE]="$reply[7]"
     ZUI[SEARCH_BUFFER]="$reply[8]"
     ZUI[UNIQ_MODE]="$reply[9]"
 
