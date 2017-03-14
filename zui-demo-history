@@ -30,6 +30,8 @@ demo_mod1_generator() {
 # a:u- is: array, unique elements
 zui-event-loop 1:demo_mod1_generator a:u-history 1:demo_mod1_generator
 
+print -zr -- "$REPLY"
+
 -zui_stdlib_cleanup
 
 return 0
