@@ -58,7 +58,7 @@ demo_internal_action() {
 }
 
 -zui-standard-status-callback() {
-    [[ "${#logs[@]}" -gt 0 ]] && { reply=( "Message: " "${logs[1]}" ); logs=( ${(@)logs[2,-1]} ); return 1; }
+    [[ "${#logs}" -gt 0 ]] && { reply=( "Message: " "${logs[1]}" ); logs=( ${(@)logs[2,-1]} ); return 1; }
     # Resulting type: 0 - no message
     return 0
 }

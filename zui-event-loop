@@ -190,7 +190,7 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
         fi
 
         # Should probably resign from ZUIEL_LINE_COUNT
-        ZUIEL_LINE_COUNT="${#ZUIEL_OUTPUT[@]}"
+        ZUIEL_LINE_COUNT="${#ZUIEL_OUTPUT}"
     else
         zuiel_val1="${zuiel_module_hash[$zuiel_key]}"
 

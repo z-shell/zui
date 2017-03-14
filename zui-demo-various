@@ -215,11 +215,11 @@ demo_mod1_generator() {
     # - maximum local line number
     # - remaining lines to reach next module
     local -a next
-    -zui_stdlib_anchor "jumpA_$mod" "${#reply[@]}+2" "" "" "" "[${ZUI[YELLOW]}NEXT${ZUI[COLOR_END]}]" "" next
+    -zui_stdlib_anchor "jumpA_$mod" "${#reply}+2" "" "" "" "[${ZUI[YELLOW]}NEXT${ZUI[COLOR_END]}]" "" next
     reply[4]="${reply[4]/<NEXT>/${next[1]}}"
 
     # Non-selectables (:+ is "if not empty, then...")
-    reply2=( 1 5 ${mod1_ice1_extra_line:+${#reply[@]}} )
+    reply2=( 1 5 ${mod1_ice1_extra_line:+${#reply}} )
     # Hops
     reply3=( 1 )
     # Local anchors

@@ -8,7 +8,7 @@ options=( "${(@Ps:;:)__opts_var}" )
 
 # Compute window x-dimension and position
 local txt
-integer width=7 size="${#options[@]}"
+integer width=7 size="${#options}"
 for txt in "${options[@]}"; do
     (( width = ${#txt} > width ? ${#txt} : width ))
 done
@@ -77,7 +77,7 @@ while (( 1 )); do
             ;;
         (DOWN|j|$'\t')
             hidx=${(P)__idx_var}
-            (( hidx = hidx < ${#options[@]} ? hidx+1 : hidx ))
+            (( hidx = hidx < ${#options} ? hidx+1 : hidx ))
             : ${(P)__idx_var::=$hidx}
             ;;
         ($'\n')

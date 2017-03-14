@@ -134,7 +134,7 @@ local _uniq="" _text="" _grep="" _gen=""
 [[ -n "$generation_time" ]] && _gen="GENERATED IN ${generation_time}s"
 (( selectable + search_buf + uniq )) && _text="Current #$idx (of #$last_element entries)" || _text="---"
 
-integer last="${#ZUI_MESSAGES[@]}" start=last-win_height+win_border line=win_border
+integer last="${#ZUI_MESSAGES}" start=last-win_height+win_border line=win_border
 (( start = start <= 0 ? 1 : start ))
 
 integer message_num=$(( ZUI[message_count] - (last-start+1) + 1 ))

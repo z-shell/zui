@@ -86,7 +86,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         last_element_difference=0
         current_difference=0
     else
-        last_element_difference=${#ZUILIST_NONSELECTABLE_ELEMENTS[@]}
+        last_element_difference=${#ZUILIST_NONSELECTABLE_ELEMENTS}
         current_difference=0
         local idx
         for idx in "${(n)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
@@ -202,7 +202,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
         # Lets find interesting segment and mark it with \7...\31
         zui-process-buffer "$element"
-        integer size="${#ZUI_PB_WORDS[@]}" i
+        integer size="${#ZUI_PB_WORDS}" i
         local buf=""
         for (( i=1; i<=size; i++ )); do
             if [[ "$i" -eq "$active_segment" ]]; then
@@ -949,7 +949,7 @@ while (( 1 )); do
 
         # Push down (up) elements that are after the growed (shrinked) section
         # NONSELECTABLES
-        mysize="${#ZUILIST_NONSELECTABLE_ELEMENTS[@]}"
+        mysize="${#ZUILIST_NONSELECTABLE_ELEMENTS}"
         for (( index = 1; index <= mysize; index ++ )); do
             el="${ZUILIST_NONSELECTABLE_ELEMENTS[index]}"
             # No need to check if it lays inside the range
@@ -968,7 +968,7 @@ while (( 1 )); do
 
         # Push down (up) elements that are after the growed (shrinked) section
         # HOPS
-        mysize="${#ZUILIST_HOP_INDICES[@]}"
+        mysize="${#ZUILIST_HOP_INDICES}"
         for (( index = 1; index <= mysize; index ++ )); do
             el="${ZUILIST_HOP_INDICES[index]}"
             # No need to check if it lays inside the range

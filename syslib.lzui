@@ -25,7 +25,7 @@ function -zui_syslib_get_tfield_cursor_boundaries() {
 
     zui-process-buffer "$__elem"
 
-    integer __i __size="${#ZUI_PB_WORDS[@]}" __idx=0
+    integer __i __size="${#ZUI_PB_WORDS}" __idx=0
     local __seg __text
 
     for (( __i=1; __i <= __size; __i ++ )); do

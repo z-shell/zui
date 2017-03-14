@@ -771,7 +771,7 @@ function -zui_stdlib_deserialize() {
     local -a data
     data=( "${(Q@)${(z@)ZUI[serialized_$src]}}" )
 
-    if (( ${#data[@]} % 2 == 0 && ${#data[@]} > 0 )); then
+    if (( ${#data} % 2 == 0 && ${#data} > 0 )); then
         ZUI+=( "${data[@]}" )
         unset "ZUI[serialized_$src]"
     fi
@@ -966,7 +966,7 @@ function -zui_stdlib_map_replies() {
     var_name="mod${1}_ice${2}_output"
     : ${(PA)var_name::="${reply[@]}"}
     var_name="mod${1}_ice${2}_size"
-    : ${(PA)var_name::=${#reply[@]}}
+    : ${(PA)var_name::=${#reply}}
     var_name="mod${1}_ice${2}_nonselectables"
     : ${(PA)var_name::="${reply2[@]}"}
     var_name="mod${1}_ice${2}_hops"
@@ -1157,7 +1157,7 @@ function -zui_stdlib_add_message() {
     (( ++ ZUI[message_count] ))
 
     # House-keeping
-    (( ${#ZUI_MESSAGES[@]} >= ZUI[log_size] + 10 )) && { ZUI_MESSAGES=( "${(@)ZUI_MESSAGES[1+10,-1]}" ); }
+    (( ${#ZUI_MESSAGES} >= ZUI[log_size] + 10 )) && { ZUI_MESSAGES=( "${(@)ZUI_MESSAGES[1+10,-1]}" ); }
 }
 
 # Submits on-the-fly module update. Needs
@@ -1224,7 +1224,7 @@ function -zui_stdlib_map_bools() {
     __exps=( "${(@s:;:)__exp}" )
     __pms=( "${(@s:;:)__pm}" )
 
-    integer __index __size=${#__pms[@]}
+    integer __index __size=${#__pms}
     for (( __index=1; __index <= __size; ++ __index )); do
         __exp="${__exps[__index]}"
         __pm="${__pms[__index]}"
