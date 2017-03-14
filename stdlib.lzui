@@ -760,7 +760,7 @@ function -zui_stdlib_serialize() {
 
     local k out
     for k in "${skeys[@]}"; do
-        out+="${(q)k} ${(q)ZUI[$k]} "
+        (( ${+ZUI[$k]} )) && out+="${(q)k} ${(q)ZUI[$k]} "
     done
 
     ZUI[serialized_$dst]="${out% }"
