@@ -192,7 +192,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
         # There will be no colorifying for current element
         integer current_page_idx=$(( ZUILIST_CURRENT_IDX - ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + 1 ))
-        local element="${list[ZUILIST_CURRENT_IDX]}"
+        local element="${__list[ZUILIST_CURRENT_IDX]}"
 
         local output=""
 
@@ -332,7 +332,7 @@ local header="$7"
 
 shift 7
 
-typeset -a list disp_list disp_list2
+typeset -a __list disp_list disp_list2
 integer last_element=$#
 local action
 local final_key tmp
@@ -492,10 +492,10 @@ keypad=""
 # Initial list. $@ later still serves as verbatim input.
 # This loop makes script faster on some Zsh's (e.g. 5.0.8)
 repeat 1; do
-    list=( "$@" )
+    __list=( "$@" )
 done
 
-last_element="$#list"
+last_element="${#__list}"
 
 while (( 1 )); do
     # Handle resize, once every 5 seconds
@@ -512,20 +512,20 @@ while (( 1 )); do
             ZUILIST_REGENERATE_LIST="2"
 
             # Take all elements, including duplicates and non-selectables
-            typeset +U list
+            typeset +U __list
             repeat 1; do
-                list=( "$@" )
+                __list=( "$@" )
             done
 
             # Remove non-selectable elements
             [[ "$#ZUILIST_NONSELECTABLE_ELEMENTS" -gt 0 ]] && for i in "${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
-                list[$i]=()
+                __list[$i]=()
             done
 
             # Remove duplicates
-            [[ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ]] && typeset -U list
+            [[ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ]] && typeset -U __list
 
-            last_element="$#list"
+            last_element="${#__list}"
 
             # Next do the filtering
             local search_buffer="${ZUILIST_SEARCH_BUFFER%% ##}"
@@ -546,10 +546,10 @@ while (( 1 )); do
 
                 # The repeat will make the matching work on a fresh heap arena
                 repeat 1; do
-                    list=( "${(@M)list:#(#i)$~search_pattern}" )
+                    __list=( "${(@M)__list:#(#i)$~search_pattern}" )
                 done
 
-                last_element="$#list"
+                last_element="${#__list}"
             fi
 
             # Called after processing list
@@ -557,7 +557,7 @@ while (( 1 )); do
         fi
 
         -zui_list_setup_user_vars 1
-        segments=( "${(z)list[ZUILIST_CURRENT_IDX]}" )
+        segments=( "${(z@)__list[ZUILIST_CURRENT_IDX]}" )
         nseg="$#segments"
 
         integer end_idx=$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))
@@ -566,7 +566,7 @@ while (( 1 )); do
         if [[ "$ZUILIST_REGENERATE_LIST" = "2" || "$prev_start_idx" -ne "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" ]]; then
             ZUILIST_REGENERATE_LIST="0"
             prev_start_idx="$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN"
-            disp_list=( "${(@)list[ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN, end_idx]}" )
+            disp_list=( "${(@)__list[ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN, end_idx]}" )
 
             # Remove hyperlinks before colorifying
             disp_list=( "${disp_list[@]//(#b)$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'/${(Q)match[1]}}" )
@@ -621,28 +621,28 @@ while (( 1 )); do
             prev_uniq_mode="$ZUILIST_IS_UNIQ_MODE"
 
             # Take all elements, including duplicates and non-selectables
-            typeset +U list
+            typeset +U __list
             repeat 1; do
-                list=( "$@" )
+                __list=( "$@" )
             done
 
             # Remove non-selectable elements only when in uniq mode
             [[ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ]] && [[ "$#ZUILIST_NONSELECTABLE_ELEMENTS" -gt 0 ]] &&
             for i in "${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
-                list[$i]=()
+                __list[$i]=()
             done
 
             # Remove duplicates when in uniq mode
-            [[ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ]] && typeset -U list
+            [[ "$ZUILIST_IS_UNIQ_MODE" -eq 1 ]] && typeset -U __list
 
-            last_element="$#list"
+            last_element="${#__list}"
             # Called after processing list
             -zui_list_verify_vars
         fi
 
         # If the argument is 1, then: don't bother with non-selectables
         -zui_list_setup_user_vars "$ZUILIST_IS_UNIQ_MODE"
-        segments=( "${(z)list[ZUILIST_CURRENT_IDX]}" )
+        segments=( "${(z@)__list[ZUILIST_CURRENT_IDX]}" )
         nseg="$#segments"
 
         integer end_idx=$(( ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN + page_height - 1 ))
@@ -651,7 +651,7 @@ while (( 1 )); do
         if [[ "$ZUILIST_REGENERATE_LIST" = "2" || "$prev_start_idx" -ne "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN"  ]]; then
             ZUILIST_REGENERATE_LIST="0"
             prev_start_idx="$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN"
-            disp_list=( "${(@)list[ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN, end_idx]}" )
+            disp_list=( "${(@)__list[ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN, end_idx]}" )
 
             # Remove hyperlinks
             disp_list=( "${disp_list[@]//(#b)$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'/${(Q)match[1]}}" )
@@ -707,7 +707,7 @@ while (( 1 )); do
         [[ -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$ZUILIST_CURRENT_IDX]}" ]] && selectable=0
         (( $ZUILIST_IS_UNIQ_MODE + ${${ZUILIST_SEARCH_BUFFER:+1}:-0} )) && selectable=1
         if (( selectable == 0 )) || ! -zui_stdlib_decode "${segments[ZUILIST_CURRENT_SEGMENT]}"; then
-            reply=( "$selectable" "$ZUILIST_IS_UNIQ_MODE" "${${ZUILIST_SEARCH_BUFFER:+1}:-0}" "${list[ZUILIST_CURRENT_IDX]}" "${segments[ZUILIST_CURRENT_SEGMENT]}" )
+            reply=( "$selectable" "$ZUILIST_IS_UNIQ_MODE" "${${ZUILIST_SEARCH_BUFFER:+1}:-0}" "${__list[ZUILIST_CURRENT_IDX]}" "${segments[ZUILIST_CURRENT_SEGMENT]}" )
             REPLY="0"
         fi
         (( ${+functions[-zui-standard-status-callback]} )) && {
@@ -770,7 +770,7 @@ while (( 1 )); do
     zui-list-input "$ZUILIST_CURRENT_IDX" "$ZUILIST_CURRENT_SEGMENT" "$ZUILIST_FROM_WHAT_IDX_LIST_IS_SHOWN" \
                     "$page_height" "$page_width" "$last_element" "$nseg" "$ZUILIST_TEXT_OFFSET" \
                     "$final_key" "$ZUILIST_IS_SEARCH_MODE" "$ZUILIST_SEARCH_BUFFER" \
-                    "$ZUILIST_IS_UNIQ_MODE" "$ZUILIST_DISABLE_SEARCH" "list"
+                    "$ZUILIST_IS_UNIQ_MODE" "$ZUILIST_DISABLE_SEARCH" "__list"
 
     selection="$reply[1]"
     action="$reply[2]"
@@ -811,39 +811,39 @@ while (( 1 )); do
     local jump_id="" jump_data=""
 
     if [[ "$action" = "SELECT" ]]; then
-        -zui_stdlib_get_segment "${list[selection]}" "$ZUILIST_CURRENT_SEGMENT" tmp
+        -zui_stdlib_get_segment "${__list[selection]}" "$ZUILIST_CURRENT_SEGMENT" tmp
         # Is it a hyperlink selection? If not, then examine select_mode
         # to know if the text selection (ZUI[text_select] is examined in
         # zui-list-input) should be passed outside the list
         if -zui_stdlib_is_any_hyperlink "$tmp" || [[ "${ZUI[select_mode]}" = (restart|quit) ]]; then
             REPLY="$selection"
-            reply=( "$list[@]" )
+            reply=( "${__list[@]}" )
             break
         fi
 
         # ZUI[select_mode] == no-restart
         # No passing outside, will invoke callback, but need to
         # know if on whole line, or on single text-bit segment
-        if [[ "${ZUI[text_mode]}" = "off" ]] || [[ "${ZUI[text_mode]}" = "hyp" ]] && ! -zui_stdlib_has_any_hyperlinks "${list[selection]}"; then
+        if [[ "${ZUI[text_mode]}" = "off" ]] || [[ "${ZUI[text_mode]}" = "hyp" ]] && ! -zui_stdlib_has_any_hyperlinks "${__list[selection]}"; then
             # Text-bit navigation is disabled - this must be whole line selection
             # ... is enabled for with-hyperlinks lines, but line is without hyperlinks - ...
-            (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "line" "${list[selection]}"
-            ZUI[line_selected]="${list[selection]}"
+            (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "line" "${__list[selection]}"
+            ZUI[line_selected]="${__list[selection]}"
         else
             (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "segment" "$tmp"
             ZUI[pure_text_selected]="$tmp"
         fi
     elif [[ "$action" = F[1-4] ]]; then
         REPLY="$action"
-        reply=( "$list[@]" )
+        reply=( "$__list[@]" )
         break
     elif [[ "$action" = "BR_MOVE_LEFT" || "$action" = "BR_MOVE_RIGHT" ]]; then
         REPLY="$action"
-        reply=( "$list[@]" )
+        reply=( "$__list[@]" )
         break
     elif [[ "$action" = "QUIT" ]]; then
         REPLY=-1
-        reply=( "$list[@]" )
+        reply=( "${__list[@]}" )
         break
     elif [[ "$action" = "REDRAW" ]]; then
         zcurses clear "$wname_main" redraw
@@ -853,7 +853,7 @@ while (( 1 )); do
         # Handle resize, force terminal-size read
         -zui_list_handle_resize 1
     elif [[ "$action" = "HYPERLINK" ]]; then
-        -zui_stdlib_get_segment "${list[selection]}" "$ZUILIST_CURRENT_SEGMENT"
+        -zui_stdlib_get_segment "${__list[selection]}" "$ZUILIST_CURRENT_SEGMENT"
         -zui_stdlib_decode "$REPLY"
         local id="${reply[1]}"
         ZUI[pressed_now]="$id"
@@ -879,7 +879,7 @@ while (( 1 )); do
             fi
         fi
     elif [[ "$action" = TFIELD* ]]; then
-        -zui_stdlib_get_segment "${list[selection]}" "$ZUILIST_CURRENT_SEGMENT"
+        -zui_stdlib_get_segment "${__list[selection]}" "$ZUILIST_CURRENT_SEGMENT"
         -zui_stdlib_decode "$REPLY" && local id="${reply[1]}" || local id="-"
         if [[ "$action" = TFIELD_LEFT && -n "${ZUI[$id]}" ]]; then
             ZUILIST_REGENERATE_LIST="2" # regenerate only display list
@@ -891,7 +891,7 @@ while (( 1 )); do
             fi
         fi
     elif [[ "$action" = LBOX* ]]; then
-        -zui_stdlib_get_segment "${list[selection]}" "$ZUILIST_CURRENT_SEGMENT"
+        -zui_stdlib_get_segment "${__list[selection]}" "$ZUILIST_CURRENT_SEGMENT"
         -zui_stdlib_decode "$REPLY" && local id="${reply[1]}" || local id="-"
         if [[ "$action" = LBOX_LEFT && -n "${ZUI[$id]}" ]]; then
             ZUILIST_REGENERATE_LIST="2" # regenerate only display list
