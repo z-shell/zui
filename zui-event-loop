@@ -177,6 +177,9 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
 
     # Array?
     if [[ "$zuiel_key" = [[:digit:]]##_zuia ]]; then
+        # Simulate instance 1
+        zel_ice=1
+
         if [[ "$ZUIEL_LINE_COUNT" -gt 0 || "${ZUI[top_anchors]}" = 1 ]]; then
             ZUIEL_OUTPUT+=( "" )
             ZUIEL_LINE_COUNT+=1
@@ -187,6 +190,7 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
 
         zuiel_val1="${zuiel_module_hash[$zuiel_key]}"
         zuiel_val2="${zuiel_val1%%-*}"
+        zuiel_val3="$ZUIEL_LINE_COUNT"
         if [[ "$zuiel_val1" != "$zuiel_val2" && "$zuiel_val2" = "u" ]]; then
             zuiel_val1="${zuiel_val1#u-}"
             # Append making unique
@@ -198,6 +202,9 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
 
         # Should probably resign from ZUIEL_LINE_COUNT
         ZUIEL_LINE_COUNT="${#ZUIEL_OUTPUT}"
+
+        (( zuiel_val3 = ZUIEL_LINE_COUNT - zuiel_val3 )) # size
+        (( zuiel_val3 > 0 )) && -zui_std_anchor "aglobal_m${zel_mod}_i${zel_ice}" $(( ZUIEL_LINE_COUNT - zuiel_val3 + 1 + ZUI[top_anchors] )) "$zel_mod" "$zel_ice" "" "[${ZUI[CYAN]}Data${zel_mod}${ZUI[FMT_END]}]" '(( ${+functions[-zui-standard-global-anchors-callback]} )) && { -zui-standard-global-anchors-callback  "'"aglobal_m${zel_mod}_i${zel_ice}"'" "'"${zuiel_hops[1]}"'" "'"$zel_mod"'" "'"$zel_ice"'"; internal=1; }' zuiel_top_anchors
     else
         zuiel_val1="${zuiel_module_hash[$zuiel_key]}"
 
