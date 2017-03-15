@@ -89,7 +89,7 @@ ZUI[term_sread_ts]="$EPOCHSECONDS"
         ZUI[term_height]="$term_height"
         ZUI[term_width]="$term_width"
         # Load window size
-        -zui_stdlib_load_config s:status_size "4" 1 'ZUI[status_size]'
+        -zui_std_load_config s:status_size "4" 1 'ZUI[status_size]'
         -zui_wrapper_init_windows "$resize" "$@"
         return 0
     fi
@@ -103,9 +103,9 @@ ZUI[term_sread_ts]="$EPOCHSECONDS"
 [[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/utillib.lzui"
 
 # Configuration
--zui_stdlib_load_config s:select_mode "no-restart" 2 'ZUI[select_mode]'   # quit, restart or callback
--zui_stdlib_load_config s:text_mode "all" 2 'ZUI[text_mode]'
--zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
+-zui_std_load_config s:select_mode "no-restart" 2 'ZUI[select_mode]'   # quit, restart or callback
+-zui_std_load_config s:text_mode "all" 2 'ZUI[text_mode]'
+-zui_std_load_config b:text_select 1 2 'ZUI[text_select]'
 
 ZUI[term_width]=0
 ZUI[term_height]=0
@@ -120,7 +120,7 @@ zui-list "main" $(( term_height-ZUI[status_size] )) $term_width "status" "${ZUI[
 if [[ "$REPLY" != "-1" && "$REPLY" = -(#c0,1)[0-9]## ]]; then
     local answer="${reply[REPLY]}"
     ZUILIST_WRAPPER_LINE="$answer"
-    if [[ "${ZUI[text_mode]}" = (all|nohyp) ]] || -zui_stdlib_has_any_hyperlinks "$answer"; then
+    if [[ "${ZUI[text_mode]}" = (all|nohyp) ]] || -zui_std_has_any_hyperlinks "$answer"; then
         local -a segments
         segments=( "${(z@)answer}" )
         [[ "${ZUI[CURRENT_SEGMENT]}" -gt "${#segments}" ]] && ZUI[CURRENT_SEGMENT]="${#segments}"

@@ -1,16 +1,16 @@
 # Started from Zle or from command line
 
--zui_stdlib_cleanup deserialize:"zui-demo-history"
--zui_stdlib_init app:"zui-demo-history" app_name:"ZUI History"
+-zui_std_cleanup deserialize:"zui-demo-history"
+-zui_std_init app:"zui-demo-history" app_name:"ZUI History"
 
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
--zui_stdlib_init2 # after emulate -LR
+-zui_std_init2 # after emulate -LR
 
--zui_stdlib_store_default_app_config b:border 1
--zui_stdlib_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
--zui_stdlib_store_default_app_config s:text_mode "off"      # Select whole lines
--zui_stdlib_store_default_app_config b:text_select 1        # Allow selection of text
+-zui_std_store_default_app_config b:border 1
+-zui_std_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
+-zui_std_store_default_app_config s:text_mode "off"      # Select whole lines
+-zui_std_store_default_app_config b:text_select 1        # Allow selection of text
 
 # Generator for module 1
 demo_mod1_generator() {
@@ -29,7 +29,7 @@ zui-event-loop 1:demo_mod1_generator a:u-history 1:demo_mod1_generator
 
 print -zr -- "$REPLY"
 
--zui_stdlib_cleanup serialize
+-zui_std_cleanup serialize
 
 return 0
 

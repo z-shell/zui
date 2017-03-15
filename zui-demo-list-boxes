@@ -1,15 +1,15 @@
 # Started from Zle or from command line
 
--zui_stdlib_cleanup deserialize:"zui-demo-list-boxes"
--zui_stdlib_init app:"zui-demo-list-boxes" app_name:"ZUI List-Boxes"
+-zui_std_cleanup deserialize:"zui-demo-list-boxes"
+-zui_std_init app:"zui-demo-list-boxes" app_name:"ZUI List-Boxes"
 
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
--zui_stdlib_init2 # after emulate -LR
+-zui_std_init2 # after emulate -LR
 
--zui_stdlib_store_default_app_config b:border 1
--zui_stdlib_store_default_app_config s:status_size 3
--zui_stdlib_store_default_app_config b:status_border 1
+-zui_std_store_default_app_config b:border 1
+-zui_std_store_default_app_config s:status_size 3
+-zui_std_store_default_app_config b:status_border 1
 
 # Extra line of text, loaded from list box
 local xtra
@@ -24,7 +24,7 @@ demo_mod1_generator() {
     (( ${+ZUI[my_lbox1_opts]} == 0 )) && ZUI[my_lbox1_opts]="Option 1;Option 2;Option 3"
 
     reply=()
-    noglob -zui_stdlib_list_box "lbox1_$mod" ZUI[my_lbox1_width] ZUI[my_lbox1_idx] ZUI[my_lbox1_opts] "" "" "" 'xtra="Received: ${ZUI[CYAN]}${${(s:;:)ZUI[my_lbox1_opts]}[${ZUI[my_lbox1_idx]}]}${ZUI[COLOR_END]}"; -zui_stdlib_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
+    noglob -zui_std_list_box "lbox1_$mod" ZUI[my_lbox1_width] ZUI[my_lbox1_idx] ZUI[my_lbox1_opts] "" "" "" 'xtra="Received: ${ZUI[CYAN]}${${(s:;:)ZUI[my_lbox1_opts]}[${ZUI[my_lbox1_idx]}]}${ZUI[COLOR_END]}"; -zui_std_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
 
     # Content
     reply=( "${ZUI[YELLOW]}ZUI${ZUI[COLOR_END]} list-box example: <${reply[1]}>" $xtra )
@@ -36,7 +36,7 @@ demo_mod1_generator() {
 ## Start application ##
 zui-event-loop 1:demo_mod1_generator
 
--zui_stdlib_cleanup serialize
+-zui_std_cleanup serialize
 
 return 0
 

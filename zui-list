@@ -205,7 +205,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
             if [[ "$i" -eq "$active_segment" ]]; then
                 ZUI_PB_WORDS[i]=${ZUI_PB_WORDS[i]//$'\n'/\\n}
                 # Mark segment if marking always or non-hyperlink lines, or if the line contains any hyperlinks
-                if [[ "${ZUI[text_mode]}" = (all|nohyp) ]] || -zui_stdlib_has_any_hyperlinks "$element"; then
+                if [[ "${ZUI[text_mode]}" = (all|nohyp) ]] || -zui_std_has_any_hyperlinks "$element"; then
                     # No background color?
                     if [[ "${ZUI_PB_WORDS[i]}" != *[$'\020'-$'\030']* && -z "${ZUI[current_tfield]}" ]]; then
                         -zui_list_replace_color_marks_with "${ZUI_PB_WORDS[i]}" "${ZUI[MARK]}"
@@ -393,29 +393,29 @@ colormap=(
 #
 
 local backuptheme stbackuptheme
--zui_stdlib_load_config s:colorpair "white/black" 2 'ZUI[colorpair]'
--zui_stdlib_load_config b:border 0 2 'ZUI[border]'
--zui_stdlib_load_config s:border_cp "yellow/black" 2 'ZUI[border_cp]'
--zui_stdlib_load_config b:bold 0 2 'ZUI[bold]'
+-zui_std_load_config s:colorpair "white/black" 2 'ZUI[colorpair]'
+-zui_std_load_config b:border 0 2 'ZUI[border]'
+-zui_std_load_config s:border_cp "yellow/black" 2 'ZUI[border_cp]'
+-zui_std_load_config b:bold 0 2 'ZUI[bold]'
 
--zui_stdlib_load_config s:status_colorpair "white/black" 2 'ZUI[status_colorpair]'
--zui_stdlib_load_config b:status_border 0 2 'ZUI[status_border]'
--zui_stdlib_load_config s:status_border_cp "green/black" 2 'ZUI[status_border_cp]'
--zui_stdlib_load_config b:status_bold 0 2 'ZUI[status_bold]'
+-zui_std_load_config s:status_colorpair "white/black" 2 'ZUI[status_colorpair]'
+-zui_std_load_config b:status_border 0 2 'ZUI[status_border]'
+-zui_std_load_config s:status_border_cp "green/black" 2 'ZUI[status_border_cp]'
+-zui_std_load_config b:status_bold 0 2 'ZUI[status_bold]'
 
--zui_stdlib_load_config s:mark "red reverse lineund" 2 'ZUI[mark]'
--zui_stdlib_load_config s:altmark "red reverse" 2 'ZUI[altmark]'
--zui_stdlib_load_config s:mark2 "yellow reverse lineund" 2 'ZUI[mark2]'
--zui_stdlib_load_config s:altmark2 "yellow reverse" 2 'ZUI[altmark2]'
--zui_stdlib_load_config s:select_mode "no-restart" 2 'ZUI[select_mode]'
--zui_stdlib_load_config s:text_mode "all" 2 'ZUI[text_mode]'
--zui_stdlib_load_config b:text_select 1 2 'ZUI[text_select]'
--zui_stdlib_load_config b:status_pointer 1 2 'ZUI[status_pointer]'
--zui_stdlib_load_config s:log_append "above" 2 'ZUI[log_append]'
--zui_stdlib_load_config b:log_index 1 2 'ZUI[log_index]'
--zui_stdlib_load_config s:log_size "32" 2 'ZUI[log_size]'
--zui_stdlib_load_config s:log_time_format "[%H:%M] " 2 'ZUI[log_time_format]'
--zui_stdlib_load_config s:log_colors "white cyan yellow green cyan red magenta yellow blue" 2 'ZUI[log_colors]'
+-zui_std_load_config s:mark "red reverse lineund" 2 'ZUI[mark]'
+-zui_std_load_config s:altmark "red reverse" 2 'ZUI[altmark]'
+-zui_std_load_config s:mark2 "yellow reverse lineund" 2 'ZUI[mark2]'
+-zui_std_load_config s:altmark2 "yellow reverse" 2 'ZUI[altmark2]'
+-zui_std_load_config s:select_mode "no-restart" 2 'ZUI[select_mode]'
+-zui_std_load_config s:text_mode "all" 2 'ZUI[text_mode]'
+-zui_std_load_config b:text_select 1 2 'ZUI[text_select]'
+-zui_std_load_config b:status_pointer 1 2 'ZUI[status_pointer]'
+-zui_std_load_config s:log_append "above" 2 'ZUI[log_append]'
+-zui_std_load_config b:log_index 1 2 'ZUI[log_index]'
+-zui_std_load_config s:log_size "32" 2 'ZUI[log_size]'
+-zui_std_load_config s:log_time_format "[%H:%M] " 2 'ZUI[log_time_format]'
+-zui_std_load_config s:log_colors "white cyan yellow green cyan red magenta yellow blue" 2 'ZUI[log_colors]'
 local -a log_colors
 log_colors=( "${=ZUI[log_colors]}" )
 
@@ -694,7 +694,7 @@ while (( 1 )); do
         local selectable=1 tpe=-1 status_msg_strlen=0
         [[ -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)${ZUI[CURRENT_IDX]}]}" ]] && selectable=0
         (( ${ZUI[UNIQ_MODE]} + ${${ZUI[SEARCH_BUFFER]:+1}:-0} )) && selectable=1
-        if (( selectable == 0 )) || ! -zui_stdlib_decode "${segments[${ZUI[CURRENT_SEGMENT]}]}"; then
+        if (( selectable == 0 )) || ! -zui_std_decode "${segments[${ZUI[CURRENT_SEGMENT]}]}"; then
             reply=( "$selectable" "${ZUI[UNIQ_MODE]}" "${${ZUI[SEARCH_BUFFER]:+1}:-0}" "${__list[${ZUI[CURRENT_IDX]}]}" "${segments[${ZUI[CURRENT_SEGMENT]}]}" )
             REPLY="0"
         fi
@@ -706,7 +706,7 @@ while (( 1 )); do
         ZUI[pure_text_selected]=""
         ZUI[line_selected]=""
 
-        (( tpe > 0 )) && -zui_syslib_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
+        (( tpe > 0 )) && -zui_sys_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
 
         if [[ "${ZUI[SEARCH_MODE]}" = "0" ]]; then
             -zui-log "$wname_status" "$status_height" "$status_width" "${ZUI[status_border]}" "${ZUI[status_colorpair]}" \
@@ -751,7 +751,7 @@ while (( 1 )); do
     elif [[ -n "$keypad" ]]; then
         final_key="$keypad"
     elif [[ -n "$wname_status" ]]; then
-        -zui_syslib_add_message 1 "${EPOCHSECONDS:-0}" "" "" "Warning: " "Improper input detected"
+        -zui_sys_add_message 1 "${EPOCHSECONDS:-0}" "" "" "Warning: " "Improper input detected"
     fi
 
     integer track_cur_idx="${ZUI[CURRENT_IDX]}"
@@ -803,7 +803,7 @@ while (( 1 )); do
         # Is it a hyperlink selection? If not, then examine select_mode
         # to know if the text selection (ZUI[text_select] is examined in
         # zui-list-input) should be passed outside the list
-        if -zui_stdlib_is_any_hyperlink "$tmp" || [[ "${ZUI[select_mode]}" = (restart|quit) ]]; then
+        if -zui_std_is_any_hyperlink "$tmp" || [[ "${ZUI[select_mode]}" = (restart|quit) ]]; then
             REPLY="$selection"
             reply=( "${__list[@]}" )
             break
@@ -812,7 +812,7 @@ while (( 1 )); do
         # ZUI[select_mode] == no-restart
         # No passing outside, will invoke callback, but need to
         # know if on whole line, or on single text-bit segment
-        if [[ "${ZUI[text_mode]}" = "off" ]] || [[ "${ZUI[text_mode]}" = "hyp" ]] && ! -zui_stdlib_has_any_hyperlinks "${__list[selection]}"; then
+        if [[ "${ZUI[text_mode]}" = "off" ]] || [[ "${ZUI[text_mode]}" = "hyp" ]] && ! -zui_std_has_any_hyperlinks "${__list[selection]}"; then
             # Text-bit navigation is disabled - this must be whole line selection
             # ... is enabled for with-hyperlinks lines, but line is without hyperlinks - ...
             (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "line" "${__list[selection]}"
@@ -842,7 +842,7 @@ while (( 1 )); do
         -zui_list_handle_resize 1
     elif [[ "$action" = "HYPERLINK" ]]; then
         -zui_util_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
-        -zui_stdlib_decode "$REPLY"
+        -zui_std_decode "$REPLY"
         local id="${reply[1]}"
         ZUI[pressed_now]="$id"
         integer call_hook=0
@@ -868,7 +868,7 @@ while (( 1 )); do
         fi
     elif [[ "$action" = TFIELD* ]]; then
         -zui_util_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
-        -zui_stdlib_decode "$REPLY" && local id="${reply[1]}" || local id="-"
+        -zui_std_decode "$REPLY" && local id="${reply[1]}" || local id="-"
         if [[ "$action" = TFIELD_LEFT && -n "${ZUI[$id]}" ]]; then
             ZUILIST_REGENERATE_LIST="2" # regenerate only display list
             reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
@@ -880,7 +880,7 @@ while (( 1 )); do
         fi
     elif [[ "$action" = LBOX* ]]; then
         -zui_util_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
-        -zui_stdlib_decode "$REPLY" && local id="${reply[1]}" || local id="-"
+        -zui_std_decode "$REPLY" && local id="${reply[1]}" || local id="-"
         if [[ "$action" = LBOX_LEFT && -n "${ZUI[$id]}" ]]; then
             ZUILIST_REGENERATE_LIST="2" # regenerate only display list
             reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
@@ -895,7 +895,7 @@ while (( 1 )); do
 
     # Now check if there are any update-on-the-fly packages submitted
     local -a update
-    -zui_syslib_decode_list_update "${ZUI[fly_update]}" update
+    -zui_sys_decode_list_update "${ZUI[fly_update]}" update
     ZUI[fly_update]=""
 
     if [[ "${update[3]}" -ge 1 ]]; then
@@ -985,8 +985,8 @@ while (( 1 )); do
         # Now add new hops and nonselectables
         # first translating to global indices
         local -a nonselectables hops
-        -zui_syslib_decode_nonselectables "${ZUI[fly_nonselectables]}" nonselectables
-        -zui_syslib_decode_hops "${ZUI[fly_hops]}" hops
+        -zui_sys_decode_nonselectables "${ZUI[fly_nonselectables]}" nonselectables
+        -zui_sys_decode_hops "${ZUI[fly_hops]}" hops
         ZUI[fly_nonselectables]=""
         ZUI[fly_hops]=""
 
@@ -1013,7 +1013,7 @@ while (( 1 )); do
         # pushed down (up), local ones (not yet
         # processed, new) are only globalized
         local -a lanchors
-        -zui_syslib_decode_lanchors "${ZUI[fly_lanchors]}" lanchors
+        -zui_sys_decode_lanchors "${ZUI[fly_lanchors]}" lanchors
         for el in ${ZUI[(I)zuianchor*]} ${ZUI[(I)zuieanchor*]}; do
             if [[ "${lanchors[(r)${el#zuianchor}]}" = ${el#zuianchor} ]]; then
                 ZUI[$el]=$(( ${ZUI[$el]%[-+]*} + update_first - 1 ))"${ZUI[$el]##[0-9]##}"

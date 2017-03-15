@@ -139,16 +139,16 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
                 local -a mod${zel_mod}_ice${zel_ice}_lanchors prev_mod${zel_mod}_ice${zel_ice}_nonselectables prev_mod${zel_mod}_ice${zel_ice}_hops
                 integer mod${zel_mod}_ice${zel_ice}_size prev_mod${zel_mod}_ice${zel_ice}_size
 
-                -zui_stdlib_reset_replies
+                -zui_std_reset_replies
                 "$zuiel_val2" "$zel_mod" "$zel_ice" $REGENERATE_ARG
 
                 # This function has to be called after each *_generator
                 # function call, to copy reply{,2..5} into above (after
                 # "# Module $zel_mod ..." line) variables
-                -zui_stdlib_map_replies "$zel_mod" "$zel_ice"
+                -zui_std_map_replies "$zel_mod" "$zel_ice"
 
                 # Save any newly created local anchors
-                -zui_syslib_gather_lanchors "$zel_mod" "$zel_ice" zuiel_regen_lanchors
+                -zui_sys_gather_lanchors "$zel_mod" "$zel_ice" zuiel_regen_lanchors
             fi
         done
     fi
@@ -277,7 +277,7 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
 
             # Create top anchors
             reply=( )
-            [[ -n "${zuiel_hops[1]}" ]] && -zui_stdlib_anchor "aglobal_m${zel_mod}_i${zel_ice}" "${zuiel_hops[1]}" "$zel_mod" "$zel_ice" "" "[${ZUI[CYAN]}Module${zel_mod}/${zel_ice}${ZUI[COLOR_END]}]" '(( ${+functions[-zui-standard-global-anchors-callback]} )) && { -zui-standard-global-anchors-callback  "'"aglobal_m${zel_mod}_i${zel_ice}"'" "'"${zuiel_hops[1]}"'" "'"$zel_mod"'" "'"$zel_ice"'"; internal=1; }'
+            [[ -n "${zuiel_hops[1]}" ]] && -zui_std_anchor "aglobal_m${zel_mod}_i${zel_ice}" "${zuiel_hops[1]}" "$zel_mod" "$zel_ice" "" "[${ZUI[CYAN]}Module${zel_mod}/${zel_ice}${ZUI[COLOR_END]}]" '(( ${+functions[-zui-standard-global-anchors-callback]} )) && { -zui-standard-global-anchors-callback  "'"aglobal_m${zel_mod}_i${zel_ice}"'" "'"${zuiel_hops[1]}"'" "'"$zel_mod"'" "'"$zel_ice"'"; internal=1; }'
             zuiel_top_anchors+=( "${reply[@]}" )
 
             # Store where in the list module is
@@ -339,17 +339,17 @@ ZUI[GENERATION_TIME]="${generation_time[1,4]}"
 
 # We alter the settings on-the-fly, so
 # prevent zui-list from loading them
--zui_stdlib_refresh_configs "${(@s:,:)ZUI[configs_to_refresh]}"
+-zui_std_refresh_configs "${(@s:,:)ZUI[configs_to_refresh]}"
 
 ZUILIST_HOP_INDICES+=( 1 ) # jump to anchors
 local ZUILIST_WRAPPER_BIT="" ZUILIST_WRAPPER_LINE="" zuiel_bit_set=0 zuiel_line_set=0
 zui-usetty-wrapper zui-list-wrapper "${zuiel_top_anchors[*]}" "${ZUIEL_OUTPUT[@]}"
 
-if [[ "${ZUI[text_mode]}" = (all|nohyp) ]] || -zui_stdlib_has_any_hyperlinks "$ZUILIST_WRAPPER_LINE"; then
+if [[ "${ZUI[text_mode]}" = (all|nohyp) ]] || -zui_std_has_any_hyperlinks "$ZUILIST_WRAPPER_LINE"; then
     ZUI[pure_text_selected]="$ZUILIST_WRAPPER_BIT"
     (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "segment" "$ZUILIST_WRAPPER_BIT"
     # No selection -> quit
-    if [[ -z "$ZUILIST_WRAPPER_BIT" || "${ZUI[select_mode]}" = "quit" ]] && ! -zui_stdlib_is_any_hyperlink "$ZUILIST_WRAPPER_BIT"; then
+    if [[ -z "$ZUILIST_WRAPPER_BIT" || "${ZUI[select_mode]}" = "quit" ]] && ! -zui_std_is_any_hyperlink "$ZUILIST_WRAPPER_BIT"; then
         REPLY="$ZUILIST_WRAPPER_BIT"
         zle && { zle .redisplay; zle .reset-prompt; }
         return 0
@@ -368,7 +368,7 @@ fi
 
 if (( zuiel_bit_set )); then
     # ID, data1, data2, data3, data4
-    if -zui_stdlib_decode_hyperlink "$ZUILIST_WRAPPER_BIT"; then
+    if -zui_std_decode_hyperlink "$ZUILIST_WRAPPER_BIT"; then
         local id="${reply[1]}" data1="${reply[2]}" data2="${reply[3]}" data3="${reply[4]}" data4="${reply[5]}"
 
         ZUI[pressed_now]="$id"

@@ -1,15 +1,15 @@
 # Started from Zle or from command line
 
--zui_stdlib_cleanup deserialize:"zui-demo-fly"
--zui_stdlib_init app:"zui-demo-fly" app_name:"ZUI On-The-Fly Regeneration"
+-zui_std_cleanup deserialize:"zui-demo-fly"
+-zui_std_init app:"zui-demo-fly" app_name:"ZUI On-The-Fly Regeneration"
 
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
--zui_stdlib_init2 # after emulate -LR
+-zui_std_init2 # after emulate -LR
 
--zui_stdlib_store_default_app_config b:border 1
--zui_stdlib_store_default_app_config b:status_border 1
--zui_stdlib_store_default_app_config s:text_mode off
+-zui_std_store_default_app_config b:border 1
+-zui_std_store_default_app_config b:status_border 1
+-zui_std_store_default_app_config s:text_mode off
 
 # Trick variable to make handler no-restart
 local internal
@@ -19,8 +19,8 @@ demo_mod1_generator() {
     local mod="$1" ice="$2"
 
     reply=()
-    -zui_stdlib_rc_button "restart" "" "" ",mod1_ice1," "" "${ZUI[MAGENTA]}restart${ZUI[COLOR_END]}"
-    -zui_stdlib_rc_button "on-the-fly" "" "" "" "" "${ZUI[MAGENTA]}on-the-fly${ZUI[COLOR_END]}" 'internal=1; -zui_stdlib_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
+    -zui_std_rc_button "restart" "" "" ",mod1_ice1," "" "${ZUI[MAGENTA]}restart${ZUI[COLOR_END]}"
+    -zui_std_rc_button "on-the-fly" "" "" "" "" "${ZUI[MAGENTA]}on-the-fly${ZUI[COLOR_END]}" 'internal=1; -zui_std_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
 
     # Content
     reply=( "${ZUI[YELLOW]}ZUI${ZUI[COLOR_END]} can regenerate module instance with ${reply[1]} or ${reply[2]}!" "Random number: $RANDOM" )
@@ -45,7 +45,7 @@ demo_mod1_generator() {
 ## Start application ##
 zui-event-loop 1:demo_mod1_generator
 
--zui_stdlib_cleanup serialize
+-zui_std_cleanup serialize
 
 return 0
 

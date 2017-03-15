@@ -57,23 +57,23 @@ zmodload zsh/datetime && ZUI[datetime_available]="1" || ZUI[datetime_available]=
 # Cleanup and init stubs, to be first stdlib
 # functions called, sourcing the libraries
 
-(( 0 == ${+functions[-zui_stdlib_cleanup]} )) && {
-    function -zui_stdlib_cleanup() {
-        unfunction -- -zui_stdlib_cleanup
+(( 0 == ${+functions[-zui_std_cleanup]} )) && {
+    function -zui_std_cleanup() {
+        unfunction -- -zui_std_cleanup
         [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
         [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/syslib.lzui"
         [[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/utillib.lzui"
-        -zui_stdlib_cleanup "$@"
+        -zui_std_cleanup "$@"
     }
 }
 
-(( 0 == ${+functions[-zui_stdlib_init]} )) && {
-    function -zui_stdlib_init() {
-        unfunction -- -zui_stdlib_init
+(( 0 == ${+functions[-zui_std_init]} )) && {
+    function -zui_std_init() {
+        unfunction -- -zui_std_init
         [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
         [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/syslib.lzui"
         [[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/utillib.lzui"
-        -zui_stdlib_init "$@"
+        -zui_std_init "$@"
     }
 }
 

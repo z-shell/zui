@@ -64,13 +64,13 @@ setopt typesetsilent extendedglob
     integer left=current_segment right=current_segment
 
     # Left
-    while ! -zui_stdlib_is_hyperlink "${segments[left]}" && ! -zui_stdlib_is_text_field "${segments[left]}" && ! -zui_stdlib_is_list_box "${segments[left]}"; do
+    while ! -zui_std_is_hyperlink "${segments[left]}" && ! -zui_std_is_text_field "${segments[left]}" && ! -zui_std_is_list_box "${segments[left]}"; do
         (( -- left ))
         [[ "$left" -le 0 ]] && break
     done
 
     # Right
-    while ! -zui_stdlib_is_hyperlink "${segments[right]}" && ! -zui_stdlib_is_text_field "${segments[right]}" && ! -zui_stdlib_is_list_box "${segments[right]}"; do
+    while ! -zui_std_is_hyperlink "${segments[right]}" && ! -zui_std_is_text_field "${segments[right]}" && ! -zui_std_is_list_box "${segments[right]}"; do
         (( ++ right ))
         [[ "$right" -gt "$nseg" ]] && break
     done
@@ -104,7 +104,7 @@ setopt typesetsilent extendedglob
 
     # Left
     [[ "$1" = "0" ]] && {
-        while ! -zui_stdlib_is_hyperlink "${segments[left]}" && ! -zui_stdlib_is_text_field "${segments[left]}" && ! -zui_stdlib_is_list_box "${segments[left]}" || (( left == current_segment )); do
+        while ! -zui_std_is_hyperlink "${segments[left]}" && ! -zui_std_is_text_field "${segments[left]}" && ! -zui_std_is_list_box "${segments[left]}" || (( left == current_segment )); do
             (( -- left ))
             [[ "$left" -le 0 ]] && break
         done
@@ -115,7 +115,7 @@ setopt typesetsilent extendedglob
         fi
     } || {
         # Right
-        while ! -zui_stdlib_is_hyperlink "${segments[right]}" && ! -zui_stdlib_is_text_field "${segments[right]}" && ! -zui_stdlib_is_list_box "${segments[right]}" || (( right == current_segment )); do
+        while ! -zui_std_is_hyperlink "${segments[right]}" && ! -zui_std_is_text_field "${segments[right]}" && ! -zui_std_is_list_box "${segments[right]}" || (( right == current_segment )); do
             (( ++ right ))
             [[ "$right" -gt "$nseg" ]] && break
         done
@@ -159,7 +159,7 @@ integer search_for_hyperlink=0
 
 if [[ -n "${ZUI[current_tfield]}" ]]; then
     -zui_util_get_segment "${(P)list_var_current}" "$current_segment"
-    if -zui_stdlib_decode_text_field "$REPLY" wrk_reply; then
+    if -zui_std_decode_text_field "$REPLY" wrk_reply; then
         case "$key" in
             ($'\n')
                 ZUI[current_tfield]=""
@@ -258,7 +258,7 @@ if [[ -n "${ZUI[current_tfield]}" ]]; then
                 ;;
         esac
 
-        -zui_syslib_get_tfield_cursor_boundaries 'ZUI[current_tfield_cidx_start]' 'ZUI[current_tfield_cidx_end]' "${(P)list_var_current}" "${wrk_reply[1]}"
+        -zui_sys_get_tfield_cursor_boundaries 'ZUI[current_tfield_cidx_start]' 'ZUI[current_tfield_cidx_end]' "${(P)list_var_current}" "${wrk_reply[1]}"
         (( ZUI[cursor_x] = ZUI[cursor_x] > ZUI[current_tfield_cidx_end] ? ZUI[current_tfield_cidx_end] : ZUI[cursor_x] ))
         ZUI[current_tfield_instr_idx]=$(( ${(P)wrk_reply[4]} + ZUI[cursor_x] - ZUI[current_tfield_cidx_start] - 1 ))
     else
@@ -336,7 +336,7 @@ case "$key" in
 
             local -a data
             reply=( )
-            if -zui_stdlib_decode_hyperlink "$REPLY"; then
+            if -zui_std_decode_hyperlink "$REPLY"; then
                 if [[ "${reply[1]}" = zuianchor* || "${reply[1]}" = zuiiaction* ]]; then
                     # This is to run internal action,
                     # i.e. action without leaving list
@@ -346,18 +346,18 @@ case "$key" in
                     # quitting list and restarting it
                     reply=( $current_idx SELECT )
                 fi
-            elif -zui_stdlib_decode_text_field "$REPLY"; then
+            elif -zui_std_decode_text_field "$REPLY"; then
                 ZUI[current_tfield]="${reply[1]}"
                 ZUI[current_tfield_initial_sidx]="${(P)reply[4]}"
                 ZUI[current_tfield_initial_data]="${(P)reply[5]}"
-                -zui_syslib_get_tfield_cursor_boundaries 'ZUI[current_tfield_cidx_start]' 'ZUI[current_tfield_cidx_end]' "${(P)list_var_current}" "${reply[1]}"
+                -zui_sys_get_tfield_cursor_boundaries 'ZUI[current_tfield_cidx_start]' 'ZUI[current_tfield_cidx_end]' "${(P)list_var_current}" "${reply[1]}"
                 ZUI[cursor_y]=$(( current_idx - from_what_idx_list_is_shown + 1 ))
                 ZUI[cursor_x]=$(( ZUI[current_tfield_cidx_end] ))
                 ZUI[current_tfield_instr_idx]=$(( ${(P)reply[4]} + ZUI[cursor_x] - ZUI[current_tfield_cidx_start] - 1 ))
                 reply=( $current_idx HYPERLINK )
-            elif -zui_stdlib_decode_list_box "$REPLY"; then
+            elif -zui_std_decode_list_box "$REPLY"; then
                 local min_x max_x y_pos
-                -zui_syslib_get_tfield_cursor_boundaries min_x max_x "${(P)list_var_current}" "${reply[1]}"
+                -zui_sys_get_tfield_cursor_boundaries min_x max_x "${(P)list_var_current}" "${reply[1]}"
                 y_pos=$(( current_idx - from_what_idx_list_is_shown + 1 ))
                 -zui-list-box-loop "$page_height" "$page_width" "$y_pos" $(( min_x + 2 )) "${reply[@]}" && { reply=( $current_idx LBOX_LEFT ); } || { reply=( -1 '' ); }
             else
@@ -454,7 +454,7 @@ case "$key" in
                 if [[ "${ZUI[text_mode]}" = "off" ]]; then
                     # Search left accepting lack of success
                     -zui_listin_set_next_hyperlink 0
-                elif -zui_stdlib_has_any_hyperlinks "${(P)list_var_current}"; then
+                elif -zui_std_has_any_hyperlinks "${(P)list_var_current}"; then
                     if [[ "${ZUI[text_mode]}" = (hyp|all) ]]; then
                         (( -- current_segment ))
                     else
@@ -502,7 +502,7 @@ case "$key" in
                 if [[ "${ZUI[text_mode]}" = "off" ]]; then
                     # Search right accepting lack of success
                     -zui_listin_set_next_hyperlink 1
-                elif -zui_stdlib_has_any_hyperlinks "${(P)list_var_current}"; then
+                elif -zui_std_has_any_hyperlinks "${(P)list_var_current}"; then
                     if [[ "${ZUI[text_mode]}" = (hyp|all) ]]; then
                         (( ++ current_segment ))
                     else
@@ -641,7 +641,7 @@ case "$key" in
                 if [[ "${ZUI[text_mode]}" = "off" ]]; then
                     # Search left accepting lack of success
                     -zui_listin_set_next_hyperlink 0
-                elif -zui_stdlib_has_any_hyperlinks "${(P)list_var_current}"; then
+                elif -zui_std_has_any_hyperlinks "${(P)list_var_current}"; then
                     if [[ "${ZUI[text_mode]}" = (hyp|all) ]]; then
                         (( -- current_segment ))
                     else
@@ -688,7 +688,7 @@ case "$key" in
                 if [[ "${ZUI[text_mode]}" = "off" ]]; then
                     # Search right accepting lack of success
                     -zui_listin_set_next_hyperlink 1
-                elif -zui_stdlib_has_any_hyperlinks "${(P)list_var_current}"; then
+                elif -zui_std_has_any_hyperlinks "${(P)list_var_current}"; then
                     if [[ "${ZUI[text_mode]}" = (hyp|all) ]]; then
                         (( ++ current_segment ))
                     else
@@ -745,7 +745,7 @@ esac
 fi
 
 # Make current_segment point to hyperlink, if it exists in line
-if -zui_stdlib_has_any_hyperlinks "${(P)list_var_current}"; then
+if -zui_std_has_any_hyperlinks "${(P)list_var_current}"; then
     [[ "${ZUI[text_mode]}" = (hyp|all) && "$search_for_hyperlink" = "0" ]] || -zui_listin_search_for_hyperlink
 else
     [[ "${ZUI[text_mode]}" = (nohyp|all) && "$search_for_hyperlink" = "0" ]] || -zui_listin_search_for_hyperlink

@@ -2,28 +2,28 @@
 #
 # A demo showing how to add module instances to already generated document
 
--zui_stdlib_cleanup deserialize:"zui-demo-append"
--zui_stdlib_init app:"zui-demo-append" app_name:"ZUI On-The-Fly Append"
+-zui_std_cleanup deserialize:"zui-demo-append"
+-zui_std_init app:"zui-demo-append" app_name:"ZUI On-The-Fly Append"
 
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
--zui_stdlib_init2 # after emulate -LR
+-zui_std_init2 # after emulate -LR
 
--zui_stdlib_store_default_app_config b:border 1
--zui_stdlib_store_default_app_config b:status_border 1
--zui_stdlib_store_default_app_config s:text_mode off
+-zui_std_store_default_app_config b:border 1
+-zui_std_store_default_app_config b:status_border 1
+-zui_std_store_default_app_config s:text_mode off
 
 # Generator for module 1
 demo_mod1_generator() {
     local mod="$1" ice="$2"
 
     # Anchor only in last instance
-    -zui_stdlib_get_mod_factor "$mod"
+    -zui_std_get_mod_factor "$mod"
     if [[ "$ice" = "$REPLY" ]]; then
         # 1+2 - from 1st line of this module, jump 2 beyond this module
         # Regenerate $mod/$ice, and $mod/$ice+1, first running handler
         local -a output
-        -zui_stdlib_anchor "append_next" "1+2" "" ",mod${mod}_ice${ice},mod${mod}_ice$(( ice + 1 ))," "" "${ZUI[MAGENTA]}Append next!${ZUI[COLOR_END]}" "-zui_stdlib_set_mod_factor $mod $(( REPLY + 1 ))" output
+        -zui_std_anchor "append_next" "1+2" "" ",mod${mod}_ice${ice},mod${mod}_ice$(( ice + 1 ))," "" "${ZUI[MAGENTA]}Append next!${ZUI[COLOR_END]}" "-zui_std_set_mod_factor $mod $(( REPLY + 1 ))" output
     fi
 
     # Content
@@ -36,7 +36,7 @@ demo_mod1_generator() {
 ## Start application ##
 zui-event-loop 2:demo_mod1_generator
 
--zui_stdlib_cleanup serialize
+-zui_std_cleanup serialize
 
 return 0
 
