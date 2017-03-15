@@ -60,14 +60,14 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     if [[ "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" -lt "1" ||
         "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" -gt "$last_element" ]]
     then
-        ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]=$(( ((ZUI[CURRENT_IDX]-1)/page_height)*page_height+1 ))
+        ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]=$(( ((ZUI[CURRENT_IDX]-1)/__page_height)*__page_height+1 ))
     fi
 }
 
 # Compute first to show index - page is
 # scrolled to center to show given index
 -zui_list_compute_first_to_show_idx_center() {
-    (( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]=ZUI[CURRENT_IDX]-page_height/2 ))
+    (( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]=ZUI[CURRENT_IDX]-__page_height/2 ))
     -zui_list_compute_exact_page_if_needed
 }
 
@@ -99,9 +99,9 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
     # Verify that element is just visible, if not then compute exact page
     if [[ "${ZUI[CURRENT_IDX]}" -lt "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" ||
-        "${ZUI[CURRENT_IDX]}" -gt "$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + page_height - 1 ))" ]]
+        "${ZUI[CURRENT_IDX]}" -gt "$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + __page_height - 1 ))" ]]
     then
-        (( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] = ((ZUI[CURRENT_IDX]-1)/page_height) * page_height + 1 ))
+        (( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] = ((ZUI[CURRENT_IDX]-1)/__page_height) * __page_height + 1 ))
     fi
 }
 
@@ -295,8 +295,8 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
 -zui_list_handle_resize() {
     if -zui_wrapper_recreate_windows "$1" main_height main_width status_height status_width; then
-        page_height=main_height-2
-        page_width=main_width-2
+        __page_height=main_height-2
+        __page_width=main_width-2
         -zui_list_recompute_bg
         [[ -n "$wname_status" ]] && zcurses clear "$wname_status"
         ZUI[REGENERATE_LIST]=2
@@ -323,8 +323,8 @@ integer main_width="$3"
 local wname_status="$4"
 integer status_height="$5"
 integer status_width="$6"
-integer page_height=main_height-2
-integer page_width=main_width-2
+integer __page_height=main_height-2
+integer __page_width=main_width-2
 local header="$7"
 
 shift 7
@@ -543,7 +543,7 @@ while (( 1 )); do
         segments=( "${(z@)__list[${ZUI[CURRENT_IDX]}]}" )
         nseg="$#segments"
 
-        integer end_idx=$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + page_height - 1 ))
+        integer end_idx=$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + __page_height - 1 ))
         [[ "$end_idx" -gt "$last_element" ]] && end_idx=last_element
 
         if [[ "${ZUI[REGENERATE_LIST]}" = "2" || "$prev_start_idx" -ne "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" ]]; then
@@ -589,7 +589,7 @@ while (( 1 )); do
 
         # Output colored list
         zui-list-draw "$(( ZUI[CURRENT_IDX] - ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + 1 ))" \
-            "$page_height" "$page_width" 1 2 "${ZUI[TEXT_OFFSET]}" "$wname_main" "$active_text" \
+            "$__page_height" "$__page_width" 1 2 "${ZUI[TEXT_OFFSET]}" "$wname_main" "$active_text" \
             "$disp_list2[@]"
     else
         # There is no search, but there was in previous loop
@@ -628,7 +628,7 @@ while (( 1 )); do
         segments=( "${(z@)__list[${ZUI[CURRENT_IDX]}]}" )
         nseg="$#segments"
 
-        integer end_idx=$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + page_height - 1 ))
+        integer end_idx=$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + __page_height - 1 ))
         [[ "$end_idx" -gt "$last_element" ]] && end_idx=last_element
 
         if [[ "${ZUI[REGENERATE_LIST]}" = "2" || "$prev_start_idx" -ne "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"  ]]; then
@@ -660,7 +660,7 @@ while (( 1 )); do
 
         # Output the list
         zui-list-draw "$(( ZUI[CURRENT_IDX] - ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + 1 ))" \
-            "$page_height" "$page_width" 1 2 "${ZUI[TEXT_OFFSET]}" "$wname_main" "$active_text" \
+            "$__page_height" "$__page_width" 1 2 "${ZUI[TEXT_OFFSET]}" "$wname_main" "$active_text" \
             "$disp_list2[@]"
     fi
 
@@ -751,7 +751,7 @@ while (( 1 )); do
 
     integer track_cur_idx="${ZUI[CURRENT_IDX]}"
     zui-list-input "${ZUI[CURRENT_IDX]}" "${ZUI[CURRENT_SEGMENT]}" "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" \
-                    "$page_height" "$page_width" "$last_element" "$nseg" "${ZUI[TEXT_OFFSET]}" \
+                    "$__page_height" "$__page_width" "$last_element" "$nseg" "${ZUI[TEXT_OFFSET]}" \
                     "$final_key" "${ZUI[SEARCH_MODE]}" "${ZUI[SEARCH_BUFFER]}" \
                     "${ZUI[UNIQ_MODE]}" "$ZUILIST_DISABLE_SEARCH" "__list"
 
