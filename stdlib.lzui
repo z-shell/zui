@@ -993,26 +993,6 @@ function -zui_stdlib_map_replies() {
     : ${(PA)var_name::="${reply4[@]}"}
 }
 
-# Appends module_${1}_lanchors into array
-# given by name
-#
-# $1 - module index
-# $2 - instance index
-# $3 - target array name
-function -zui_stdlib_gather_lanchors() {
-    local __var_name1="mod${1}_ice${2}_lanchors" __var_name2="${3-reply}"
-    if [[ -z "$1" || -z "$2" ]]; then
-        echo "-zui_stdlib_gather_lanchors must obtain module and instance indices"
-        return 1
-    fi
-
-    # Append and store
-    local -a __output
-    __output=( "${(P@)__var_name2}" "${(P@)__var_name1}" )
-
-    : ${(PA)__var_name2::=${__output[@]}}
-}
-
 # Loads variable from configuration if it's older than
 # e.g.  2 seconds. The point is: I expect users to not
 # always manage ZUI hash well: forgot to call *cleanup,

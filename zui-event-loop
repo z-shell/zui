@@ -147,7 +147,7 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
                 -zui_stdlib_map_replies "$zel_mod" "$zel_ice"
 
                 # Save any newly created local anchors
-                -zui_stdlib_gather_lanchors "$zel_mod" "$zel_ice" zuiel_regen_lanchors
+                -zui_syslib_gather_lanchors "$zel_mod" "$zel_ice" zuiel_regen_lanchors
             fi
         done
     fi
