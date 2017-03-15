@@ -278,7 +278,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # or second marks for the recomputation
 -zui_list_recompute_mark() {
     if [[ "$1" = "1" ]]; then
-        -zui_list_compute_mark_codes "${ZUI[mark]}" "${ZUI[altmark]}" MARK_CODES MARK_END_CODES active_text
+        -zui_list_compute_mark_codes "${ZUI[mark]}" "${ZUI[altmark]}" MARK_CODES MARK_END_CODES __actv_text
     else
         -zui_list_compute_mark_codes "${ZUI[mark2]}" "${ZUI[altmark2]}" MARK2_CODES MARK2_END_CODES
     fi
@@ -420,7 +420,7 @@ local -a log_colors
 log_colors=( "${=ZUI[log_colors]}" )
 
 # Process configuration
-local MARK_CODES MARK_END_CODES MARK2_CODES MARK2_END_CODES active_text
+local MARK_CODES MARK_END_CODES MARK2_CODES MARK2_END_CODES __actv_text
 
 -zui_list_recompute_mark 1
 -zui_list_recompute_mark 2
@@ -589,7 +589,7 @@ while (( 1 )); do
 
         # Output colored list
         zui-list-draw "$(( ZUI[CURRENT_IDX] - ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + 1 ))" \
-            "$__page_height" "$__page_width" 1 2 "${ZUI[TEXT_OFFSET]}" "$__wname_main" "$active_text" \
+            "$__page_height" "$__page_width" 1 2 "${ZUI[TEXT_OFFSET]}" "$__wname_main" "$__actv_text" \
             "$__disp_list2[@]"
     else
         # There is no search, but there was in previous loop
@@ -660,7 +660,7 @@ while (( 1 )); do
 
         # Output the list
         zui-list-draw "$(( ZUI[CURRENT_IDX] - ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + 1 ))" \
-            "$__page_height" "$__page_width" 1 2 "${ZUI[TEXT_OFFSET]}" "$__wname_main" "$active_text" \
+            "$__page_height" "$__page_width" 1 2 "${ZUI[TEXT_OFFSET]}" "$__wname_main" "$__actv_text" \
             "$__disp_list2[@]"
     fi
 
