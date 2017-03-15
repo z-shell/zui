@@ -325,7 +325,7 @@ integer __status_height="$5"
 integer __status_width="$6"
 integer __page_height=__main_height-2
 integer __page_width=__main_width-2
-local header="$7"
+local __header="$7"
 
 shift 7
 
@@ -672,7 +672,7 @@ while (( 1 )); do
 
     [[ "${ZUI[border]}" = "1" ]] && zcurses border "$__wname_main"
     zcurses move "$__wname_main" 0 2
-    zcurses string "$__wname_main" "$header"
+    zcurses string "$__wname_main" "$__header"
 
     zcurses attr "$__wname_main" "$wrk_bold" "${ZUI[colorpair]}"
 
