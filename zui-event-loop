@@ -11,6 +11,9 @@ setopt extendedglob typesetsilent warncreateglobal
 
 [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
 
+# Should provide the top anchors?
+-zui_std_load_config b:top_anchors 1 2 'ZUI[top_anchors]'
+
 ##
 ## Parameters
 ##
@@ -174,10 +177,13 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
 
     # Array?
     if [[ "$zuiel_key" = [[:digit:]]##_zuia ]]; then
-        if (( zuiel_size > 0 )); then
+        if [[ "$ZUIEL_LINE_COUNT" -gt 0 || "${ZUI[top_anchors]}" = 1 ]]; then
             ZUIEL_OUTPUT+=( "" )
             ZUIEL_LINE_COUNT+=1
         fi
+
+        # Possible + 1 for the anchors at top
+        ZUILIST_HOP_INDICES+=( "$(( ZUIEL_LINE_COUNT + 1 + ZUI[top_anchors] ))" )
 
         zuiel_val1="${zuiel_module_hash[$zuiel_key]}"
         zuiel_val2="${zuiel_val1%%-*}"
@@ -233,17 +239,17 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
             zuiel_var_name="prev_${zuiel_n}_hops"
             zuiel_prev_hops=( "${(PA@)zuiel_var_name}" )
 
-            if (( zuiel_size > 0 )); then
+            if [[ "$ZUIEL_LINE_COUNT" -gt 0 || "${ZUI[top_anchors]}" = 1 ]] && (( zuiel_size > 0 )); then
                 ZUIEL_OUTPUT+=( "" )
                 ZUIEL_LINE_COUNT+=1
-                # + 1 for the anchors at top
-                ZUILIST_NONSELECTABLE_ELEMENTS+=( "$(( ZUIEL_LINE_COUNT + 1 ))" )
+                # Possible + 1 for the anchors at top
+                ZUILIST_NONSELECTABLE_ELEMENTS+=( "$(( ZUIEL_LINE_COUNT + ZUI[top_anchors] ))" )
             fi
 
             # Translate returned indices to global ones
-            # The + 1 is for anchors at the top
-            zuiel_nonselectables=( "${zuiel_nonselectables[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUIEL_LINE_COUNT + 1 ))}" )
-            zuiel_hops=( "${zuiel_hops[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUIEL_LINE_COUNT + 1 ))}" )
+            # Possible + 1 for anchors at the top
+            zuiel_nonselectables=( "${zuiel_nonselectables[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUIEL_LINE_COUNT + ZUI[top_anchors] ))}" )
+            zuiel_hops=( "${zuiel_hops[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + ZUIEL_LINE_COUNT + ZUI[top_anchors] ))}" )
 
             # Add translated, current zuiel_hops and zuiel_nonselectables
             ZUILIST_NONSELECTABLE_ELEMENTS+=( "${zuiel_nonselectables[@]}" )
@@ -263,8 +269,8 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
                 [[ "${+ZUI[zuianchor$zuiel_a]}" = "1" ]] && zuiel_a="zuianchor$zuiel_a" || {
                     [[ "${+ZUI[zuieanchor$zuiel_a]}" = "1" ]] && zuiel_a="zuieanchor$zuiel_a"
                 }
-                # + 1 for anchors at top; retain "+number" part
-                ZUI[$zuiel_a]=$(( ${ZUI[$zuiel_a]%[-+]*} + ZUIEL_LINE_COUNT + 1 ))"${ZUI[$zuiel_a]##[0-9]##}"
+                # Possible + 1 for anchors at top; retain "+number" part
+                ZUI[$zuiel_a]=$(( ${ZUI[$zuiel_a]%[-+]*} + ZUIEL_LINE_COUNT + ZUI[top_anchors] ))"${ZUI[$zuiel_a]##[0-9]##}"
             done
 
             # Remove from list of anchors needing to-global
@@ -276,18 +282,16 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
             : ${(PA)zuiel_var_name::=}
 
             # Create top anchors
-            reply=( )
-            [[ -n "${zuiel_hops[1]}" ]] && -zui_std_anchor "aglobal_m${zel_mod}_i${zel_ice}" "${zuiel_hops[1]}" "$zel_mod" "$zel_ice" "" "[${ZUI[CYAN]}Module${zel_mod}/${zel_ice}${ZUI[FMT_END]}]" '(( ${+functions[-zui-standard-global-anchors-callback]} )) && { -zui-standard-global-anchors-callback  "'"aglobal_m${zel_mod}_i${zel_ice}"'" "'"${zuiel_hops[1]}"'" "'"$zel_mod"'" "'"$zel_ice"'"; internal=1; }'
-            zuiel_top_anchors+=( "${reply[@]}" )
+            (( zuiel_size > 0 )) && -zui_std_anchor "aglobal_m${zel_mod}_i${zel_ice}" $(( ZUIEL_LINE_COUNT + 1 + ZUI[top_anchors] )) "$zel_mod" "$zel_ice" "" "[${ZUI[CYAN]}Module${zel_mod}/${zel_ice}${ZUI[FMT_END]}]" '(( ${+functions[-zui-standard-global-anchors-callback]} )) && { -zui-standard-global-anchors-callback  "'"aglobal_m${zel_mod}_i${zel_ice}"'" "'"${zuiel_hops[1]}"'" "'"$zel_mod"'" "'"$zel_ice"'"; internal=1; }' zuiel_top_anchors
 
             # Store where in the list module is
             # located, via typical "moduleX_..."
             # variable
             local ${zuiel_n}_global_index
             zuiel_var_name="${zuiel_n}_global_index"
-            # + 1 for anchors at top, + 1 because
+            # Possible + 1 for anchors at top, + 1 because
             # we point at next line after separator
-            : ${(P)zuiel_var_name::=$(( ZUIEL_LINE_COUNT + 1 + 1 ))}
+            : ${(P)zuiel_var_name::=$(( ZUIEL_LINE_COUNT + 1 + ZUI[top_anchors] ))}
 
             # Shift down (up) local anchors that weren't
             # recreated in this regeneration loop run,
@@ -307,9 +311,9 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
                     # doesn't change the fact that the anchor belongs
                     # to its module, i.e. "zuiel_a" in "zuiel_a+b" matters.
                     #
-                    # + 1 for anchors at top, + 1 because we point at
+                    # Possible + 1 for anchors at top, + 1 because we point at
                     # module, at next line after empty separator line
-                    if [[ "${ZUI[$zuiel_a]%[-+]*}" -gt $(( ZUIEL_LINE_COUNT + 1 + 1 + (zuiel_size - 1) )) ]]; then
+                    if [[ "${ZUI[$zuiel_a]%[-+]*}" -gt $(( ZUIEL_LINE_COUNT + 1 + ZUI[top_anchors] + (zuiel_size - 1) )) ]]; then
                         # Retain "+number" part
                         ZUI[$zuiel_a]=$(( ${ZUI[$zuiel_a]%[-+]*} + zuiel_size - zuiel_prev_size ))"${ZUI[$zuiel_a]##[0-9]##}"
                     fi
@@ -341,9 +345,15 @@ ZUI[GENERATION_TIME]="${generation_time[1,4]}"
 # prevent zui-list from loading them
 -zui_std_refresh_configs "${(@s:,:)ZUI[configs_to_refresh]}"
 
-ZUILIST_HOP_INDICES+=( 1 ) # jump to anchors
+
 local ZUILIST_WRAPPER_BIT="" ZUILIST_WRAPPER_LINE="" zuiel_bit_set=0 zuiel_line_set=0
-zui-usetty-wrapper zui-list-wrapper "${zuiel_top_anchors[*]}" "${ZUIEL_OUTPUT[@]}"
+
+if (( ZUI[top_anchors] )); then
+    ZUILIST_HOP_INDICES+=( 1 ) # jump to anchors
+    zui-usetty-wrapper zui-list-wrapper "${zuiel_top_anchors[*]}" "${ZUIEL_OUTPUT[@]}"
+else
+    zui-usetty-wrapper zui-list-wrapper "${ZUIEL_OUTPUT[@]}"
+fi
 
 if [[ "${ZUI[text_mode]}" = (all|nohyp) ]] || -zui_std_has_any_hyperlinks "$ZUILIST_WRAPPER_LINE"; then
     ZUI[pure_text_selected]="$ZUILIST_WRAPPER_BIT"
