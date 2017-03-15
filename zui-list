@@ -140,7 +140,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # Operates on disp_list array.
 -zui_list_translate_color_marks_in_disp_list() {
     # [all] [fg] [bg]
-    disp_list=( "${disp_list[@]//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'])([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[FMT_END]}]#)${ZUI[FMT_END]}/${colormap[${match[1]}]}${colormap[${match[2]}]}${colormap[${match[3]}]}$match[4]$RESET}" )
+    disp_list=( "${disp_list[@]//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'])([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[FMT_END]}]#)${ZUI[FMT_END]}/${__colormap2[${match[1]}]}${__colormap2[${match[2]}]}${__colormap2[${match[3]}]}$match[4]$RESET}" )
 }
 
 # Changes color marks (default: \3, \4, \5, \6, \7) into ANSI
@@ -151,7 +151,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 -zui_list_translate_color_marks() {
     local buf="$1"
     # [all] [fg] [bg]
-    buf="${buf//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'])([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[FMT_END]}]#)${ZUI[FMT_END]}/${colormap[${match[1]}]}${colormap[${match[2]}]}${colormap[${match[3]}]}$match[4]$RESET}"
+    buf="${buf//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'])([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[FMT_END]}]#)${ZUI[FMT_END]}/${__colormap2[${match[1]}]}${__colormap2[${match[2]}]}${__colormap2[${match[3]}]}$match[4]$RESET}"
 
     # Mark 1
     buf="${buf//(#b)${ZUI[MARK]}([^${ZUI[MARK_E]}]#)${ZUI[MARK_E]}/$MARK_CODES$match[1]$MARK_END_CODES}"
@@ -361,8 +361,8 @@ local BG_BLUE=$'\e[44m' BG_MAGENTA=$'\e[45m' BG_CYAN=$'\e[46m' BG_WHITE=$'\e[47m
 # Bold
 local BOLD=$'\e[1m'
 
-local -A colormap
-colormap=(
+local -A __colormap2
+__colormap2=(
     ""                ""
 
     $ZUI[BLACK]       $BLACK
