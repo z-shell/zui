@@ -294,9 +294,9 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 }
 
 -zui_list_handle_resize() {
-    if -zui_wrapper_recreate_windows "$1" main_height main_width status_height status_width; then
-        __page_height=main_height-2
-        __page_width=main_width-2
+    if -zui_wrapper_recreate_windows "$1" __main_height __main_width status_height status_width; then
+        __page_height=__main_height-2
+        __page_width=__main_width-2
         -zui_list_recompute_bg
         [[ -n "$wname_status" ]] && zcurses clear "$wname_status"
         ZUI[REGENERATE_LIST]=2
@@ -318,13 +318,13 @@ typeset -ga reply
 reply=()
 
 local wname_main="$1"
-integer main_height="$2"
-integer main_width="$3"
+integer __main_height="$2"
+integer __main_width="$3"
 local wname_status="$4"
 integer status_height="$5"
 integer status_width="$6"
-integer __page_height=main_height-2
-integer __page_width=main_width-2
+integer __page_height=__main_height-2
+integer __page_width=__main_width-2
 local header="$7"
 
 shift 7
