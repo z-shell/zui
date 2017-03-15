@@ -199,7 +199,7 @@ demo_generator_A() {
             "Restart-regeneration module (this is a non-selectable line, a header)"
             "${reply[1]} this module via ${ZUI[YELLOW]}list_restart${ZUI[FMT_END]} and ${ZUI[CYAN]}external_anchor${ZUI[FMT_END]}${user_data}"
             "${reply[2]} this module via ${ZUI[YELLOW]}list_restart${ZUI[FMT_END]} and ${ZUI[CYAN]}function_call${ZUI[FMT_END]}"
-            "${reply[3]} the <NEXT> section via ${ZUI[YELLOW]}list_restart${ZUI[FMT_END]} and ${ZUI[CYAN]}raw_link${ZUI[FMT_END]}"
+            "${reply[3]} the <NEXT> module via ${ZUI[YELLOW]}list_restart${ZUI[FMT_END]} and ${ZUI[CYAN]}raw_link${ZUI[FMT_END]}"
             "Random number: $RANDOM"
 
             # This is set in -demo_mod1_external_action_1
