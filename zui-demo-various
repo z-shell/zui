@@ -301,7 +301,7 @@ demo_mod3_generator() {
     # 2nd instance? Also, is it last instance?
     if [[ "$ice" = "2" && "$REPLY" = "2" ]]; then
         reply=( )
-        -zui_stdlib_anchor "append_third_${mod}_${ice}" "3+2" "" ",mod${mod}_ice${ice},mod${mod}_ice$(( ice + 1 ))," "" "${ZUI[MAGENTA]}Append third!${ZUI[COLOR_END]}" "-zui_stdlib_set_mod_factor $mod 3"
+        -zui_stdlib_anchor "append_third_${mod}_${ice}" "2+2" "" ",mod${mod}_ice${ice},mod${mod}_ice$(( ice + 1 ))," "" "${ZUI[MAGENTA]}Append third!${ZUI[COLOR_END]}" "-zui_stdlib_set_mod_factor $mod 3"
         append_third="${reply[1]}"
     fi
 
