@@ -974,7 +974,7 @@ while (( 1 )); do
             done
 
             # No first section of current module?
-            (( el == 1 )) && break
+            (( index2 == 1 )) && break
         done
 
         # Now add new hops and nonselectables
