@@ -332,7 +332,7 @@ shift 7
 typeset -a __list __disp_list __disp_list2
 integer __last_element=$#
 local __action
-local __final_key tmp
+local __final_key __tmp
 integer __selection
 integer __last_element_difference=0
 integer __current_difference=0
@@ -794,11 +794,11 @@ while (( 1 )); do
     local __jump_id="" __jump_data=""
 
     if [[ "$__action" = "SELECT" ]]; then
-        -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}" tmp
+        -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}" __tmp
         # Is it a hyperlink selection? If not, then examine select_mode
         # to know if the text selection (ZUI[text_select] is examined in
         # zui-list-input) should be passed outside the list
-        if -zui_std_is_any_hyperlink "$tmp" || [[ "${ZUI[select_mode]}" = (restart|quit) ]]; then
+        if -zui_std_is_any_hyperlink "$__tmp" || [[ "${ZUI[select_mode]}" = (restart|quit) ]]; then
             REPLY="$__selection"
             reply=( "${__list[@]}" )
             break
@@ -813,8 +813,8 @@ while (( 1 )); do
             (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "line" "${__list[__selection]}"
             ZUI[line_selected]="${__list[__selection]}"
         else
-            (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "segment" "$tmp"
-            ZUI[pure_text_selected]="$tmp"
+            (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "segment" "$__tmp"
+            ZUI[pure_text_selected]="$__tmp"
         fi
     elif [[ "$__action" = F[1-4] ]]; then
         REPLY="$__action"
