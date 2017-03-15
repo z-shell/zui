@@ -91,8 +91,8 @@ function -zui_stdlib_init2() {
 } # }}}
 
 # FUNCTION: -zui_stdlib_button {{{
-# Appends hyperlink into output array. It's the standard
-# action button, shown without surrounding "[" and "]".
+# Appends hyperlink into output array. It's an action button
+# shown without surrounding "[" and "]".
 #
 # $1 - action ID
 # $2 - data1, e.g. timestamp
@@ -126,7 +126,8 @@ function -zui_stdlib_button() {
 } # }}}
 
 # FUNCTION: -zui_stdlib_rc_button {{{
-# Appends button hyperlink into "reply" output array
+# Appends hyperlink into output array. It's an action button
+# shown with surrounding [ and ].
 #
 # Arguments are the same as in -zui_stdlib_button
 #
@@ -160,9 +161,9 @@ function -zui_stdlib_rc_button() {
 # - the first data argument (data1, $2) needs to be
 # index of line to jump to,
 #
-# - you normally also want to pass module number as
-#   data2 ($3) if you assign a handler that is shared
-#   between modules,
+# - you normally also want to pass instance ID as data2
+#   (module, $3) and data3 (instance, $4) if you assign
+#   a handler that is shared between modules,
 #
 # - instead of handler you might use data3 and data4
 #   ($4 & $5) as a module regeneration instruction,
@@ -170,24 +171,23 @@ function -zui_stdlib_rc_button() {
 #   some module numbered 2, instance 1, with passed
 #   user-data "arg".
 #
-# If handler is external (i.e. doesn't have "internal"
-# in its name), then it might also instruct list
-# regeneration, by doing reply=( ",mod2_ice1," "arg"),
-# for example.
+# If the handler is external (i.e. doesn't have "internal"
+# in its name), then it might too deploy list regeneration,
+# by doing reply=( ",mod2_ice1," "arg"), for example.
 #
-# Anchor of which data3 matches ",*," is set to be
-# external. If handler has not word "internal" in its
-# name then anchor is also set to be external.
+# Anchor of which data3 matches ",*," is set to be external.
+# If handler doesn't have word "internal" in its name, then
+# anchor is also set to be external.
 #
 # Example call:
 #    -zui_stdlib_anchor "regen1" "4" "" ",mod1_ice2," "$RANDOM", "[${ZUI[MAGENTA]}Regen${ZUI[MAGENTA_E]}]"
 #
 # Generator has instance ID (mod and ice) in $1 and $2
-# by the design of restart-regeneration loop.  So, this
+# by the design of restart-regeneration loop. So, this
 # instructs to regenerate module 1 instance 2, with no
-# handler call, with $RANDOM as generator's argument -
-# regeneration user-data. "4" is the line number on
-# which cursor will be placed.
+# handler call, with $RANDOM as generator's third input
+# - regeneration user-data. "4" is the line number on
+# which the cursor will be placed.
 #
 function -zui_stdlib_anchor() {
     setopt localoptions extendedglob
@@ -279,18 +279,18 @@ function -zui_stdlib_list_box() {
 } # }}}
 
 # FUNCTION: -zui_stdlib_decode_hyperlink {{{
-# Decodes given hyperlink and returns data contained.
-# Testable - test to check if hyperlink was correctly
-# decoded.
+# Decodes given button/anchor/raw hyperlink returning
+# data contained. Testable - test to check if string
+# was correctly decoded.
 #
 # $1 - hyperlink string
 # $2 - optional output array name (default: "reply")
 #
-# $reply[1] - ID (of action)
-# $reply[2] - time stamp
-# $reply[3] - command
-# $reply[4] - active path
-# $reply[5] - file
+# $reply[1] - ID (of button, anchor or raw link)
+# $reply[2] - data1
+# $reply[3] - data2
+# $reply[4] - data3
+# $reply[5] - data4
 #
 function -zui_stdlib_decode_hyperlink() {
     local __var_name="${2:-reply}"
@@ -465,7 +465,8 @@ function -zui_stdlib_resolve_path() {
 } # }}}
 
 # FUNCTION: -zui_stdlib_to_cmd_line {{{
-# Puts given text on command line – regardless if Zle is active or not
+# Puts given text on command line - regardless
+# if Zle is active or not
 #
 # $1 - text to put on command line
 #
@@ -491,7 +492,8 @@ function -zui_stdlib_get_time() {
 } # }}}
 
 # FUNCTION: -zui_stdlib_get_datetime {{{
-# Returns date and time
+# Returns date and time. Uses datetime zsh module
+# or date command as fallback.
 #
 # $REPLY - date and time string "Y_m_d_H.M.S"
 #
@@ -502,7 +504,6 @@ function -zui_stdlib_get_datetime() {
 } # }}}
 
 # FUNCTION: -zui_stdlib_get_timestamp {{{
-#
 # Returns timestamp, via datetime or `date` as fallback
 #
 function -zui_stdlib_get_timestamp() {
@@ -511,28 +512,28 @@ function -zui_stdlib_get_timestamp() {
 } # }}}
 
 # FUNCTION: -zui_stdlib_is_hyperlink {{{
-# Checks if given text is a hyperlink
+# Checks if given text is a button/anchor/raw hyperlink
 function -zui_stdlib_is_hyperlink() {
     [[ "$1" = *$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'[^$'\02']#$'\02'* ]]
 } # }}}
 
 # FUNCTION: -zui_stdlib_is_text_field {{{
-# Checks if given text is a text field
+# Checks if given text is a text field hyperlink
 function -zui_stdlib_is_text_field() {
     #                 id                data1             data2             module index      width_var         sidx_var          text_var             
     [[ "$1" = *$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\02']#$'\02'* ]]
 } # }}}
 
 # FUNCTION: -zui_stdlib_is_list_box {{{
-# Checks if given text is a list box
+# Checks if given text is a list box hyperlink
 function -zui_stdlib_is_list_box() {
     #                 id                data1             data2             data3             width_var         sidx_var          text_var             
     [[ "$1" = *$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\02']#$'\02'* ]]
 } # }}}
 
 # FUNCTION: -zui_stdlib_has_any_hyperlinks {{{
-# Checks if given text has any hyperlinks
-# (buttons/anchors, text fields, list boxes)
+# Checks if given text has any hyperlinks (buttons/anchors/raws,
+# text fields, list boxes)
 function -zui_stdlib_has_any_hyperlinks() {
     [[ "$1" = *$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'[^$'\02']#$'\02'* ]] ||
     #                 id                data1             data2             module index      width_var         sidx_var          text_var             
@@ -638,7 +639,7 @@ function -zui_stdlib_get_segment() {
 
 # FUNCTION: -zui_stdlib_strip_codes {{{
 # Strips formatting codes from text in
-# 1, saves result into parameter REPLY
+# $1, saves result into parameter REPLY
 #
 # $1 - text to strip codes from
 function -zui_stdlib_strip_codes() {
@@ -646,10 +647,9 @@ function -zui_stdlib_strip_codes() {
 } # }}}
 
 # FUNCTION: -zui_stdlib_set_mod_factor {{{
-# Modifies how many instances of a module
-# should be generated. Regeneration (no
-# on-the-fly support) should be called on
-# new instances.
+# Modifies how many instances of a module should be generated.
+# A regeneration (no on-the-fly support) should be called on
+# the new instances.
 #
 # $1 - module index
 # $2 - new factor
@@ -659,7 +659,8 @@ function -zui_stdlib_set_mod_factor() {
 } # }}}
 
 # FUNCTION: -zui_stdlib_get_mod_factor {{{
-# Returns factor of given module
+# Returns factor of given module (it's the number
+# of instances of the module that are generated)
 #
 # $1 - module index
 # $2 - output parameter name (default: REPLY)
