@@ -674,6 +674,8 @@ function -zui_std_cleanup() {
 
            # zui-list state fields
            CURRENT_IDX FROM_WHAT_IDX_LIST_IS_SHOWN CURRENT_SEGMENT SEARCH_MODE SEARCH_BUFFER UNIQ_MODE TEXT_OFFSET
+           # zui-list working fields
+           REGENERATE_LIST
 
            # Configuration keys
            text_mode text_mode_ts_
