@@ -294,7 +294,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 }
 
 -zui_list_handle_resize() {
-    if -zui_wrapper_recreate_windows "$1" __main_height __main_width status_height status_width; then
+    if -zui_wrapper_recreate_windows "$1" __main_height __main_width __status_height __status_width; then
         __page_height=__main_height-2
         __page_width=__main_width-2
         -zui_list_recompute_bg
@@ -321,8 +321,8 @@ local wname_main="$1"
 integer __main_height="$2"
 integer __main_width="$3"
 local wname_status="$4"
-integer status_height="$5"
-integer status_width="$6"
+integer __status_height="$5"
+integer __status_width="$6"
 integer __page_height=__main_height-2
 integer __page_width=__main_width-2
 local header="$7"
@@ -704,7 +704,7 @@ while (( 1 )); do
         (( tpe > 0 )) && -zui_sys_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
 
         if [[ "${ZUI[SEARCH_MODE]}" = "0" ]]; then
-            -zui-log "$wname_status" "$status_height" "$status_width" "${ZUI[status_border]}" "${ZUI[status_colorpair]}" \
+            -zui-log "$wname_status" "$__status_height" "$__status_width" "${ZUI[status_border]}" "${ZUI[status_colorpair]}" \
                     "$ZUILIST_GREP_STRING" "${ZUI[UNIQ_MODE]}" "${ZUI[SEARCH_MODE]}" \
                     "${ZUI[GENERATION_TIME]}" "$selectable" "${${ZUI[SEARCH_BUFFER]:+1}:-0}" \
                     "$ZUILIST_USER_CURRENT_IDX" "$ZUILIST_USER_LAST_ELEMENT"
