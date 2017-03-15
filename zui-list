@@ -449,19 +449,19 @@ ZUILIST_USER_LAST_ELEMENT=$(( last_element - ${#ZUILIST_NONSELECTABLE_ELEMENTS} 
 # verify current index
 -zui_list_verify_vars
 
-if [[ "$ZUILIST_START_IN_SEARCH_MODE" -eq 1 ]]; then
-    ZUILIST_START_IN_SEARCH_MODE=0
+if [[ "${ZUI[START_IN_SEARCH_MODE]}" -eq 1 ]]; then
     ZUI[SEARCH_MODE]=1
+    ZUI[START_IN_SEARCH_MODE]=0
 fi
 
-if [[ -n "$ZUILIST_SET_SEARCH_TO" ]]; then
-    ZUI[SEARCH_BUFFER]="$ZUILIST_SET_SEARCH_TO"
-    ZUILIST_SET_SEARCH_TO=""
+if [[ -n "${ZUI[SET_SEARCH_TO]}" ]]; then
+    ZUI[SEARCH_BUFFER]="${ZUI[SET_SEARCH_TO]}"
+    ZUI[SET_SEARCH_TO]=""
 fi
 
-if [[ "$ZUILIST_START_IN_UNIQ_MODE" -eq 1 ]]; then
-    ZUILIST_START_IN_UNIQ_MODE=0
+if [[ "${ZUI[START_IN_UNIQ_MODE]}" -eq 1 ]]; then
     ZUI[UNIQ_MODE]=1
+    ZUI[START_IN_UNIQ_MODE]=0
 fi
 
 #
