@@ -278,6 +278,27 @@ function -zui_std_list_box() {
     : ${(PA)__var_name::=${__output[@]}}
 } # }}}
 
+# FUNCTION: -zui_std_get_ganchor {{{
+# Doesn't have data1 (normally index to jump to) nor other data, and
+# also doesn't have handler. Returns anchor button that jumps to given
+# GLOBAL anchor and calls its handler (which invokes -zui-standard-gl\
+# obal-anchors-callback).
+#
+# $1 - module index
+# $2 - instance index
+# $3 - visible text of the anchor
+# $4 - optional output array name
+function -zui_std_get_ganchor() {
+    local __mod="$1" __ice="$2" __text="$3" __var_name="${4:-reply}"
+
+    # Quote only text, not codes
+    __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'0\037']##)/${(q)match[1]}}"
+
+    local -a __output
+    __output=( "${(P@)__var_name}" $'\01'"zuianchoraglobal_m${__mod}_i${__ice}"$'\01'""$'\01'""$'\01'""$'\01'""$'\02'"${__text}"$'\02' )
+    : ${(PA)__var_name::=${__output[@]}}
+} # }}}
+
 # FUNCTION: -zui_std_decode_hyperlink {{{
 # Decodes given button/anchor/raw hyperlink returning
 # data contained. Testable - test to check if string
