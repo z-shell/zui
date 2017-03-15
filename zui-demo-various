@@ -252,12 +252,12 @@ demo_generator_B() {
     (( ${+ZUI[my_tfield1_width]} == 0 )) && ZUI[my_tfield1_width]=20
     (( ${+ZUI[my_tfield1_start]} == 0 )) && ZUI[my_tfield1_start]=4
     (( ${+ZUI[my_tfield1_data]} == 0 )) && ZUI[my_tfield1_data]="An example text"
-    noglob -zui_std_text_field "tfield1_$mod" "$mod" ZUI[my_tfield1_width] ZUI[my_tfield1_start] ZUI[my_tfield1_data] "" "" 'mod2_ice1_extra_line="Received text (with no restart): ${ZUI[CYAN]}${ZUI[my_tfield1_data]}${ZUI[FMT_END]}"; -zui_std_fly_mod_regen demo_generator_B "'"$mod"'" "'"$ice"'"'
+    noglob -zui_std_text_field "tfield1_$mod" ZUI[my_tfield1_width] ZUI[my_tfield1_start] ZUI[my_tfield1_data] "" "" "" 'mod2_ice1_extra_line="Received text (with no restart): ${ZUI[CYAN]}${ZUI[my_tfield1_data]}${ZUI[FMT_END]}"; -zui_std_fly_mod_regen demo_generator_B "'"$mod"'" "'"$ice"'"'
 
     (( ${+ZUI[my_tfield2_width]} == 0 )) && ZUI[my_tfield2_width]=40
     (( ${+ZUI[my_tfield2_start]} == 0 )) && ZUI[my_tfield2_start]=1
     (( ${+ZUI[my_tfield2_data]} == 0 )) && ZUI[my_tfield2_data]="I'm wider and start at the beginning"
-    noglob -zui_std_text_field "tfield2_$mod" "$mod" ZUI[my_tfield2_width] ZUI[my_tfield2_start] ZUI[my_tfield2_data] "" "" 'mod2_ice1_extra_line="Received 2nd text (with no restart): ${ZUI[CYAN]}${ZUI[my_tfield2_data]}${ZUI[FMT_END]}"; -zui_std_fly_mod_regen demo_generator_B "'"$mod"'" "'"$ice"'"'
+    noglob -zui_std_text_field "tfield2_$mod" ZUI[my_tfield2_width] ZUI[my_tfield2_start] ZUI[my_tfield2_data] "" "" "" 'mod2_ice1_extra_line="Received 2nd text (with no restart): ${ZUI[CYAN]}${ZUI[my_tfield2_data]}${ZUI[FMT_END]}"; -zui_std_fly_mod_regen demo_generator_B "'"$mod"'" "'"$ice"'"'
 
     # Content
     reply=(

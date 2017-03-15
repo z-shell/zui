@@ -45,9 +45,9 @@ function -zui_sys_get_tfield_cursor_boundaries() {
                 # Minimum x position
                 : ${(P)__out1::=$__idx}
 
-                __text="${(P)__output[5]}"
-                __text="${__text[${(P)__output[4]},-1]}"
-                __text="${__text[1,${(P)__output[3]}]}"
+                __text="${(P)__output[4]}"
+                __text="${__text[${(P)__output[3]},-1]}"
+                __text="${__text[1,${(P)__output[2]}]}"
                 __idx+="${#__text}"
                 # Maximum x position
                 : ${(P)__out2::=$__idx}
@@ -57,7 +57,7 @@ function -zui_sys_get_tfield_cursor_boundaries() {
                 if [[ "$__seg" = (#b)(*)$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\02']#$'\02'(*) ]]; then
                     __idx+=${mend[1]}+${#match[2]}
                 fi
-                __idx+="${(P)__output[3]}"
+                __idx+="${(P)__output[2]}"
             fi
         elif -zui_std_decode_list_box "$__seg" __output; then
             if [[ "$__id" = "${__output[1]}" ]]; then

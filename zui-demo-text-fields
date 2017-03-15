@@ -24,7 +24,7 @@ demo_generator_A() {
     (( ${+ZUI[my_tfield1_data]} == 0 )) && ZUI[my_tfield1_data]="Enter accepts, ESC cancels, UP/DOWN resizes"
 
     reply=()
-    noglob -zui_std_text_field "tfield1_$mod" "$mod" ZUI[my_tfield1_width] ZUI[my_tfield1_start] ZUI[my_tfield1_data] "" "" 'xtra="Received text: ${ZUI[CYAN]}${ZUI[my_tfield1_data]}${ZUI[FMT_END]}"; -zui_std_fly_mod_regen demo_generator_A "'"$mod"'" "'"$ice"'"'
+    noglob -zui_std_text_field "tfield1_$mod" ZUI[my_tfield1_width] ZUI[my_tfield1_start] ZUI[my_tfield1_data] "" "" "" 'xtra="Received text: ${ZUI[CYAN]}${ZUI[my_tfield1_data]}${ZUI[FMT_END]}"; -zui_std_fly_mod_regen demo_generator_A "'"$mod"'" "'"$ice"'"'
 
     # Content
     reply=( "${ZUI[YELLOW]}ZUI${ZUI[FMT_END]} text-field example: ${reply[1]}" $xtra )
