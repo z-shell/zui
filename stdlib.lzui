@@ -715,6 +715,29 @@ function -zui_stdlib_reset_replies() {
     : ${(PA)var_name::=}
 } # }}}
 
+# FUNCTION: -zui_stdlib_map_replies {{{
+# Maps reply{,2..4} parameters onto module
+# parameters:
+#    mod${midx}_ice${iidx}_output mod${midx}_ice${iidx}_nonselectables
+#    mod${midx}_ice${iidx}_hops mod${midx}_lice${iidx}_anchors
+#    mod${midx}_ice${iidx}_size
+#
+# $1 - module index
+# $2 - instance index
+function -zui_stdlib_map_replies() {
+    local var_name
+    var_name="mod${1}_ice${2}_output"
+    : ${(PA)var_name::="${reply[@]}"}
+    var_name="mod${1}_ice${2}_size"
+    : ${(PA)var_name::=${#reply}}
+    var_name="mod${1}_ice${2}_nonselectables"
+    : ${(PA)var_name::="${reply2[@]}"}
+    var_name="mod${1}_ice${2}_hops"
+    : ${(PA)var_name::="${reply3[@]}"}
+    var_name="mod${1}_ice${2}_lanchors"
+    : ${(PA)var_name::="${reply4[@]}"}
+} # }}}
+
 # FUNCTION: -zui_stdlib_fly_mod_regen {{{
 # Submits on-the-fly module update. Needs
 # generator to run and module index. The
@@ -839,29 +862,6 @@ function -zui_stdlib_submit_nonselectables() {
 # $1, $2, ... - IDs of anchors to be globalized
 function -zui_stdlib_submit_lanchors() {
     ZUI[fly_lanchors]="${(j: :)${(q)@}}"
-} # }}}
-
-# FUNCTION: -zui_stdlib_map_replies {{{
-# Maps reply{,2..4} parameters onto module
-# parameters:
-#    mod${midx}_ice${iidx}_output mod${midx}_ice${iidx}_nonselectables
-#    mod${midx}_ice${iidx}_hops mod${midx}_lice${iidx}_anchors
-#    mod${midx}_ice${iidx}_size
-#
-# $1 - module index
-# $2 - instance index
-function -zui_stdlib_map_replies() {
-    local var_name
-    var_name="mod${1}_ice${2}_output"
-    : ${(PA)var_name::="${reply[@]}"}
-    var_name="mod${1}_ice${2}_size"
-    : ${(PA)var_name::=${#reply}}
-    var_name="mod${1}_ice${2}_nonselectables"
-    : ${(PA)var_name::="${reply2[@]}"}
-    var_name="mod${1}_ice${2}_hops"
-    : ${(PA)var_name::="${reply3[@]}"}
-    var_name="mod${1}_ice${2}_lanchors"
-    : ${(PA)var_name::="${reply4[@]}"}
 } # }}}
 
 # FUNCTION: -zui_stdlib_load_config {{{
