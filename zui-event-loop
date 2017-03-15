@@ -277,7 +277,7 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
 
             # Create top anchors
             reply=( )
-            [[ -n "${zuiel_hops[1]}" ]] && -zui_std_anchor "aglobal_m${zel_mod}_i${zel_ice}" "${zuiel_hops[1]}" "$zel_mod" "$zel_ice" "" "[${ZUI[CYAN]}Module${zel_mod}/${zel_ice}${ZUI[COLOR_END]}]" '(( ${+functions[-zui-standard-global-anchors-callback]} )) && { -zui-standard-global-anchors-callback  "'"aglobal_m${zel_mod}_i${zel_ice}"'" "'"${zuiel_hops[1]}"'" "'"$zel_mod"'" "'"$zel_ice"'"; internal=1; }'
+            [[ -n "${zuiel_hops[1]}" ]] && -zui_std_anchor "aglobal_m${zel_mod}_i${zel_ice}" "${zuiel_hops[1]}" "$zel_mod" "$zel_ice" "" "[${ZUI[CYAN]}Module${zel_mod}/${zel_ice}${ZUI[FMT_END]}]" '(( ${+functions[-zui-standard-global-anchors-callback]} )) && { -zui-standard-global-anchors-callback  "'"aglobal_m${zel_mod}_i${zel_ice}"'" "'"${zuiel_hops[1]}"'" "'"$zel_mod"'" "'"$zel_ice"'"; internal=1; }'
             zuiel_top_anchors+=( "${reply[@]}" )
 
             # Store where in the list module is

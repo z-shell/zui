@@ -21,14 +21,14 @@ demo_mod1_generator() {
     local mod="$1" ice="$2"
 
     reply=()
-    -zui_std_anchor "aregen1" "3" "" ",mod1_ice1," "" "[${ZUI[MAGENTA]}third${ZUI[COLOR_END]}]"
-    -zui_std_anchor "anchor" "3+2" "" "" "" "[${ZUI[MAGENTA]}next${ZUI[COLOR_END]}]"
-    -zui_std_anchor "aregen2" "3+2" "" "" "" "[${ZUI[MAGENTA]}next${ZUI[COLOR_END]}]" 'internal=1; -zui_std_fly_mod_regen demo_mod2_generator 2 1'
+    -zui_std_anchor "aregen1" "3" "" ",mod1_ice1," "" "[${ZUI[MAGENTA]}third${ZUI[FMT_END]}]"
+    -zui_std_anchor "anchor" "3+2" "" "" "" "[${ZUI[MAGENTA]}next${ZUI[FMT_END]}]"
+    -zui_std_anchor "aregen2" "3+2" "" "" "" "[${ZUI[MAGENTA]}next${ZUI[FMT_END]}]" 'internal=1; -zui_std_fly_mod_regen demo_mod2_generator 2 1'
 
     # Content
     reply=(
-        "RESTART: Jump to ${reply[1]} line ${ZUI[CYAN]}and${ZUI[COLOR_END]} regenerate"
-        "NO-RESTART: Jump to ${reply[2]} module, regenerate ${reply[3]} module ${ZUI[CYAN]}and${ZUI[COLOR_END]} jump to it"
+        "RESTART: Jump to ${reply[1]} line ${ZUI[CYAN]}and${ZUI[FMT_END]} regenerate"
+        "NO-RESTART: Jump to ${reply[2]} module, regenerate ${reply[3]} module ${ZUI[CYAN]}and${ZUI[FMT_END]} jump to it"
         "Random number: $RANDOM"
     )
 

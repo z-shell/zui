@@ -23,7 +23,7 @@ typeset -gA ZUI
 typeset -ga ZUI_MESSAGES
 
 # Ends colors and bold
-ZUI[COLOR_END]=$'\037'      # octal value, decimal 31 - Unit separator
+ZUI[FMT_END]=$'\037'      # octal value, decimal 31 - Unit separator
 
 # Foreground, excluded are 010, 011, 012, 015
 ZUI[BLACK]=$'\03'           # End of text
@@ -65,7 +65,7 @@ ZUI[HYP_END]=$'\02'
 # Special code used to mark active button
 ZUI[MARK]=$'\035'           # octal value, decimal 29 - Group separator
 ZUI[MARK2]=$'\036'          # octal value, decimal 30 - Record separator
-ZUI[MARK_E]=$ZUI[COLOR_END]
+ZUI[MARK_E]=$ZUI[FMT_END]
 
 # FUNCTION: -zui_std_init {{{
 # Initializes ZUI application. To be called before any emulate -L

@@ -124,7 +124,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # of ANSI color codes. \6 is cyan by default (ZUI[CYAN]).
 #
 -zui_list_colorify_disp_list() {
-    local col=${ZUI[CYAN]} close=${ZUI[COLOR_END]}
+    local col=${ZUI[CYAN]} close=${ZUI[FMT_END]}
     [[ -n "$ZUILIST_COLORING_COLOR" ]] && col="$ZUILIST_COLORING_COLOR"
     [[ -n "$ZUILIST_COLORING_END_COLOR" ]] && close="$ZUILIST_COLORING_END_COLOR"
 
@@ -140,7 +140,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 # Operates on disp_list array.
 -zui_list_translate_color_marks_in_disp_list() {
     # [all] [fg] [bg]
-    disp_list=( "${disp_list[@]//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'])([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[COLOR_END]}]#)${ZUI[COLOR_END]}/${colormap[${match[1]}]}${colormap[${match[2]}]}${colormap[${match[3]}]}$match[4]$RESET}" )
+    disp_list=( "${disp_list[@]//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'])([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[FMT_END]}]#)${ZUI[FMT_END]}/${colormap[${match[1]}]}${colormap[${match[2]}]}${colormap[${match[3]}]}$match[4]$RESET}" )
 }
 
 # Changes color marks (default: \3, \4, \5, \6, \7) into ANSI
@@ -151,7 +151,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 -zui_list_translate_color_marks() {
     local buf="$1"
     # [all] [fg] [bg]
-    buf="${buf//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'])([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[COLOR_END]}]#)${ZUI[COLOR_END]}/${colormap[${match[1]}]}${colormap[${match[2]}]}${colormap[${match[3]}]}$match[4]$RESET}"
+    buf="${buf//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'])([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[FMT_END]}]#)${ZUI[FMT_END]}/${colormap[${match[1]}]}${colormap[${match[2]}]}${colormap[${match[3]}]}$match[4]$RESET}"
 
     # Mark 1
     buf="${buf//(#b)${ZUI[MARK]}([^${ZUI[MARK_E]}]#)${ZUI[MARK_E]}/$MARK_CODES$match[1]$MARK_END_CODES}"
@@ -175,7 +175,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
     # No existing replaced marks – then just add the mark
     if [[ "${buf/$target_mark/}" = "$buf" ]]; then
-        buf="${target_mark}${buf}${ZUI[COLOR_END]}"
+        buf="${target_mark}${buf}${ZUI[FMT_END]}"
     fi
 
     REPLY="$buf"
@@ -564,7 +564,7 @@ while (( 1 )); do
             disp_list=( "${disp_list[@]//(#b)$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\02']#)$'\02'/${(r:${(P)${(Q)match[1]}}:: :)${(s:;:)${(P)${(Q)match[3]}}}[${(P)${(Q)match[2]}}]}}" )
 
             if [[ -n "$colsearch_pattern" ]]; then
-                local col="${ZUI[BG_MAGENTA]}" close="${ZUI[COLOR_END]}"
+                local col="${ZUI[BG_MAGENTA]}" close="${ZUI[FMT_END]}"
                 # The repeat will make the matching work on a fresh heap arena
                 repeat 1; do
                     disp_list=( ${(@)disp_list//(#mi)($~colsearch_pattern)/$col${MATCH}$close} )

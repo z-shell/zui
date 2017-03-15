@@ -24,10 +24,10 @@ demo_mod1_generator() {
     (( ${+ZUI[my_lbox1_opts]} == 0 )) && ZUI[my_lbox1_opts]="Option 1;Option 2;Option 3"
 
     reply=()
-    noglob -zui_std_list_box "lbox1_$mod" ZUI[my_lbox1_width] ZUI[my_lbox1_idx] ZUI[my_lbox1_opts] "" "" "" 'xtra="Received: ${ZUI[CYAN]}${${(s:;:)ZUI[my_lbox1_opts]}[${ZUI[my_lbox1_idx]}]}${ZUI[COLOR_END]}"; -zui_std_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
+    noglob -zui_std_list_box "lbox1_$mod" ZUI[my_lbox1_width] ZUI[my_lbox1_idx] ZUI[my_lbox1_opts] "" "" "" 'xtra="Received: ${ZUI[CYAN]}${${(s:;:)ZUI[my_lbox1_opts]}[${ZUI[my_lbox1_idx]}]}${ZUI[FMT_END]}"; -zui_std_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
 
     # Content
-    reply=( "${ZUI[YELLOW]}ZUI${ZUI[COLOR_END]} list-box example: <${reply[1]}>" $xtra )
+    reply=( "${ZUI[YELLOW]}ZUI${ZUI[FMT_END]} list-box example: <${reply[1]}>" $xtra )
 
     # Non-selectable lines    Hops to jump with [ and ]   Local anchors
     reply2=( ${xtra:+2} )     reply3=( 1 )                reply4=( )
