@@ -416,22 +416,6 @@ function -zui_stdlib_decode() {
     return 1
 } # }}}
 
-# FUNCTION: -zui_stdlib_is_any_hyperlink {{{
-# Tests if given text is a hyperlink. Returns (in REPLY)
-# "1" if plain hyperlink (anchor, button, raw link), "2"
-# if text field, "3" if list-box
-#
-# $1 - hyperlink
-# $2 - output parameter name, for type (default: REPLY)
-function -zui_stdlib_is_any_hyperlink() {
-    local __out="${2:-REPLY}"
-    [[ "$1" = *$'\01'* ]] && { -zui_stdlib_is_hyperlink "$1" && { : ${(P)__out::=1}; return 0; }; }
-    [[ "$1" = *$'\032'* ]] && { -zui_stdlib_is_text_field "$1" && { : ${(P)__out::=2}; return 0; }; }
-    [[ "$1" = *$'\034'* ]] && { -zui_stdlib_is_list_box "$1" && { : ${(P)__out::=3}; return 0; }; }
-    : ${(P)__out::=0}
-    return 1
-} # }}}
-
 # FUNCTION: -zui_stdlib_resolve_path {{{
 # Resolves absolute path from current working directory and file path
 #
@@ -529,6 +513,22 @@ function -zui_stdlib_is_text_field() {
 function -zui_stdlib_is_list_box() {
     #                 id                data1             data2             data3             width_var         sidx_var          text_var             
     [[ "$1" = *$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\02']#$'\02'* ]]
+} # }}}
+
+# FUNCTION: -zui_stdlib_is_any_hyperlink {{{
+# Tests if given text is a hyperlink. Returns (in REPLY)
+# "1" if plain hyperlink (anchor, button, raw link), "2"
+# if text field, "3" if list-box
+#
+# $1 - hyperlink
+# $2 - output parameter name, for type (default: REPLY)
+function -zui_stdlib_is_any_hyperlink() {
+    local __out="${2:-REPLY}"
+    [[ "$1" = *$'\01'* ]] && { -zui_stdlib_is_hyperlink "$1" && { : ${(P)__out::=1}; return 0; }; }
+    [[ "$1" = *$'\032'* ]] && { -zui_stdlib_is_text_field "$1" && { : ${(P)__out::=2}; return 0; }; }
+    [[ "$1" = *$'\034'* ]] && { -zui_stdlib_is_list_box "$1" && { : ${(P)__out::=3}; return 0; }; }
+    : ${(P)__out::=0}
+    return 1
 } # }}}
 
 # FUNCTION: -zui_stdlib_has_any_hyperlinks {{{
@@ -876,6 +876,48 @@ function -zui_stdlib_reset_replies() {
     : ${(PA)var_name::=}
 } # }}}
 
+# FUNCTION: -zui_stdlib_fly_mod_regen {{{
+# Submits on-the-fly module update. Needs
+# generator to run and module index. The
+# id parameter is unused
+#
+# $1 - name of generator function
+# $2 - module's index
+# $3 - instance index
+# $4, $5, ... - additional arguments for
+#      the generator
+-zui_stdlib_fly_mod_regen() {
+    local generator="$1" mod="$2" ice="$3"
+
+    shift 3
+
+    -zui_stdlib_reset_replies
+
+    "$generator" "$mod" "$ice" "$@"
+
+    # Setting the following will also pass the new
+    # content to regeneration-path. I.e. you can
+    # do restart-update (not on-the-fly update) and
+    # module "$module" will still have data from
+    # this *_regenerate call. Note that the data
+    # will be overwritten if restart-update will
+    # regenerate "$module".
+    -zui_stdlib_map_replies "$mod" "$ice"
+
+    # No typical saving of any newly created local
+    # anchors. There is no regeneration loop (i.e.
+    # it is on-the-fly update) and placing anchors
+    # is handled in zui-list.
+    # -zui_stdlib_gather_lanchors regen_lanchors
+
+    # Submit on-the-fly list update. The same data
+    # as in -zui_stdlib_map_replies.
+    -zui_stdlib_submit_fly_from_gen_replies "$mod" "$ice"
+
+    # No output from this function
+    -zui_stdlib_reset_replies
+} # }}}
+
 # FUNCTION: -zui_stdlib_submit_fly_from_gen_replies {{{
 # Internal action can call this function in
 # order to replace module with new version.
@@ -1204,48 +1246,6 @@ function -zui_stdlib_add_message() {
 
     # House-keeping
     (( ${#ZUI_MESSAGES} >= ZUI[log_size] + 10 )) && { ZUI_MESSAGES=( "${(@)ZUI_MESSAGES[1+10,-1]}" ); }
-} # }}}
-
-# FUNCTION: -zui_stdlib_fly_mod_regen {{{
-# Submits on-the-fly module update. Needs
-# generator to run and module index. The
-# id parameter is unused
-#
-# $1 - name of generator function
-# $2 - module's index
-# $3 - instance index
-# $4, $5, ... - additional arguments for
-#      the generator
--zui_stdlib_fly_mod_regen() {
-    local generator="$1" mod="$2" ice="$3"
-
-    shift 3
-
-    -zui_stdlib_reset_replies
-
-    "$generator" "$mod" "$ice" "$@"
-
-    # Setting the following will also pass the new
-    # content to regeneration-path. I.e. you can
-    # do restart-update (not on-the-fly update) and
-    # module "$module" will still have data from
-    # this *_regenerate call. Note that the data
-    # will be overwritten if restart-update will
-    # regenerate "$module".
-    -zui_stdlib_map_replies "$mod" "$ice"
-
-    # No typical saving of any newly created local
-    # anchors. There is no regeneration loop (i.e.
-    # it is on-the-fly update) and placing anchors
-    # is handled in zui-list.
-    # -zui_stdlib_gather_lanchors regen_lanchors
-
-    # Submit on-the-fly list update. The same data
-    # as in -zui_stdlib_map_replies.
-    -zui_stdlib_submit_fly_from_gen_replies "$mod" "$ice"
-
-    # No output from this function
-    -zui_stdlib_reset_replies
 } # }}}
 
 # FUNCTION: -zui_stdlib_map_bools {{{
