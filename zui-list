@@ -129,18 +129,18 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     [[ -n "$ZUILIST_COLORING_END_COLOR" ]] && close="$ZUILIST_COLORING_END_COLOR"
 
     if [[ "$ZUILIST_COLORING_MATCH_MULTIPLE" -eq 1 ]]; then
-        disp_list=( "${(@)disp_list//(#mi)$~ZUILIST_COLORING_PATTERN/$col${MATCH}$close}" )
+        __disp_list=( "${(@)__disp_list//(#mi)$~ZUILIST_COLORING_PATTERN/$col${MATCH}$close}" )
     else
-        disp_list=( "${(@)disp_list/(#mi)$~ZUILIST_COLORING_PATTERN/$col${MATCH}$close}" )
+        __disp_list=( "${(@)__disp_list/(#mi)$~ZUILIST_COLORING_PATTERN/$col${MATCH}$close}" )
     fi
 }
 
 # Changes color marks (default: \3, \4, \5, \6, \7) into ANSI
 # color codes (default: green, yellow, magenta, cyan, red).
-# Operates on disp_list array.
+# Operates on __disp_list array.
 -zui_list_translate_color_marks_in_disp_list() {
     # [all] [fg] [bg]
-    disp_list=( "${disp_list[@]//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'])([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[FMT_END]}]#)${ZUI[FMT_END]}/${__colormap2[${match[1]}]}${__colormap2[${match[2]}]}${__colormap2[${match[3]}]}$match[4]$RESET}" )
+    __disp_list=( "${__disp_list[@]//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'])([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[FMT_END]}]#)${ZUI[FMT_END]}/${__colormap2[${match[1]}]}${__colormap2[${match[2]}]}${__colormap2[${match[3]}]}$match[4]$RESET}" )
 }
 
 # Changes color marks (default: \3, \4, \5, \6, \7) into ANSI
@@ -227,7 +227,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         buf="${buf//(#b)$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\02']#)$'\02'/${(r:${(P)${(Q)match[1]}}:: :)${(s:;:)${(P)${(Q)match[3]}}}[${(P)${(Q)match[2]}}]}}"
 
         -zui_list_translate_color_marks "$buf"
-        disp_list2[current_page_idx]="$REPLY"
+        __disp_list2[current_page_idx]="$REPLY"
 }
 
 -zui_list_compute_mark_codes() {
@@ -329,7 +329,7 @@ local header="$7"
 
 shift 7
 
-typeset -a __list disp_list disp_list2
+typeset -a __list __disp_list __disp_list2
 integer __last_element=$#
 local __action
 local __final_key tmp
@@ -491,7 +491,7 @@ while (( 1 )); do
         then
             __prev_search_buffer="${ZUI[SEARCH_BUFFER]}"
             __prev_uniq_mode="${ZUI[UNIQ_MODE]}"
-            # regenerating list -> regenerating disp_list
+            # regenerating list -> regenerating __disp_list
             ZUI[REGENERATE_LIST]="2"
 
             # Take all elements, including duplicates and non-selectables
@@ -549,27 +549,27 @@ while (( 1 )); do
         if [[ "${ZUI[REGENERATE_LIST]}" = "2" || "$__prev_start_idx" -ne "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" ]]; then
             ZUI[REGENERATE_LIST]="0"
             __prev_start_idx="${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"
-            disp_list=( "${(@)__list[${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]},end_idx]}" )
+            __disp_list=( "${(@)__list[${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]},end_idx]}" )
 
             # Remove hyperlinks before colorifying
-            disp_list=( "${disp_list[@]//(#b)$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'/${(Q)match[1]}}" )
+            __disp_list=( "${__disp_list[@]//(#b)$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'/${(Q)match[1]}}" )
             #                                       id                data1             data2             data3              width               sidx                text        
-            disp_list=( "${disp_list[@]//(#b)$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\02']#)$'\02'/${(r:${(P)${(Q)match[1]}}-1::_:)${(P)${(Q)match[3]}}[${(P)${(Q)match[2]}},-1]}${${(P)${(Q)match[3]}}[$(( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 == ${(P)${(Q)match[1]}} ? ${(P)${(Q)match[1]}} + ${(P)${(Q)match[2]}} - 1 : 10000 ))]}${tfield_end_map[$(( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 > ${(P)${(Q)match[1]}} ? 1 : ( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 == ${(P)${(Q)match[1]}} ? 0 : 2) ))]}}" )
+            __disp_list=( "${__disp_list[@]//(#b)$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\02']#)$'\02'/${(r:${(P)${(Q)match[1]}}-1::_:)${(P)${(Q)match[3]}}[${(P)${(Q)match[2]}},-1]}${${(P)${(Q)match[3]}}[$(( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 == ${(P)${(Q)match[1]}} ? ${(P)${(Q)match[1]}} + ${(P)${(Q)match[2]}} - 1 : 10000 ))]}${tfield_end_map[$(( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 > ${(P)${(Q)match[1]}} ? 1 : ( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 == ${(P)${(Q)match[1]}} ? 0 : 2) ))]}}" )
             #                                       id                data1             data2             data3              width               idx                 options text        
-            disp_list=( "${disp_list[@]//(#b)$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\02']#)$'\02'/${(r:${(P)${(Q)match[1]}}:: :)${(s:;:)${(P)${(Q)match[3]}}}[${(P)${(Q)match[2]}}]}}" )
+            __disp_list=( "${__disp_list[@]//(#b)$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\02']#)$'\02'/${(r:${(P)${(Q)match[1]}}:: :)${(s:;:)${(P)${(Q)match[3]}}}[${(P)${(Q)match[2]}}]}}" )
 
             if [[ -n "$colsearch_pattern" ]]; then
                 local col="${ZUI[BG_MAGENTA]}" close="${ZUI[FMT_END]}"
                 # The repeat will make the matching work on a fresh heap arena
                 repeat 1; do
-                    disp_list=( ${(@)disp_list//(#mi)($~colsearch_pattern)/$col${MATCH}$close} )
+                    __disp_list=( ${(@)__disp_list//(#mi)($~colsearch_pattern)/$col${MATCH}$close} )
                     # [Mark][Text][$col-Mark][Text2][Close]... -> [Mark][Text][Close][$col-Mark][Text2][Close][Mark]
                     # I.e. provide [Close] before [$col-Mark] and [Mark] after $col's [Close]
                     # Here is the ancient common *_E obstacle - we can easily use only single [Close] in the substitution
                     while (( 1 )); do
                         # [all] [fg] [bg], matches more combinations but solves and is fast
                         mbegin=()
-                        disp_list=( ${(@)disp_list//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031']([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|))([^$close]#)$col([^$close]#)$close/$match[1]$match[4]$close$col$match[5]$close$match[1]} )
+                        __disp_list=( ${(@)__disp_list//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031']([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|))([^$close]#)$col([^$close]#)$close/$match[1]$match[4]$close$col$match[5]$close$match[1]} )
                         [[ -z "${mbegin[1]}" ]] && break
                     done
                 done
@@ -581,16 +581,16 @@ while (( 1 )); do
             -zui_list_translate_color_marks_in_disp_list
         fi
 
-        # We need second disp_list to be able to traverse with mark
-        # freely without regenerating disp_list
-        disp_list2=( "${(@)disp_list}" )
+        # We need second __disp_list to be able to traverse with mark
+        # freely without regenerating __disp_list
+        __disp_list2=( "${(@)__disp_list}" )
 
-        [[ "$#disp_list2" -gt 0 ]] && -zui_list_mark_current_segment_in_current_element
+        [[ "$#__disp_list2" -gt 0 ]] && -zui_list_mark_current_segment_in_current_element
 
         # Output colored list
         zui-list-draw "$(( ZUI[CURRENT_IDX] - ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + 1 ))" \
             "$__page_height" "$__page_width" 1 2 "${ZUI[TEXT_OFFSET]}" "$__wname_main" "$active_text" \
-            "$disp_list2[@]"
+            "$__disp_list2[@]"
     else
         # There is no search, but there was in previous loop
         # OR
@@ -598,7 +598,7 @@ while (( 1 )); do
         # -> compute new list
         if [[ -n "$__prev_search_buffer" || "${ZUI[UNIQ_MODE]}" -ne "$__prev_uniq_mode" || "${ZUI[REGENERATE_LIST]}" = "1" ]]
         then
-            # regenerating list -> regenerating disp_list
+            # regenerating list -> regenerating __disp_list
             ZUI[REGENERATE_LIST]="2"
             __prev_search_buffer=""
             __prev_uniq_mode="${ZUI[UNIQ_MODE]}"
@@ -634,14 +634,14 @@ while (( 1 )); do
         if [[ "${ZUI[REGENERATE_LIST]}" = "2" || "$__prev_start_idx" -ne "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"  ]]; then
             ZUI[REGENERATE_LIST]="0"
             __prev_start_idx="${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"
-            disp_list=( "${(@)__list[${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]},end_idx]}" )
+            __disp_list=( "${(@)__list[${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]},end_idx]}" )
 
             # Remove hyperlinks
-            disp_list=( "${disp_list[@]//(#b)$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'/${(Q)match[1]}}" )
+            __disp_list=( "${__disp_list[@]//(#b)$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'/${(Q)match[1]}}" )
             #                                       id                data1             data2             data3              width               sidx                text        
-            disp_list=( "${disp_list[@]//(#b)$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\02']#)$'\02'/${(r:${(P)${(Q)match[1]}}-1::_:)${(P)${(Q)match[3]}}[${(P)${(Q)match[2]}},-1]}${${(P)${(Q)match[3]}}[$(( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 == ${(P)${(Q)match[1]}} ? ${(P)${(Q)match[1]}} + ${(P)${(Q)match[2]}} - 1 : 10000 ))]}${tfield_end_map[$(( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 > ${(P)${(Q)match[1]}} ? 1 : ( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 == ${(P)${(Q)match[1]}} ? 0 : 2) ))]}}" )
+            __disp_list=( "${__disp_list[@]//(#b)$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\02']#)$'\02'/${(r:${(P)${(Q)match[1]}}-1::_:)${(P)${(Q)match[3]}}[${(P)${(Q)match[2]}},-1]}${${(P)${(Q)match[3]}}[$(( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 == ${(P)${(Q)match[1]}} ? ${(P)${(Q)match[1]}} + ${(P)${(Q)match[2]}} - 1 : 10000 ))]}${tfield_end_map[$(( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 > ${(P)${(Q)match[1]}} ? 1 : ( ${(P)#${(Q)match[3]}} - ${(P)${(Q)match[2]}} + 1 == ${(P)${(Q)match[1]}} ? 0 : 2) ))]}}" )
             #                                       id                data1             data2             data3              width               idx                 options text        
-            disp_list=( "${disp_list[@]//(#b)$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\02']#)$'\02'/${(r:${(P)${(Q)match[1]}}:: :)${(s:;:)${(P)${(Q)match[3]}}}[${(P)${(Q)match[2]}}]}}" )
+            __disp_list=( "${__disp_list[@]//(#b)$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\02']#)$'\02'/${(r:${(P)${(Q)match[1]}}:: :)${(s:;:)${(P)${(Q)match[3]}}}[${(P)${(Q)match[2]}}]}}" )
 
             # We translate color marks into color codes. list still contains marks,
             # and -zui_list_mark_current_segment_in_current_element will be able
@@ -652,16 +652,16 @@ while (( 1 )); do
             [[ -n "$ZUILIST_COLORING_PATTERN" ]] && -zui_list_colorify_disp_list
         fi
 
-        # We need second disp_list to be able to traverse with mark
-        # freely without regenerating disp_list
-        disp_list2=( "${(@)disp_list}" )
+        # We need second __disp_list to be able to traverse with mark
+        # freely without regenerating __disp_list
+        __disp_list2=( "${(@)__disp_list}" )
 
-        [[ "$#disp_list2" -gt 0 ]] && -zui_list_mark_current_segment_in_current_element
+        [[ "$#__disp_list2" -gt 0 ]] && -zui_list_mark_current_segment_in_current_element
 
         # Output the list
         zui-list-draw "$(( ZUI[CURRENT_IDX] - ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + 1 ))" \
             "$__page_height" "$__page_width" 1 2 "${ZUI[TEXT_OFFSET]}" "$__wname_main" "$active_text" \
-            "$disp_list2[@]"
+            "$__disp_list2[@]"
     fi
 
     [[ "${ZUI[bold]}" = "1" ]] && local wrk_bold="+bold" || local wrk_bold="-bold"
