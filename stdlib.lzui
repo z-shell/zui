@@ -543,27 +543,122 @@ function -zui_std_pack_hyperlinks_into_box() {
     #done
 } # }}}
 
-# FUNCTION: -zui_std_set_mod_factor {{{
-# Modifies how many instances of a module should be generated.
-# A regeneration (no on-the-fly support) should be called on
-# the new instances.
+# FUNCTION: -zui_std_load_config {{{
+# Loads variable from configuration if it's older than
+# e.g.  2 seconds. The point is: I expect users to not
+# always manage ZUI hash well: forgot to call *cleanup,
+# not reset ZUI[app], etc. This will be covered here:
+# if config field in ZUI is fresh, less than say 2
+# seconds old, it means it's probably correctly aimed
+# at the ZUI application starting. If it's older, it's
+# a stray value from previous app.
 #
-# $1 - module index
-# $2 - new factor
-function -zui_std_set_mod_factor() {
-    local key="${zuiel_module_hash[(i)${1}_*]}"
-    zuiel_module_hash[$key]="$2"
+# This applies only to configuration variables stored in
+# ZUI hash ($4 = ZUI\[*\]). Other target variables are
+# just being read, without age examination.
+#
+# $1 - Zstyle variable to load, with "s:" or "b:" prefix
+#      for string or boolean
+# $2 - default value, 0 or 1 for bools
+# $3 - time limit
+# $4 - output parameter to fill (name)
+function -zui_std_load_config() {
+    local __ts=${EPOCHSECONDS:-0}
+
+    local __bool="${${${1##b:*}:+0}:-1}" __default="$2" __cvar="${${1#b:}#s:}" __time_limit="${3:-2}" __var_name="${4:-REPLY}"
+    local __key __value
+    local -a match mbegin mend
+
+    # Check if current ZUI[...] is fresh
+    if [[ "$__var_name" = (#b)ZUI\[(*)\] ]]; then
+        __key="${match[1]}_ts_"
+        # *_ts_ key in ZUI is older than __time_limit?
+        if [[ $(( __ts - __time_limit )) -gt "${ZUI[$__key]:-0}" || "$__ts" -eq 0 ]]; then
+            ZUI[$__key]=$__ts
+        else
+            return 0
+        fi
+    fi
+
+    # Global ZUI settings
+    if (( __bool )); then
+        if (( __default )); then
+            zstyle -T ":plugin:zui" "$__cvar" && : ${(P)__var_name::=1} || : ${(P)__var_name::=0}
+        else
+            zstyle -t ":plugin:zui" "$__cvar" && : ${(P)__var_name::=1} || : ${(P)__var_name::=0}
+        fi
+    else
+        zstyle -s ":plugin:zui" "$__cvar" __value || __value="$__default"
+        : ${(P)__var_name::=$__value}
+    fi
+
+    # Application - specific settings
+    [[ -n "${ZUI[app]}" ]] && {
+        local __zstyle_path=":plugin:zui:app:${ZUI[app]}"
+        if (( __bool )); then
+            zstyle -t $__zstyle_path "$__cvar" && : ${(P)__var_name::=1} || zstyle -T $__zstyle_path "$__cvar" || : ${(P)__var_name::=0}
+        else
+            zstyle -s $__zstyle_path "$__cvar" __value && : ${(P)__var_name::=$__value}
+        fi
+    }
+
+    return 0
 } # }}}
 
-# FUNCTION: -zui_std_get_mod_factor {{{
-# Returns factor of given module (it's the number
-# of instances of the module that are generated)
+# FUNCTION: -zui_std_refresh_configs {{{
+# Causes -zui_std_load_config to think
+# the configuration variable is freshly
+# loaded. Use this when restarting list
+# and updating ZUI[config] manually, with
+# no Zstyle update
 #
-# $1 - module index
-# $2 - output parameter name (default: REPLY)
-function -zui_std_get_mod_factor() {
-    local __var_name="${2:-REPLY}" __key="${zuiel_module_hash[(i)${1}_*]}"
-    : ${(P)__var_name::=${zuiel_module_hash[$__key]}}
+# $1, $2 ... – keys in ZUI to update, config
+#              variables' names
+function -zui_std_refresh_configs() {
+    local ts=${EPOCHSECONDS:-0} config
+    (( ts == 0 )) && ts=$( date +%s )
+
+    for config in "$@"; do
+        (( ${+ZUI[$config]} )) && ZUI[${config}_ts_]=$ts
+    done
+} # }}}
+
+# FUNCTION: -zui_std_store_default_app_config {{{
+# Stores given ZUI[app] configuration if it is not
+# already set by user, i.e. if given Zstyle is empty,
+# it is then set to given value, so that ZUI will
+# read it as the application default, overriding ZUI
+# global default.
+#
+# $1 - Zstyle variable to write, with "s:" or "b:" prefix
+#      for string or boolean
+# $2 - value to write, 0 or 1 for bools
+#
+# Returns 0 if written, 1 if Zstyle was already set
+function -zui_std_store_default_app_config() {
+    local cvar="${${1#b:}#s:}" value="$2" bool="${${${1##b:*}:+0}:-1}"
+    local zstyle_path=":plugin:zui:app:${ZUI[app]}" tmp
+    integer isset
+
+    # Establish if already set
+    if (( bool )); then
+        # Lets keep this as a fine piece of logic
+        if zstyle -t "$zstyle_path" "$cvar"; then
+            isset=1
+        else
+            zstyle -T "$zstyle_path" "$cvar" && isset=0 || isset=1
+        fi
+    else
+        zstyle -s "$zstyle_path" "$cvar" tmp && isset=1 || isset=0
+    fi
+
+    # Store if not set
+    if (( isset == 0 )); then
+        zstyle "$zstyle_path" "$cvar" "$value"
+        return 0
+    else
+        return 1
+    fi
 } # }}}
 
 # FUNCTION: -zui_std_cleanup {{{
@@ -663,6 +758,29 @@ function -zui_std_deserialize() {
         ZUI+=( "${data[@]}" )
         unset "ZUI[serialized_$src]"
     fi
+} # }}}
+
+# FUNCTION: -zui_std_set_mod_factor {{{
+# Modifies how many instances of a module should be generated.
+# A regeneration (no on-the-fly support) should be called on
+# the new instances.
+#
+# $1 - module index
+# $2 - new factor
+function -zui_std_set_mod_factor() {
+    local key="${zuiel_module_hash[(i)${1}_*]}"
+    zuiel_module_hash[$key]="$2"
+} # }}}
+
+# FUNCTION: -zui_std_get_mod_factor {{{
+# Returns factor of given module (it's the number
+# of instances of the module that are generated)
+#
+# $1 - module index
+# $2 - output parameter name (default: REPLY)
+function -zui_std_get_mod_factor() {
+    local __var_name="${2:-REPLY}" __key="${zuiel_module_hash[(i)${1}_*]}"
+    : ${(P)__var_name::=${zuiel_module_hash[$__key]}}
 } # }}}
 
 # FUNCTION: -zui_std_load_global_index_and_size {{{
@@ -862,124 +980,6 @@ function -zui_std_submit_nonselectables() {
 # $1, $2, ... - IDs of anchors to be globalized
 function -zui_std_submit_lanchors() {
     ZUI[fly_lanchors]="${(j: :)${(q)@}}"
-} # }}}
-
-# FUNCTION: -zui_std_load_config {{{
-# Loads variable from configuration if it's older than
-# e.g.  2 seconds. The point is: I expect users to not
-# always manage ZUI hash well: forgot to call *cleanup,
-# not reset ZUI[app], etc. This will be covered here:
-# if config field in ZUI is fresh, less than say 2
-# seconds old, it means it's probably correctly aimed
-# at the ZUI application starting. If it's older, it's
-# a stray value from previous app.
-#
-# This applies only to configuration variables stored in
-# ZUI hash ($4 = ZUI\[*\]). Other target variables are
-# just being read, without age examination.
-#
-# $1 - Zstyle variable to load, with "s:" or "b:" prefix
-#      for string or boolean
-# $2 - default value, 0 or 1 for bools
-# $3 - time limit
-# $4 - output parameter to fill (name)
-function -zui_std_load_config() {
-    local __ts=${EPOCHSECONDS:-0}
-
-    local __bool="${${${1##b:*}:+0}:-1}" __default="$2" __cvar="${${1#b:}#s:}" __time_limit="${3:-2}" __var_name="${4:-REPLY}"
-    local __key __value
-    local -a match mbegin mend
-
-    # Check if current ZUI[...] is fresh
-    if [[ "$__var_name" = (#b)ZUI\[(*)\] ]]; then
-        __key="${match[1]}_ts_"
-        # *_ts_ key in ZUI is older than __time_limit?
-        if [[ $(( __ts - __time_limit )) -gt "${ZUI[$__key]:-0}" || "$__ts" -eq 0 ]]; then
-            ZUI[$__key]=$__ts
-        else
-            return 0
-        fi
-    fi
-
-    # Global ZUI settings
-    if (( __bool )); then
-        if (( __default )); then
-            zstyle -T ":plugin:zui" "$__cvar" && : ${(P)__var_name::=1} || : ${(P)__var_name::=0}
-        else
-            zstyle -t ":plugin:zui" "$__cvar" && : ${(P)__var_name::=1} || : ${(P)__var_name::=0}
-        fi
-    else
-        zstyle -s ":plugin:zui" "$__cvar" __value || __value="$__default"
-        : ${(P)__var_name::=$__value}
-    fi
-
-    # Application - specific settings
-    [[ -n "${ZUI[app]}" ]] && {
-        local __zstyle_path=":plugin:zui:app:${ZUI[app]}"
-        if (( __bool )); then
-            zstyle -t $__zstyle_path "$__cvar" && : ${(P)__var_name::=1} || zstyle -T $__zstyle_path "$__cvar" || : ${(P)__var_name::=0}
-        else
-            zstyle -s $__zstyle_path "$__cvar" __value && : ${(P)__var_name::=$__value}
-        fi
-    }
-
-    return 0
-} # }}}
-
-# FUNCTION: -zui_std_refresh_configs {{{
-# Causes -zui_std_load_config to think
-# the configuration variable is freshly
-# loaded. Use this when restarting list
-# and updating ZUI[config] manually, with
-# no Zstyle update
-#
-# $1, $2 ... – keys in ZUI to update, config
-#              variables' names
-function -zui_std_refresh_configs() {
-    local ts=${EPOCHSECONDS:-0} config
-    (( ts == 0 )) && ts=$( date +%s )
-
-    for config in "$@"; do
-        (( ${+ZUI[$config]} )) && ZUI[${config}_ts_]=$ts
-    done
-} # }}}
-
-# FUNCTION: -zui_std_store_default_app_config {{{
-# Stores given ZUI[app] configuration if it is not
-# already set by user, i.e. if given Zstyle is empty,
-# it is then set to given value, so that ZUI will
-# read it as the application default, overriding ZUI
-# global default.
-#
-# $1 - Zstyle variable to write, with "s:" or "b:" prefix
-#      for string or boolean
-# $2 - value to write, 0 or 1 for bools
-#
-# Returns 0 if written, 1 if Zstyle was already set
-function -zui_std_store_default_app_config() {
-    local cvar="${${1#b:}#s:}" value="$2" bool="${${${1##b:*}:+0}:-1}"
-    local zstyle_path=":plugin:zui:app:${ZUI[app]}" tmp
-    integer isset
-
-    # Establish if already set
-    if (( bool )); then
-        # Lets keep this as a fine piece of logic
-        if zstyle -t "$zstyle_path" "$cvar"; then
-            isset=1
-        else
-            zstyle -T "$zstyle_path" "$cvar" && isset=0 || isset=1
-        fi
-    else
-        zstyle -s "$zstyle_path" "$cvar" tmp && isset=1 || isset=0
-    fi
-
-    # Store if not set
-    if (( isset == 0 )); then
-        zstyle "$zstyle_path" "$cvar" "$value"
-        return 0
-    else
-        return 1
-    fi
 } # }}}
 
 # vim:ft=zsh
