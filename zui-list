@@ -28,9 +28,9 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 -zui_list_status_msg() {
     integer indent=2 line="${ZUI[status_border]}"
 
-    zcurses clear "$wname_status"
-    zcurses move "$wname_status" $line $indent
-    zcurses string "$wname_status" "$1"
+    zcurses clear "$__wname_status"
+    zcurses move "$__wname_status" $line $indent
+    zcurses string "$__wname_status" "$1"
     (( status_msg_strlen += ${#1} ))
 }
 
@@ -289,8 +289,8 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     backuptheme="${ZUI[colorpair]}/${ZUI[bold]}"
     stbackuptheme="${ZUI[status_colorpair]}/${ZUI[status_bold]}"
 
-    zcurses bg "$wname_main" "${ZUI[colorpair]}"
-    zcurses bg "$wname_status" "${ZUI[status_colorpair]}"
+    zcurses bg "$__wname_main" "${ZUI[colorpair]}"
+    zcurses bg "$__wname_status" "${ZUI[status_colorpair]}"
 }
 
 -zui_list_handle_resize() {
@@ -298,7 +298,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         __page_height=__main_height-2
         __page_width=__main_width-2
         -zui_list_recompute_bg
-        [[ -n "$wname_status" ]] && zcurses clear "$wname_status"
+        [[ -n "$__wname_status" ]] && zcurses clear "$__wname_status"
         ZUI[REGENERATE_LIST]=2
     fi
 }
@@ -317,10 +317,10 @@ REPLY="-1"
 typeset -ga reply
 reply=()
 
-local wname_main="$1"
+local __wname_main="$1"
 integer __main_height="$2"
 integer __main_width="$3"
-local wname_status="$4"
+local __wname_status="$4"
 integer __status_height="$5"
 integer __status_width="$6"
 integer __page_height=__main_height-2
@@ -471,9 +471,9 @@ fi
 local key keypad
 
 # Clear input buffer
-zcurses timeout "$wname_main" 0
-zcurses input "$wname_main" key keypad
-zcurses timeout "$wname_main" -1
+zcurses timeout "$__wname_main" 0
+zcurses input "$__wname_main" key keypad
+zcurses timeout "$__wname_main" -1
 key=""
 keypad=""
 
@@ -589,7 +589,7 @@ while (( 1 )); do
 
         # Output colored list
         zui-list-draw "$(( ZUI[CURRENT_IDX] - ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + 1 ))" \
-            "$__page_height" "$__page_width" 1 2 "${ZUI[TEXT_OFFSET]}" "$wname_main" "$active_text" \
+            "$__page_height" "$__page_width" 1 2 "${ZUI[TEXT_OFFSET]}" "$__wname_main" "$active_text" \
             "$disp_list2[@]"
     else
         # There is no search, but there was in previous loop
@@ -660,7 +660,7 @@ while (( 1 )); do
 
         # Output the list
         zui-list-draw "$(( ZUI[CURRENT_IDX] - ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + 1 ))" \
-            "$__page_height" "$__page_width" 1 2 "${ZUI[TEXT_OFFSET]}" "$wname_main" "$active_text" \
+            "$__page_height" "$__page_width" 1 2 "${ZUI[TEXT_OFFSET]}" "$__wname_main" "$active_text" \
             "$disp_list2[@]"
     fi
 
@@ -668,22 +668,22 @@ while (( 1 )); do
 
     # The check for "white/black" means: mark header
     # only when default color isn't special
-    zcurses attr "$wname_main" "$wrk_bold" "${ZUI[border_cp]}"
+    zcurses attr "$__wname_main" "$wrk_bold" "${ZUI[border_cp]}"
 
-    [[ "${ZUI[border]}" = "1" ]] && zcurses border "$wname_main"
-    zcurses move "$wname_main" 0 2
-    zcurses string "$wname_main" "$header"
+    [[ "${ZUI[border]}" = "1" ]] && zcurses border "$__wname_main"
+    zcurses move "$__wname_main" 0 2
+    zcurses string "$__wname_main" "$header"
 
-    zcurses attr "$wname_main" "$wrk_bold" "${ZUI[colorpair]}"
+    zcurses attr "$__wname_main" "$wrk_bold" "${ZUI[colorpair]}"
 
     -zui_list_cursor_visibility "main" "0"
-    zcurses refresh "$wname_main"
+    zcurses refresh "$__wname_main"
 
     # Status window is optional (1/2)
-    [[ -n "$wname_status" ]] && {
+    [[ -n "$__wname_status" ]] && {
         [[ "${ZUI[status_bold]}" = "1" ]] && local wrk_stbold="+bold" || local wrk_stbold="-bold"
 
-        zcurses attr "$wname_status" "$wrk_stbold" "${ZUI[status_colorpair]}"
+        zcurses attr "$__wname_status" "$wrk_stbold" "${ZUI[status_colorpair]}"
 
         reply=( )
         local selectable=1 tpe=-1 status_msg_strlen=0
@@ -704,7 +704,7 @@ while (( 1 )); do
         (( tpe > 0 )) && -zui_sys_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
 
         if [[ "${ZUI[SEARCH_MODE]}" = "0" ]]; then
-            -zui-log "$wname_status" "$__status_height" "$__status_width" "${ZUI[status_border]}" "${ZUI[status_colorpair]}" \
+            -zui-log "$__wname_status" "$__status_height" "$__status_width" "${ZUI[status_border]}" "${ZUI[status_colorpair]}" \
                     "$ZUILIST_GREP_STRING" "${ZUI[UNIQ_MODE]}" "${ZUI[SEARCH_MODE]}" \
                     "${ZUI[GENERATION_TIME]}" "$selectable" "${${ZUI[SEARCH_BUFFER]:+1}:-0}" \
                     "$ZUILIST_USER_CURRENT_IDX" "$ZUILIST_USER_LAST_ELEMENT"
@@ -715,19 +715,19 @@ while (( 1 )); do
         fi
 
         [[ "${ZUI[status_border]}" = "1" ]] && {
-            zcurses attr "$wname_status" "$wrk_stbold" "${ZUI[status_border_cp]}"
-            zcurses border "$wname_status"
-            zcurses attr "$wname_status" "$wrk_stbold" "${ZUI[status_colorpair]}"
+            zcurses attr "$__wname_status" "$wrk_stbold" "${ZUI[status_border_cp]}"
+            zcurses border "$__wname_status"
+            zcurses attr "$__wname_status" "$wrk_stbold" "${ZUI[status_colorpair]}"
         }
 
         # status_msg_strlen is being set in -zui_list_status_msg()
-        zcurses move "$wname_status" "${ZUI[status_border]}" $(( status_msg_strlen + 2 ))
+        zcurses move "$__wname_status" "${ZUI[status_border]}" $(( status_msg_strlen + 2 ))
         [[ "${ZUI[SEARCH_MODE]}" -ne 1 ]] && -zui_list_cursor_visibility "status" "0" || -zui_list_cursor_visibility "status" "1"
-        zcurses refresh "$wname_status" 
+        zcurses refresh "$__wname_status"
     }
 
     if [[ -n "${ZUI[current_tfield]}" ]]; then
-        zcurses move "$wname_main" "${ZUI[cursor_y]}" $(( ZUI[cursor_x] + 2 ))
+        zcurses move "$__wname_main" "${ZUI[cursor_y]}" $(( ZUI[cursor_x] + 2 ))
         -zui_list_cursor_visibility "field" 1
     else
         -zui_list_cursor_visibility "field" 0
@@ -738,14 +738,14 @@ while (( 1 )); do
 
     # Wait for input
     key="" keypad="" final_key=""
-    zcurses input "$wname_main" key keypad
+    zcurses input "$__wname_main" key keypad
 
     # Get the special (i.e. "keypad") key or regular key
     if [[ -n "$key" ]]; then
         final_key="$key"
     elif [[ -n "$keypad" ]]; then
         final_key="$keypad"
-    elif [[ -n "$wname_status" ]]; then
+    elif [[ -n "$__wname_status" ]]; then
         -zui_sys_add_message 1 "${EPOCHSECONDS:-0}" "" "" "Warning: " "Improper input detected"
     fi
 
@@ -829,9 +829,9 @@ while (( 1 )); do
         reply=( "${__list[@]}" )
         break
     elif [[ "$action" = "REDRAW" ]]; then
-        zcurses clear "$wname_main" redraw
+        zcurses clear "$__wname_main" redraw
         # Status window is optional (2/2)
-        [[ -n "$wname_status" ]] && zcurses clear "$wname_status" redraw
+        [[ -n "$__wname_status" ]] && zcurses clear "$__wname_status" redraw
 
         # Handle resize, force terminal-size read
         -zui_list_handle_resize 1
@@ -884,7 +884,7 @@ while (( 1 )); do
             else
                 "${ZUI[$id]}" "${reply[@]}"
             fi
-            zcurses touch "$wname_main"
+            zcurses touch "$__wname_main"
         fi
     fi
 
