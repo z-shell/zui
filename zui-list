@@ -706,7 +706,7 @@ while (( 1 )); do
         ZUI[pure_text_selected]=""
         ZUI[line_selected]=""
 
-        (( tpe > 0 )) && -zui_stdlib_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
+        (( tpe > 0 )) && -zui_syslib_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
 
         if [[ "${ZUI[SEARCH_MODE]}" = "0" ]]; then
             -zui-log "$wname_status" "$status_height" "$status_width" "${ZUI[status_border]}" "${ZUI[status_colorpair]}" \
@@ -751,7 +751,7 @@ while (( 1 )); do
     elif [[ -n "$keypad" ]]; then
         final_key="$keypad"
     elif [[ -n "$wname_status" ]]; then
-        -zui_stdlib_add_message 1 "${EPOCHSECONDS:-0}" "" "" "Warning: " "Improper input detected"
+        -zui_syslib_add_message 1 "${EPOCHSECONDS:-0}" "" "" "Warning: " "Improper input detected"
     fi
 
     integer track_cur_idx="${ZUI[CURRENT_IDX]}"

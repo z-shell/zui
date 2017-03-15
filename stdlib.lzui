@@ -982,45 +982,4 @@ function -zui_stdlib_store_default_app_config() {
     fi
 } # }}}
 
-# FUNCTION: -zui_stdlib_add_message {{{
-# Appends given message to ZUI_MESSAGES
-#
-# $1 - message type
-# $2 - timestamp
-# $3, $4, ... - message bits / lines
-function -zui_stdlib_add_message() {
-    local tpe="$1" ts="${2:-$(date +%s)}" timestr=""
-
-    # Clean messages on app mismatch
-    [[ "${ZUI[app]}" != "${ZUI[messages_app]}" ]] && {
-        ZUI_MESSAGES=()
-        ZUI[message_count]=0
-        ZUI[messages_app]="${ZUI[app]}"
-    }
-
-    if [[ -n "${ZUI[log_time_format]}" ]]; then
-        if (( ${+builtins[strftime]} )); then
-            strftime -s timestr "${ZUI[log_time_format]}" "$ts"
-        else
-            # Slow and not respecting $ts fallback
-            # but will rescue users with weird zsh
-            timestr=$(date "+${ZUI[log_time_format]}")
-        fi
-    fi
-
-    # Clean space-only elements
-    set -- "${@[3,-1]/(#s)[[:space:]]##(#e)/}"
-
-    integer index msg_len=0
-    for (( index = 1; index <= ${#}; index ++ )); do
-        msg_len+=${#@[index]}
-    done
-
-    ZUI_MESSAGES+=( "${(q)msg_len} ${(q)tpe} ${(q)ts} ${(q)timestr} ${(j: :)${(q)@}}" )
-    (( ++ ZUI[message_count] ))
-
-    # House-keeping
-    (( ${#ZUI_MESSAGES} >= ZUI[log_size] + 10 )) && { ZUI_MESSAGES=( "${(@)ZUI_MESSAGES[1+10,-1]}" ); }
-} # }}}
-
 # vim:ft=zsh
