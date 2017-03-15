@@ -41,8 +41,8 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     # codes without any state management
     if [[ "$1" != "plain" ]]; then
         # Don't change already set cursor state
-        [[ "$cursor_state[$1]" = "$2" ]] && return
-        cursor_state[$1]="$2"
+        [[ "$__cursor_state[$1]" = "$2" ]] && return
+        __cursor_state[$1]="$2"
     fi
 
     if [[ -n "${terminfo[cvvis]}" && -n ${terminfo[cnorm]} ]]; then
@@ -58,7 +58,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 -zui_list_compute_exact_page_if_needed() {
     # Fallback: in case of any problems compute exact page
     if [[ "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" -lt "1" ||
-        "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" -gt "$last_element" ]]
+        "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" -gt "$__last_element" ]]
     then
         ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]=$(( ((ZUI[CURRENT_IDX]-1)/__page_height)*__page_height+1 ))
     fi
@@ -71,8 +71,8 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     -zui_list_compute_exact_page_if_needed
 }
 
-# current_difference - how many to subtract from current
-# element index, last_element_difference - how many to
+# __current_difference - how many to subtract from current
+# element index, __last_element_difference - how many to
 # subtract from element total count. These values allow
 # to provide navigation information when non-selectables
 # (non-real elements) are present.
@@ -80,22 +80,22 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     # No non-selectables -> no job to do
     if [[ "${(t)ZUILIST_NONSELECTABLE_ELEMENTS}" != *array* ]]
     then
-        last_element_difference=0
-        current_difference=0
+        __last_element_difference=0
+        __current_difference=0
     else
-        last_element_difference=${#ZUILIST_NONSELECTABLE_ELEMENTS}
-        current_difference=0
+        __last_element_difference=${#ZUILIST_NONSELECTABLE_ELEMENTS}
+        __current_difference=0
         local idx
         for idx in "${(n)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
-            [[ "$idx" -le "${ZUI[CURRENT_IDX]}" ]] && current_difference+=1 || break
+            [[ "$idx" -le "${ZUI[CURRENT_IDX]}" ]] && __current_difference+=1 || break
         done
     fi
 }
 
 # List was processed, check if variables aren't off range
 -zui_list_verify_vars() {
-    [[ "${ZUI[CURRENT_IDX]}" -gt "$last_element" ]] && ZUI[CURRENT_IDX]="$last_element"
-    [[ "${ZUI[CURRENT_IDX]}" -eq 0 && "$last_element" -ne 0 ]] && ZUI[CURRENT_IDX]=1
+    [[ "${ZUI[CURRENT_IDX]}" -gt "$__last_element" ]] && ZUI[CURRENT_IDX]="$__last_element"
+    [[ "${ZUI[CURRENT_IDX]}" -eq 0 && "$__last_element" -ne 0 ]] && ZUI[CURRENT_IDX]=1
 
     # Verify that element is just visible, if not then compute exact page
     if [[ "${ZUI[CURRENT_IDX]}" -lt "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" ||
@@ -110,11 +110,11 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     if [[ "$1" = "1" ]]; then
         # Basic values when there are no non-selectables
         ZUILIST_USER_CURRENT_IDX="${ZUI[CURRENT_IDX]}"
-        ZUILIST_USER_LAST_ELEMENT="$last_element"
+        ZUILIST_USER_LAST_ELEMENT="$__last_element"
     else
         -zui_list_compute_user_vars_difference
-        ZUILIST_USER_CURRENT_IDX=$(( ZUI[CURRENT_IDX] - current_difference ))
-        ZUILIST_USER_LAST_ELEMENT=$(( last_element - last_element_difference ))
+        ZUILIST_USER_CURRENT_IDX=$(( ZUI[CURRENT_IDX] - __current_difference ))
+        ZUILIST_USER_LAST_ELEMENT=$(( __last_element - __last_element_difference ))
     fi
 }
 
@@ -194,7 +194,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         local output=""
 
         [[ "${ZUI[CURRENT_SEGMENT]}" -lt 1 ]] && ZUI[CURRENT_SEGMENT]=1
-        [[ "${ZUI[CURRENT_SEGMENT]}" -gt "$nseg" ]] && ZUI[CURRENT_SEGMENT]="$nseg"
+        [[ "${ZUI[CURRENT_SEGMENT]}" -gt "$__nseg" ]] && ZUI[CURRENT_SEGMENT]="$__nseg"
         integer active_segment="${ZUI[CURRENT_SEGMENT]}"
 
         # Lets find interesting segment and mark it with \7...\31
@@ -330,22 +330,22 @@ local header="$7"
 shift 7
 
 typeset -a __list disp_list disp_list2
-integer last_element=$#
-local action
-local final_key tmp
-integer selection
-integer last_element_difference=0
-integer current_difference=0
-local prev_search_buffer=""
-integer prev_uniq_mode=0
-integer prev_start_idx=-1
+integer __last_element=$#
+local __action
+local __final_key tmp
+integer __selection
+integer __last_element_difference=0
+integer __current_difference=0
+local __prev_search_buffer=""
+integer __prev_uniq_mode=0
+integer __prev_start_idx=-1
 local MBEGIN MEND MATCH
 local -a mbegin mend match
-local -a segments
-integer nseg
+local -a __segments
+integer __nseg
 
-local -A "cursor_state"
-cursor_state=( "main" 1 "status" 1 "field" 0 )
+local -A __cursor_state
+__cursor_state=( "main" 1 "status" 1 "field" 0 )
 
 local -A tfield_end_map
 tfield_end_map=( 0 "" 1 ">" 2 "_" )
@@ -442,7 +442,7 @@ typeset -ga +U ZUILIST_HOP_INDICES
 # Zero - because it isn't known, unless we confirm that first element is selectable
 ZUILIST_USER_CURRENT_IDX=0
 [[ -z "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)1]}" ]] && ZUILIST_USER_CURRENT_IDX=1
-ZUILIST_USER_LAST_ELEMENT=$(( last_element - ${#ZUILIST_NONSELECTABLE_ELEMENTS} ))
+ZUILIST_USER_LAST_ELEMENT=$(( __last_element - ${#ZUILIST_NONSELECTABLE_ELEMENTS} ))
 
 # Recompute ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] in case it
 # was incorrectly manually altered outside the list, also
@@ -487,10 +487,10 @@ while (( 1 )); do
     # Do searching?
     if [[ -n "${ZUI[SEARCH_BUFFER]}" ]]; then
         # Compute new list?
-        if [[ "${ZUI[SEARCH_BUFFER]}" != "$prev_search_buffer" || "${ZUI[UNIQ_MODE]}" -ne "$prev_uniq_mode" || "${ZUI[REGENERATE_LIST]}" = "1" ]]
+        if [[ "${ZUI[SEARCH_BUFFER]}" != "$__prev_search_buffer" || "${ZUI[UNIQ_MODE]}" -ne "$__prev_uniq_mode" || "${ZUI[REGENERATE_LIST]}" = "1" ]]
         then
-            prev_search_buffer="${ZUI[SEARCH_BUFFER]}"
-            prev_uniq_mode="${ZUI[UNIQ_MODE]}"
+            __prev_search_buffer="${ZUI[SEARCH_BUFFER]}"
+            __prev_uniq_mode="${ZUI[UNIQ_MODE]}"
             # regenerating list -> regenerating disp_list
             ZUI[REGENERATE_LIST]="2"
 
@@ -508,7 +508,7 @@ while (( 1 )); do
             # Remove duplicates
             [[ "${ZUI[UNIQ_MODE]}" -eq 1 ]] && typeset -U __list
 
-            last_element="${#__list}"
+            __last_element="${#__list}"
 
             # Next do the filtering
             local search_buffer="${ZUI[SEARCH_BUFFER]%% ##}"
@@ -532,7 +532,7 @@ while (( 1 )); do
                     __list=( "${(@M)__list:#(#i)$~search_pattern}" )
                 done
 
-                last_element="${#__list}"
+                __last_element="${#__list}"
             fi
 
             # Called after processing list
@@ -540,15 +540,15 @@ while (( 1 )); do
         fi
 
         -zui_list_setup_user_vars 1
-        segments=( "${(z@)__list[${ZUI[CURRENT_IDX]}]}" )
-        nseg="$#segments"
+        __segments=( "${(z@)__list[${ZUI[CURRENT_IDX]}]}" )
+        __nseg="$#__segments"
 
         integer end_idx=$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + __page_height - 1 ))
-        [[ "$end_idx" -gt "$last_element" ]] && end_idx=last_element
+        [[ "$end_idx" -gt "$__last_element" ]] && end_idx=__last_element
 
-        if [[ "${ZUI[REGENERATE_LIST]}" = "2" || "$prev_start_idx" -ne "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" ]]; then
+        if [[ "${ZUI[REGENERATE_LIST]}" = "2" || "$__prev_start_idx" -ne "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" ]]; then
             ZUI[REGENERATE_LIST]="0"
-            prev_start_idx="${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"
+            __prev_start_idx="${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"
             disp_list=( "${(@)__list[${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]},end_idx]}" )
 
             # Remove hyperlinks before colorifying
@@ -596,12 +596,12 @@ while (( 1 )); do
         # OR
         # Uniq mode was entered or left out
         # -> compute new list
-        if [[ -n "$prev_search_buffer" || "${ZUI[UNIQ_MODE]}" -ne "$prev_uniq_mode" || "${ZUI[REGENERATE_LIST]}" = "1" ]]
+        if [[ -n "$__prev_search_buffer" || "${ZUI[UNIQ_MODE]}" -ne "$__prev_uniq_mode" || "${ZUI[REGENERATE_LIST]}" = "1" ]]
         then
             # regenerating list -> regenerating disp_list
             ZUI[REGENERATE_LIST]="2"
-            prev_search_buffer=""
-            prev_uniq_mode="${ZUI[UNIQ_MODE]}"
+            __prev_search_buffer=""
+            __prev_uniq_mode="${ZUI[UNIQ_MODE]}"
 
             # Take all elements, including duplicates and non-selectables
             typeset +U __list
@@ -618,22 +618,22 @@ while (( 1 )); do
             # Remove duplicates when in uniq mode
             [[ "${ZUI[UNIQ_MODE]}" -eq 1 ]] && typeset -U __list
 
-            last_element="${#__list}"
+            __last_element="${#__list}"
             # Called after processing list
             -zui_list_verify_vars
         fi
 
         # If the argument is 1, then: don't bother with non-selectables
         -zui_list_setup_user_vars "${ZUI[UNIQ_MODE]}"
-        segments=( "${(z@)__list[${ZUI[CURRENT_IDX]}]}" )
-        nseg="$#segments"
+        __segments=( "${(z@)__list[${ZUI[CURRENT_IDX]}]}" )
+        __nseg="$#__segments"
 
         integer end_idx=$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + __page_height - 1 ))
-        [[ "$end_idx" -gt "$last_element" ]] && end_idx=last_element
+        [[ "$end_idx" -gt "$__last_element" ]] && end_idx=__last_element
 
-        if [[ "${ZUI[REGENERATE_LIST]}" = "2" || "$prev_start_idx" -ne "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"  ]]; then
+        if [[ "${ZUI[REGENERATE_LIST]}" = "2" || "$__prev_start_idx" -ne "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"  ]]; then
             ZUI[REGENERATE_LIST]="0"
-            prev_start_idx="${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"
+            __prev_start_idx="${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"
             disp_list=( "${(@)__list[${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]},end_idx]}" )
 
             # Remove hyperlinks
@@ -689,8 +689,8 @@ while (( 1 )); do
         local selectable=1 tpe=-1 status_msg_strlen=0
         [[ -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)${ZUI[CURRENT_IDX]}]}" ]] && selectable=0
         (( ${ZUI[UNIQ_MODE]} + ${${ZUI[SEARCH_BUFFER]:+1}:-0} )) && selectable=1
-        if (( selectable == 0 )) || ! -zui_std_decode "${segments[${ZUI[CURRENT_SEGMENT]}]}"; then
-            reply=( "$selectable" "${ZUI[UNIQ_MODE]}" "${${ZUI[SEARCH_BUFFER]:+1}:-0}" "${__list[${ZUI[CURRENT_IDX]}]}" "${segments[${ZUI[CURRENT_SEGMENT]}]}" )
+        if (( selectable == 0 )) || ! -zui_std_decode "${__segments[${ZUI[CURRENT_SEGMENT]}]}"; then
+            reply=( "$selectable" "${ZUI[UNIQ_MODE]}" "${${ZUI[SEARCH_BUFFER]:+1}:-0}" "${__list[${ZUI[CURRENT_IDX]}]}" "${__segments[${ZUI[CURRENT_SEGMENT]}]}" )
             REPLY="0"
         fi
         (( ${+functions[-zui-standard-status-callback]} )) && {
@@ -737,26 +737,26 @@ while (( 1 )); do
     [[ "$ZUILIST_DRAW_ONLY" = "1" ]] && return
 
     # Wait for input
-    key="" keypad="" final_key=""
+    key="" keypad="" __final_key=""
     zcurses input "$__wname_main" key keypad
 
     # Get the special (i.e. "keypad") key or regular key
     if [[ -n "$key" ]]; then
-        final_key="$key"
+        __final_key="$key"
     elif [[ -n "$keypad" ]]; then
-        final_key="$keypad"
+        __final_key="$keypad"
     elif [[ -n "$__wname_status" ]]; then
         -zui_sys_add_message 1 "${EPOCHSECONDS:-0}" "" "" "Warning: " "Improper input detected"
     fi
 
     integer track_cur_idx="${ZUI[CURRENT_IDX]}"
     zui-list-input "${ZUI[CURRENT_IDX]}" "${ZUI[CURRENT_SEGMENT]}" "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" \
-                    "$__page_height" "$__page_width" "$last_element" "$nseg" "${ZUI[TEXT_OFFSET]}" \
-                    "$final_key" "${ZUI[SEARCH_MODE]}" "${ZUI[SEARCH_BUFFER]}" \
+                    "$__page_height" "$__page_width" "$__last_element" "$__nseg" "${ZUI[TEXT_OFFSET]}" \
+                    "$__final_key" "${ZUI[SEARCH_MODE]}" "${ZUI[SEARCH_BUFFER]}" \
                     "${ZUI[UNIQ_MODE]}" "$ZUILIST_DISABLE_SEARCH" "__list"
 
-    selection="$reply[1]"
-    action="$reply[2]"
+    __selection="$reply[1]"
+    __action="$reply[2]"
     ZUI[CURRENT_IDX]="$reply[3]"
     ZUI[CURRENT_SEGMENT]="$reply[4]"
     ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]="$reply[5]"
@@ -793,13 +793,13 @@ while (( 1 )); do
     # these parameter(s) will be set
     local jump_id="" jump_data=""
 
-    if [[ "$action" = "SELECT" ]]; then
-        -zui_util_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}" tmp
+    if [[ "$__action" = "SELECT" ]]; then
+        -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}" tmp
         # Is it a hyperlink selection? If not, then examine select_mode
         # to know if the text selection (ZUI[text_select] is examined in
         # zui-list-input) should be passed outside the list
         if -zui_std_is_any_hyperlink "$tmp" || [[ "${ZUI[select_mode]}" = (restart|quit) ]]; then
-            REPLY="$selection"
+            REPLY="$__selection"
             reply=( "${__list[@]}" )
             break
         fi
@@ -807,36 +807,36 @@ while (( 1 )); do
         # ZUI[select_mode] == no-restart
         # No passing outside, will invoke callback, but need to
         # know if on whole line, or on single text-bit segment
-        if [[ "${ZUI[text_mode]}" = "off" ]] || [[ "${ZUI[text_mode]}" = "hyp" ]] && ! -zui_std_has_any_hyperlinks "${__list[selection]}"; then
+        if [[ "${ZUI[text_mode]}" = "off" ]] || [[ "${ZUI[text_mode]}" = "hyp" ]] && ! -zui_std_has_any_hyperlinks "${__list[__selection]}"; then
             # Text-bit navigation is disabled - this must be whole line selection
             # ... is enabled for with-hyperlinks lines, but line is without hyperlinks - ...
-            (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "line" "${__list[selection]}"
-            ZUI[line_selected]="${__list[selection]}"
+            (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "line" "${__list[__selection]}"
+            ZUI[line_selected]="${__list[__selection]}"
         else
             (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "segment" "$tmp"
             ZUI[pure_text_selected]="$tmp"
         fi
-    elif [[ "$action" = F[1-4] ]]; then
-        REPLY="$action"
+    elif [[ "$__action" = F[1-4] ]]; then
+        REPLY="$__action"
         reply=( "$__list[@]" )
         break
-    elif [[ "$action" = "BR_MOVE_LEFT" || "$action" = "BR_MOVE_RIGHT" ]]; then
-        REPLY="$action"
+    elif [[ "$__action" = "BR_MOVE_LEFT" || "$__action" = "BR_MOVE_RIGHT" ]]; then
+        REPLY="$__action"
         reply=( "$__list[@]" )
         break
-    elif [[ "$action" = "QUIT" ]]; then
+    elif [[ "$__action" = "QUIT" ]]; then
         REPLY=-1
         reply=( "${__list[@]}" )
         break
-    elif [[ "$action" = "REDRAW" ]]; then
+    elif [[ "$__action" = "REDRAW" ]]; then
         zcurses clear "$__wname_main" redraw
         # Status window is optional (2/2)
         [[ -n "$__wname_status" ]] && zcurses clear "$__wname_status" redraw
 
         # Handle resize, force terminal-size read
         -zui_list_handle_resize 1
-    elif [[ "$action" = "HYPERLINK" ]]; then
-        -zui_util_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
+    elif [[ "$__action" = "HYPERLINK" ]]; then
+        -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}"
         -zui_std_decode "$REPLY"
         local id="${reply[1]}"
         ZUI[pressed_now]="$id"
@@ -861,10 +861,10 @@ while (( 1 )); do
                 "${ZUI[$id]}" "${reply[@]}"
             fi
         fi
-    elif [[ "$action" = TFIELD* ]]; then
-        -zui_util_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
+    elif [[ "$__action" = TFIELD* ]]; then
+        -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}"
         -zui_std_decode "$REPLY" && local id="${reply[1]}" || local id="-"
-        if [[ "$action" = TFIELD_LEFT && -n "${ZUI[$id]}" ]]; then
+        if [[ "$__action" = TFIELD_LEFT && -n "${ZUI[$id]}" ]]; then
             ZUI[REGENERATE_LIST]="2" # regenerate only display list
             reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
             if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
@@ -873,10 +873,10 @@ while (( 1 )); do
                 "${ZUI[$id]}" "${reply[@]}"
             fi
         fi
-    elif [[ "$action" = LBOX* ]]; then
-        -zui_util_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
+    elif [[ "$__action" = LBOX* ]]; then
+        -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}"
         -zui_std_decode "$REPLY" && local id="${reply[1]}" || local id="-"
-        if [[ "$action" = LBOX_LEFT && -n "${ZUI[$id]}" ]]; then
+        if [[ "$__action" = LBOX_LEFT && -n "${ZUI[$id]}" ]]; then
             ZUI[REGENERATE_LIST]="2" # regenerate only display list
             reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
             if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
@@ -912,8 +912,8 @@ while (( 1 )); do
 
         # This isn't fully correct, the list might
         # be in search or uniq mode, but that is
-        # still better than previous $last_element
-        last_element="$#"
+        # still better than previous $__last_element
+        __last_element="$#"
 
         ZUI[REGENERATE_LIST]="1"
 
@@ -1043,7 +1043,7 @@ while (( 1 )); do
     if [[ -n "$jump_id" ]]; then
         ZUI[CURRENT_IDX]=$(( ${ZUI[$jump_id]:-$jump_data} ))
         (( ZUI[CURRENT_IDX] < 1 )) && ZUI[CURRENT_IDX]=1
-        [[ -z "${ZUI[SEARCH_BUFFER]}" ]] && (( ZUI[CURRENT_IDX] > last_element )) && ZUI[CURRENT_IDX]="$last_element"
+        [[ -z "${ZUI[SEARCH_BUFFER]}" ]] && (( ZUI[CURRENT_IDX] > __last_element )) && ZUI[CURRENT_IDX]="$__last_element"
         ZUI[CURRENT_SEGMENT]=1
         ZUI[SEARCH_BUFFER]=""
         -zui_list_compute_first_to_show_idx_center
