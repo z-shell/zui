@@ -102,11 +102,11 @@
     #
 
 
-    (( number > 0 )) && -zuilog_counted_msg "${log_colors[1]}" "[$number] " "$line_var" $indent track_len
+    (( number > 0 )) && -zuilog_counted_msg "${zui_log_colors[1]}" "[$number] " "$line_var" $indent track_len
 
     index=2
     for txt in "${elems[@]}"; do
-        [[ -n "$txt" ]] && { -zuilog_counted_msg "${log_colors[index]}" "$txt" "$line_var" $indent track_len || break; }
+        [[ -n "$txt" ]] && { -zuilog_counted_msg "${zui_log_colors[index]}" "$txt" "$line_var" $indent track_len || break; }
         (( ++ index ))
     done
 

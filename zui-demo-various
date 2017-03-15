@@ -240,7 +240,7 @@ demo_mod2_generator() {
     -zui_std_rc_button "log_append_$mod" "" "" "" "" "${col_lap}log_append${ZUI[FMT_END]}" 'internal=1; [[ ${ZUI[log_append]} = "below" ]] && ZUI[log_append]=above || ZUI[log_append]=below; -zui_std_fly_mod_regen demo_mod2_generator "'"$mod"'" "'"$ice"'"'
     -zui_std_rc_button "status_pointer_$mod" "" "" "" "" "${col_sptr}status_pointer${ZUI[FMT_END]}" 'internal=1; (( ZUI[status_pointer]=1-ZUI[status_pointer] )); -zui_std_fly_mod_regen demo_mod2_generator "'"$mod"'" "'"$ice"'"'
     -zui_std_rc_button "status_border_$mod" "" "" "" "" "${col_sb}status_border${ZUI[FMT_END]}" 'internal=1; (( ZUI[status_border]=1-ZUI[status_border] )); -zui_std_fly_mod_regen demo_mod2_generator "'"$mod"'" "'"$ice"'"'
-    -zui_std_rc_button "log_colors_$mod" "" "" "" "" "${ZUI[GREEN]}log_colors${ZUI[FMT_END]}" 'internal=1; log_colors=( $log_colors[-1] ${(@)log_colors[1,-2]} )'
+    -zui_std_rc_button "log_colors_$mod" "" "" "" "" "${ZUI[GREEN]}log_colors${ZUI[FMT_END]}" 'internal=1; zui_log_colors=( $zui_log_colors[-1] ${(@)zui_log_colors[1,-2]} )'
 
     # Variables of the list box
     (( ${+ZUI[my_lbox1_width]} == 0 )) && ZUI[my_lbox1_width]=5
