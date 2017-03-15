@@ -117,4 +117,57 @@ function -zui_syslib_gather_lanchors() {
     : ${(PA)__var_name2::=${__output[@]}}
 } # }}}
 
+# FUNCTION: -zui_syslib_decode_list_update {{{
+# Deserializes on-the-fly update package.
+# To be used rather only internally.
+#
+# $1 - the package
+# $2 - optional target parameter name
+function -zui_syslib_decode_list_update() {
+    local -a __segments
+    [[ -n "$1" ]] && __segments=( "${(z@)1}" ) || __segments=( "" "" 0 0 )
+    local __var_name="${2-reply}"
+
+    : ${(PA)__var_name::="${(Q)__segments[@]}"}
+} # }}}
+
+# FUNCTION: -zui_syslib_decode_hops {{{
+# Deserializes on-the-fly hops substitution.
+# For internal usage.
+#
+# $1 - the hops' package
+# $2 - optional target parameter name
+function -zui_syslib_decode_hops() {
+    local -a __hops
+    [[ -n "$1" ]] && __hops=( "${(z@)1}" ) || __hops=( )
+    local __var_name="${2-reply}"
+    : ${(PA)__var_name::=${(Q)__hops[@]}}
+} # }}}
+
+# FUNCTION: -zui_syslib_decode_nonselectables {{{
+# Deserializes on-the-fly nonselectables
+# substitution. For internal usage.
+#
+# $1 - the nonselectables' package
+# $2 - optional target parameter name
+function -zui_syslib_decode_nonselectables() {
+    local -a __nonselectables
+    [[ -n "$1" ]] && __nonselectables=( "${(z@)1}" ) || __nonselectables=( )
+    local __var_name="${2-reply}"
+    : ${(PA)__var_name::="${(Q)__nonselectables[@]}"}
+} # }}}
+
+# FUNCTION: -zui_syslib_decode_lanchors {{{
+# Deserializes on-the-fly local anchors.
+# For internal usage.
+#
+# $1 - the anchors' package
+# $2 - optional target parameter name
+function -zui_syslib_decode_lanchors() {
+    local -a __lanchors
+    [[ -n "$1" ]] && __lanchors=( "${(z@)1}" ) || __lanchors=( )
+    local __var_name="${2-reply}"
+    : ${(PA)__var_name::="${(Q)__lanchors[@]}"}
+} # }}}
+
 # vim:ft=zsh

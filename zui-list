@@ -895,7 +895,7 @@ while (( 1 )); do
 
     # Now check if there are any update-on-the-fly packages submitted
     local -a update
-    -zui_stdlib_decode_list_update "${ZUI[fly_update]}" update
+    -zui_syslib_decode_list_update "${ZUI[fly_update]}" update
     ZUI[fly_update]=""
 
     if [[ "${update[3]}" -ge 1 ]]; then
@@ -985,8 +985,8 @@ while (( 1 )); do
         # Now add new hops and nonselectables
         # first translating to global indices
         local -a nonselectables hops
-        -zui_stdlib_decode_nonselectables "${ZUI[fly_nonselectables]}" nonselectables
-        -zui_stdlib_decode_hops "${ZUI[fly_hops]}" hops
+        -zui_syslib_decode_nonselectables "${ZUI[fly_nonselectables]}" nonselectables
+        -zui_syslib_decode_hops "${ZUI[fly_hops]}" hops
         ZUI[fly_nonselectables]=""
         ZUI[fly_hops]=""
 
@@ -1013,7 +1013,7 @@ while (( 1 )); do
         # pushed down (up), local ones (not yet
         # processed, new) are only globalized
         local -a lanchors
-        -zui_stdlib_decode_lanchors "${ZUI[fly_lanchors]}" lanchors
+        -zui_syslib_decode_lanchors "${ZUI[fly_lanchors]}" lanchors
         for el in ${ZUI[(I)zuianchor*]} ${ZUI[(I)zuieanchor*]}; do
             if [[ "${lanchors[(r)${el#zuianchor}]}" = ${el#zuianchor} ]]; then
                 ZUI[$el]=$(( ${ZUI[$el]%[-+]*} + update_first - 1 ))"${ZUI[$el]##[0-9]##}"
