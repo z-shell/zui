@@ -60,7 +60,7 @@ while (( 1 )); do
 
     # Wait for input
     local key keypad final_key
-    zcurses input "$wname_main" key keypad
+    zcurses input "lbox" key keypad
 
     # Get the special (i.e. "keypad") key or regular key
     if [[ -n "$key" ]]; then
