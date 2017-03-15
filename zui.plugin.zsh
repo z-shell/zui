@@ -31,7 +31,7 @@ fi
 autoload -- zui-list zui-list-draw zui-list-input zui-list-wrapper -zui-log zui-event-loop -zui-list-box-loop
 autoload -- zui-process-buffer zui-process-buffer2 zui-usetty-wrapper
 autoload -- zui-demo-various zui-demo-hello-world zui-demo-text-fields zui-demo-fly zui-demo-append zui-demo-buttons
-autoload -- zui-demo-anchors zui-demo-list-boxes zui-demo-history
+autoload -- zui-demo-anchors zui-demo-list-boxes zui-demo-history zui-demo-ganchors
 
 zle -N zui-demo-various
 bindkey "^O^Z" zui-demo-various
