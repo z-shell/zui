@@ -158,7 +158,7 @@ integer search_for_hyperlink=0
 #
 
 if [[ -n "${ZUI[current_tfield]}" ]]; then
-    -zui_stdlib_get_segment "${(P)list_var_current}" "$current_segment"
+    -zui_util_get_segment "${(P)list_var_current}" "$current_segment"
     if -zui_stdlib_decode_text_field "$REPLY" wrk_reply; then
         case "$key" in
             ($'\n')
@@ -332,7 +332,7 @@ case "$key" in
         if [[ -n "$buffer" || "$uniq" -eq 1 || -z ${ZUILIST_NONSELECTABLE_ELEMENTS[(r)$current_idx]} ]]
         then
             # Check if we are at hyperlink. Only then allow selection
-            -zui_stdlib_get_segment "${(P)list_var_current}" "$current_segment"
+            -zui_util_get_segment "${(P)list_var_current}" "$current_segment"
 
             local -a data
             reply=( )

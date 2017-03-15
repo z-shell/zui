@@ -100,6 +100,7 @@ ZUI[term_sread_ts]="$EPOCHSECONDS"
 # Standard functions library
 [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/stdlib.lzui"
 [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/syslib.lzui"
+[[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/utillib.lzui"
 
 # Configuration
 -zui_stdlib_load_config s:select_mode "no-restart" 2 'ZUI[select_mode]'   # quit, restart or callback
@@ -113,7 +114,7 @@ ZUI[term_height]=0
 zcurses init
 -zui_wrapper_recreate_windows 0
 
--zui_stdlib_get_time
+-zui_util_get_time
 zui-list "main" $(( term_height-ZUI[status_size] )) $term_width "status" "${ZUI[status_size]}" "$term_width" " Welcome to ${ZUI[app_name]} $REPLY " "$@"
 
 if [[ "$REPLY" != "-1" && "$REPLY" = -(#c0,1)[0-9]## ]]; then

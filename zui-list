@@ -25,6 +25,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 
 [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/stdlib.lzui"
 [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/syslib.lzui"
+[[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/utillib.lzui"
 
 # Outputs a message in the bottom of the screen
 # "[UNIQ]", "Text", "[Grep string]", "Generation time", "$reply[@]" from callback
@@ -802,7 +803,7 @@ while (( 1 )); do
     local jump_id="" jump_data=""
 
     if [[ "$action" = "SELECT" ]]; then
-        -zui_stdlib_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}" tmp
+        -zui_util_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}" tmp
         # Is it a hyperlink selection? If not, then examine select_mode
         # to know if the text selection (ZUI[text_select] is examined in
         # zui-list-input) should be passed outside the list
@@ -844,7 +845,7 @@ while (( 1 )); do
         # Handle resize, force terminal-size read
         -zui_list_handle_resize 1
     elif [[ "$action" = "HYPERLINK" ]]; then
-        -zui_stdlib_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
+        -zui_util_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
         -zui_stdlib_decode "$REPLY"
         local id="${reply[1]}"
         ZUI[pressed_now]="$id"
@@ -870,7 +871,7 @@ while (( 1 )); do
             fi
         fi
     elif [[ "$action" = TFIELD* ]]; then
-        -zui_stdlib_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
+        -zui_util_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
         -zui_stdlib_decode "$REPLY" && local id="${reply[1]}" || local id="-"
         if [[ "$action" = TFIELD_LEFT && -n "${ZUI[$id]}" ]]; then
             ZUILIST_REGENERATE_LIST="2" # regenerate only display list
@@ -882,7 +883,7 @@ while (( 1 )); do
             fi
         fi
     elif [[ "$action" = LBOX* ]]; then
-        -zui_stdlib_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
+        -zui_util_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
         -zui_stdlib_decode "$REPLY" && local id="${reply[1]}" || local id="-"
         if [[ "$action" = LBOX_LEFT && -n "${ZUI[$id]}" ]]; then
             ZUILIST_REGENERATE_LIST="2" # regenerate only display list

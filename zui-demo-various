@@ -12,7 +12,7 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 -zui_stdlib_init2 # after emulate -LR
 
 -zui-standard-text-select-callback() {
-    -zui_stdlib_strip_codes "$2"
+    -zui_util_strip_codes "$2"
     print -r -- "Obtained text selection: [$1] $REPLY" >> /tmp/zui.out
 }
 
@@ -75,7 +75,7 @@ local internal
     local id="$1" initial_line="$2" mod="$3" ice="$4"
 
     if [[ "$mod" = "1" ]]; then
-        -zui_stdlib_has_default_color && {
+        -zui_util_has_default_color && {
             # Can reveal transparency, if terminal
             # has background image or is transparent
             zcurses bg "status" "white/default"
@@ -123,15 +123,15 @@ mod3_internal_action() {
     if [[ "$tpe" = "0" ]]; then
         local selectable="$2" uniq="$3" search="$4" line="$5" segment="$6"
         if [[ -n "${ZUI[pure_text_selected]}" ]]; then
-            -zui_stdlib_strip_codes "$segment"
+            -zui_util_strip_codes "$segment"
             reply=( "$pressed" "Pure-text selected: " "$REPLY" )
         elif [[ -n "${ZUI[line_selected]}" ]]; then
-            -zui_stdlib_strip_codes "$line"
+            -zui_util_strip_codes "$line"
             reply=( "$pressed" "Line selected: " "$REPLY" )
         elif (( $selectable || $uniq || $search )); then
             # 1/0 selectable or not || 1/0 uniq mode || 1/0 non-empty search query
             # Any of those means no hops and no non-selectables are relevant
-            -zui_stdlib_strip_codes "$segment"
+            -zui_util_strip_codes "$segment"
             reply=( "$pressed" "" "Text: " "$REPLY" )
         else
             # Detect if current line is also a hop
@@ -230,8 +230,8 @@ demo_mod2_generator() {
     # boolean to corresponding variable in second string,
     # using bool true - $3, bool false - $4.
     local col_bld col_tmd col_tsel col_lap col_sptr col_sb
-    -zui_stdlib_map_bools "ZUI[bold];ZUI[text_select];[[ \"${ZUI[log_append]}\" = below ]];ZUI[status_pointer];ZUI[status_border]" \
-                            "col_bld;col_tsel;col_lap;col_sptr;col_sb" "${ZUI[BG_BLUE]}" "${ZUI[GREEN]}"
+    -zui_util_map_bools "ZUI[bold];ZUI[text_select];[[ \"${ZUI[log_append]}\" = below ]];ZUI[status_pointer];ZUI[status_border]" \
+                          "col_bld;col_tsel;col_lap;col_sptr;col_sb" "${ZUI[BG_BLUE]}" "${ZUI[GREEN]}"
 
     reply=( )
     # internal=1 is a trick to make action internal

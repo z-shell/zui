@@ -62,6 +62,7 @@ zmodload zsh/datetime && ZUI[datetime_available]="1" || ZUI[datetime_available]=
         unfunction -- -zui_stdlib_cleanup
         [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
         [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/syslib.lzui"
+        [[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/utillib.lzui"
         -zui_stdlib_cleanup "$@"
     }
 }
@@ -71,6 +72,7 @@ zmodload zsh/datetime && ZUI[datetime_available]="1" || ZUI[datetime_available]=
         unfunction -- -zui_stdlib_init
         [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
         [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/syslib.lzui"
+        [[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/utillib.lzui"
         -zui_stdlib_init "$@"
     }
 }
