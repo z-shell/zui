@@ -13,7 +13,7 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 -zui_std_store_default_app_config b:text_select 1        # Allow selection of text
 
 # Generator for module 1
-demo_mod1_generator() {
+demo_generator_A() {
     local mod="$1" ice="$2"
 
     # Content, no hyper-links
@@ -25,7 +25,7 @@ demo_mod1_generator() {
 
 ## Start application ##
 # a:u- is: array, unique elements
-zui-event-loop 1:demo_mod1_generator a:u-history 1:demo_mod1_generator
+zui-event-loop 1:demo_generator_A a:u-history 1:demo_generator_A
 
 print -zr -- "$REPLY"
 

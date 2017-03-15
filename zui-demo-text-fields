@@ -15,7 +15,7 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 local xtra
 
 # Generator for module 1
-demo_mod1_generator() {
+demo_generator_A() {
     local mod="$1" ice="$2"
 
     # Variables of the text field
@@ -24,7 +24,7 @@ demo_mod1_generator() {
     (( ${+ZUI[my_tfield1_data]} == 0 )) && ZUI[my_tfield1_data]="Enter accepts, ESC cancels, UP/DOWN resizes"
 
     reply=()
-    noglob -zui_std_text_field "tfield1_$mod" "$mod" ZUI[my_tfield1_width] ZUI[my_tfield1_start] ZUI[my_tfield1_data] "" "" 'xtra="Received text: ${ZUI[CYAN]}${ZUI[my_tfield1_data]}${ZUI[FMT_END]}"; -zui_std_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
+    noglob -zui_std_text_field "tfield1_$mod" "$mod" ZUI[my_tfield1_width] ZUI[my_tfield1_start] ZUI[my_tfield1_data] "" "" 'xtra="Received text: ${ZUI[CYAN]}${ZUI[my_tfield1_data]}${ZUI[FMT_END]}"; -zui_std_fly_mod_regen demo_generator_A "'"$mod"'" "'"$ice"'"'
 
     # Content
     reply=( "${ZUI[YELLOW]}ZUI${ZUI[FMT_END]} text-field example: ${reply[1]}" $xtra )
@@ -34,7 +34,7 @@ demo_mod1_generator() {
 }
 
 ## Start application ##
-zui-event-loop 1:demo_mod1_generator
+zui-event-loop 1:demo_generator_A
 
 -zui_std_cleanup serialize
 

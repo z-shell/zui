@@ -15,12 +15,12 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 local internal
 
 # Generator for module 1
-demo_mod1_generator() {
+demo_generator_A() {
     local mod="$1" ice="$2"
 
     reply=()
     -zui_std_rc_button "restart" "" "" ",mod1_ice1," "" "${ZUI[MAGENTA]}restart${ZUI[FMT_END]}"
-    -zui_std_rc_button "on-the-fly" "" "" "" "" "${ZUI[MAGENTA]}on-the-fly${ZUI[FMT_END]}" 'internal=1; -zui_std_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
+    -zui_std_rc_button "on-the-fly" "" "" "" "" "${ZUI[MAGENTA]}on-the-fly${ZUI[FMT_END]}" 'internal=1; -zui_std_fly_mod_regen demo_generator_A "'"$mod"'" "'"$ice"'"'
 
     # Content
     reply=( "${ZUI[YELLOW]}ZUI${ZUI[FMT_END]} can regenerate module instance with ${reply[1]} or ${reply[2]}!" "Random number: $RANDOM" )
@@ -43,7 +43,7 @@ demo_mod1_generator() {
 }
 
 ## Start application ##
-zui-event-loop 1:demo_mod1_generator
+zui-event-loop 1:demo_generator_A
 
 -zui_std_cleanup serialize
 

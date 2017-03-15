@@ -20,7 +20,7 @@ local internal
 local -a logs
 
 # Generator for module 1
-demo_mod1_generator() {
+demo_generator_A() {
     local mod="$1" ice="$2" arg="$3"
 
     [[ -n "$arg" ]] && logs+=( "Regenerated with: $arg" )
@@ -30,7 +30,7 @@ demo_mod1_generator() {
     -zui_std_rc_button "external" "$mod" "$ice" "external action" "" "${ZUI[MAGENTA]}link2${ZUI[FMT_END]}" demo_external_action
     -zui_std_rc_button "external_inline" "" "" "" "" "${ZUI[MAGENTA]}link3${ZUI[FMT_END]}" 'reply=( ",mod1_ice1," "inline handler (external)" )'
     -zui_std_rc_button "internal" "$mod" "$ice" "internal action" "" "${ZUI[MAGENTA]}link4${ZUI[FMT_END]}" demo_internal_action # has "internal" in name
-    -zui_std_rc_button "internal_inline" "" "" "" "" "${ZUI[MAGENTA]}link5${ZUI[FMT_END]}" 'internal=1; -zui_std_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'" "inline handler (internal)"'
+    -zui_std_rc_button "internal_inline" "" "" "" "" "${ZUI[MAGENTA]}link5${ZUI[FMT_END]}" 'internal=1; -zui_std_fly_mod_regen demo_generator_A "'"$mod"'" "'"$ice"'" "inline handler (internal)"'
 
     # Content
     reply=(
@@ -51,7 +51,7 @@ demo_external_action() {
 
 demo_internal_action() {
     local id="$1" mod="$2" ice="$3" data3="$4" data4="$4"
-    -zui_std_fly_mod_regen demo_mod1_generator "$mod" "$ice" "$data3"
+    -zui_std_fly_mod_regen demo_generator_A "$mod" "$ice" "$data3"
 }
 
 -zui-standard-status-callback() {
@@ -61,7 +61,7 @@ demo_internal_action() {
 }
 
 ## Start application ##
-zui-event-loop 1:demo_mod1_generator
+zui-event-loop 1:demo_generator_A
 
 -zui_std_cleanup serialize
 

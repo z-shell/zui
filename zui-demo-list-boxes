@@ -15,7 +15,7 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 local xtra
 
 # Generator for module 1
-demo_mod1_generator() {
+demo_generator_A() {
     local mod="$1" ice="$2"
 
     # Variables of the list box
@@ -24,7 +24,7 @@ demo_mod1_generator() {
     (( ${+ZUI[my_lbox1_opts]} == 0 )) && ZUI[my_lbox1_opts]="Option 1;Option 2;Option 3"
 
     reply=()
-    noglob -zui_std_list_box "lbox1_$mod" ZUI[my_lbox1_width] ZUI[my_lbox1_idx] ZUI[my_lbox1_opts] "" "" "" 'xtra="Received: ${ZUI[CYAN]}${${(s:;:)ZUI[my_lbox1_opts]}[${ZUI[my_lbox1_idx]}]}${ZUI[FMT_END]}"; -zui_std_fly_mod_regen demo_mod1_generator "'"$mod"'" "'"$ice"'"'
+    noglob -zui_std_list_box "lbox1_$mod" ZUI[my_lbox1_width] ZUI[my_lbox1_idx] ZUI[my_lbox1_opts] "" "" "" 'xtra="Received: ${ZUI[CYAN]}${${(s:;:)ZUI[my_lbox1_opts]}[${ZUI[my_lbox1_idx]}]}${ZUI[FMT_END]}"; -zui_std_fly_mod_regen demo_generator_A "'"$mod"'" "'"$ice"'"'
 
     # Content
     reply=( "${ZUI[YELLOW]}ZUI${ZUI[FMT_END]} list-box example: <${reply[1]}>" $xtra )
@@ -34,7 +34,7 @@ demo_mod1_generator() {
 }
 
 ## Start application ##
-zui-event-loop 1:demo_mod1_generator
+zui-event-loop 1:demo_generator_A
 
 -zui_std_cleanup serialize
 

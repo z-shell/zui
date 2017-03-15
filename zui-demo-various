@@ -98,7 +98,7 @@ mod3_internal_action() {
     # after transformations of other modules
     # that could shift it up or down. {...:+...}
     # is: if not empty, then value is ...
-    -zui_std_fly_mod_regen demo_mod3_generator "$mod" "$ice" ${data3:+"Extra line from top anchor (initial line: $data3, updated line: ${ZUI[zuianchor$id]})"}
+    -zui_std_fly_mod_regen demo_generator_C "$mod" "$ice" ${data3:+"Extra line from top anchor (initial line: $data3, updated line: ${ZUI[zuianchor$id]})"}
 }
 
 ##
@@ -182,7 +182,7 @@ mod3_internal_action() {
 ##
 
 # Generator for module 1
-demo_mod1_generator() {
+demo_generator_A() {
     local mod="$1" ice="$2" user_data=${3:+ \[Obtained regeneration user data: $3\]}
 
     reply=( )
@@ -222,7 +222,7 @@ demo_mod1_generator() {
     reply4=( regenerateA_$mod jumpA_$mod )
 }
 
-demo_mod2_generator() {
+demo_generator_B() {
     local mod="$1" ice="$2"
 
     # Prepare toggle button's states. Every expression
@@ -235,11 +235,11 @@ demo_mod2_generator() {
 
     reply=( )
     # internal=1 is a trick to make action internal
-    -zui_std_rc_button "bold_$mod" "" "" "" "" "${col_bld}bold${ZUI[FMT_END]}" 'internal=1; (( ZUI[bold]=1-ZUI[bold] )); -zui_std_fly_mod_regen demo_mod2_generator "'"$mod"'" "'"$ice"'"'
-    -zui_std_rc_button "text_select_$mod" "" "" "" "" "${col_tsel}text_select${ZUI[FMT_END]}" 'internal=1; (( ZUI[text_select]=1-ZUI[text_select] )); -zui_std_fly_mod_regen demo_mod2_generator "'"$mod"'" "'"$ice"'"'
-    -zui_std_rc_button "log_append_$mod" "" "" "" "" "${col_lap}log_append${ZUI[FMT_END]}" 'internal=1; [[ ${ZUI[log_append]} = "below" ]] && ZUI[log_append]=above || ZUI[log_append]=below; -zui_std_fly_mod_regen demo_mod2_generator "'"$mod"'" "'"$ice"'"'
-    -zui_std_rc_button "status_pointer_$mod" "" "" "" "" "${col_sptr}status_pointer${ZUI[FMT_END]}" 'internal=1; (( ZUI[status_pointer]=1-ZUI[status_pointer] )); -zui_std_fly_mod_regen demo_mod2_generator "'"$mod"'" "'"$ice"'"'
-    -zui_std_rc_button "status_border_$mod" "" "" "" "" "${col_sb}status_border${ZUI[FMT_END]}" 'internal=1; (( ZUI[status_border]=1-ZUI[status_border] )); -zui_std_fly_mod_regen demo_mod2_generator "'"$mod"'" "'"$ice"'"'
+    -zui_std_rc_button "bold_$mod" "" "" "" "" "${col_bld}bold${ZUI[FMT_END]}" 'internal=1; (( ZUI[bold]=1-ZUI[bold] )); -zui_std_fly_mod_regen demo_generator_B "'"$mod"'" "'"$ice"'"'
+    -zui_std_rc_button "text_select_$mod" "" "" "" "" "${col_tsel}text_select${ZUI[FMT_END]}" 'internal=1; (( ZUI[text_select]=1-ZUI[text_select] )); -zui_std_fly_mod_regen demo_generator_B "'"$mod"'" "'"$ice"'"'
+    -zui_std_rc_button "log_append_$mod" "" "" "" "" "${col_lap}log_append${ZUI[FMT_END]}" 'internal=1; [[ ${ZUI[log_append]} = "below" ]] && ZUI[log_append]=above || ZUI[log_append]=below; -zui_std_fly_mod_regen demo_generator_B "'"$mod"'" "'"$ice"'"'
+    -zui_std_rc_button "status_pointer_$mod" "" "" "" "" "${col_sptr}status_pointer${ZUI[FMT_END]}" 'internal=1; (( ZUI[status_pointer]=1-ZUI[status_pointer] )); -zui_std_fly_mod_regen demo_generator_B "'"$mod"'" "'"$ice"'"'
+    -zui_std_rc_button "status_border_$mod" "" "" "" "" "${col_sb}status_border${ZUI[FMT_END]}" 'internal=1; (( ZUI[status_border]=1-ZUI[status_border] )); -zui_std_fly_mod_regen demo_generator_B "'"$mod"'" "'"$ice"'"'
     -zui_std_rc_button "log_colors_$mod" "" "" "" "" "${ZUI[GREEN]}log_colors${ZUI[FMT_END]}" 'internal=1; zui_log_colors=( $zui_log_colors[-1] ${(@)zui_log_colors[1,-2]} )'
 
     # Variables of the list box
@@ -252,12 +252,12 @@ demo_mod2_generator() {
     (( ${+ZUI[my_tfield1_width]} == 0 )) && ZUI[my_tfield1_width]=20
     (( ${+ZUI[my_tfield1_start]} == 0 )) && ZUI[my_tfield1_start]=4
     (( ${+ZUI[my_tfield1_data]} == 0 )) && ZUI[my_tfield1_data]="An example text"
-    noglob -zui_std_text_field "tfield1_$mod" "$mod" ZUI[my_tfield1_width] ZUI[my_tfield1_start] ZUI[my_tfield1_data] "" "" 'mod2_ice1_extra_line="Received text (with no restart): ${ZUI[CYAN]}${ZUI[my_tfield1_data]}${ZUI[FMT_END]}"; -zui_std_fly_mod_regen demo_mod2_generator "'"$mod"'" "'"$ice"'"'
+    noglob -zui_std_text_field "tfield1_$mod" "$mod" ZUI[my_tfield1_width] ZUI[my_tfield1_start] ZUI[my_tfield1_data] "" "" 'mod2_ice1_extra_line="Received text (with no restart): ${ZUI[CYAN]}${ZUI[my_tfield1_data]}${ZUI[FMT_END]}"; -zui_std_fly_mod_regen demo_generator_B "'"$mod"'" "'"$ice"'"'
 
     (( ${+ZUI[my_tfield2_width]} == 0 )) && ZUI[my_tfield2_width]=40
     (( ${+ZUI[my_tfield2_start]} == 0 )) && ZUI[my_tfield2_start]=1
     (( ${+ZUI[my_tfield2_data]} == 0 )) && ZUI[my_tfield2_data]="I'm wider and start at the beginning"
-    noglob -zui_std_text_field "tfield2_$mod" "$mod" ZUI[my_tfield2_width] ZUI[my_tfield2_start] ZUI[my_tfield2_data] "" "" 'mod2_ice1_extra_line="Received 2nd text (with no restart): ${ZUI[CYAN]}${ZUI[my_tfield2_data]}${ZUI[FMT_END]}"; -zui_std_fly_mod_regen demo_mod2_generator "'"$mod"'" "'"$ice"'"'
+    noglob -zui_std_text_field "tfield2_$mod" "$mod" ZUI[my_tfield2_width] ZUI[my_tfield2_start] ZUI[my_tfield2_data] "" "" 'mod2_ice1_extra_line="Received 2nd text (with no restart): ${ZUI[CYAN]}${ZUI[my_tfield2_data]}${ZUI[FMT_END]}"; -zui_std_fly_mod_regen demo_generator_B "'"$mod"'" "'"$ice"'"'
 
     # Content
     reply=(
@@ -275,7 +275,7 @@ demo_mod2_generator() {
 }
 
 # Generator for module 2
-demo_mod3_generator() {
+demo_generator_C() {
     local mod="$1" ice="$2" extra_line="$3"
 
     # Optional lines
@@ -326,7 +326,7 @@ demo_mod3_generator() {
 
 # Pass configuration altered on-the-fly
 # so that it's not overwritten at restart
-zui-event-loop 1:demo_mod1_generator 1:demo_mod2_generator 2:demo_mod3_generator \
+zui-event-loop 1:demo_generator_A 1:demo_generator_B 2:demo_generator_C \
                  cfg-refresh:bold,text_mode,text_select,status_pointer,log_append,status_border
 
 # Cleanup $ZUI hash runtime data
