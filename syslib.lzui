@@ -6,6 +6,7 @@
 
 ZUI[syslib_sourced]="1"
 
+# FUNCTION: -zui_syslib_get_tfield_cursor_boundaries {{{
 # Gets cursor minimum and maximum x position for
 # given line and given (via id) text field. Stores
 # them into two parameters given by name. Testable,
@@ -94,8 +95,9 @@ function -zui_syslib_get_tfield_cursor_boundaries() {
     : ${(P)__out2::=$__idx}
 
     return 1
-}
+} # }}}
 
+# FUNCTION: -zui_syslib_gather_lanchors  {{{
 # Appends mod${1}_ice${2}_lanchors into array given by name
 #
 # $1 - module index
@@ -113,6 +115,6 @@ function -zui_syslib_gather_lanchors() {
     __output=( "${(P@)__var_name2}" "${(P@)__var_name1}" )
 
     : ${(PA)__var_name2::=${__output[@]}}
-}
+} # }}}
 
 # vim:ft=zsh
