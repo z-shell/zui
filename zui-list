@@ -227,7 +227,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         buf="${buf//(#b)$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\02']#)$'\02'/${(r:${(P)${(Q)match[1]}}:: :)${(s:;:)${(P)${(Q)match[3]}}}[${(P)${(Q)match[2]}}]}}"
 
         -zui_list_translate_color_marks "$buf"
-        __disp_list2[current_page_idx]="$REPLY"
+        __disp_list2[current_page_idx]="${REPLY//$'\n'/n}"  # replace newlines with "\n" (3/3)
 }
 
 -zui_list_compute_mark_codes() {
@@ -579,6 +579,9 @@ while (( 1 )); do
             # to restore current element into marks, to switch colors of active
             # segment
             -zui_list_translate_color_marks_in_disp_list
+
+            # Replace newlines with "\n" (1/3)
+            __disp_list=( "${(@)__disp_list//$'\n'/n}" )
         fi
 
         # We need second __disp_list to be able to traverse with mark
@@ -650,6 +653,9 @@ while (( 1 )); do
             -zui_list_translate_color_marks_in_disp_list
 
             [[ -n "$ZUILIST_COLORING_PATTERN" ]] && -zui_list_colorify_disp_list
+
+            # Replace newlines with "\n" (2/3)
+            __disp_list=( "${(@)__disp_list//$'\n'/n}" )
         fi
 
         # We need second __disp_list to be able to traverse with mark
