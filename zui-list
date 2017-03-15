@@ -791,7 +791,7 @@ while (( 1 )); do
 
     # If a jump is set up by anchor,
     # these parameter(s) will be set
-    local jump_id="" jump_data=""
+    local __jump_id="" __jump_data=""
 
     if [[ "$__action" = "SELECT" ]]; then
         -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}" tmp
@@ -842,8 +842,8 @@ while (( 1 )); do
         ZUI[pressed_now]="$id"
         integer call_hook=0
         if [[ "$id" = zuianchor* ]]; then
-            jump_id="$id"
-            jump_data="${reply[2]}"
+            __jump_id="$id"
+            __jump_data="${reply[2]}"
             id="zuiiaction${id#zuianchor}"
             call_hook=1
         elif [[ "$id" = zuiiaction* ]]; then
@@ -1040,8 +1040,8 @@ while (( 1 )); do
 
     # Anchor to jump? Can be after on-the-fly
     # regeneration submitted by hook call above
-    if [[ -n "$jump_id" ]]; then
-        ZUI[CURRENT_IDX]=$(( ${ZUI[$jump_id]:-$jump_data} ))
+    if [[ -n "$__jump_id" ]]; then
+        ZUI[CURRENT_IDX]=$(( ${ZUI[$__jump_id]:-$__jump_data} ))
         (( ZUI[CURRENT_IDX] < 1 )) && ZUI[CURRENT_IDX]=1
         [[ -z "${ZUI[SEARCH_BUFFER]}" ]] && (( ZUI[CURRENT_IDX] > __last_element )) && ZUI[CURRENT_IDX]="$__last_element"
         ZUI[CURRENT_SEGMENT]=1
