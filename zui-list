@@ -299,7 +299,7 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
         page_width=main_width-2
         -zui_list_recompute_bg
         [[ -n "$wname_status" ]] && zcurses clear "$wname_status"
-        ZUILIST_REGENERATE_LIST=2
+        ZUI[REGENERATE_LIST]=2
     fi
 }
 
@@ -442,7 +442,7 @@ typeset -ga +U ZUILIST_HOP_INDICES
 # Zero - because it isn't known, unless we confirm that first element is selectable
 ZUILIST_USER_CURRENT_IDX=0
 [[ -z "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)1]}" ]] && ZUILIST_USER_CURRENT_IDX=1
-ZUILIST_USER_LAST_ELEMENT=$(( last_element - $#ZUILIST_NONSELECTABLE_ELEMENTS ))
+ZUILIST_USER_LAST_ELEMENT=$(( last_element - ${#ZUILIST_NONSELECTABLE_ELEMENTS} ))
 
 # Recompute ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] in case it
 # was incorrectly manually altered outside the list, also
@@ -477,13 +477,8 @@ zcurses timeout "$wname_main" -1
 key=""
 keypad=""
 
-# Initial list. $@ later still serves as verbatim input.
-# This loop makes script faster on some Zsh's (e.g. 5.0.8)
-repeat 1; do
-    __list=( "$@" )
-done
-
-last_element="${#__list}"
+# Generate initial list
+ZUI[REGENERATE_LIST]="1"
 
 while (( 1 )); do
     # Handle resize, once every 5 seconds
@@ -492,12 +487,12 @@ while (( 1 )); do
     # Do searching?
     if [[ -n "${ZUI[SEARCH_BUFFER]}" ]]; then
         # Compute new list?
-        if [[ "${ZUI[SEARCH_BUFFER]}" != "$prev_search_buffer" || "${ZUI[UNIQ_MODE]}" -ne "$prev_uniq_mode" || "$ZUILIST_REGENERATE_LIST" = "1" ]]
+        if [[ "${ZUI[SEARCH_BUFFER]}" != "$prev_search_buffer" || "${ZUI[UNIQ_MODE]}" -ne "$prev_uniq_mode" || "${ZUI[REGENERATE_LIST]}" = "1" ]]
         then
             prev_search_buffer="${ZUI[SEARCH_BUFFER]}"
             prev_uniq_mode="${ZUI[UNIQ_MODE]}"
             # regenerating list -> regenerating disp_list
-            ZUILIST_REGENERATE_LIST="2"
+            ZUI[REGENERATE_LIST]="2"
 
             # Take all elements, including duplicates and non-selectables
             typeset +U __list
@@ -506,7 +501,7 @@ while (( 1 )); do
             done
 
             # Remove non-selectable elements
-            [[ "$#ZUILIST_NONSELECTABLE_ELEMENTS" -gt 0 ]] && for i in "${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
+            [[ "${#ZUILIST_NONSELECTABLE_ELEMENTS}" -gt 0 ]] && for i in "${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
                 __list[$i]=()
             done
 
@@ -551,8 +546,8 @@ while (( 1 )); do
         integer end_idx=$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + page_height - 1 ))
         [[ "$end_idx" -gt "$last_element" ]] && end_idx=last_element
 
-        if [[ "$ZUILIST_REGENERATE_LIST" = "2" || "$prev_start_idx" -ne "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" ]]; then
-            ZUILIST_REGENERATE_LIST="0"
+        if [[ "${ZUI[REGENERATE_LIST]}" = "2" || "$prev_start_idx" -ne "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" ]]; then
+            ZUI[REGENERATE_LIST]="0"
             prev_start_idx="${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"
             disp_list=( "${(@)__list[${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]},end_idx]}" )
 
@@ -601,10 +596,10 @@ while (( 1 )); do
         # OR
         # Uniq mode was entered or left out
         # -> compute new list
-        if [[ -n "$prev_search_buffer" || "${ZUI[UNIQ_MODE]}" -ne "$prev_uniq_mode" || "$ZUILIST_REGENERATE_LIST" = "1" ]]
+        if [[ -n "$prev_search_buffer" || "${ZUI[UNIQ_MODE]}" -ne "$prev_uniq_mode" || "${ZUI[REGENERATE_LIST]}" = "1" ]]
         then
             # regenerating list -> regenerating disp_list
-            ZUILIST_REGENERATE_LIST="2"
+            ZUI[REGENERATE_LIST]="2"
             prev_search_buffer=""
             prev_uniq_mode="${ZUI[UNIQ_MODE]}"
 
@@ -615,7 +610,7 @@ while (( 1 )); do
             done
 
             # Remove non-selectable elements only when in uniq mode
-            [[ "${ZUI[UNIQ_MODE]}" -eq 1 ]] && [[ "$#ZUILIST_NONSELECTABLE_ELEMENTS" -gt 0 ]] &&
+            [[ "${ZUI[UNIQ_MODE]}" -eq 1 ]] && [[ "${#ZUILIST_NONSELECTABLE_ELEMENTS}" -gt 0 ]] &&
             for i in "${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
                 __list[$i]=()
             done
@@ -636,8 +631,8 @@ while (( 1 )); do
         integer end_idx=$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + page_height - 1 ))
         [[ "$end_idx" -gt "$last_element" ]] && end_idx=last_element
 
-        if [[ "$ZUILIST_REGENERATE_LIST" = "2" || "$prev_start_idx" -ne "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"  ]]; then
-            ZUILIST_REGENERATE_LIST="0"
+        if [[ "${ZUI[REGENERATE_LIST]}" = "2" || "$prev_start_idx" -ne "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"  ]]; then
+            ZUI[REGENERATE_LIST]="0"
             prev_start_idx="${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"
             disp_list=( "${(@)__list[${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]},end_idx]}" )
 
@@ -870,7 +865,7 @@ while (( 1 )); do
         -zui_util_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
         -zui_std_decode "$REPLY" && local id="${reply[1]}" || local id="-"
         if [[ "$action" = TFIELD_LEFT && -n "${ZUI[$id]}" ]]; then
-            ZUILIST_REGENERATE_LIST="2" # regenerate only display list
+            ZUI[REGENERATE_LIST]="2" # regenerate only display list
             reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
             if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
                 eval "${ZUI[$id]}"
@@ -882,7 +877,7 @@ while (( 1 )); do
         -zui_util_get_segment "${__list[selection]}" "${ZUI[CURRENT_SEGMENT]}"
         -zui_std_decode "$REPLY" && local id="${reply[1]}" || local id="-"
         if [[ "$action" = LBOX_LEFT && -n "${ZUI[$id]}" ]]; then
-            ZUILIST_REGENERATE_LIST="2" # regenerate only display list
+            ZUI[REGENERATE_LIST]="2" # regenerate only display list
             reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
             if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
                 eval "${ZUI[$id]}"
@@ -920,7 +915,7 @@ while (( 1 )); do
         # still better than previous $last_element
         last_element="$#"
 
-        ZUILIST_REGENERATE_LIST="1"
+        ZUI[REGENERATE_LIST]="1"
 
         # How many elements push down (up if negative)
         # indices that are after the modified section
