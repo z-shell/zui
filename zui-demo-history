@@ -23,6 +23,8 @@ demo_generator_A() {
     reply2=( )               reply3=( 1 )                reply4=( )
 }
 
+ZUI[COLORING_PATTERN]="(vim|emacs|git|make)" ZUI[COLORING_MATCH_MULTIPLE]=1
+
 ## Start application ##
 # a:u- is: array, unique elements
 zui-event-loop 1:demo_generator_A a:u-history 1:demo_generator_A
