@@ -83,7 +83,7 @@ function -zui_util_get_time() {
 # Returns date and time. Uses datetime zsh module
 # or date command as fallback.
 #
-# $REPLY - date and time string "Y_m_d_H.M.S"
+# $REPLY - date and time string "Ymd_H.M.S"
 #
 function -zui_util_get_datetime() {
     local ts

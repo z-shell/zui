@@ -862,7 +862,7 @@ function -zui_std_reset_replies() {
 # Maps reply{,2..4} parameters onto module
 # parameters:
 #    mod${midx}_ice${iidx}_output mod${midx}_ice${iidx}_nonselectables
-#    mod${midx}_ice${iidx}_hops mod${midx}_lice${iidx}_anchors
+#    mod${midx}_ice${iidx}_hops mod${midx}_ice${iidx}_anchors
 #    mod${midx}_ice${iidx}_size
 #
 # $1 - module index
@@ -883,8 +883,7 @@ function -zui_std_map_replies() {
 
 # FUNCTION: -zui_std_fly_mod_regen {{{
 # Submits on-the-fly module update. Needs
-# generator to run and module index. The
-# id parameter is unused
+# generator to run and instance ID.
 #
 # $1 - name of generator function
 # $2 - module's index
