@@ -922,6 +922,37 @@ function -zui_std_map_replies() {
     -zui_std_reset_replies
 } # }}}
 
+# FUNCTION: -zui_std_fly_array_refresh {{{
+# Submits on-the-fly array refresh. The given instance ID
+# should point to an array ("a:" prefix at zui-event-loop).
+# The array will be read again and pasted into document
+# replacing previous content.
+#
+# No instance index is requested, because arrays have only
+# single instance.
+#
+# $1 - module's index
+-zui_std_fly_array_refresh() {
+    local mod="$1" ice="1" key="${zuiel_module_hash[(i)${1}_*]}"
+
+    -zui_std_reset_replies
+
+    local __arr="${zuiel_module_hash[$key]}"
+    if [[ "$__arr" = u-* ]]; then
+        __arr="${__arr#u-}"
+        reply=( "${(PA@u)__arr}" )
+    else
+        reply=( "${(PA@)__arr}" )
+    fi
+
+    reply2=( ) reply3=( 1 ) reply4=( )
+    -zui_std_map_replies "$mod" "$ice"
+    -zui_std_submit_fly_from_gen_replies "$mod" "$ice"
+
+    # No output from this function
+    -zui_std_reset_replies
+} # }}}
+
 # FUNCTION: -zui_std_submit_fly_from_gen_replies {{{
 # Internal action can call this function in
 # order to replace module with new version.
