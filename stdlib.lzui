@@ -428,11 +428,13 @@ function -zui_std_decode_list_box() {
 #
 # $1 - hyperlink
 # $2 - output parameter name, for type (default: REPLY)
+# $3 - output array name, for hyperlink data (default: reply)
 function -zui_std_decode() {
-    local __out="${2:-REPLY}"
-    [[ "$1" = *$'\01'* ]] && { -zui_std_decode_hyperlink "$1" && { : ${(P)__out::=1}; return 0; }; }
-    [[ "$1" = *$'\032'* ]] && { -zui_std_decode_text_field "$1" && { : ${(P)__out::=2}; return 0; }; }
-    [[ "$1" = *$'\034'* ]] && { -zui_std_decode_list_box "$1" && { : ${(P)__out::=3}; return 0; }; }
+    local __out="${2:-REPLY}" __var_name="${3:-reply}"
+    : ${(PA)__var_name::=}
+    [[ "$1" = *$'\01'* ]] && { -zui_std_decode_hyperlink "$1" "$__var_name" && { : ${(P)__out::=1}; return 0; }; }
+    [[ "$1" = *$'\032'* ]] && { -zui_std_decode_text_field "$1" "$__var_name" && { : ${(P)__out::=2}; return 0; }; }
+    [[ "$1" = *$'\034'* ]] && { -zui_std_decode_list_box "$1" "$__var_name" && { : ${(P)__out::=3}; return 0; }; }
     : ${(P)__out::=0}
     return 1
 } # }}}
