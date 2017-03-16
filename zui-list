@@ -569,14 +569,14 @@ while (( 1 )); do
                 local col="${ZUI[BG_MAGENTA]}" close="${ZUI[FMT_END]}"
                 # The repeat will make the matching work on a fresh heap arena
                 repeat 1; do
-                    __disp_list=( ${(@)__disp_list//(#mi)($~colsearch_pattern)/$col${MATCH}$close} )
+                    __disp_list=( "${(@)__disp_list//(#mi)($~colsearch_pattern)/$col${MATCH}$close}" )
                     # [Mark][Text][$col-Mark][Text2][Close]... -> [Mark][Text][Close][$col-Mark][Text2][Close][Mark]
                     # I.e. provide [Close] before [$col-Mark] and [Mark] after $col's [Close]
                     # Here is the ancient common *_E obstacle - we can easily use only single [Close] in the substitution
                     while (( 1 )); do
                         # [all] [fg] [bg], matches more combinations but solves and is fast
                         mbegin=()
-                        __disp_list=( ${(@)__disp_list//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031']([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|))([^$close]#)$col([^$close]#)$close/$match[1]$match[4]$close$col$match[5]$close$match[1]} )
+                        __disp_list=( "${(@)__disp_list//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031']([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|))([^$close]#)$col([^$close]#)$close/$match[1]$match[4]$close$col$match[5]$close$match[1]}" )
                         [[ -z "${mbegin[1]}" ]] && break
                     done
                 done
