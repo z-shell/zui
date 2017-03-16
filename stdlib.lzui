@@ -981,7 +981,9 @@ function -zui_std_submit_fly_from_gen_replies() {
     var_name="prev_mod${mod}_ice${ice}_size"
     previous_size="${(P)var_name}"
 
-    -zui_std_submit_list_update "$mod" "$ice" "$global_index" "$(( global_index + previous_size - 1 ))" "${reply[@]}"
+    # Not submitting module output, it is assumed
+    # that -zui_std_map_replies was called
+    -zui_std_submit_list_update "$mod" "$ice" "$global_index" "$(( global_index + previous_size - 1 ))" # "${reply[@]}"
     -zui_std_submit_nonselectables "${reply2[@]}"
     -zui_std_submit_hops "${reply3[@]}"
     -zui_std_submit_lanchors "${reply4[@]}"

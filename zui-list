@@ -912,8 +912,20 @@ while (( 1 )); do
         local mod=${update[1]} ice=${update[2]}
         integer update_first=$update[3]
         integer update_count=$update[4]
-        shift 4 update
-        integer update_size=${#update}
+
+        if [[ -n "$mod" && -n "$ice" ]]; then
+            # Fast track, no elements in decoded data,
+            # but already in module-owned parameters
+            var_name="mod${mod}_ice${ice}_output"
+            update=( "${(PA@)var_name}" )
+
+            var_name="mod${mod}_ice${ice}_size"
+            integer update_size="${(P)var_name}"
+        else
+            # Normal track if not doing module-update
+            shift 4 update
+            integer update_size=${#update}
+        fi
 
         # Update $@ array of this function - it
         # is "zui-list", main UI function, and
