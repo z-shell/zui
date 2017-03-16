@@ -933,11 +933,9 @@ function -zui_std_map_replies() {
 #
 # $1 - module's index
 -zui_std_fly_array_refresh() {
-    local mod="$1" ice="1" key="${zuiel_module_hash[(i)${1}_*]}"
+    local __mod="$1" __ice="1" __key="${zuiel_module_hash[(i)${1}_*]}"
 
-    -zui_std_reset_replies
-
-    local __arr="${zuiel_module_hash[$key]}"
+    local __arr="${zuiel_module_hash[$__key]}"
     if [[ "$__arr" = u-* ]]; then
         __arr="${__arr#u-}"
         reply=( "${(PA@u)__arr}" )
@@ -946,8 +944,8 @@ function -zui_std_map_replies() {
     fi
 
     reply2=( ) reply3=( 1 ) reply4=( )
-    -zui_std_map_replies "$mod" "$ice"
-    -zui_std_submit_fly_from_gen_replies "$mod" "$ice"
+    -zui_std_map_replies "$__mod" "$__ice"
+    -zui_std_submit_fly_from_gen_replies "$__mod" "$__ice"
 
     # No output from this function
     -zui_std_reset_replies
