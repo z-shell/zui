@@ -180,7 +180,7 @@ function -zui_std_rc_button() {
 # anchor is also set to be external.
 #
 # Example call:
-#    -zui_std_anchor "regen1" "4" "" ",mod1_ice2," "$RANDOM", "[${ZUI[MAGENTA]}Regen${ZUI[MAGENTA_E]}]"
+#    -zui_std_anchor "regen1" "4" "" ",mod1_ice2," "$RANDOM" "[${ZUI[MAGENTA]}Regen${ZUI[FMT_END]}]"
 #
 # Generator has instance ID (mod and ice) in $1 and $2
 # by the design of restart-regeneration loop. So, this
