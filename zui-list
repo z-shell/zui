@@ -427,7 +427,7 @@ local backuptheme stbackuptheme
 -zui_std_load_config s:log_colors "white cyan yellow green cyan red magenta yellow blue" 2 'ZUI[log_colors]'
 -zui_std_load_config s:timeout "-1" 2 'ZUI[timeout]'
 
-(( ZUI[timeout] != -1 )) && (( ZUI[timeout] = ZUI[timeout] < 500 ? 500 : ZUI[timeout] ))
+(( ZUI[timeout] != -1 )) && (( ZUI[timeout] = ZUI[timeout] < 200 ? 200 : ZUI[timeout] ))
 
 local -a zui_log_colors
 zui_log_colors=( "${=ZUI[log_colors]}" )
