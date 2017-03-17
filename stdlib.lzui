@@ -112,7 +112,7 @@ function -zui_std_special_text() {
     : ${(PA)__var_name::=${__output[@]}}
 } # }}}
 
-# FUNCTION: -zui_std_button {{{
+# FUNCTION: -zui_std_button_ext {{{
 # Appends hyperlink into output array. It's an action button
 # shown without surrounding "[" and "]".
 #
@@ -127,7 +127,7 @@ function -zui_std_special_text() {
 #
 # Output array is extended by hyperlink's text (one new element)
 #
-function -zui_std_button() {
+function -zui_std_button_ext() {
     local __id="${(q)1}" __data1="${(q)2}" __data2="${(q)3}" __data3="${(q)4}" __data4="${(q)5}" __text="$6" __handler="$7"
     local __var_name="${8:-reply}"
 
@@ -147,13 +147,13 @@ function -zui_std_button() {
     : ${(PA)__var_name::=${__output[@]}}
 } # }}}
 
-# FUNCTION: -zui_std_rc_button {{{
+# FUNCTION: -zui_std_rc_button_ext {{{
 # Appends hyperlink into output array. It's an action button
 # shown with surrounding [ and ].
 #
-# Arguments are the same as in -zui_std_button
+# Arguments are the same as in -zui_std_button_ext
 #
-function -zui_std_rc_button() {
+function -zui_std_rc_button_ext() {
     local __id="${(q)1}" __data1="${(q)2}" __data2="${(q)3}" __data3="${(q)4}" __data4="${(q)5}" __text="$6" __handler="$7"
     local __var_name="${8:-reply}"
     local -a __output
@@ -172,6 +172,32 @@ function -zui_std_rc_button() {
     unset pfx __id __data1 __data2 __data3 __data4 __text __handler
     : ${(PA)__var_name::=${__output[@]}}
 } # }}}
+
+# FUNCTION: -zui_std_rc_button {{{
+# Short rectangle button function - no user data
+#
+# $1 - action ID
+# $2 - text
+# $3 - optional handler function name, can be empty text
+# $4 - optional output variable name (defualt: 'reply')
+function -zui_std_rc_button() {
+    local __id="$1" __text="$2" __handler="$3" __var_name="${4:-reply}"
+    -zui_std_rc_button_ext "$__id" "" "" "" "" "$__text" "$__handler" "$__var_name"
+}
+# }}}
+
+# FUNCTION: -zui_std_button {{{
+# Short button function - no user data
+#
+# $1 - action ID
+# $2 - text
+# $3 - optional handler function name, can be empty text
+# $4 - optional output variable name (defualt: 'reply')
+function -zui_std_button() {
+    local __id="$1" __text="$2" __handler="$3" __var_name="${4:-reply}"
+    -zui_std_button_ext "$__id" "" "" "" "" "$__text" "$__handler" "$__var_name"
+}
+# }}}
 
 # FUNCTION: -zui_std_anchor {{{
 # Appends anchor hyperlink into "reply" output array
