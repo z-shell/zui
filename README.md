@@ -44,4 +44,4 @@ zui-event-loop 1:demo_generator_A
 
 ![Hello World screenshot](https://github.com/zdharma/zdharma.github.io/blob/devel/src/static/img/scrsh/hello-world.png)
 
-Other example which uses list-box: [zui-demo-list-box](https://github.com/zdharma/zui/blob/master/zui-demo-list-boxes)
+Other example which uses list-box: [zui-demo-list-box](https://github.com/zdharma/zui/blob/master/demos/zui-demo-list-boxes)
