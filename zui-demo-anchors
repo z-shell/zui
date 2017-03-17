@@ -23,7 +23,7 @@ demo_generator_A() {
     reply=()
     -zui_std_anchor "aregen1" "3" "" ",mod1_ice1," "" "[${ZUI[MAGENTA]}third${ZUI[FMT_END]}]"
     -zui_std_anchor "anchor" "3+2" "" "" "" "[${ZUI[MAGENTA]}next${ZUI[FMT_END]}]"
-    -zui_std_anchor "aregen2" "3+2" "" "" "" "[${ZUI[MAGENTA]}next${ZUI[FMT_END]}]" 'internal=1; -zui_std_fly_mod_regen demo_generator_B 2 1'
+    -zui_std_anchor "aregen2" "3+2" "" "" "" "[${ZUI[MAGENTA]}next${ZUI[FMT_END]}]" 'internal=1; -zui_std_fly_mod_regen 2 1'
 
     # Content
     reply=(
