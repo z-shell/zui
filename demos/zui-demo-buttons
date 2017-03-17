@@ -13,11 +13,8 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 -zui_std_store_default_app_config b:status_size 5
 -zui_std_store_default_app_config s:text_mode off
 
-# Trick variable to make handler no-restart
-local internal
-
-# Own logs queue
-local -a logs
+local internal  # trick variable to make handler no-restart
+local -a logs   # own logs queue
 
 # Generator for module 1
 demo_generator_A() {
