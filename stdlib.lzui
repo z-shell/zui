@@ -461,6 +461,25 @@ function -zui_std_decode() {
     return 1
 } # }}}
 
+# FUNCTION: -zui_std_get_stext {{{
+#
+# $1 - special-text string
+# $2 - optional output parameter name (default: "REPLY")
+#
+# REPLY: decoded text contained in the special string
+#
+function -zui_std_get_stext() {
+    local __var_name="${2:-REPLY}"
+
+    if [[ "$1" = (#b)*$'\01'$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'* ]]; then
+        local __text="${(Q)match[1]}"
+        : ${(P)__var_name::=$__text}
+        return 0
+    fi
+
+    return 1
+} # }}}
+
 # FUNCTION: -zui_std_is_hyperlink {{{
 # Checks if given text is a button/anchor/raw hyperlink
 function -zui_std_is_hyperlink() {
