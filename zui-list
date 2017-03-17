@@ -747,9 +747,6 @@ while (( 1 )); do
         -zui_list_cursor_visibility "field" 0
     fi
 
-    # Draw only?
-    [[ "$ZUILIST_DRAW_ONLY" = "1" ]] && return
-
     # Wait for input
     key="" keypad="" __final_key=""
     zcurses input "$__wname_main" key keypad
