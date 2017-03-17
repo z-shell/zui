@@ -41,3 +41,5 @@ zui-event-loop 1:demo_generator_A
 
 -zui_std_cleanup serialize
 ```
+
+![Hello World screenshot](https://github.com/zdharma/zdharma.github.io/blob/devel/src/static/img/scrsh/hello-world.png)
