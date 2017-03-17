@@ -33,7 +33,7 @@ function -zui_sys_get_tfield_cursor_boundaries() {
         __idx+="${#ZUI_PB_SPACES[__i]}"
         __seg="${ZUI_PB_WORDS[__i]}"
         if -zui_std_is_hyperlink "$__seg"; then
-            __text="${__seg//$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\02'/}"
+            __text="${__seg//(#b)$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'/${(Q)match[1]}}"
             -zui_util_strip_codes "$__text"
             __idx+="${#REPLY}"
         elif -zui_std_decode_text_field "$__seg" __output; then
