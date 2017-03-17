@@ -916,23 +916,22 @@ while (( 1 )); do
         if [[ -n "$mod" && -n "$ice" ]]; then
             # Fast track, no elements in decoded data,
             # but already in module-owned parameters
-            var_name="mod${mod}_ice${ice}_output"
-            update=( "${(PA@)var_name}" )
 
             var_name="mod${mod}_ice${ice}_size"
             integer update_size="${(P)var_name}"
+
+            var_name="mod${mod}_ice${ice}_output"
+            set -- "${(@)@[1,update_first-1]}" "${(PA@)var_name}" "${(@)@[update_first+update_count,-1]}"
         else
             # Normal track if not doing module-update
             shift 4 update
             integer update_size=${#update}
-        fi
 
-        # Update $@ array of this function - it
-        # is "zui-list", main UI function, and
-        # $@ holds original input data. So it
-        # can be said that here a restart of
-        # zui-list is simulated
-        set -- "${(@)@[1,update_first-1]}" "${update[@]}" "${(@)@[update_first+update_count,-1]}"
+            # Update $@ array of this function - it is "zui-list", main UI function, and
+            # $@ holds original input data. So it can be said that here a restart of
+            # zui-list is simulated
+            set -- "${(@)@[1,update_first-1]}" "${update[@]}" "${(@)@[update_first+update_count,-1]}"
+        fi
 
         # This isn't fully correct, the list might
         # be in search or uniq mode, but that is
