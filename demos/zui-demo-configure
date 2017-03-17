@@ -51,7 +51,6 @@ demo_generator_B() {
 -zui-standard-status-callback() { [[ "${#logs}" -gt 0 ]] && { reply=( "Message: " "${logs[1]}" ); logs=( ${(@)logs[2,-1]} ); return 1; }; return 0; }
 
 get_cflags() {
-    (( ZUI[timeout_update] )) && return 0   # Ignore timeout-updates
     local CFLAGS=`grep '^CFLAGS[[:space:]]*=' Makefile`
     logs+=( "CFLAGS = ${CFLAGS#*=[[:space:]]##}" )
     return 1
