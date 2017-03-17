@@ -341,7 +341,7 @@ shift 7
 typeset -a __list __disp_list __disp_list2
 integer __last_element=$#
 local __action
-local __final_key __tmp
+local __final_key __tmp __do_exit
 integer __selection
 integer __last_element_difference=0
 integer __current_difference=0
@@ -425,6 +425,10 @@ local backuptheme stbackuptheme
 -zui_std_load_config s:log_size "32" 2 'ZUI[log_size]'
 -zui_std_load_config s:log_time_format "[%H:%M] " 2 'ZUI[log_time_format]'
 -zui_std_load_config s:log_colors "white cyan yellow green cyan red magenta yellow blue" 2 'ZUI[log_colors]'
+-zui_std_load_config s:timeout "-1" 2 'ZUI[timeout]'
+
+(( ZUI[timeout] != -1 )) && (( ZUI[timeout] = ZUI[timeout] < 500 ? 500 : ZUI[timeout] ))
+
 local -a zui_log_colors
 zui_log_colors=( "${=ZUI[log_colors]}" )
 
@@ -482,7 +486,7 @@ local key keypad
 # Clear input buffer
 zcurses timeout "$__wname_main" 0
 zcurses input "$__wname_main" key keypad
-zcurses timeout "$__wname_main" -1
+zcurses timeout "$__wname_main" "${ZUI[timeout]}"
 key=""
 keypad=""
 
@@ -738,7 +742,7 @@ while (( 1 )); do
         zcurses refresh "$__wname_status"
     }
 
-    ZUI[pressed_now]="" ZUI[pure_text_selected]="" ZUI[line_selected]=""
+    ZUI[pressed_now]="" ZUI[pure_text_selected]="" ZUI[line_selected]="" ZUI[timeout_update]=0
 
     if [[ -n "${ZUI[current_tfield]}" ]]; then
         zcurses move "$__wname_main" "${ZUI[cursor_y]}" $(( ZUI[cursor_x] + 2 ))
@@ -747,329 +751,352 @@ while (( 1 )); do
         -zui_list_cursor_visibility "field" 0
     fi
 
-    # Wait for input
-    key="" keypad="" __final_key=""
-    zcurses input "$__wname_main" key keypad
+    __final_key="<timeout>" __do_exit="no"
+    while [[ "$__final_key" = "<timeout>" ]]; do
+        # Wait for input
+        key="" keypad="" __final_key=""
+        zcurses input "$__wname_main" key keypad
 
-    # Get the special (i.e. "keypad") key or regular key
-    if [[ -n "$key" ]]; then
-        __final_key="$key"
-    elif [[ -n "$keypad" ]]; then
-        __final_key="$keypad"
-    elif [[ -n "$__wname_status" ]]; then
-        -zui_sys_add_message 1 "${EPOCHSECONDS:-0}" "" "" "Warning: " "Improper input detected"
-    fi
-
-    integer track_cur_idx="${ZUI[CURRENT_IDX]}"
-    zui-list-input "${ZUI[CURRENT_IDX]}" "${ZUI[CURRENT_SEGMENT]}" "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" \
-                    "$__page_height" "$__page_width" "$__last_element" "$__nseg" "${ZUI[TEXT_OFFSET]}" \
-                    "$__final_key" "${ZUI[SEARCH_MODE]}" "${ZUI[SEARCH_BUFFER]}" \
-                    "${ZUI[UNIQ_MODE]}" "$ZUILIST_DISABLE_SEARCH" "__list"
-
-    __selection="$reply[1]"
-    __action="$reply[2]"
-    ZUI[CURRENT_IDX]="$reply[3]"
-    ZUI[CURRENT_SEGMENT]="$reply[4]"
-    ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]="$reply[5]"
-    ZUI[TEXT_OFFSET]="$reply[6]"
-    ZUI[SEARCH_MODE]="$reply[7]"
-    ZUI[SEARCH_BUFFER]="$reply[8]"
-    ZUI[UNIQ_MODE]="$reply[9]"
-
-    #
-    # Remember selected segment at each line?
-    # (functionality)
-    #
-
-    if [[ "$ZUILIST_TRACK_SEGMENTS" = "1" ]]; then
-        # Remember segment change (element change and
-        # segment change cannot occur at the same time)
-        ZUILIST_ACTIVE_SEGMENTS[$track_cur_idx]="${ZUI[CURRENT_SEGMENT]}"
-
-        if [[ "$track_cur_idx" != "${ZUI[CURRENT_IDX]}" ]]; then
-            # Restore segment or set to 1
-            if (( ${+ZUILIST_ACTIVE_SEGMENTS[${ZUI[CURRENT_IDX]}]} )); then
-                ZUI[CURRENT_SEGMENT]="${ZUILIST_ACTIVE_SEGMENTS[${ZUI[CURRENT_IDX]}]}"
-            else
-                ZUI[CURRENT_SEGMENT]=1
-            fi
-        fi
-    fi
-
-    #
-    # Main input action examination
-    #
-
-    # If a jump is set up by anchor,
-    # these parameter(s) will be set
-    local __jump_id="" __jump_data=""
-
-    if [[ "$__action" = "SELECT" ]]; then
-        -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}" __tmp
-        # Is it a hyperlink selection? If not, then examine select_mode
-        # to know if the text selection (ZUI[text_select] is examined in
-        # zui-list-input) should be passed outside the list
-        if -zui_std_is_any_hyperlink "$__tmp" || [[ "${ZUI[select_mode]}" = (restart|quit) ]]; then
-            REPLY="$__selection"
-            reply=( "${__list[@]}" )
-            break
-        fi
-
-        # ZUI[select_mode] == no-restart
-        # No passing outside, will invoke callback, but need to
-        # know if on whole line, or on single text-bit segment
-        if [[ "${ZUI[text_mode]}" = "off" ]] || [[ "${ZUI[text_mode]}" = "hyp" ]] && ! -zui_std_has_any_hyperlinks "${__list[__selection]}"; then
-            # Text-bit navigation is disabled - this must be whole line selection
-            # ... is enabled for with-hyperlinks lines, but line is without hyperlinks - ...
-            (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "line" "${__list[__selection]}"
-            ZUI[line_selected]="${__list[__selection]}"
+        # Get the special (i.e. "keypad") key or regular key
+        if [[ -n "$key" ]]; then
+            __final_key="$key"
+        elif [[ -n "$keypad" ]]; then
+            __final_key="$keypad"
         else
-            (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "segment" "$__tmp"
-            ZUI[pure_text_selected]="$__tmp"
-        fi
-    elif [[ "$__action" = F[1-4] ]]; then
-        REPLY="$__action"
-        reply=( "$__list[@]" )
-        break
-    elif [[ "$__action" = "BR_MOVE_LEFT" || "$__action" = "BR_MOVE_RIGHT" ]]; then
-        REPLY="$__action"
-        reply=( "$__list[@]" )
-        break
-    elif [[ "$__action" = "QUIT" ]]; then
-        REPLY=-1
-        reply=( "${__list[@]}" )
-        break
-    elif [[ "$__action" = "REDRAW" ]]; then
-        zcurses clear "$__wname_main" redraw
-        # Status window is optional (2/2)
-        [[ -n "$__wname_status" ]] && zcurses clear "$__wname_status" redraw
-
-        # Handle resize, force terminal-size read
-        -zui_list_handle_resize 1
-    elif [[ "$__action" = "HYPERLINK" ]]; then
-        -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}"
-        -zui_std_decode "$REPLY"
-        local id="${reply[1]}"
-        ZUI[pressed_now]="$id"
-        integer call_hook=0
-        if [[ "$id" = zuianchor* ]]; then
-            __jump_id="$id"
-            __jump_data="${reply[2]}"
-            id="zuiiaction${id#zuianchor}"
-            call_hook=1
-        elif [[ "$id" = zuiiaction* ]]; then
-            call_hook=1
-        fi
-
-        # Is there hook to launch?
-        if [[ $call_hook -gt 0 && -n "${ZUI[$id]}" ]]; then
-            reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
-            # Call the handler with all hyper-link
-            # data or eval code, not using the data
-            if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
-                eval "() { ${ZUI[$id]%;}; } ${(q)reply[@]}"
+            if [[ "${ZUI[timeout]}" = "-1" ]]; then
+                -zui_sys_add_message 1 "${EPOCHSECONDS:-0}" "" "" "Warning: " "Improper input detected"
             else
-                "${ZUI[$id]}" "${reply[@]}"
+                __final_key="<timeout>"
+                (( ${+functions[-zui-standard-timeout-callback]} )) && -zui-standard-timeout-callback
             fi
         fi
-    elif [[ "$__action" = TFIELD* ]]; then
-        -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}"
-        -zui_std_decode "$REPLY" && local id="${reply[1]}" || local id="-"
-        if [[ "$__action" = TFIELD_LEFT && -n "${ZUI[$id]}" ]]; then
-            ZUI[REGENERATE_LIST]="2" # regenerate only display list
-            reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
-            if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
-                eval "() { ${ZUI[$id]%;}; } ${(q)reply[@]}"
+
+        if [[ -n "$__final_key" && "$__final_key" != "<timeout>" ]]; then
+            integer track_cur_idx="${ZUI[CURRENT_IDX]}"
+            zui-list-input "${ZUI[CURRENT_IDX]}" "${ZUI[CURRENT_SEGMENT]}" "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" \
+                            "$__page_height" "$__page_width" "$__last_element" "$__nseg" "${ZUI[TEXT_OFFSET]}" \
+                            "$__final_key" "${ZUI[SEARCH_MODE]}" "${ZUI[SEARCH_BUFFER]}" \
+                            "${ZUI[UNIQ_MODE]}" "$ZUILIST_DISABLE_SEARCH" "__list"
+
+            __selection="$reply[1]"
+            __action="$reply[2]"
+            ZUI[CURRENT_IDX]="$reply[3]"
+            ZUI[CURRENT_SEGMENT]="$reply[4]"
+            ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]="$reply[5]"
+            ZUI[TEXT_OFFSET]="$reply[6]"
+            ZUI[SEARCH_MODE]="$reply[7]"
+            ZUI[SEARCH_BUFFER]="$reply[8]"
+            ZUI[UNIQ_MODE]="$reply[9]"
+
+            #
+            # Remember selected segment at each line?
+            # (functionality)
+            #
+
+            if [[ "$ZUILIST_TRACK_SEGMENTS" = "1" ]]; then
+                # Remember segment change (element change and
+                # segment change cannot occur at the same time)
+                ZUILIST_ACTIVE_SEGMENTS[$track_cur_idx]="${ZUI[CURRENT_SEGMENT]}"
+
+                if [[ "$track_cur_idx" != "${ZUI[CURRENT_IDX]}" ]]; then
+                    # Restore segment or set to 1
+                    if (( ${+ZUILIST_ACTIVE_SEGMENTS[${ZUI[CURRENT_IDX]}]} )); then
+                        ZUI[CURRENT_SEGMENT]="${ZUILIST_ACTIVE_SEGMENTS[${ZUI[CURRENT_IDX]}]}"
+                    else
+                        ZUI[CURRENT_SEGMENT]=1
+                    fi
+                fi
+            fi
+
+            #
+            # Main input action examination
+            #
+
+            # If a jump is set up by anchor,
+            # these parameter(s) will be set
+            local __jump_id="" __jump_data=""
+
+            if [[ "$__action" = "SELECT" ]]; then
+                -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}" __tmp
+                # Is it a hyperlink selection? If not, then examine select_mode
+                # to know if the text selection (ZUI[text_select] is examined in
+                # zui-list-input) should be passed outside the list
+                if -zui_std_is_any_hyperlink "$__tmp" || [[ "${ZUI[select_mode]}" = (restart|quit) ]]; then
+                    REPLY="$__selection"
+                    reply=( "${__list[@]}" )
+                    __do_exit="yes"
+                    break
+                fi
+
+                # ZUI[select_mode] == no-restart
+                # No passing outside, will invoke callback, but need to
+                # know if on whole line, or on single text-bit segment
+                if [[ "${ZUI[text_mode]}" = "off" ]] || [[ "${ZUI[text_mode]}" = "hyp" ]] && ! -zui_std_has_any_hyperlinks "${__list[__selection]}"; then
+                    # Text-bit navigation is disabled - this must be whole line selection
+                    # ... is enabled for with-hyperlinks lines, but line is without hyperlinks - ...
+                    (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "line" "${__list[__selection]}"
+                    ZUI[line_selected]="${__list[__selection]}"
+                else
+                    (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "segment" "$__tmp"
+                    ZUI[pure_text_selected]="$__tmp"
+                fi
+            elif [[ "$__action" = F[1-4] ]]; then
+                REPLY="$__action"
+                reply=( "$__list[@]" )
+                __do_exit="yes"
+                break
+            elif [[ "$__action" = "BR_MOVE_LEFT" || "$__action" = "BR_MOVE_RIGHT" ]]; then
+                REPLY="$__action"
+                reply=( "$__list[@]" )
+                __do_exit="yes"
+                break
+            elif [[ "$__action" = "QUIT" ]]; then
+                REPLY=-1
+                reply=( "${__list[@]}" )
+                __do_exit="yes"
+                break
+            elif [[ "$__action" = "REDRAW" ]]; then
+                zcurses clear "$__wname_main" redraw
+                # Status window is optional (2/2)
+                [[ -n "$__wname_status" ]] && zcurses clear "$__wname_status" redraw
+
+                # Handle resize, force terminal-size read
+                -zui_list_handle_resize 1
+            elif [[ "$__action" = "HYPERLINK" ]]; then
+                -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}"
+                -zui_std_decode "$REPLY"
+                local id="${reply[1]}"
+                ZUI[pressed_now]="$id"
+                integer call_hook=0
+                if [[ "$id" = zuianchor* ]]; then
+                    __jump_id="$id"
+                    __jump_data="${reply[2]}"
+                    id="zuiiaction${id#zuianchor}"
+                    call_hook=1
+                elif [[ "$id" = zuiiaction* ]]; then
+                    call_hook=1
+                fi
+
+                # Is there hook to launch?
+                if [[ $call_hook -gt 0 && -n "${ZUI[$id]}" ]]; then
+                    reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
+                    # Call the handler with all hyper-link
+                    # data or eval code, not using the data
+                    if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
+                        eval "() { ${ZUI[$id]%;}; } ${(q)reply[@]}"
+                    else
+                        "${ZUI[$id]}" "${reply[@]}"
+                    fi
+                fi
+            elif [[ "$__action" = TFIELD* ]]; then
+                -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}"
+                -zui_std_decode "$REPLY" && local id="${reply[1]}" || local id="-"
+                if [[ "$__action" = TFIELD_LEFT && -n "${ZUI[$id]}" ]]; then
+                    ZUI[REGENERATE_LIST]="2" # regenerate only display list
+                    reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
+                    if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
+                        eval "() { ${ZUI[$id]%;}; } ${(q)reply[@]}"
+                    else
+                        "${ZUI[$id]}" "${reply[@]}"
+                    fi
+                fi
+            elif [[ "$__action" = LBOX* ]]; then
+                -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}"
+                -zui_std_decode "$REPLY" && local id="${reply[1]}" || local id="-"
+                if [[ "$__action" = LBOX_LEFT && -n "${ZUI[$id]}" ]]; then
+                    ZUI[REGENERATE_LIST]="2" # regenerate only display list
+                    reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
+                    if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
+                        eval "() { ${ZUI[$id]%;}; } ${(q)reply[@]}"
+                    else
+                        "${ZUI[$id]}" "${reply[@]}"
+                    fi
+                    zcurses touch "$__wname_main"
+                fi
+            fi
+        fi
+
+        # Check if there are any update-on-the-fly packages submitted
+        local -a update
+        -zui_sys_decode_list_update "${ZUI[fly_update]}" update
+        ZUI[fly_update]=""
+
+        if [[ "${update[3]}" -ge 1 ]]; then
+            # Quite the input loop to do screen update
+            ZUI[timeout_update]=1
+
+            # If the two not empty, we're updating whole
+            # module and want this be treated as module
+            # regeneration
+            local mod=${update[1]} ice=${update[2]}
+            integer update_first=$update[3]
+            integer update_count=$update[4]
+
+            if [[ -n "$mod" && -n "$ice" ]]; then
+                # Fast track, no elements in decoded data,
+                # but already in module-owned parameters
+
+                var_name="mod${mod}_ice${ice}_size"
+                integer update_size="${(P)var_name}"
+
+                var_name="mod${mod}_ice${ice}_output"
+                set -- "${(@)@[1,update_first-1]}" "${(PA@)var_name}" "${(@)@[update_first+update_count,-1]}"
             else
-                "${ZUI[$id]}" "${reply[@]}"
+                # Normal track if not doing module-update
+                shift 4 update
+                integer update_size=${#update}
+
+                # Update $@ array of this function - it is "zui-list", main UI function, and
+                # $@ holds original input data. So it can be said that here a restart of
+                # zui-list is simulated
+                set -- "${(@)@[1,update_first-1]}" "${update[@]}" "${(@)@[update_first+update_count,-1]}"
             fi
-        fi
-    elif [[ "$__action" = LBOX* ]]; then
-        -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}"
-        -zui_std_decode "$REPLY" && local id="${reply[1]}" || local id="-"
-        if [[ "$__action" = LBOX_LEFT && -n "${ZUI[$id]}" ]]; then
-            ZUI[REGENERATE_LIST]="2" # regenerate only display list
-            reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
-            if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
-                eval "() { ${ZUI[$id]%;}; } ${(q)reply[@]}"
-            else
-                "${ZUI[$id]}" "${reply[@]}"
+
+            # This isn't fully correct, the list might
+            # be in search or uniq mode, but that is
+            # still better than previous $__last_element
+            __last_element="$#"
+
+            ZUI[REGENERATE_LIST]="1"
+
+            # How many elements push down (up if negative)
+            # indices that are after the modified section
+            integer size_diff=$(( update_size - update_count )) mysize
+            local index index2 el var_name
+
+            if [[ -n "$mod" && -n "$ice" ]]; then
+                local -a prev_nonselectables
+                var_name="prev_mod${mod}_ice${ice}_nonselectables"
+                prev_nonselectables=( "${(PA@)var_name}" )
+                # Remove previous nonselectables, ^ is negation, ( ) is filled with "|"-joined previous elements
+                ZUILIST_NONSELECTABLE_ELEMENTS=( ${(@M)ZUILIST_NONSELECTABLE_ELEMENTS:#(#b)^(${~${(j:|:)prev_nonselectables}})} )
             fi
-            zcurses touch "$__wname_main"
-        fi
-    fi
 
-    # Now check if there are any update-on-the-fly packages submitted
-    local -a update
-    -zui_sys_decode_list_update "${ZUI[fly_update]}" update
-    ZUI[fly_update]=""
-
-    if [[ "${update[3]}" -ge 1 ]]; then
-        # If the two not empty, we're updating whole
-        # module and want this be treated as module
-        # regeneration
-        local mod=${update[1]} ice=${update[2]}
-        integer update_first=$update[3]
-        integer update_count=$update[4]
-
-        if [[ -n "$mod" && -n "$ice" ]]; then
-            # Fast track, no elements in decoded data,
-            # but already in module-owned parameters
-
-            var_name="mod${mod}_ice${ice}_size"
-            integer update_size="${(P)var_name}"
-
-            var_name="mod${mod}_ice${ice}_output"
-            set -- "${(@)@[1,update_first-1]}" "${(PA@)var_name}" "${(@)@[update_first+update_count,-1]}"
-        else
-            # Normal track if not doing module-update
-            shift 4 update
-            integer update_size=${#update}
-
-            # Update $@ array of this function - it is "zui-list", main UI function, and
-            # $@ holds original input data. So it can be said that here a restart of
-            # zui-list is simulated
-            set -- "${(@)@[1,update_first-1]}" "${update[@]}" "${(@)@[update_first+update_count,-1]}"
-        fi
-
-        # This isn't fully correct, the list might
-        # be in search or uniq mode, but that is
-        # still better than previous $__last_element
-        __last_element="$#"
-
-        ZUI[REGENERATE_LIST]="1"
-
-        # How many elements push down (up if negative)
-        # indices that are after the modified section
-        integer size_diff=$(( update_size - update_count )) mysize
-        local index index2 el var_name
-
-        if [[ -n "$mod" && -n "$ice" ]]; then
-            local -a prev_nonselectables
-            var_name="prev_mod${mod}_ice${ice}_nonselectables"
-            prev_nonselectables=( "${(PA@)var_name}" )
-            # Remove previous nonselectables, ^ is negation, ( ) is filled with "|"-joined previous elements
-            ZUILIST_NONSELECTABLE_ELEMENTS=( ${(@M)ZUILIST_NONSELECTABLE_ELEMENTS:#(#b)^(${~${(j:|:)prev_nonselectables}})} )
-        fi
-
-        # Push down (up) elements that are after the growed (shrinked) section
-        # NONSELECTABLES
-        mysize="${#ZUILIST_NONSELECTABLE_ELEMENTS}"
-        for (( index = 1; index <= mysize; index ++ )); do
-            el="${ZUILIST_NONSELECTABLE_ELEMENTS[index]}"
-            # No need to check if it lays inside the range
-            # as ones that did have been removed above
-            if [[ "$el" -gt "$(( update_first + update_count - 1 ))" ]]; then
-                (( ZUILIST_NONSELECTABLE_ELEMENTS[index] += size_diff ))
-            fi
-        done
-
-        if [[ -n "$mod" && -n "$ice" ]]; then
-            local -a prev_hops
-            var_name="prev_mod${mod}_ice${ice}_hops"
-            prev_hops=( "${(PA@)var_name}" )
-            ZUILIST_HOP_INDICES=( ${(@M)ZUILIST_HOP_INDICES:#(#b)^(${~${(j:|:)prev_hops}})} )
-        fi
-
-        # Push down (up) elements that are after the growed (shrinked) section
-        # HOPS
-        mysize="${#ZUILIST_HOP_INDICES}"
-        for (( index = 1; index <= mysize; index ++ )); do
-            el="${ZUILIST_HOP_INDICES[index]}"
-            # No need to check if it lays inside the range
-            # as ones that did have been removed above
-            if [[ "$el" -gt "$(( update_first + update_count - 1 ))" ]]; then
-                (( ZUILIST_HOP_INDICES[index] += size_diff ))
-            fi
-        done
-
-        # Push down (up) *_global_index parameters
-        for (( index = 1; index <= 1000; ++ index )); do
-            for (( index2 = 1; index2 <= 1000; ++ index2 )); do
-                var_name="mod${index}_ice${index2}_global_index"
-                [[ "${(P)+var_name}" = "0" ]] && break
-
-                el="${(P)var_name}"
-                if [[ -n "$el" && "$el" -gt $(( update_first + update_count - 1 )) ]]; then
-                    : ${(P)var_name::=$(( el + size_diff ))}
+            # Push down (up) elements that are after the growed (shrinked) section
+            # NONSELECTABLES
+            mysize="${#ZUILIST_NONSELECTABLE_ELEMENTS}"
+            for (( index = 1; index <= mysize; index ++ )); do
+                el="${ZUILIST_NONSELECTABLE_ELEMENTS[index]}"
+                # No need to check if it lays inside the range
+                # as ones that did have been removed above
+                if [[ "$el" -gt "$(( update_first + update_count - 1 ))" ]]; then
+                    (( ZUILIST_NONSELECTABLE_ELEMENTS[index] += size_diff ))
                 fi
             done
 
-            # No first section of current module?
-            (( index2 == 1 )) && break
-        done
-
-        # Now add new hops and nonselectables
-        # first translating to global indices
-        local -a nonselectables hops
-        -zui_sys_decode_nonselectables "${ZUI[fly_nonselectables]}" nonselectables
-        -zui_sys_decode_hops "${ZUI[fly_hops]}" hops
-        ZUI[fly_nonselectables]=""
-        ZUI[fly_hops]=""
-
-        nonselectables=( "${nonselectables[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + update_first - 1 ))}" )
-        hops=( "${hops[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + update_first - 1 ))}" )
-
-        ZUILIST_NONSELECTABLE_ELEMENTS+=( "${nonselectables[@]}" )
-        ZUILIST_HOP_INDICES+=( "${hops[@]}" )
-
-        if [[ -n "$mod" && -n "$ice" ]]; then
-            # Treat as module update - fill prev_*
-            # parameters and also *_global_index
-            var_name="prev_mod${mod}_ice${ice}_nonselectables"
-            : "${(PA)var_name::=${nonselectables[@]}}";
-            var_name="prev_mod${mod}_ice${ice}_hops"
-            : "${(PA)var_name::=${hops[@]}}";
-            var_name="prev_mod${mod}_ice${ice}_size"
-            : "${(P)var_name::=$update_size}";
-            var_name="mod${mod}_ice${ice}_global_index"
-            : "${(P)var_name::=$update_first}";
-        fi
-
-        # Update existing anchors: global ones get
-        # pushed down (up), local ones (not yet
-        # processed, new) are only globalized
-        local -a lanchors
-        -zui_sys_decode_lanchors "${ZUI[fly_lanchors]}" lanchors
-        for el in ${ZUI[(I)zuianchor*]} ${ZUI[(I)zuieanchor*]}; do
-            if [[ "${lanchors[(r)${el#zuianchor}]}" = ${el#zuianchor} ]]; then
-                ZUI[$el]=$(( ${ZUI[$el]%[-+]*} + update_first - 1 ))"${ZUI[$el]##[0-9]##}"
-            elif [[ "${lanchors[(r)${el#zuieanchor}]}" = ${el#zuieanchor} ]]; then
-                ZUI[$el]=$(( ${ZUI[$el]%[-+]*} + update_first - 1 ))"${ZUI[$el]##[0-9]##}"
-            else
-                # The $el anchor is after the replaced block?
-                # In this detection only "a" in "a+b" matters
-                if [[ "${ZUI[$el]%[-+]*}" -gt $(( update_first + update_count - 1 )) ]]; then
-                    ZUI[$el]=$(( ${ZUI[$el]%[-+]*} + size_diff ))"${ZUI[$el]##[0-9]##}"
-                fi
+            if [[ -n "$mod" && -n "$ice" ]]; then
+                local -a prev_hops
+                var_name="prev_mod${mod}_ice${ice}_hops"
+                prev_hops=( "${(PA@)var_name}" )
+                ZUILIST_HOP_INDICES=( ${(@M)ZUILIST_HOP_INDICES:#(#b)^(${~${(j:|:)prev_hops}})} )
             fi
-        done
 
-        # On-the-fly module regeneration, not only
-        # list update - this means lanchors have
-        # been submitted to module${idx}_lanchors
-        # parameter. They are now fully processed.
-        if [[ -n "$mod" && -n "$ice" ]]; then
-            var_name="mod${mod}_ice${ice}_lanchors"
-            : ${(PA)var_name::=}
+            # Push down (up) elements that are after the growed (shrinked) section
+            # HOPS
+            mysize="${#ZUILIST_HOP_INDICES}"
+            for (( index = 1; index <= mysize; index ++ )); do
+                el="${ZUILIST_HOP_INDICES[index]}"
+                # No need to check if it lays inside the range
+                # as ones that did have been removed above
+                if [[ "$el" -gt "$(( update_first + update_count - 1 ))" ]]; then
+                    (( ZUILIST_HOP_INDICES[index] += size_diff ))
+                fi
+            done
+
+            # Push down (up) *_global_index parameters
+            for (( index = 1; index <= 1000; ++ index )); do
+                for (( index2 = 1; index2 <= 1000; ++ index2 )); do
+                    var_name="mod${index}_ice${index2}_global_index"
+                    [[ "${(P)+var_name}" = "0" ]] && break
+
+                    el="${(P)var_name}"
+                    if [[ -n "$el" && "$el" -gt $(( update_first + update_count - 1 )) ]]; then
+                        : ${(P)var_name::=$(( el + size_diff ))}
+                    fi
+                done
+
+                # No first section of current module?
+                (( index2 == 1 )) && break
+            done
+
+            # Now add new hops and nonselectables
+            # first translating to global indices
+            local -a nonselectables hops
+            -zui_sys_decode_nonselectables "${ZUI[fly_nonselectables]}" nonselectables
+            -zui_sys_decode_hops "${ZUI[fly_hops]}" hops
+            ZUI[fly_nonselectables]=""
+            ZUI[fly_hops]=""
+
+            nonselectables=( "${nonselectables[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + update_first - 1 ))}" )
+            hops=( "${hops[@]//(#b)([[:digit:]]##)/$(( ${match[1]} + update_first - 1 ))}" )
+
+            ZUILIST_NONSELECTABLE_ELEMENTS+=( "${nonselectables[@]}" )
+            ZUILIST_HOP_INDICES+=( "${hops[@]}" )
+
+            if [[ -n "$mod" && -n "$ice" ]]; then
+                # Treat as module update - fill prev_*
+                # parameters and also *_global_index
+                var_name="prev_mod${mod}_ice${ice}_nonselectables"
+                : "${(PA)var_name::=${nonselectables[@]}}";
+                var_name="prev_mod${mod}_ice${ice}_hops"
+                : "${(PA)var_name::=${hops[@]}}";
+                var_name="prev_mod${mod}_ice${ice}_size"
+                : "${(P)var_name::=$update_size}";
+                var_name="mod${mod}_ice${ice}_global_index"
+                : "${(P)var_name::=$update_first}";
+            fi
+
+            # Update existing anchors: global ones get
+            # pushed down (up), local ones (not yet
+            # processed, new) are only globalized
+            local -a lanchors
+            -zui_sys_decode_lanchors "${ZUI[fly_lanchors]}" lanchors
+            for el in ${ZUI[(I)zuianchor*]} ${ZUI[(I)zuieanchor*]}; do
+                if [[ "${lanchors[(r)${el#zuianchor}]}" = ${el#zuianchor} ]]; then
+                    ZUI[$el]=$(( ${ZUI[$el]%[-+]*} + update_first - 1 ))"${ZUI[$el]##[0-9]##}"
+                elif [[ "${lanchors[(r)${el#zuieanchor}]}" = ${el#zuieanchor} ]]; then
+                    ZUI[$el]=$(( ${ZUI[$el]%[-+]*} + update_first - 1 ))"${ZUI[$el]##[0-9]##}"
+                else
+                    # The $el anchor is after the replaced block?
+                    # In this detection only "a" in "a+b" matters
+                    if [[ "${ZUI[$el]%[-+]*}" -gt $(( update_first + update_count - 1 )) ]]; then
+                        ZUI[$el]=$(( ${ZUI[$el]%[-+]*} + size_diff ))"${ZUI[$el]##[0-9]##}"
+                    fi
+                fi
+            done
+
+            # On-the-fly module regeneration, not only
+            # list update - this means lanchors have
+            # been submitted to module${idx}_lanchors
+            # parameter. They are now fully processed.
+            if [[ -n "$mod" && -n "$ice" ]]; then
+                var_name="mod${mod}_ice${ice}_lanchors"
+                : ${(PA)var_name::=}
+            fi
+
+            # Cleanup
+            unset update update_size nonselectables
+            unset update_first update_count hops
+            unset index mysize el var_name mod ice
         fi
 
-        # Cleanup
-        unset update update_size nonselectables
-        unset update_first update_count hops
-        unset index mysize el var_name mod ice
-    fi
+        if [[ -n "$__final_key" && "$__final_key" != "<timeout>" ]]; then
+            # Anchor to jump? Can be after on-the-fly
+            # regeneration submitted by hook call above
+            if [[ -n "$__jump_id" ]]; then
+                ZUI[CURRENT_IDX]=$(( ${ZUI[$__jump_id]:-$__jump_data} ))
+                (( ZUI[CURRENT_IDX] < 1 )) && ZUI[CURRENT_IDX]=1
+                [[ -z "${ZUI[SEARCH_BUFFER]}" ]] && (( ZUI[CURRENT_IDX] > __last_element )) && ZUI[CURRENT_IDX]="$__last_element"
+                ZUI[CURRENT_SEGMENT]=1
+                ZUI[SEARCH_BUFFER]=""
+                -zui_list_compute_first_to_show_idx_center
+            fi
+        fi
 
-    # Anchor to jump? Can be after on-the-fly
-    # regeneration submitted by hook call above
-    if [[ -n "$__jump_id" ]]; then
-        ZUI[CURRENT_IDX]=$(( ${ZUI[$__jump_id]:-$__jump_data} ))
-        (( ZUI[CURRENT_IDX] < 1 )) && ZUI[CURRENT_IDX]=1
-        [[ -z "${ZUI[SEARCH_BUFFER]}" ]] && (( ZUI[CURRENT_IDX] > __last_element )) && ZUI[CURRENT_IDX]="$__last_element"
-        ZUI[CURRENT_SEGMENT]=1
-        ZUI[SEARCH_BUFFER]=""
-        -zui_list_compute_first_to_show_idx_center
-    fi
+        (( ZUI[timeout_update] )) && break
+    done
+
+    [[ "$__do_exit" = "yes" ]] && break
 done
 
 # vim: set filetype=zsh:
