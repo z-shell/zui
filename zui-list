@@ -490,8 +490,8 @@ zcurses timeout "$__wname_main" "${ZUI[timeout]}"
 key=""
 keypad=""
 
-# Generate initial list
-ZUI[REGENERATE_LIST]="1"
+ZUI[REGENERATE_LIST]="1"  # generate initial list
+ZUI[redraw]=0
 
 while (( 1 )); do
     # Handle resize, once every 5 seconds
@@ -698,7 +698,7 @@ while (( 1 )); do
     -zui_list_cursor_visibility "main" "0"
     zcurses refresh "$__wname_main"
 
-    # Status window is optional (1/2)
+    # Status window is optional (1/3)
     [[ -n "$__wname_status" ]] && {
         [[ "${ZUI[status_bold]}" = "1" ]] && local wrk_stbold="+bold" || local wrk_stbold="-bold"
 
@@ -857,7 +857,7 @@ while (( 1 )); do
                 break
             elif [[ "$__action" = "REDRAW" ]]; then
                 zcurses clear "$__wname_main" redraw
-                # Status window is optional (2/2)
+                # Status window is optional (2/3)
                 [[ -n "$__wname_status" ]] && zcurses clear "$__wname_status" redraw
 
                 # Handle resize, force terminal-size read
@@ -1092,6 +1092,14 @@ while (( 1 )); do
                 -zui_list_compute_first_to_show_idx_center
             fi
         fi
+
+        (( ZUI[redraw] )) && {
+            ZUI[redraw]=0
+            zcurses clear "$__wname_main" redraw
+            # Status window is optional (3/3)
+            [[ -n "$__wname_status" ]] && zcurses clear "$__wname_status" redraw
+            ZUI[timeout_update]=1
+        }
 
         (( ZUI[timeout_update] )) && break
     done
