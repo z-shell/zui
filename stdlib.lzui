@@ -983,6 +983,8 @@ function -zui_std_map_replies() {
 
     shift 2
 
+    [[ -z "$generator" ]] && return
+
     -zui_std_reset_replies
     "$generator" "$mod" "$ice" "$@"
     -zui_std_map_replies "$mod" "$ice"
