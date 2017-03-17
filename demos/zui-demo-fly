@@ -19,8 +19,8 @@ demo_generator_A() {
     local mod="$1" ice="$2"
 
     reply=()
-    -zui_std_rc_button "restart" "" "" ",mod1_ice1," "" "${ZUI[MAGENTA]}restart${ZUI[FMT_END]}"
-    -zui_std_rc_button "on-the-fly" "" "" "" "" "${ZUI[MAGENTA]}on-the-fly${ZUI[FMT_END]}" 'internal=1; -zui_std_fly_mod_regen "'"$mod"'" "'"$ice"'"'
+    -zui_std_rc_button_ext "restart" "" "" ",mod1_ice1," "" "${ZUI[MAGENTA]}restart${ZUI[FMT_END]}"
+    -zui_std_rc_button "on-the-fly" "${ZUI[MAGENTA]}on-the-fly${ZUI[FMT_END]}" 'internal=1; -zui_std_fly_mod_regen "'"$mod"'" "'"$ice"'"'
 
     # Content
     reply=( "${ZUI[YELLOW]}ZUI${ZUI[FMT_END]} can regenerate module instance with ${reply[1]} or ${reply[2]}!" "Random number: $RANDOM" )

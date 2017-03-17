@@ -23,11 +23,11 @@ demo_generator_A() {
     [[ -n "$arg" ]] && logs+=( "Regenerated with: $arg" )
 
     reply=()
-    -zui_std_rc_button "raw_link" "" "" ",mod1_ice1," "raw-link" "${ZUI[MAGENTA]}link1${ZUI[FMT_END]}"
-    -zui_std_rc_button "external" "$mod" "$ice" "external action" "" "${ZUI[MAGENTA]}link2${ZUI[FMT_END]}" demo_external_action
-    -zui_std_rc_button "external_inline" "" "" "" "" "${ZUI[MAGENTA]}link3${ZUI[FMT_END]}" 'reply=( ",mod1_ice1," "inline handler (external)" )'
-    -zui_std_rc_button "internal" "$mod" "$ice" "internal action" "" "${ZUI[MAGENTA]}link4${ZUI[FMT_END]}" demo_internal_action # has "internal" in name
-    -zui_std_rc_button "internal_inline" "" "" "" "" "${ZUI[MAGENTA]}link5${ZUI[FMT_END]}" 'internal=1; -zui_std_fly_mod_regen "'"$mod"'" "'"$ice"'" "inline handler (internal)"'
+    -zui_std_rc_button_ext "raw_link" "" "" ",mod1_ice1," "raw-link" "${ZUI[MAGENTA]}link1${ZUI[FMT_END]}"
+    -zui_std_rc_button_ext "external" "$mod" "$ice" "external action" "" "${ZUI[MAGENTA]}link2${ZUI[FMT_END]}" demo_external_action
+    -zui_std_rc_button "external_inline" "${ZUI[MAGENTA]}link3${ZUI[FMT_END]}" 'reply=( ",mod1_ice1," "inline handler (external)" )'
+    -zui_std_rc_button_ext "internal" "$mod" "$ice" "internal action" "" "${ZUI[MAGENTA]}link4${ZUI[FMT_END]}" demo_internal_action # has "internal" in name
+    -zui_std_rc_button "internal_inline" "${ZUI[MAGENTA]}link5${ZUI[FMT_END]}" 'internal=1; -zui_std_fly_mod_regen "'"$mod"'" "'"$ice"'" "inline handler (internal)"'
 
     # Content
     reply=(

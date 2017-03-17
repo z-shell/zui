@@ -191,8 +191,8 @@ demo_generator_A() {
     # handler, so it is external) pass sequence of ",modX_iceY," strings as
     # penultimate, and user-data as last argument.
     -zui_std_anchor "regenerateA_$mod" "1" "" ",mod1_ice1," "$RANDOM" "[${ZUI[MAGENTA]}Regenerate${ZUI[FMT_END]}]"
-    -zui_std_rc_button "regenerateB_$mod" "$mod" "$ice" "" "" "${ZUI[MAGENTA]}Regenerate${ZUI[FMT_END]}" -demo_mod1_external_action_1
-    -zui_std_rc_button "regenerateC_$mod" "" "" ",mod2_ice1," "" "${ZUI[MAGENTA]}Regenerate${ZUI[FMT_END]}"
+    -zui_std_rc_button_ext "regenerateB_$mod" "$mod" "$ice" "" "" "${ZUI[MAGENTA]}Regenerate${ZUI[FMT_END]}" -demo_mod1_external_action_1
+    -zui_std_rc_button_ext "regenerateC_$mod" "" "" ",mod2_ice1," "" "${ZUI[MAGENTA]}Regenerate${ZUI[FMT_END]}"
 
     # Content
     reply=(
@@ -235,12 +235,12 @@ demo_generator_B() {
 
     reply=( )
     # internal=1 is a trick to make action internal
-    -zui_std_rc_button "bold_$mod" "" "" "" "" "${col_bld}bold${ZUI[FMT_END]}" 'internal=1; (( ZUI[bold]=1-ZUI[bold] )); -zui_std_fly_mod_regen "'"$mod"'" "'"$ice"'"'
-    -zui_std_rc_button "text_select_$mod" "" "" "" "" "${col_tsel}text_select${ZUI[FMT_END]}" 'internal=1; (( ZUI[text_select]=1-ZUI[text_select] )); -zui_std_fly_mod_regen "'"$mod"'" "'"$ice"'"'
-    -zui_std_rc_button "log_append_$mod" "" "" "" "" "${col_lap}log_append${ZUI[FMT_END]}" 'internal=1; [[ ${ZUI[log_append]} = "below" ]] && ZUI[log_append]=above || ZUI[log_append]=below; -zui_std_fly_mod_regen "'"$mod"'" "'"$ice"'"'
-    -zui_std_rc_button "status_pointer_$mod" "" "" "" "" "${col_sptr}status_pointer${ZUI[FMT_END]}" 'internal=1; (( ZUI[status_pointer]=1-ZUI[status_pointer] )); -zui_std_fly_mod_regen "'"$mod"'" "'"$ice"'"'
-    -zui_std_rc_button "status_border_$mod" "" "" "" "" "${col_sb}status_border${ZUI[FMT_END]}" 'internal=1; (( ZUI[status_border]=1-ZUI[status_border] )); -zui_std_fly_mod_regen "'"$mod"'" "'"$ice"'"'
-    -zui_std_rc_button "log_colors_$mod" "" "" "" "" "${ZUI[GREEN]}log_colors${ZUI[FMT_END]}" 'internal=1; zui_log_colors=( $zui_log_colors[-1] ${(@)zui_log_colors[1,-2]} )'
+    -zui_std_rc_button "bold_$mod" "${col_bld}bold${ZUI[FMT_END]}" 'internal=1; (( ZUI[bold]=1-ZUI[bold] )); -zui_std_fly_mod_regen "'"$mod"'" "'"$ice"'"'
+    -zui_std_rc_button "text_select_$mod" "${col_tsel}text_select${ZUI[FMT_END]}" 'internal=1; (( ZUI[text_select]=1-ZUI[text_select] )); -zui_std_fly_mod_regen "'"$mod"'" "'"$ice"'"'
+    -zui_std_rc_button "log_append_$mod" "${col_lap}log_append${ZUI[FMT_END]}" 'internal=1; [[ ${ZUI[log_append]} = "below" ]] && ZUI[log_append]=above || ZUI[log_append]=below; -zui_std_fly_mod_regen "'"$mod"'" "'"$ice"'"'
+    -zui_std_rc_button "status_pointer_$mod" "${col_sptr}status_pointer${ZUI[FMT_END]}" 'internal=1; (( ZUI[status_pointer]=1-ZUI[status_pointer] )); -zui_std_fly_mod_regen "'"$mod"'" "'"$ice"'"'
+    -zui_std_rc_button "status_border_$mod" "${col_sb}status_border${ZUI[FMT_END]}" 'internal=1; (( ZUI[status_border]=1-ZUI[status_border] )); -zui_std_fly_mod_regen "'"$mod"'" "'"$ice"'"'
+    -zui_std_rc_button "log_colors_$mod" "${ZUI[GREEN]}log_colors${ZUI[FMT_END]}" 'internal=1; zui_log_colors=( $zui_log_colors[-1] ${(@)zui_log_colors[1,-2]} )'
 
     # Variables of the list box
     (( ${+ZUI[my_lbox1_width]} == 0 )) && ZUI[my_lbox1_width]=5
@@ -288,7 +288,7 @@ demo_generator_C() {
     if [[ "$ice" = "1" ]]; then
         reply=( )
         # IDs of anchors have own namespace
-        -zui_std_rc_button "regenerateD_${mod}_${ice}" "$mod" "$ice" "" "" "${ZUI[BOLD]}${ZUI[BLUE]}Regenerate${ZUI[FMT_END]}" mod3_internal_action
+        -zui_std_rc_button_ext "regenerateD_${mod}_${ice}" "$mod" "$ice" "" "" "${ZUI[BOLD]}${ZUI[BLUE]}Regenerate${ZUI[FMT_END]}" mod3_internal_action
         -zui_std_anchor "jumpB_${mod}_${ice}" "1" "" "" "" "[${ZUI[YELLOW]}Jump${ZUI[FMT_END]}]"
         regenerate="${reply[1]} this module ${ZUI[RED]}ON-THE-FLY${ZUI[FMT_END]}, ${ZUI[YELLOW]}without${ZUI[FMT_END]} list restart"
         jump="${reply[2]} to 1st line"

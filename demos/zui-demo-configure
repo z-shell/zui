@@ -15,9 +15,9 @@ demo_generator_A() {
     local mod="$1" ice="$2"
 
     reply=()
-    -zui_std_rc_button "button1" "" "" "" "" "${ZUI[MAGENTA]}Run configure${ZUI[FMT_END]}" 'internal=1; coproc 2>&1 ./configure; cstarted=1'
-    -zui_std_rc_button "button2" "" "" "" "" "${ZUI[MAGENTA]}Get CFLAGS${ZUI[FMT_END]}" 'internal=1; get_cflags'
-    -zui_std_rc_button "button3" "" "" "" "" "${ZUI[MAGENTA]}Run make${ZUI[FMT_END]}" 'internal=1; coproc 2>&1 make; mstarted=1'
+    -zui_std_rc_button "button1" "${ZUI[MAGENTA]}Run configure${ZUI[FMT_END]}" 'internal=1; coproc 2>&1 ./configure; cstarted=1'
+    -zui_std_rc_button "button2" "${ZUI[MAGENTA]}Get CFLAGS${ZUI[FMT_END]}" 'internal=1; get_cflags'
+    -zui_std_rc_button "button3" "${ZUI[MAGENTA]}Run make${ZUI[FMT_END]}" 'internal=1; coproc 2>&1 make; mstarted=1'
 
     # Content
     reply=( "${reply[1]} ${reply[2]} ${reply[3]}" )
@@ -29,7 +29,7 @@ demo_generator_A() {
 demo_generator_B() {
     reply=()
     -zui_std_special_text "Configure/Make output"
-    -zui_std_button "button4" "" "" "" "" "${ZUI[MAGENTA]}(clear)${ZUI[FMT_END]}" 'internal=1; coproc_output=( ); -zui_std_fly_mod_regen 2 1'
+    -zui_std_button "button4" "${ZUI[MAGENTA]}(clear)${ZUI[FMT_END]}" 'internal=1; coproc_output=( ); -zui_std_fly_mod_regen 2 1'
     reply=( "${ZUI[YELLOW]}${reply[1]}${ZUI[FMT_END]} ${reply[2]}" "${coproc_output[@]}" )  reply2=( )  reply3=( 1 )  reply4=( )
 }
 

@@ -19,8 +19,8 @@ demo_generator_A() {
 
     reply=()
     -zui_std_special_text "Here's"
-    -zui_std_rc_button "button1" "" "" "" "" "${ZUI[MAGENTA]}button1${ZUI[FMT_END]}" 'internal=1; logs+=( "Button 1 pressed" )'
-    -zui_std_rc_button "button2" "" "" "" "" "${ZUI[MAGENTA]}button2${ZUI[FMT_END]}" 'internal=1; logs+=( "Button 2 pressed" )'
+    -zui_std_rc_button "button1" "${ZUI[MAGENTA]}button1${ZUI[FMT_END]}" 'internal=1; logs+=( "Button 1 pressed" )'
+    -zui_std_rc_button "button2" "${ZUI[MAGENTA]}button2${ZUI[FMT_END]}" 'internal=1; logs+=( "Button 2 pressed" )'
 
     reply=( "BROKEN: Here's special text, ${reply[2]} and ${reply[3]}"
             "CORRECT: ${reply[1]} special text, ${reply[2]} and ${reply[3]}" )
