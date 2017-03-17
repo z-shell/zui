@@ -82,6 +82,9 @@ function -zui_sys_get_tfield_cursor_boundaries() {
                 fi
                 __idx+="${(P)__output[3]}"
             fi
+        elif -zui_std_get_stext "$__seg" __text; then
+            -zui_util_strip_codes "$__text"
+            __idx+="${#REPLY}"
         else
             -zui_util_strip_codes "$__seg"
             __idx+="${#REPLY}"
