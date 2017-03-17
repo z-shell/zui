@@ -90,6 +90,28 @@ function -zui_std_init2() {
     [[ "${ZUI[INTERACTIVE_COMMENTS]}" = "1" ]] && setopt interactivecomments
 } # }}}
 
+# FUNCTION: -zui_std_special_text {{{
+# Appends special-text into output array. The text can contain special
+# characters like ', `, (, [, space.
+#
+# $1 - ID
+# $2 - text
+# $3 - optional output array name
+#
+function -zui_std_special_text() {
+    local __text="$1"
+    local __var_name="${2:-reply}"
+
+    # Quote only text, not codes
+    __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'0\037']##)/${(q)match[1]}}"
+
+    local -a __output
+    __output=( "${(P@)__var_name}" $'\01'$'\01'$'\01'$'\01'$'\01'$'\02'"${__text}"$'\02' )
+
+    unset __text
+    : ${(PA)__var_name::=${__output[@]}}
+} # }}}
+
 # FUNCTION: -zui_std_button {{{
 # Appends hyperlink into output array. It's an action button
 # shown without surrounding "[" and "]".
