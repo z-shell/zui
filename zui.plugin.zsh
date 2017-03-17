@@ -32,8 +32,8 @@ autoload -- zui-list zui-list-draw zui-list-input zui-list-wrapper -zui-log zui-
 autoload -- zui-process-buffer zui-process-buffer2 zui-usetty-wrapper
 
 fpath+=( "${ZUI_REPO_DIR}/demos" )
-autoload -- zui-demo-hello-world zui-demo-fly zui-demo-append zui-demo-text-fields zui-demo-list-boxes
-autoload -- zui-demo-anchors zui-demo-ganchors zui-demo-buttons zui-demo-history zui-demo-various
+autoload -- zui-demo-hello-world zui-demo-fly zui-demo-append zui-demo-text-fields zui-demo-list-boxes zui-demo-anchors
+autoload -- zui-demo-ganchors zui-demo-buttons zui-demo-special-text zui-demo-history zui-demo-various
 
 zle -N zui-demo-various
 bindkey "^O^Z" zui-demo-various
