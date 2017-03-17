@@ -351,7 +351,7 @@ local -a __segments
 integer __nseg
 
 local -A __cursor_state
-__cursor_state=( "main" 1 "status" 1 "field" 0 )
+__cursor_state=( "main" 1 "status" 0 "field" 0 )
 
 local -A tfield_end_map
 tfield_end_map=( 0 "" 1 ">" 2 "_" )
