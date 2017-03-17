@@ -472,8 +472,7 @@ function -zui_std_get_stext() {
     local __var_name="${2:-REPLY}"
 
     if [[ "$1" = (#b)*$'\01'$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'* ]]; then
-        local __text="${(Q)match[1]}"
-        : ${(P)__var_name::=$__text}
+        : ${(P)__var_name::=${(Q)match[1]}}
         return 0
     fi
 
