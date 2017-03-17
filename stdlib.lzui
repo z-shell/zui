@@ -471,8 +471,9 @@ function -zui_std_decode() {
 function -zui_std_get_stext() {
     local __var_name="${2:-REPLY}"
 
-    if [[ "$1" = (#b)*$'\01'$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'* ]]; then
-        : ${(P)__var_name::=${(Q)match[1]}}
+    if [[ "$1" = (#b)(*)$'\01'$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'(*) ]]; then
+        # Repeat the wrapping text, too
+        : ${(P)__var_name::=${match[1]}${(Q)match[2]}${match[3]}}
         return 0
     fi
 
