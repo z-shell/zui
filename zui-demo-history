@@ -24,6 +24,7 @@ demo_generator_A() {
 }
 
 ZUI[COLORING_PATTERN]="(vim|emacs|git|make)" ZUI[COLORING_MATCH_MULTIPLE]=1
+ZUI[START_IN_SEARCH_MODE]=1
 
 ## Start application ##
 # a:u- is: array, unique elements
