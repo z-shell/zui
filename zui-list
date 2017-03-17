@@ -868,7 +868,7 @@ while (( 1 )); do
             # Call the handler with all hyper-link
             # data or eval code, not using the data
             if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
-                eval "() { ${ZUI[$id]} } ${(q)reply[@]}"
+                eval "() { ${ZUI[$id]%;}; } ${(q)reply[@]}"
             else
                 "${ZUI[$id]}" "${reply[@]}"
             fi
@@ -880,7 +880,7 @@ while (( 1 )); do
             ZUI[REGENERATE_LIST]="2" # regenerate only display list
             reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
             if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
-                eval "() { ${ZUI[$id]} } ${(q)reply[@]}"
+                eval "() { ${ZUI[$id]%;}; } ${(q)reply[@]}"
             else
                 "${ZUI[$id]}" "${reply[@]}"
             fi
@@ -892,7 +892,7 @@ while (( 1 )); do
             ZUI[REGENERATE_LIST]="2" # regenerate only display list
             reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
             if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
-                eval "() { ${ZUI[$id]} } ${(q)reply[@]}"
+                eval "() { ${ZUI[$id]%;}; } ${(q)reply[@]}"
             else
                 "${ZUI[$id]}" "${reply[@]}"
             fi

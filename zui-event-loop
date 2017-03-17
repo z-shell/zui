@@ -415,7 +415,7 @@ if (( zuiel_bit_set )); then
             # Call the handler with all hyper-link
             # data or eval code, not using the data
             if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
-                eval "() { ${ZUI[$id]} } ${(q)reply[@]}"
+                eval "() { ${ZUI[$id]%;}; } ${(q)reply[@]}"
 
                 # Does in-line code set reply?
                 if [[ "${ZUI[$id]}" = *reply=* ]]; then
