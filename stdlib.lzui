@@ -881,7 +881,7 @@ function -zui_std_map_replies() {
     : ${(PA)var_name::="${reply4[@]}"}
 } # }}}
 
-# FUNCTION: -zui_std_fly_mod_regen {{{
+# FUNCTION: -zui_std_fly_mod_regen_ext {{{
 # Submits on-the-fly module update. Needs
 # generator to run and instance ID.
 #
@@ -890,7 +890,7 @@ function -zui_std_map_replies() {
 # $3 - instance index
 # $4, $5, ... - additional arguments for
 #      the generator
--zui_std_fly_mod_regen() {
+-zui_std_fly_mod_regen_ext() {
     local generator="$1" mod="$2" ice="$3"
 
     shift 3
@@ -919,6 +919,27 @@ function -zui_std_map_replies() {
     -zui_std_submit_fly_from_gen_replies "$mod" "$ice"
 
     # No output from this function
+    -zui_std_reset_replies
+} # }}}
+
+# FUNCTION: -zui_std_fly_mod_regen {{{
+# Submits on-the-fly module update. Needs only instance ID,
+# the generator to run is the one specified for zui-event-loop
+#
+# $1 - module's index
+# $2 - instance index
+# $3, $4, ... - additional arguments for
+#      the generator
+-zui_std_fly_mod_regen() {
+    local mod="$1" ice="$2" key="${zuiel_module_hash[(i)${1}_*]}"
+    local generator="${key#[[:digit:]]#_}"
+
+    shift 2
+
+    -zui_std_reset_replies
+    "$generator" "$mod" "$ice" "$@"
+    -zui_std_map_replies "$mod" "$ice"
+    -zui_std_submit_fly_from_gen_replies "$mod" "$ice"
     -zui_std_reset_replies
 } # }}}
 
