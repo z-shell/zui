@@ -709,9 +709,6 @@ while (( 1 )); do
             -zui-standard-status-callback "$REPLY" "${reply[@]}"
             tpe=$?
         }
-        ZUI[pressed_now]=""
-        ZUI[pure_text_selected]=""
-        ZUI[line_selected]=""
 
         (( tpe > 0 )) && -zui_sys_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
 
@@ -737,6 +734,8 @@ while (( 1 )); do
         [[ "${ZUI[SEARCH_MODE]}" -ne 1 ]] && -zui_list_cursor_visibility "status" "0" || -zui_list_cursor_visibility "status" "1"
         zcurses refresh "$__wname_status"
     }
+
+    ZUI[pressed_now]="" ZUI[pure_text_selected]="" ZUI[line_selected]=""
 
     if [[ -n "${ZUI[current_tfield]}" ]]; then
         zcurses move "$__wname_main" "${ZUI[cursor_y]}" $(( ZUI[cursor_x] + 2 ))
