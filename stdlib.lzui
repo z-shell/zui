@@ -464,7 +464,13 @@ function -zui_std_decode() {
 # FUNCTION: -zui_std_is_hyperlink {{{
 # Checks if given text is a button/anchor/raw hyperlink
 function -zui_std_is_hyperlink() {
-    [[ "$1" = *$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'[^$'\02']#$'\02'* ]]
+    [[ "$1" = *$'\01'[^$'\01']##$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'[^$'\02']#$'\02'* ]]
+} # }}}
+
+# FUNCTION: -zui_std_is_special_text {{{
+# Checks if given text is a button/anchor/raw hyperlink
+function -zui_std_is_special_text() {
+    [[ "$1" = *$'\01'$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'[^$'\02']#$'\02'* ]]
 } # }}}
 
 # FUNCTION: -zui_std_is_text_field {{{
@@ -501,7 +507,7 @@ function -zui_std_is_any_hyperlink() {
 # Checks if given text has any hyperlinks (buttons/anchors/raws,
 # text fields, list boxes)
 function -zui_std_has_any_hyperlinks() {
-    [[ "$1" = *$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'[^$'\02']#$'\02'* ]] ||
+    [[ "$1" = *$'\01'[^$'\01']##$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'[^$'\02']#$'\02'* ]] ||
     #                 id                data1             data2             module index      width_var         sidx_var          text_var             
     [[ "$1" = *$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\02']#$'\02'* ]] ||
     #                 id                data1             data2             data3             width_var         sidx_var          text_var             
