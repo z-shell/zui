@@ -2,17 +2,14 @@
 
 -zui_std_cleanup deserialize:"zui-demo-list-boxes"
 -zui_std_init app:"zui-demo-list-boxes" app_name:"ZUI List-Boxes"
-
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
-
 -zui_std_init2 # after emulate -LR
 
 -zui_std_store_default_app_config b:border 1
 -zui_std_store_default_app_config s:status_size 3
 -zui_std_store_default_app_config b:status_border 1
 
-# Extra line of text, loaded from list box
-local xtra
+local xtra  # extra line of text, loaded from list box
 
 # Generator for module 1
 demo_generator_A() {

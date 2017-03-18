@@ -6,7 +6,7 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 -zui_std_init2 # after emulate -LR
 
 -zui_std_store_default_app_config b:text_mode off
--zui_std_store_default_app_config b:top_anchors 0   # No top-anchors
+-zui_std_store_default_app_config b:top_anchors 0  # no top-anchors
 
 demo_generator_A() {
     local mod="$1" ice="$2"
