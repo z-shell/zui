@@ -815,6 +815,7 @@ function -zui_std_cleanup() {
     (( ${+functions[-zui-standard-global-anchors-callback]} )) && unfunction -- -zui-standard-global-anchors-callback
     (( ${+functions[-zui-standard-status-callback]} )) && unfunction -- -zui-standard-status-callback
     (( ${+functions[-zui-standard-text-select-callback]} )) && unfunction -- -zui-standard-text-select-callback
+    (( ${+functions[-zui-standard-timeout-callback]} )) && unfunction -- -zui-standard-timeout-callback
 
     # Deserialize?
     if [[ "$1" = deserialize* ]]; then
