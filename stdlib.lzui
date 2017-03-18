@@ -1065,7 +1065,7 @@ function -zui_std_map_replies() {
 # $1 - module index
 # $2 - instance index
 function -zui_std_submit_fly_from_gen_replies() {
-    local mod="$1" ice="$2" global_index previous_size
+    local mod="$1" ice="$2" global_index previous_size var_name
 
     # Get global index and previous size. We reach for
     # prev_mod${mod}_ice${ice}_size parameter because here
