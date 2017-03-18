@@ -46,6 +46,8 @@ zui-event-loop 1:demo_generator_A
 
 Other example which uses list-box: [zui-demo-list-box](https://github.com/zdharma/zui/blob/master/demos/zui-demo-list-boxes)
 
+The API is described at the [wiki](https://github.com/zdharma/zui/wiki).
+
 ## Installation
 
 **The plugin is "standalone"**, which means that only sourcing it is needed. So to
