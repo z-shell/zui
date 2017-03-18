@@ -1,7 +1,7 @@
 # Started from Zle or from command line
 
--zui_std_cleanup deserialize:"zui-demo-fly"
--zui_std_init app:"zui-demo-fly" app_name:"ZUI On-The-Fly Regeneration"
+-zui_std_cleanup deserialize:"zui-demo-timeout"
+-zui_std_init app:"zui-demo-timeout" app_name:"ZUI Timeout Demo"
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 -zui_std_init2 # after emulate -LR
 
