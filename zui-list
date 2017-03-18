@@ -891,8 +891,10 @@ while (( 1 )); do
             elif [[ "$__action" = TFIELD* ]]; then
                 -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}"
                 -zui_std_decode "$REPLY" && local id="${reply[1]}" || local id="-"
+
+                [[ "$__action" = TFIELD_LEFT ]] && ZUI[REGENERATE_LIST]="2" # regenerate only display list
+
                 if [[ "$__action" = TFIELD_LEFT && -n "${ZUI[$id]}" ]]; then
-                    ZUI[REGENERATE_LIST]="2" # regenerate only display list
                     reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
                     if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
                         eval "() { ${ZUI[$id]%;}; } ${(q)reply[@]}"
@@ -903,8 +905,10 @@ while (( 1 )); do
             elif [[ "$__action" = LBOX* ]]; then
                 -zui_util_get_segment "${__list[__selection]}" "${ZUI[CURRENT_SEGMENT]}"
                 -zui_std_decode "$REPLY" && local id="${reply[1]}" || local id="-"
+
+                [[ "$__action" = LBOX_LEFT ]] && ZUI[REGENERATE_LIST]="2" # regenerate only display list
+
                 if [[ "$__action" = LBOX_LEFT && -n "${ZUI[$id]}" ]]; then
-                    ZUI[REGENERATE_LIST]="2" # regenerate only display list
                     reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
                     if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
                         eval "() { ${ZUI[$id]%;}; } ${(q)reply[@]}"
