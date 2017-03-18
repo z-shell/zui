@@ -1,6 +1,6 @@
 # Started from Zle or from command line
 #
-# Text editor
+# Text editor supporting maximum 1000 lines
 
 -zui_std_cleanup deserialize:"zui-demo-edit"
 -zui_std_init app:"zui-demo-edit" app_name:"ZUI Text Editor"
