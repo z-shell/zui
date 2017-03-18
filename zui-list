@@ -711,6 +711,8 @@ while (( 1 )); do
         if (( selectable == 0 )) || ! -zui_std_decode "${__segments[${ZUI[CURRENT_SEGMENT]}]}"; then
             reply=( "$selectable" "${ZUI[UNIQ_MODE]}" "${${ZUI[SEARCH_BUFFER]:+1}:-0}" "${__list[${ZUI[CURRENT_IDX]}]}" "${__segments[${ZUI[CURRENT_SEGMENT]}]}" )
             REPLY="0"
+        else
+            REPLY="1"
         fi
         (( ${+functions[-zui-standard-status-callback]} )) && {
             -zui-standard-status-callback "$REPLY" "${reply[@]}"
