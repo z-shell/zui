@@ -109,7 +109,7 @@ mod3_internal_action() {
 # from data of highlighted button. How to just pass
 # messages for display is shown in zui-demo-buttons.
 -zui-standard-status-callback() {
-    local tpe="$1"
+    local tpe="$1" selectable="$2" uniq="$3" search="$4" line="$5" segment="$6"
 
     # No fast log messages
     [[ -n "$EPOCHREALTIME" ]] && (( EPOCHREALTIME - ${ZUI[my_prev_log_time]:-(${EPOCHREALTIME}-1)} < 0.14 )) && return 0
@@ -120,7 +120,6 @@ mod3_internal_action() {
 
     # Zero-type means callback is called on a non-hyperlink
     if [[ "$tpe" = "0" ]]; then
-        local selectable="$2" uniq="$3" search="$4" line="$5" segment="$6"
         if [[ -n "${ZUI[pure_text_selected]}" ]]; then
             -zui_util_strip_codes "$segment"
             reply=( "$pressed" "Pure-text selected: " "$REPLY" )
@@ -149,7 +148,7 @@ mod3_internal_action() {
         # No message on text field input
         [[ -z "${ZUI[pressed_now]}" && -n "${ZUI[current_tfield]}" ]] && return 0
 
-        local id="$2" data1="$3" data2="$4" data3="$5" data4="$6"
+        local id="$7" data1="$8" data2="$9" data3="$10" data4="$11"
 
         # Module attribute is obligatory for text fields,
         # but for other hyperlinks it is decision of this

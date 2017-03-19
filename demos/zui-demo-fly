@@ -28,9 +28,10 @@ demo_generator_A() {
 
 # Show handler code in status window
 -zui-standard-status-callback() {
-    local tpe="$1" id="$2" data1="$3" data2="$4" data3="$5" data4="$6"
+    local tpe="$1" selectable="$2" uniq="$3" search="$4" line="$5" segment="$6"
     [[ "$tpe" = "0" ]] && return 0 # Filter out non-hyperlinks
 
+    shift 6; local id="$1" data1="$2" data2="$3" data3="$4" data4="$5"
     id="${id#(zuiiaction|zuiaction|zuicheckbox|zuieanchor|zuianchor|zuitfield)}"
     handler="${ZUI[zuiiaction$id]}"
     reply=( "Handler: " "$handler" )
