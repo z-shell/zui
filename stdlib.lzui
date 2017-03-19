@@ -105,11 +105,11 @@ function -zui_std_special_text() {
     # Quote only text, not codes
     __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'0\037']##)/${(q)match[1]}}"
 
-    local -a __output
-    __output=( "${(P@)__var_name}" $'\01'$'\01'$'\01'$'\01'$'\01'$'\02'"${__text}"$'\02' )
+    __var_name="${__var_name}[${(P)#__var_name}+1]"
+    local __output=$'\01'$'\01'$'\01'$'\01'$'\01'$'\02'"${__text}"$'\02'
 
     unset __text
-    : ${(PA)__var_name::=${__output[@]}}
+    : ${(PA)__var_name::=$__output}
 } # }}}
 
 # FUNCTION: -zui_std_button_ext {{{
@@ -140,11 +140,11 @@ function -zui_std_button_ext() {
     # Quote only text, not codes
     __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'0\037']##)/${(q)match[1]}}"
 
-    local -a __output
-    __output=( "${(P@)__var_name}" $'\01'"$pfx$__id"$'\01'"$__data1"$'\01'"$__data2"$'\01'"$__data3"$'\01'"$__data4"$'\02'"${__text}"$'\02' )
+    __var_name="${__var_name}[${(P)#__var_name}+1]"
+    local __output=$'\01'"$pfx$__id"$'\01'"$__data1"$'\01'"$__data2"$'\01'"$__data3"$'\01'"$__data4"$'\02'"${__text}"$'\02'
 
     unset pfx __id __data1 __data2 __data3 __data4 __text __handler
-    : ${(PA)__var_name::=${__output[@]}}
+    : ${(PA)__var_name::=$__output}
 } # }}}
 
 # FUNCTION: -zui_std_rc_button_ext {{{
@@ -156,7 +156,6 @@ function -zui_std_button_ext() {
 function -zui_std_rc_button_ext() {
     local __id="${(q)1}" __data1="${(q)2}" __data2="${(q)3}" __data3="${(q)4}" __data4="${(q)5}" __text="$6" __handler="$7"
     local __var_name="${8:-reply}"
-    local -a __output
 
     local pfx=""
     [[ -n "$__handler" ]] && {
@@ -167,10 +166,11 @@ function -zui_std_rc_button_ext() {
     # Quote only text, not codes
     __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'0\037']##)/${(q)match[1]}}"
 
-    __output=( "${(P@)__var_name}" $'\01'"$pfx$__id"$'\01'"$__data1"$'\01'"$__data2"$'\01'"$__data3"$'\01'"$__data4"$'\02'"[${__text}]"$'\02' )
+    __var_name="${__var_name}[${(P)#__var_name}+1]"
+    local __output=$'\01'"$pfx$__id"$'\01'"$__data1"$'\01'"$__data2"$'\01'"$__data3"$'\01'"$__data4"$'\02'"[${__text}]"$'\02'
 
     unset pfx __id __data1 __data2 __data3 __data4 __text __handler
-    : ${(PA)__var_name::=${__output[@]}}
+    : ${(PA)__var_name::=$__output}
 } # }}}
 
 # FUNCTION: -zui_std_rc_button {{{
@@ -266,9 +266,9 @@ function -zui_std_anchor() {
     # Quote only text, not codes
     __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'0\037']##)/${(q)match[1]}}"
 
-    local -a __output
-    __output=( "${(P@)__var_name}" $'\01'"$__pfx$__id"$'\01'"$__data1"$'\01'"$__data2"$'\01'"$__data3"$'\01'"$__data4"$'\02'"${__text}"$'\02' )
-    : ${(PA)__var_name::=${__output[@]}}
+    __var_name="${__var_name}[${(P)#__var_name}+1]"
+    local __output=$'\01'"$__pfx$__id"$'\01'"$__data1"$'\01'"$__data2"$'\01'"$__data3"$'\01'"$__data4"$'\02'"${__text}"$'\02'
+    : ${(PA)__var_name::=$__output}
 
     # Store anchor's target line index
     ZUI[$__pfx$__id]="$__data1"
@@ -290,14 +290,14 @@ function -zui_std_anchor() {
 function -zui_std_text_field() {
     local __id="${(q)1}" __width_var="${(q)2}" __sidx_var="${(q)3}" __text_var="${(q)4}" __data1="${(q)5}" __data2="${(q)6}" __data3="${(q)7}" __handler="$8"
     local __var_name="${9:-reply}"
-    local -a __output
 
     [[ -n "$__handler" ]] && ZUI[zuitfield$__id]="$__handler"
 
-    __output=( "${(P@)__var_name}" $'\032'"zuitfield$__id"$'\032'"$__data1"$'\032'"$__data2"$'\032'"$__data3"$'\032'"$__width_var"$'\032'"$__sidx_var"$'\032'"$__text_var"$'\02' )
+    __var_name="${__var_name}[${(P)#__var_name}+1]"
+    local __output=$'\032'"zuitfield$__id"$'\032'"$__data1"$'\032'"$__data2"$'\032'"$__data3"$'\032'"$__width_var"$'\032'"$__sidx_var"$'\032'"$__text_var"$'\02'
 
     unset __id __module_idx __width_var __sidx_var __text_var __data1 __data2 __handler
-    : ${(PA)__var_name::=${__output[@]}}
+    : ${(PA)__var_name::=$__output}
 } # }}}
 
 # FUNCTION: -zui_std_list_box {{{
@@ -316,14 +316,14 @@ function -zui_std_text_field() {
 function -zui_std_list_box() {
     local __id="${(q)1}" __width_var="${(q)2}" __idx_var="${(q)3}" __opts_var="${(q)4}" __data1="${(q)5}" __data2="${(q)6}" __data3="${(q)7}" __handler="$8"
     local __var_name="${9:-reply}"
-    local -a __output
 
     [[ -n "$__handler" ]] && ZUI[zuilbox$__id]="$__handler"
 
-    __output=( "${(P@)__var_name}" $'\034'"zuilbox$__id"$'\034'"$__data1"$'\034'"$__data2"$'\034'"$__data3"$'\034'"$__width_var"$'\034'"$__idx_var"$'\034'"$__opts_var"$'\02' )
+    __var_name="${__var_name}[${(P)#__var_name}+1]"
+    local __output=$'\034'"zuilbox$__id"$'\034'"$__data1"$'\034'"$__data2"$'\034'"$__data3"$'\034'"$__width_var"$'\034'"$__idx_var"$'\034'"$__opts_var"$'\02'
 
     unset __id __width_var __idx_var __opts_var __data1 __data2 __data3 __handler
-    : ${(PA)__var_name::=${__output[@]}}
+    : ${(PA)__var_name::=$__output}
 } # }}}
 
 # FUNCTION: -zui_std_get_ganchor {{{
@@ -342,9 +342,9 @@ function -zui_std_get_ganchor() {
     # Quote only text, not codes
     __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'0\037']##)/${(q)match[1]}}"
 
-    local -a __output
-    __output=( "${(P@)__var_name}" $'\01'"zuianchoraglobal_m${__mod}_i${__ice}"$'\01'""$'\01'""$'\01'""$'\01'""$'\02'"${__text}"$'\02' )
-    : ${(PA)__var_name::=${__output[@]}}
+    __var_name="${__var_name}[${(P)#__var_name}+1]"
+    local __output=$'\01'"zuianchoraglobal_m${__mod}_i${__ice}"$'\01'""$'\01'""$'\01'""$'\01'""$'\02'"${__text}"$'\02'
+    : ${(PA)__var_name::=$__output}
 } # }}}
 
 # FUNCTION: -zui_std_decode_hyperlink {{{
