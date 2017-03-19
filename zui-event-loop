@@ -205,7 +205,7 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
         ZUIEL_LINE_COUNT="${#ZUIEL_OUTPUT}"
 
         (( zuiel_val3 = ZUIEL_LINE_COUNT - zuiel_val3 )) # size
-        (( zuiel_val3 > 0 )) && -zui_std_anchor "aglobal_m${zel_mod}_i${zel_ice}" $(( ZUIEL_LINE_COUNT - zuiel_val3 + 1 + ZUI[top_anchors] )) "$zel_mod" "$zel_ice" "" "[${ZUI[CYAN]}Data${zel_mod}${ZUI[FMT_END]}]" '(( ${+functions[-zui-standard-global-anchors-callback]} )) && { -zui-standard-global-anchors-callback  "'"aglobal_m${zel_mod}_i${zel_ice}"'" "'"${zuiel_hops[1]}"'" "'"$zel_mod"'" "'"$zel_ice"'"; internal=1; }' zuiel_top_anchors
+        (( zuiel_val3 > 0 )) && -zui_std_anchor "aglobal_m${zel_mod}_i${zel_ice}" $(( ZUIEL_LINE_COUNT - zuiel_val3 + 1 + ZUI[top_anchors] )) "$zel_mod" "$zel_ice" "" "[${ZUI[CYAN]}Data${zel_mod}${ZUI[FMT_END]}]" '(( ${+functions[-zui-standard-global-anchors-callback]} )) && { -zui-standard-global-anchors-callback "'"aglobal_m${zel_mod}_i${zel_ice}"'" "'"${zuiel_hops[1]}"'" "'"$zel_mod"'" "'"$zel_ice"'"; internal=1; }' zuiel_top_anchors
 
         # Store global index and size
         local ${zuiel_n}_global_index ${zuiel_n}_size prev_${zuiel_n}_size
