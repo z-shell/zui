@@ -709,9 +709,12 @@ while (( 1 )); do
         [[ -n "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)${ZUI[CURRENT_IDX]}]}" ]] && selectable=0
         (( ${ZUI[UNIQ_MODE]} + ${${ZUI[SEARCH_BUFFER]:+1}:-0} )) && selectable=1
         if (( selectable == 0 )) || ! -zui_std_decode "${__segments[${ZUI[CURRENT_SEGMENT]}]}"; then
-            reply=( "$selectable" "${ZUI[UNIQ_MODE]}" "${${ZUI[SEARCH_BUFFER]:+1}:-0}" "${__list[${ZUI[CURRENT_IDX]}]}" "${__segments[${ZUI[CURRENT_SEGMENT]}]}" )
+            reply=( "$selectable" "${ZUI[UNIQ_MODE]}" "${${ZUI[SEARCH_BUFFER]:+1}:-0}"
+                    "${__list[${ZUI[CURRENT_IDX]}]}" "${__segments[${ZUI[CURRENT_SEGMENT]}]}" )
             REPLY="0"
         else
+            reply[1,0]=( "$selectable" "${ZUI[UNIQ_MODE]}" "${${ZUI[SEARCH_BUFFER]:+1}:-0}"
+                         "${__list[${ZUI[CURRENT_IDX]}]}" "${__segments[${ZUI[CURRENT_SEGMENT]}]}" )
             REPLY="1"
         fi
         (( ${+functions[-zui-standard-status-callback]} )) && {
