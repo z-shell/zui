@@ -49,7 +49,8 @@ zstyle ":plugin:zui" text_mode "all"            # Navigate across each bit of te
                                                 # "off" - text-bit navigation fully turned off
 zstyle ":plugin:zui" text_select "yes"          # Allow selection on non-hyperlinks (full lines when text_mode is "off"
                                                 # or "hyp" – meaning text-bit mode fully turned off or enabled only for
-                                                # lines with hyperlinks, leaving text-only lines undivided)
+zstyle ":plugin:zui" timeout "-1"               # No calls to -zui-standard-timeout-callback. Denotes milliseconds.
+                                                # Minimum value is 200. Time is counted when there is no user input.
 ```
 
 Each application can override those via "...:app:{name}" zstyles, e.g. for application "zplugin":
