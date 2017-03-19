@@ -149,7 +149,7 @@ mod3_internal_action() {
         # No message on text field input
         [[ -z "${ZUI[pressed_now]}" && -n "${ZUI[current_tfield]}" ]] && return 0
 
-        [[ "$7" = *(tfield|lbox)* ]] && local id="$1" width="$2" index="$3" text="$4" data1="$5" data2="$6" data3="$7" ||
+        [[ "$1" = *(tfield|lbox)* ]] && local id="$1" width="$2" index="$3" text="$4" data1="$5" data2="$6" data3="$7" ||
                                         local id="$1" data1="$2" data2="$3" data3="$4" data4="$5"
 
         [[ $id = (zuiiaction|zuianchor|zuitfield|zuilbox)* ]] && local exint="NO-RESTART" || local exint="RESTART"
