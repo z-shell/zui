@@ -10,7 +10,7 @@ options=( "${(@Ps:;:)__opts_var}" )
 local txt
 integer width=7 size="${#options}"
 for txt in "${options[@]}"; do
-    (( width = ${#txt} > width ? ${#txt} : width ))
+    (( width = ${(m)#txt} > width ? ${(m)#txt} : width ))
 done
 
 if (( __ypos + size + 2 > __page_height + 1 )); then
