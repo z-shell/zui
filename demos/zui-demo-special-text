@@ -10,17 +10,14 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 -zui_std_store_default_app_config b:text_select 1
 
 local internal  # trick variable to make handler no-restart
-local -a logs   # own logs queue
 
 demo_generator_A() {
     local mod="$1" ice="$2" arg="$3"
 
-    [[ -n "$arg" ]] && logs+=( "Regenerated with: $arg" )
-
     reply=()
     -zui_std_special_text "Here's"
-    -zui_std_rc_button "button1" "${ZUI[MAGENTA]}button1${ZUI[FMT_END]}" 'internal=1; logs+=( "Button 1 pressed" )'
-    -zui_std_rc_button "button2" "${ZUI[MAGENTA]}button2${ZUI[FMT_END]}" 'internal=1; logs+=( "Button 2 pressed" )'
+    -zui_std_rc_button "button1" "${ZUI[MAGENTA]}button1${ZUI[FMT_END]}" 'internal=1; -zui_std_stalog "Button 1 pressed"'
+    -zui_std_rc_button "button2" "${ZUI[MAGENTA]}button2${ZUI[FMT_END]}" 'internal=1; -zui_std_stalog "Button 2 pressed"'
 
     reply=( "BROKEN: Here's special text, ${reply[2]} and ${reply[3]}"
             "CORRECT: ${reply[1]} special text, ${reply[2]} and ${reply[3]}" )
@@ -30,7 +27,6 @@ demo_generator_A() {
 }
 
 -zui-standard-status-callback() {
-    [[ "${#logs}" -gt 0 ]] && { reply=( "Message: " "${logs[1]}" ); logs=( ${(@)logs[2,-1]} ); return 1; }
     [[ -n "${ZUI[pure_text_selected]}" ]] && {
         REPLY="${ZUI[pure_text_selected]}"
         -zui_std_get_stext "$REPLY"  # no change to REPLY if no special text
