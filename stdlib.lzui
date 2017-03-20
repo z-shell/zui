@@ -1134,4 +1134,9 @@ function -zui_std_submit_lanchors() {
     ZUI[fly_lanchors]="${(j: :)${(q)@}}"
 } # }}}
 
+# FUNCTION: -zui_std_stalog{{{
+function -zui_std_stalog() {
+    -zui_sys_add_message 1 ${EPOCHSECONDS:-0} "$@"
+} # }}}
+
 # vim:ft=zsh
