@@ -100,6 +100,32 @@ function -zui_sys_get_tfield_cursor_boundaries() {
     return 1
 } # }}}
 
+# Maps visual cursor position onto in-string cursor
+# position. Supports characters with double and greater
+# width
+#
+# $1 - string start display index
+# $2 - string
+# $3 - cursor position
+# $4 - output parameter name
+function -zui_sys_map_cursor_on_string() {
+    local __idx="$1" __str="$2" __curx="$3" __var_name="$4"
+    integer __i __count=${#__str} __width_sum=0
+
+    for (( __i = 1; __i <= __count; __i ++ )); do
+        if (( __width_sum - 1 >= __curx )); then
+            (( __idx += __i - 1 - 1 ))
+            : ${(P)__var_name::=$__idx}
+            return 0
+        fi
+        __width_sum+=${(m)#__str[__idx+__i-1]}
+    done
+
+    (( __idx += __i - 1 - 1 ))
+    : ${(P)__var_name::=$__idx}
+    return 1
+}
+
 # FUNCTION: -zui_sys_gather_lanchors  {{{
 # Appends mod${1}_ice${2}_lanchors into array given by name
 #
