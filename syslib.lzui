@@ -100,6 +100,7 @@ function -zui_sys_get_tfield_cursor_boundaries() {
     return 1
 } # }}}
 
+# FUNCTION: -zui_sys_map_cursor_on_string {{{
 # Maps visual cursor position onto in-string cursor
 # position. Supports characters with double and greater
 # width
@@ -124,8 +125,9 @@ function -zui_sys_map_cursor_on_string() {
     (( __idx += __i - 1 - 1 ))
     : ${(P)__var_name::=$__idx}
     return 1
-}
+} # }}}
 
+# FUNCTION: -zui_sys_index_tail_width {{{
 # Returns index in given string that results
 # in given width, when displaying the string
 # starting from that index
@@ -147,7 +149,7 @@ function -zui_sys_index_tail_width() {
 
     : ${(P)__var_name::=1}
     return 1
-}
+} # }}}
 
 # FUNCTION: -zui_sys_gather_lanchors  {{{
 # Appends mod${1}_ice${2}_lanchors into array given by name
