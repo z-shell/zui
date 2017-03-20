@@ -34,7 +34,7 @@ zcurses timeout lbox -1
 key=""
 keypad=""
 
-integer hidx
+integer hidx return_val=0 initial_idx=${(P)__idx_var}
 while (( 1 )); do
     # Draw list box
     zcurses clear lbox
@@ -80,6 +80,11 @@ while (( 1 )); do
             (( hidx = hidx < ${#options} ? hidx+1 : hidx ))
             : ${(P)__idx_var::=$hidx}
             ;;
+        ($'\E')
+            : ${(P)__idx_var::=$initial_idx}
+            return_val=1
+            break
+            ;;
         ($'\n')
             break
             ;;
@@ -91,5 +96,7 @@ while (( 1 )); do
 done
 
 zcurses delwin lbox 2>/dev/null
+
+return $return_val
 
 # vim:ft=zsh
