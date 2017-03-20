@@ -166,8 +166,8 @@ if [[ -n "${ZUI[current_tfield]}" ]]; then
                 reply=( $current_idx TFIELD_LEFT )
                 ;;
             ($'\E')
-                : ${(P)wrk_reply[4]::=${ZUI[current_tfield_initial_sidx]}}
-                : ${(P)wrk_reply[5]::=${ZUI[current_tfield_initial_data]}}
+                : ${(P)wrk_reply[3]::=${ZUI[current_tfield_initial_sidx]}}
+                : ${(P)wrk_reply[4]::=${ZUI[current_tfield_initial_data]}}
                 ZUI[current_tfield]=""
                 reply=( $current_idx TFIELD_CANCELLED )
                 ;;
