@@ -80,7 +80,7 @@ function -zui_sys_get_tfield_cursor_boundaries() {
                 if [[ "$__seg" = (#b)(*)$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\02']#$'\02'(*) ]]; then
                     __idx+=${(m)#match[1]}+${(m)#match[2]}
                 fi
-                __idx+="${(P)__output[3]}"
+                __idx+="${(P)__output[2]}"
             fi
         elif -zui_std_get_stext "$__seg" __text; then
             -zui_util_strip_codes "$__text"
