@@ -34,7 +34,7 @@ autoload -- zui-process-buffer zui-process-buffer2 zui-usetty-wrapper
 fpath+=( "${ZUI_REPO_DIR}/demos" )
 autoload -- zui-demo-hello-world zui-demo-fly zui-demo-append zui-demo-text-fields zui-demo-list-boxes zui-demo-anchors
 autoload -- zui-demo-ganchors zui-demo-buttons zui-demo-special-text zui-demo-history zui-demo-various zui-demo-timeout
-autoload -- zui-demo-configure zui-demo-edit
+autoload -- zui-demo-configure zui-demo-edit zui-demo-toggles
 
 zle -N zui-demo-various
 bindkey "^O^Z" zui-demo-various
