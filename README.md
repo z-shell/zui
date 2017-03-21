@@ -1,6 +1,6 @@
 ![ZUI logo](http://zdharma.org/static/img/zui_logo.png)
 
-# ⬢ ZUI – CGI+(D)HTML-like User Interface Library for Zsh / ZCurses
+# ⬢ ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses
 
 [![License (GPL version 3)](https://img.shields.io/badge/license-GNU%20GPL%20version%203-blue.svg?style=flat-square)](./LICENSE)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
