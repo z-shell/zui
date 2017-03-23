@@ -338,7 +338,7 @@ local __header="$7"
 
 shift 7
 
-typeset -a __list __disp_list __disp_list2
+typeset -a __list __disp_list __disp_list2 __slist
 integer __last_element=$#
 local __action
 local __final_key __tmp __do_exit
@@ -489,6 +489,7 @@ keypad=""
 
 ZUI[REGENERATE_LIST]="1"  # generate initial list
 ZUI[redraw]=0
+ZUI[IGNORE_MSG]=0  # don't ignore single status callback call
 
 while (( 1 )); do
     # Handle resize, once every 5 seconds
@@ -714,7 +715,7 @@ while (( 1 )); do
                          "${__list[${ZUI[CURRENT_IDX]}]}" "${__segments[${ZUI[CURRENT_SEGMENT]}]}" )
             REPLY="1"
         fi
-        (( ${+functions[-zui-standard-status-callback]} )) && {
+        (( ${+functions[-zui-standard-status-callback]} )) && (( (ZUI[IGNORE_MSG] + ZUI[SEARCH_MODE]) == 0 )) && {
             -zui-standard-status-callback "$REPLY" "${reply[@]}"
             tpe=$?
         }
@@ -729,7 +730,7 @@ while (( 1 )); do
 
             ZUI[GENERATION_TIME]=""
         else
-            -zui_list_status_msg "Filtering with: " "${ZUI[SEARCH_BUFFER]// /+}"
+            -zui_list_status_msg "[F1-Jump to] Filtering with: " "${ZUI[SEARCH_BUFFER]// /+}"
         fi
 
         [[ "${ZUI[status_border]}" = "1" ]] && {
@@ -744,7 +745,7 @@ while (( 1 )); do
         zcurses refresh "$__wname_status"
     }
 
-    ZUI[pressed_now]="" ZUI[pure_text_selected]="" ZUI[line_selected]="" ZUI[timeout_update]=0
+    ZUI[pressed_now]="" ZUI[pure_text_selected]="" ZUI[line_selected]="" ZUI[timeout_update]=0 ZUI[IGNORE_MSG]=0
 
     if [[ -n "${ZUI[current_tfield]}" ]]; then
         zcurses move "$__wname_main" "${ZUI[cursor_y]}" $(( ZUI[cursor_x] + 2 ))
@@ -842,11 +843,28 @@ while (( 1 )); do
                     (( ${+functions[-zui-standard-text-select-callback]} )) && -zui-standard-text-select-callback "segment" "$__tmp"
                     ZUI[pure_text_selected]="$__tmp"
                 fi
-            elif [[ "$__action" = F[1-4] ]]; then
-                REPLY="$__action"
-                reply=( "$__list[@]" )
-                __do_exit="yes"
-                break
+            elif [[ "$__action" = "F1" ]]; then
+                if [[ -z "${ZUI[SEARCH_BUFFER]}" ]]; then
+                    if [[ -n "${ZUI[PREV_SBUFFER]}" && -n "${ZUI[PREV_SIDX]}" ]]; then
+                        ZUI[SEARCH_BUFFER]="${ZUI[PREV_SBUFFER]}"
+                        ZUI[CURRENT_IDX]="${ZUI[PREV_SIDX]}"
+                    fi
+                    ZUI[SEARCH_MODE]=1
+                else
+                    __slist=( )
+                    typeset +U __slist
+                    repeat 1; do
+                        __slist=( "$@" )
+                    done
+                    ZUI[PREV_SBUFFER]="${ZUI[SEARCH_BUFFER]}"
+                    ZUI[PREV_SIDX]="${ZUI[CURRENT_IDX]}"
+                    if -zui_sys_get_match_line 'ZUI[CURRENT_IDX]'; then
+                        -zui_std_stalog "Search: \`${ZUI[SEARCH_BUFFER]}' jumped to line " "#${ZUI[CURRENT_IDX]}" " Restore search via F1"
+                        ZUI[SEARCH_BUFFER]=""
+                        ZUI[SEARCH_MODE]=0
+                    fi
+                    ZUI[IGNORE_MSG]=1
+                fi
             elif [[ "$__action" = "BR_MOVE_LEFT" || "$__action" = "BR_MOVE_RIGHT" ]]; then
                 REPLY="$__action"
                 reply=( "$__list[@]" )
