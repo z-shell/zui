@@ -265,4 +265,62 @@ function -zui_sys_add_message() {
     (( ${#ZUI_MESSAGES} >= ZUI[log_size] + 10 )) && { ZUI_MESSAGES=( "${(@)ZUI_MESSAGES[1+10,-1]}" ); }
 } # }}}
 
+# FUNCTION: -zui_sys_get_match_line {{{
+# Returns at which index in $__list the search
+# result that's currently highlighted is located.
+#
+# Allows to jump to search result, not only see it.
+#
+# $__slist - input variable with copy of $__list
+# $1 - output variable to hold the established target line number
+function -zui_sys_get_match_line() {
+    local __var_name="${1:-REPLY}" __i
+    [[ "${#ZUILIST_NONSELECTABLE_ELEMENTS}" -gt 0 ]] && for __i in "${(nO)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
+        __slist[$__i]=()
+    done
+    [[ "${ZUI[UNIQ_MODE]}" -eq 1 ]] && typeset -gU __slist
+
+    local search_buffer="${ZUI[SEARCH_BUFFER]%% ##}"
+    search_buffer="${search_buffer## ##}"
+    search_buffer="${search_buffer//(#m)[][*?|#~^()><\\]/\\$MATCH}"
+    if [[ -n "$search_buffer" ]]; then
+        # Base bit of this pattern is ((#s)[^$'\01']#THEWORD*|*$'\02'[^$'\01']#THEWORD*) - the word occuring not inside hyper link
+        # Pattern will be: BIT1~^BIT2...
+        local search_pattern=${search_buffer//(#b)([^ ]##)/(#B)((#s)[^$'\01'$'\032'$'\034']#${match[1]}*|*[$'\02'][^$'\01'$'\032'$'\034']#${match[1]}*)~^}
+        search_pattern="${search_pattern// ##/}"
+        search_pattern="${search_pattern%\~\^}"
+
+        search_pattern="(#b)(($search_pattern)|(*))"
+        integer __line=0 __correct=0
+        local -a __slist2
+        repeat 1; do
+            __slist=( "${(@)__slist//(#i)$~search_pattern/$(( ++ __line, ${#match[2]} > 0 ? __line : 0 ))}" )
+            __slist=( "${(@)__slist:#0}" )
+            __slist2=( "${(@)__slist:#}" )
+        done
+
+        # Use the same element but from line-number-only array
+        __line=${__slist2[${ZUI[CURRENT_IDX]}]}
+
+        # Correct for possible empty entries that weren't counted
+        # because // substitution ignores empty elements, always
+        integer __index=${__slist[(i)$__line]}
+        local -a __empty
+        __empty=( "${(@M)__slist[1,__index]:#}" )
+        __line+=${#__empty}
+
+        [[ "${ZUI[UNIQ_MODE]}" -ne 1 ]] && [[ "${#ZUILIST_NONSELECTABLE_ELEMENTS}" -gt 0 ]] && for __i in "${(no)ZUILIST_NONSELECTABLE_ELEMENTS[@]}"; do
+            (( __i <= __line + __correct )) && __correct+=1
+        done
+
+        __line+=__correct
+
+        : ${(P)__var_name::=$__line}
+        return 0
+    fi
+
+    : ${(P)__var_name::=0}
+    return 1
+} # }}}
+
 # vim:ft=zsh
