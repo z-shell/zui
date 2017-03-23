@@ -319,7 +319,6 @@ function -zui_sys_get_match_line() {
         return 0
     fi
 
-    : ${(P)__var_name::=0}
     return 1
 } # }}}
 
