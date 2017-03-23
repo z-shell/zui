@@ -135,7 +135,7 @@ local active_text="$8"
 shift 8
 integer max_text_len=page_width-x_offset
 
-[[ "$active_text" = "underline" || "$active_text" = "reverse" ]] || active_text=""
+[[ "$active_text" = "underline" || "$active_text" = "reverse" || "$active_text" = "blink" || "$active_text" = "standout" ]] || active_text=""
 
 integer i=1 max_idx=page_height end_idx=${#}
 (( end_idx > max_idx )) && end_idx=max_idx
