@@ -88,6 +88,12 @@ function -zui_std_init2() {
     unsetopt localoptions
     [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
     [[ "${ZUI[INTERACTIVE_COMMENTS]}" = "1" ]] && setopt interactivecomments
+
+    [[ "${ZUI[app]}" != "${ZUI[messages_app]}" ]] && {
+        ZUI_MESSAGES=()
+        ZUI[message_count]=0
+        ZUI[messages_app]="${ZUI[app]}"
+    }
 } # }}}
 
 # FUNCTION: -zui_std_special_text {{{
