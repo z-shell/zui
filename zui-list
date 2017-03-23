@@ -903,7 +903,7 @@ while (( 1 )); do
                     reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
                     # Call the handler with all hyper-link
                     # data or eval code, not using the data
-                    if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
+                    if [[ "${ZUI[$id]}" = *(=|\(\(| )* ]]; then
                         eval "() { ${ZUI[$id]%;}; } ${(q)reply[@]}"
                     else
                         "${ZUI[$id]}" "${reply[@]}"
@@ -917,7 +917,7 @@ while (( 1 )); do
 
                 if [[ "$__action" = TFIELD_LEFT && -n "${ZUI[$id]}" ]]; then
                     reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
-                    if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
+                    if [[ "${ZUI[$id]}" = *(=|\(\(| )* ]]; then
                         eval "() { ${ZUI[$id]%;}; } ${(q)reply[@]}"
                     else
                         "${ZUI[$id]}" "${reply[@]}"
@@ -931,7 +931,7 @@ while (( 1 )); do
 
                 if [[ "$__action" = LBOX_LEFT && -n "${ZUI[$id]}" ]]; then
                     reply[1]="${reply[1]#(zuiiaction|zuiaction|zuieanchor|zuianchor|zuitfield|zuilbox)}"
-                    if [[ "${ZUI[$id]}" = *(=|\(\(| * )* ]]; then
+                    if [[ "${ZUI[$id]}" = *(=|\(\(| )* ]]; then
                         eval "() { ${ZUI[$id]%;}; } ${(q)reply[@]}"
                     else
                         "${ZUI[$id]}" "${reply[@]}"
