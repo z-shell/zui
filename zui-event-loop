@@ -184,6 +184,8 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
         if [[ "$ZUIEL_LINE_COUNT" -gt 0 || "${ZUI[top_anchors]}" = 1 ]]; then
             ZUIEL_OUTPUT+=( "" )
             ZUIEL_LINE_COUNT+=1
+            # Possible + 1 for the anchors at top
+            ZUILIST_NONSELECTABLE_ELEMENTS+=( "$(( ZUIEL_LINE_COUNT + ZUI[top_anchors] ))" )
         fi
 
         # Possible + 1 for the anchors at top
