@@ -35,11 +35,11 @@ demo_generator_B() {
 
 # Read & publish configure/make output
 -zui-standard-timeout-callback() {
-    (( mstarted + cstarted == 0 )) && return;
+    (( mstarted + cstarted == 0 )) && return
 
     local line had_read=0
     repeat 20; do
-        read -r -p -t 0 line 2>/dev/null && { had_read=1; coproc_output+=( "$line" ); } || break;
+        read -r -p -t 0 line 2>/dev/null && { had_read=1; coproc_output+=( "$line" ); } || break
     done
 
     (( had_read )) && -zui_std_fly_mod_regen 2 1
