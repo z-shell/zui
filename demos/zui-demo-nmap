@@ -94,7 +94,7 @@ run_nmap() {
     [[ -z "${ZUI[my_host_data]}" || "${ZUI[my_host_data]}" = "<enter"* ]] && { -zui_std_stalog "No host given, not running"; return; }
 
     nstarted=1
-    coproc 2>&1 sudo nmap ${=ZUI[my_nmap_options]} "${ZUI[my_host_data]}"
+    coproc 2>&1 sudo nmap ${=ZUI[my_nmap_options]} ${ZUI[my_host_data]%%[[:space:]]##\#*}
 }
 
 set_opts() {
