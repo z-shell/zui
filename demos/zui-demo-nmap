@@ -1,0 +1,95 @@
+# Started from Zle or from command line
+
+-zui_std_cleanup deserialize:"zui-demo-configure"
+-zui_std_init app:"zui-demo-configure" app_name:"ZUI Configure/Make wrapper"
+emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
+-zui_std_init2 # after emulate -LR
+
+-zui_std_store_default_app_config s:timeout 300
+-zui_std_store_default_app_config s:text_mode off
+
+local -a coproc_output
+local nstarted=0  # denote if nmap is running
+local -a opts     # will hold options read from file
+opts=( "${(@f)"$(<~/.config/nmap_wrapper/opts.txt)"}" )
+
+local cfg_dir="$HOME/.config/nmap_wrapper"
+command mkdir -p $cfg_dir
+command touch $cfg_dir/opts.txt
+
+demo_generator_A() {
+    local mod="$1" ice="$2"
+
+    reply=()
+    -zui_std_rc_button "Abutton1" "${ZUI[MAGENTA]}Run nmap${ZUI[FMT_END]}" 'internal=1; run_sudo; report_options; run_nmap'
+    -zui_std_rc_button "Abutton2" "${ZUI[MAGENTA]}Abort nmap${ZUI[FMT_END]}" internal_abort_nmap
+    -zui_std_rc_button "Abutton3" "${ZUI[MAGENTA]}Add line${ZUI[FMT_END]}" 'internal=1; opts+=( "" ); -zui_std_fly_mod_regen 1 1'
+    -zui_std_rc_button "Abutton4" "${ZUI[MAGENTA]}Remove line${ZUI[FMT_END]}" 'internal=1; opts[-1]=(); -zui_std_fly_mod_regen 1 1'
+    -zui_std_rc_button "Abutton5" "${ZUI[MAGENTA]}Save${ZUI[FMT_END]}" 'internal=1; print -rl -- "${opts[@]}" > $cfg_dir/opts.txt'
+
+    integer size=${#opts} i
+    for (( i=1; i<=size; ++i )); do
+        ZUI[my_line_width_$i]=50
+        ZUI[my_line_idx_$i]=1
+        noglob -zui_std_text_field "line_$i" ZUI[my_line_width_$i] ZUI[my_line_idx_$i] opts[$i] "" "" "" "set_opts $i"
+    done
+
+    # Content
+    reply=( "${reply[1]} ${reply[2]} ${reply[3]} ${reply[4]} ${reply[5]}" "${(@)reply[6,-1]}" )
+
+    # Non-selectable lines  Hops to jump with [ and ]   Local anchors
+    reply2=( )              reply3=( 1 )                reply4=( )
+}
+
+demo_generator_B() {
+    reply=()
+    -zui_std_button "Bbutton1" "${ZUI[MAGENTA]}(clear)${ZUI[FMT_END]}" 'internal=1; coproc_output=( ); -zui_std_fly_mod_regen 2 1'
+    reply=( "${ZUI[YELLOW]}Nmap output${ZUI[FMT_END]} ${reply[1]}" "${coproc_output[@]}" )  reply2=( )  reply3=( 1 )  reply4=( )
+}
+
+# Read & publish configure/make output
+-zui-standard-timeout-callback() {
+    (( nstarted == 0 )) && return
+
+    local line had_read=0
+    repeat 20; do
+        read -r -p -t 0 line 2>/dev/null && { had_read=1; coproc_output+=( "$line" ); } || break
+    done
+
+    (( had_read == 1 )) && -zui_std_fly_mod_regen 2 1
+    (( had_read == 0 )) && [[ "${jobtexts[*]}" != *nmap* ]] && { ZUI[redraw]=1; nstarted=0; -zui_std_stalog "Message: " "nmap ended"; }
+}
+
+run_sudo() {
+    zcurses end
+    sudo true
+    zcurses refresh
+}
+
+report_options() {
+    -zui_std_stalog "Using options: " ${ZUI[my_nmap_options]} " to scan host: " ${ZUI[my_nmap_host]}
+    if [[ "${#coproc_output}" -gt 0 ]]; then
+        coproc_output+=( "${ZUI[YELLOW]}"------------------------------------------------------------------------"${ZUI[FMT_END]}" )
+    fi
+}
+
+run_nmap() {
+    [[ -z "${ZUI[my_nmap_options]}" ]] && { -zui_std_stalog "No options selected, not running"; return; }
+    nstarted=1
+    coproc 2>&1 sudo nmap ${=ZUI[my_nmap_options]} "${ZUI[my_nmap_host]}"
+}
+
+set_opts() {
+    local index="$1"
+    ZUI[my_nmap_options]="${opts[index]%\#*}"
+    ZUI[my_nmap_host]="127.0.0.1"
+}
+
+## Start application ##
+zui-event-loop 1:demo_generator_A 1:demo_generator_B
+
+-zui_std_cleanup serialize
+
+return 0
+
+# vim:ft=zsh
