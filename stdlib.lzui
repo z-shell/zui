@@ -337,6 +337,17 @@ function -zui_std_list_box() {
     [[ -n "$__handler" ]] && ZUI[zuilbox$__id]="$__handler"
 
     __var_name="${__var_name}[${(P)#__var_name}+1]"
+
+    if (( ${(P)+${(Q)__width_var}} + ${(P)+${(Q)__idx_var}} + ${(P)+${(Q)__opts_var}} != 3 )); then
+        local key_part=$RANDOM
+        ZUI[my_err_tfield_width_${key_part}]=100
+        ZUI[my_err_tfield_idx_${key_part}]=1
+        ZUI[my_err_tfield_data_${key_part}]="ERROR: Not all variables exist: ${(Q)__width_var}, ${(Q)__idx_var}, ${(Q)__opts_var}"
+        __width_var="ZUI\[my_err_tfield_width_${key_part}\]"
+        __idx_var="ZUI\[my_err_tfield_idx_${key_part}\]"
+        __opts_var="ZUI\[my_err_tfield_data_${key_part}\]"
+    fi
+
     local __output=$'\034'"zuilbox$__id"$'\034'"$__data1"$'\034'"$__data2"$'\034'"$__data3"$'\034'"$__width_var"$'\034'"$__idx_var"$'\034'"$__opts_var"$'\02'
 
     unset __id __width_var __idx_var __opts_var __data1 __data2 __data3 __handler
