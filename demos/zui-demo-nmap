@@ -1,7 +1,7 @@
 # Started from Zle or from command line
 
--zui_std_cleanup deserialize:"zui-demo-configure"
--zui_std_init app:"zui-demo-configure" app_name:"ZUI Configure/Make wrapper"
+-zui_std_cleanup deserialize:"zui-demo-nmap"
+-zui_std_init app:"zui-demo-nmap" app_name:"ZUI Nmap TUI"
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 -zui_std_init2 # after emulate -LR
 
@@ -11,13 +11,13 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 local -a coproc_output opts hosts
 local internal nstarted=0  # denote if nmap is running
 
-local cfg_dir="$HOME/.config/nmap_wrapper"
+local cfg_dir="$HOME/.config/nmap_zui"
 command mkdir -p $cfg_dir
 command touch $cfg_dir/opts.txt $cfg_dir/hosts.txt
-opts=( "${(@f)"$(<~/.config/nmap_wrapper/opts.txt)"}" )
+opts=( "${(@f)"$(<$cfg_dir/opts.txt)"}" )
 
-hosts=( "${(@f)"$(<~/.config/nmap_wrapper/hosts.txt)"}" )
-[[ -z "${hosts[1]}" ]] && hosts[1]=127.0.0.1
+hosts=( "${(@f)"$(<$cfg_dir/hosts.txt)"}" )
+[[ -z "${hosts[1]}" ]] && hosts[1]="127.0.0.1"
 
 demo_generator_A() {
     local mod="$1" ice="$2"
