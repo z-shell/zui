@@ -181,11 +181,11 @@ if [[ -n "${ZUI[current_tfield]}" ]]; then
                 (( text ++ ))
                 : ${(P)wrk_reply[2]::=$text}
                 ;;
-            (HOME)
+            (HOME|$'\C-A')
                 ZUI[cursor_x]="${ZUI[current_tfield_cidx_start]}"
                 : ${(P)wrk_reply[3]::=1}
                 ;;
-            (END)
+            (END|$'\C-E')
                 ZUI[cursor_x]="${ZUI[current_tfield_cidx_end]}"
                 text="${(P)wrk_reply[4]}"
                 -zui_sys_index_tail_width "$text" "${(P)wrk_reply[2]}" text
