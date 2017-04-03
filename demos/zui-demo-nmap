@@ -100,7 +100,7 @@ run_nmap() {
 
 set_opts() {
     local index="$1"
-    ZUI[my_nmap_options]="${opts[index]%\#*}"
+    ZUI[my_nmap_options]="${opts[index]%%[[:space:]]#\#*}"
 }
 
 ## Start application ##
