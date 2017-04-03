@@ -103,6 +103,7 @@ set_opts() {
     ZUI[my_nmap_options]="${opts[index]%%[[:space:]]#\#*}"
 }
 
+ZUI[COLORING_PATTERN]="(PORT|STATE|SERVICE|VERSION)" ZUI[COLORING_MATCH_MULTIPLE]=1
 ## Start application ##
 zui-event-loop 1:demo_generator_A 1:demo_generator_B
 
