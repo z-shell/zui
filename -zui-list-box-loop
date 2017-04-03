@@ -26,6 +26,7 @@ fi
 
 zcurses delwin lbox 2>/dev/null
 zcurses addwin lbox $(( size + 2 )) $(( width + 4 )) "$__ypos" "$__xpos"
+zcurses bg lbox "${ZUI[colorpair]}"
 
 # Clear input buffer
 zcurses timeout lbox 0
