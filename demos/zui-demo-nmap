@@ -62,7 +62,14 @@ demo_generator_A() {
 demo_generator_B() {
     reply=()
     -zui_std_button "Bbutton1" "${ZUI[MAGENTA]}(clear)${ZUI[FMT_END]}" 'internal=1; coproc_output=( ); -zui_std_fly_mod_regen 2 1'
-    reply=( "${ZUI[YELLOW]}Nmap output${ZUI[FMT_END]} ${reply[1]}" "${coproc_output[@]}" )  reply2=( )  reply3=( 1 )  reply4=( )
+    -zui_std_button "Bbutton1" "${ZUI[MAGENTA]}Save${ZUI[FMT_END]}" 'internal=1; print -rl -- "${coproc_output[@]}" > ${~ZUI[my_path_data]}; -zui_std_stalog "Saved to: " ${~ZUI[my_path_data]}'
+
+    ZUI[my_path_width]=20
+    ZUI[my_path_idx]=1
+    (( ${+ZUI[my_path_data]} == 0 )) && ZUI[my_path_data]="~/scan.txt"
+    noglob -zui_std_text_field "Atextfield1" ZUI[my_path_width] ZUI[my_path_idx] ZUI[my_path_data]
+
+    reply=( "${ZUI[YELLOW]}Nmap output${ZUI[FMT_END]} ${reply[1]} ${reply[3]} ${reply[2]}" "${coproc_output[@]}" )  reply2=( )  reply3=( 1 )  reply4=( )
 }
 
 # Read & publish configure/make output
