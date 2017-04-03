@@ -131,9 +131,9 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
     [[ -n "${ZUI[COLORING_COLOR]}" ]] && col="${ZUI[COLORING_COLOR]}"
 
     if [[ "${ZUI[COLORING_MATCH_MULTIPLE]}" -eq 1 ]]; then
-        __disp_list=( "${(@)__disp_list//(#mi)${~ZUI[COLORING_PATTERN]}/$col${MATCH}$close}" )
+        __disp_list=( "${(@)__disp_list//(#m)${~ZUI[COLORING_PATTERN]}/$col${MATCH}$close}" )
     else
-        __disp_list=( "${(@)__disp_list/(#mi)${~ZUI[COLORING_PATTERN]}/$col${MATCH}$close}" )
+        __disp_list=( "${(@)__disp_list/(#m)${~ZUI[COLORING_PATTERN]}/$col${MATCH}$close}" )
     fi
 
     # Fix color marks added inside already colored text
