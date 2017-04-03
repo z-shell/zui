@@ -92,7 +92,7 @@ run_sudo() {
 }
 
 report_options() {
-    -zui_std_stalog "Using options: " ${ZUI[my_nmap_options]} " to scan host: " ${ZUI[my_host_data]}
+    -zui_std_stalog "Using options: " ${ZUI[my_nmap_options]} " to scan host(s): " ${ZUI[my_host_data]}
     if [[ "${#coproc_output}" -gt 0 ]]; then
         coproc_output+=( "${ZUI[YELLOW]}"------------------------------------------------------------------------"${ZUI[FMT_END]}" )
     fi
