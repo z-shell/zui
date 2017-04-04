@@ -62,7 +62,7 @@ demo_generator_A() {
 demo_generator_B() {
     reply=()
     -zui_std_button "Bbutton1" "${ZUI[MAGENTA]}(clear)${ZUI[FMT_END]}" 'internal=1; coproc_output=( ); -zui_std_fly_mod_regen 2 1'
-    -zui_std_button "Bbutton1" "${ZUI[MAGENTA]}Save${ZUI[FMT_END]}" 'internal=1; print -rl -- "${coproc_output[@]}" > ${~ZUI[my_path_data]}; -zui_std_stalog "Saved to: " ${~ZUI[my_path_data]}'
+    -zui_std_button "Bbutton2" "${ZUI[MAGENTA]}Save${ZUI[FMT_END]}" 'internal=1; print -rl -- "${coproc_output[@]}" > ${~ZUI[my_path_data]}; -zui_std_stalog "Saved to: " ${~ZUI[my_path_data]}'
 
     ZUI[my_path_width]=20
     ZUI[my_path_idx]=1
