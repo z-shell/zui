@@ -16,6 +16,8 @@ This is a RAD (Rapid Application Development) textual user interface library for
 
 So, a Zshell code generates text. It is then turned into document with hyperlinks. DHTML-like calls are possible that will regenerate document parts on the fly. Page can be also reloaded with input data, just like an HTML page.
 
+A voiced [video tutorial](https://youtu.be/TfZ8b_RS_Bg) shows how to create an application – Nmap network scanner frontend.
+
 ## Hello World
 
 ```zsh
