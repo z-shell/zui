@@ -17,7 +17,7 @@ command touch $cfg_dir/opts.txt $cfg_dir/hosts.txt
 opts=( "${(@f)"$(<$cfg_dir/opts.txt)"}" )
 
 hosts=( "${(@f)"$(<$cfg_dir/hosts.txt)"}" )
-[[ -z "${hosts[1]}" ]] && hosts[1]="127.0.0.1"
+[[ -z "${hosts[1]}" ]] && { hosts[1]="127.0.0.1"; hosts[2]="192.168.0.*"; }
 
 demo_generator_A() {
     local mod="$1" ice="$2"
