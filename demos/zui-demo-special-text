@@ -9,7 +9,7 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
 -zui_std_store_default_app_config b:text_select 1
 
-local internal  # trick variable to make handler no-restart
+local internal  # trick variable to make a handler no-restart
 
 demo_generator_A() {
     local mod="$1" ice="$2" arg="$3"
