@@ -112,12 +112,12 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 -zui_list_setup_user_vars() {
     if [[ "$1" = "1" ]]; then
         # Basic values when there are no non-selectables
-        ZUILIST_USER_CURRENT_IDX="${ZUI[CURRENT_IDX]}"
-        ZUILIST_USER_LAST_ELEMENT="$__last_element"
+        ZUI[USER_CURRENT_IDX]="${ZUI[CURRENT_IDX]}"
+        ZUI[USER_LAST_ELEMENT]="$__last_element"
     else
         -zui_list_compute_user_vars_difference
-        ZUILIST_USER_CURRENT_IDX=$(( ZUI[CURRENT_IDX] - __current_difference ))
-        ZUILIST_USER_LAST_ELEMENT=$(( __last_element - __last_element_difference ))
+        ZUI[USER_CURRENT_IDX]=$(( ZUI[CURRENT_IDX] - __current_difference ))
+        ZUI[USER_LAST_ELEMENT]=$(( __last_element - __last_element_difference ))
     fi
 }
 
@@ -450,9 +450,9 @@ typeset -ga +U ZUILIST_NONSELECTABLE_ELEMENTS
 typeset -ga +U ZUILIST_HOP_INDICES
 
 # Zero - because it isn't known, unless we confirm that first element is selectable
-ZUILIST_USER_CURRENT_IDX=0
-[[ -z "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)1]}" ]] && ZUILIST_USER_CURRENT_IDX=1
-ZUILIST_USER_LAST_ELEMENT=$(( __last_element - ${#ZUILIST_NONSELECTABLE_ELEMENTS} ))
+ZUI[USER_CURRENT_IDX]=0
+[[ -z "${ZUILIST_NONSELECTABLE_ELEMENTS[(r)1]}" ]] && ZUI[USER_CURRENT_IDX]=1
+ZUI[USER_LAST_ELEMENT]=$(( __last_element - ${#ZUILIST_NONSELECTABLE_ELEMENTS} ))
 
 # Recompute ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] in case it
 # was incorrectly manually altered outside the list, also
@@ -726,7 +726,7 @@ while (( 1 )); do
             -zui-log "$__wname_status" "$__status_height" "$__status_width" "${ZUI[status_border]}" "${ZUI[status_colorpair]}" \
                     "$ZUILIST_GREP_STRING" "${ZUI[UNIQ_MODE]}" "${ZUI[SEARCH_MODE]}" \
                     "${ZUI[GENERATION_TIME]}" "$selectable" "${${ZUI[SEARCH_BUFFER]:+1}:-0}" \
-                    "$ZUILIST_USER_CURRENT_IDX" "$ZUILIST_USER_LAST_ELEMENT"
+                    "${ZUI[USER_CURRENT_IDX]}" "${ZUI[USER_LAST_ELEMENT]}"
 
             ZUI[GENERATION_TIME]=""
         else
