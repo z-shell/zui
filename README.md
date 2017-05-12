@@ -70,22 +70,22 @@ other too, and also install with `Oh My Zsh` (by copying directory to
 
 ### [Zplugin](https://github.com/psprint/zplugin)
 
-Add `zplugin load psprint/zui` to your `.zshrc` file. Zplugin will handle
+Add `zplugin load zdharma/zui` to your `.zshrc` file. Zplugin will handle
 cloning the plugin for you automatically the next time you start zsh. To update
-issue `zplugin update psprint/zui` (`update-all` can also be used).
+issue `zplugin update zdharma/zui` (`update-all` can also be used).
 
 ### Antigen
 
-Add `antigen bundle psprint/zui` to your `.zshrc` file. Antigen will handle
+Add `antigen bundle zdharma/zui` to your `.zshrc` file. Antigen will handle
 cloning the plugin for you automatically the next time you start zsh.
 
 ### Oh-My-Zsh
 
 1. `cd ~/.oh-my-zsh/custom/plugins`
-2. `git clone git@github.com:psprint/zui.git`
+2. `git clone git@github.com:zdharma/zui.git`
 3. Add `zui` to your plugin list
 
 ### Zgen
 
-Add `zgen load psprint/zui` to your .zshrc file in the same place you're doing
+Add `zgen load zdharma/zui` to your .zshrc file in the same place you're doing
 your other `zgen load` calls in.
