@@ -554,13 +554,13 @@ while (( 1 )); do
         __segments=( "${(z@)__list[${ZUI[CURRENT_IDX]}]}" )
         __nseg="$#__segments"
 
-        integer end_idx=$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + __page_height - 1 ))
-        [[ "$end_idx" -gt "$__last_element" ]] && end_idx=__last_element
+        integer __end_idx=$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + __page_height - 1 ))
+        [[ "$__end_idx" -gt "$__last_element" ]] && __end_idx=__last_element
 
         if [[ "${ZUI[REGENERATE_LIST]}" = "2" || "$__prev_start_idx" -ne "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}" ]]; then
             ZUI[REGENERATE_LIST]="0"
             __prev_start_idx="${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"
-            __disp_list=( "${(@)__list[${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]},end_idx]}" )
+            __disp_list=( "${(@)__list[${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]},__end_idx]}" )
 
             # Remove hyperlinks before colorifying
             __disp_list=( "${__disp_list[@]//(#b)$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'/${(Q)match[1]}}" )
@@ -642,13 +642,13 @@ while (( 1 )); do
         __segments=( "${(z@)__list[${ZUI[CURRENT_IDX]}]}" )
         __nseg="$#__segments"
 
-        integer end_idx=$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + __page_height - 1 ))
-        [[ "$end_idx" -gt "$__last_element" ]] && end_idx=__last_element
+        integer __end_idx=$(( ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN] + __page_height - 1 ))
+        [[ "$__end_idx" -gt "$__last_element" ]] && __end_idx=__last_element
 
         if [[ "${ZUI[REGENERATE_LIST]}" = "2" || "$__prev_start_idx" -ne "${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"  ]]; then
             ZUI[REGENERATE_LIST]="0"
             __prev_start_idx="${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]}"
-            __disp_list=( "${(@)__list[${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]},end_idx]}" )
+            __disp_list=( "${(@)__list[${ZUI[FROM_WHAT_IDX_LIST_IS_SHOWN]},__end_idx]}" )
 
             # Remove hyperlinks
             __disp_list=( "${__disp_list[@]//(#b)$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'/${(Q)match[1]}}" )
