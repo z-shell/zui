@@ -721,6 +721,7 @@ while (( 1 )); do
         }
 
         (( tpe > 0 )) && -zui_sys_add_message "$tpe" "${EPOCHSECONDS:-0}" "${reply[@]}"
+        (( ZUI[FIRST] && ${${ZUI[SEARCH_BUFFER]:+1}:-0} )) && -zui_sys_add_message "1" "${EPOCHSECONDS:-0}" "Search is " "" "active " "(\"${ZUI[SEARCH_BUFFER]}\")"
 
         if [[ "${ZUI[SEARCH_MODE]}" = "0" ]]; then
             -zui-log "$__wname_status" "$__status_height" "$__status_width" "${ZUI[status_border]}" "${ZUI[status_colorpair]}" \
@@ -1130,6 +1131,8 @@ while (( 1 )); do
     done
 
     [[ "$__do_exit" = "yes" ]] && break
+
+    ZUI[FIRST]=0
 done
 
 # vim: set filetype=zsh:
