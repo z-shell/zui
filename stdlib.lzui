@@ -111,7 +111,7 @@ function -zui_std_special_text() {
     local __var_name="${2:-reply}"
 
     # Quote only text, not codes
-    __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'0\037']##)/${(q)match[1]}}"
+    __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'\037']##)/${(q)match[1]}}"
 
     __var_name="${__var_name}[${(P)#__var_name}+1]"
     local __output=$'\01'$'\01'$'\01'$'\01'$'\01'$'\02'"${__text}"$'\02'
@@ -146,7 +146,7 @@ function -zui_std_button_ext() {
     }
 
     # Quote only text, not codes
-    __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'0\037']##)/${(q)match[1]}}"
+    __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'\037']##)/${(q)match[1]}}"
 
     __var_name="${__var_name}[${(P)#__var_name}+1]"
     local __output=$'\01'"$pfx$__id"$'\01'"$__data1"$'\01'"$__data2"$'\01'"$__data3"$'\01'"$__data4"$'\02'"${__text}"$'\02'
@@ -172,7 +172,7 @@ function -zui_std_rc_button_ext() {
     }
 
     # Quote only text, not codes
-    __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'0\037']##)/${(q)match[1]}}"
+    __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'\037']##)/${(q)match[1]}}"
 
     __var_name="${__var_name}[${(P)#__var_name}+1]"
     local __output=$'\01'"$pfx$__id"$'\01'"$__data1"$'\01'"$__data2"$'\01'"$__data3"$'\01'"$__data4"$'\02'"[${__text}]"$'\02'
@@ -272,7 +272,7 @@ function -zui_std_anchor() {
     }
 
     # Quote only text, not codes
-    __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'0\037']##)/${(q)match[1]}}"
+    __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'\037']##)/${(q)match[1]}}"
 
     __var_name="${__var_name}[${(P)#__var_name}+1]"
     local __output=$'\01'"$__pfx$__id"$'\01'"$__data1"$'\01'"$__data2"$'\01'"$__data3"$'\01'"$__data4"$'\02'"${__text}"$'\02'
@@ -370,7 +370,7 @@ function -zui_std_get_ganchor() {
     local __mod="$1" __ice="$2" __text="$3" __var_name="${4:-reply}"
 
     # Quote only text, not codes
-    __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'0\037']##)/${(q)match[1]}}"
+    __text="${__text//(#b)([^$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'\037']##)/${(q)match[1]}}"
 
     __var_name="${__var_name}[${(P)#__var_name}+1]"
     local __output=$'\01'"zuianchoraglobal_m${__mod}_i${__ice}"$'\01'""$'\01'""$'\01'""$'\01'""$'\02'"${__text}"$'\02'
