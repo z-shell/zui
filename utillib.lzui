@@ -217,4 +217,20 @@ function -zui_util_circular_paths() {
     reply=( "$circpath"/"$base".[[:digit:]]##(omN) )
 } # }}}
 
+# FUNCTION: -zui_util_to_cmd_line {{{
+# Puts given text on command line – regardless if Zle is active or not
+#
+# $1 - text to put on command line
+#
+function -zui_util_to_cmd_line() {
+    if zle; then
+        zle .kill-buffer
+        BUFFER="$1"
+        zle .redisplay
+        zle .beginning-of-line
+    else
+        print -zr "$1"
+    fi
+} # }}}
+
 # vim:ft=zsh
