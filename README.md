@@ -1,5 +1,7 @@
 ![ZUI logo](http://zdharma.org/static/img/zui_logo.png)
 
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=D6XDCHDSBDSDG)
+
 # ⬢ ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses
 
 [![License (GPL version 3)](https://img.shields.io/badge/license-GNU%20GPL%20version%203-blue.svg?style=flat-square)](./LICENSE)
