@@ -70,11 +70,11 @@ If using a plugin manager, then `Zplugin` is recommended, but you can use any
 other too, and also install with `Oh My Zsh` (by copying directory to
 `~/.oh-my-zsh/custom/plugins`).
 
-### [Zplugin](https://github.com/psprint/zplugin)
+### [Zplugin](https://github.com/zdharma/zplugin)
 
 Add `zplugin load zdharma/zui` to your `.zshrc` file. Zplugin will handle
 cloning the plugin for you automatically the next time you start zsh. To update
-issue `zplugin update zdharma/zui` (`update-all` can also be used).
+(i.e. to pull from origin) issue `zplugin update zdharma/zui`.
 
 ### Antigen
 
