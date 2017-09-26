@@ -19,7 +19,7 @@ if [[ -z "$ZPLG_CUR_PLUGIN" && "${fpath[(r)$ZUI_REPO_DIR]}" != $ZUI_REPO_DIR ]];
     fpath+=( "$ZUI_REPO_DIR" )
 fi
 
-[[ -z "${fg_bold[green]}" ]] && builtin autoload -Uz colors && colors
+[[ ${+fg_bold} = "0" || -z "${fg_bold[green]}" ]] && builtin autoload -Uz colors && colors
 
 #
 # Setup
