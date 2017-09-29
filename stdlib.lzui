@@ -536,6 +536,27 @@ function -zui_std_get_stext() {
     return 1
 } # }}}
 
+# FUNCTION: -zui_std_strip_meta_data {{{
+function -zui_std_strip_meta_data() {
+        local buf="$1"
+        # Remove hyperlinks
+        buf="${buf//(#b)$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'/${(Q)match[1]}}"
+        #                      id                data1             data2             data3              width               sidx                text                
+        buf="${buf//(#b)$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\02']#)$'\02'/${(mr:${(P)${(Q)match[1]}}::_:)${(P)${(Q)match[3]}}[${(P)${(Q)match[2]}},-1]}}"
+        #                      id                data1             data2             data3              width               idx                 options text        
+        buf="${buf//(#b)$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\02']#)$'\02'/${(mr:${(P)${(Q)match[1]}}:: :)${(As:;:)${(P)${(Q)match[3]}}}[${(P)${(Q)match[2]}}]}}"
+
+        # Remove color marks
+        # [all] [fg] [bg] TEXT
+        buf="${buf//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'])([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[FMT_END]}]#)${ZUI[FMT_END]}/$match[4]}"
+
+        # Mark 1
+        buf="${buf//(#b)${ZUI[MARK]}([^${ZUI[MARK_E]}]#)${ZUI[MARK_E]}/$match[1]}"
+        # Mark 2 (alternative for segments with background color)
+        buf="${buf//(#b)${ZUI[MARK2]}([^${ZUI[MARK_E]}]#)${ZUI[MARK_E]}/$match[1]}"
+
+        REPLY="$buf"
+} # }}}
 # FUNCTION: -zui_std_is_hyperlink {{{
 # Checks if given text is a button/anchor/raw hyperlink
 function -zui_std_is_hyperlink() {
