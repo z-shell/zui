@@ -254,7 +254,7 @@ function -zui_std_anchor() {
     # Set to some weird line that probably exists,
     # to signal that anchor works, but input line
     # number is incorrect
-    [[ "$__data1" != <-> && "$__data1" != <->[-+]<-> ]] && __data1="1+0+0+0"
+    # [[ "$__data1" != <-> && "$__data1" != <->[-+]<-> ]] && __data1="1+0+0+0"
 
     # With no handler do only no-restart jumps
     local hpfx="zuiiaction" __pfx="zuianchor"
