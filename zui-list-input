@@ -85,6 +85,97 @@ setopt typesetsilent extendedglob
     fi
 }
 
+# Searches for link that is closest graphically to previous
+# current segment
+-zui_listin_search_for_hyperlink_graphical() {
+    [[ "$current_idx" = "$prev_idx" ]] && { -zui_listin_search_for_hyperlink; return $?; }
+
+    local -a segments prev_segments stri_segs stri_prev_segs
+    local line prev_line s ss
+
+    # Position and size of current segment in previous line
+    integer target_offset target_size
+    # Position of examined segment, if proper, then stored
+    # as *_left or *_right
+    integer try try_left=0 try_left_size=0 try_right=0
+    # Index of examined segment, if proper, then stored
+    # as *_left or *_right
+    integer candidate_idx=0 candidate_left=0 candidate_right=0
+
+    segments=( "${(Pz@)list_var_current}" )
+    prev_segments=( "${(Pz@)list_var_prev}" )
+
+    -zui_std_strip_meta_data "${(P)list_var_current}"
+    line="$REPLY"
+    -zui_std_strip_meta_data "${(P)list_var_prev}"
+    prev_line="$REPLY"
+
+    -zui_std_strip_meta_data "${prev_segments[current_segment]}"
+    target_size="${#REPLY}"
+    REPLY="${REPLY//\[/\\[}"
+    REPLY="${REPLY//\]/\\]}"
+    target_offset="${prev_line[(i)$REPLY]}"
+
+    for s in "${segments[@]}"; do
+        candidate_idx+=1
+
+        if ! -zui_std_is_hyperlink "$s"; then
+            continue
+        fi
+
+        -zui_std_strip_meta_data "$s"
+        ss="$REPLY"
+        REPLY="${REPLY//\[/\\[}"
+        REPLY="${REPLY//\]/\\]}"
+        try="${line[(i)$REPLY]}"
+
+        if (( try <= target_offset )); then
+            candidate_left=candidate_idx
+            try_left=try
+            try_left_size=${#ss}
+        elif (( try > target_offset )); then
+            candidate_right=candidate_idx
+            try_right=try
+            break
+        fi
+    done
+
+    # Left (and possibly right) in middle of the examined button
+    if (( try_left != 0 && try_left + try_left_size >= target_offset )); then
+        if (( try_right != 0 && try_right < target_offset + target_size )); then
+            # Which does more pertrude
+            if (( target_offset + target_size - try_right > try_left + try_left_size - target_offset )); then
+                current_segment=candidate_right
+            else
+                current_segment=candidate_left
+            fi
+        else
+            current_segment=candidate_left
+        fi
+    # Right in middle of examined button
+    elif (( try_right != 0 && try_right < target_offset + target_size )); then
+        current_segment=candidate_right
+    # No in middle of the button, so distance to target button
+    # from right edge (left candidate) and left edge (right candidate)
+    elif (( try_left != 0 && try_right != 0 && target_offset - try_left - try_left_size < try_right - target_offset )); then
+        current_segment=candidate_left
+    # As above, opposite result
+    elif (( try_left != 0 && try_right != 0 && target_offset - try_left - try_left_size >= try_right - target_offset )); then
+        current_segment=candidate_right
+    # Single candidate - left
+    elif (( try_left != 0 )); then
+        current_segment=candidate_left
+    # Single candidate - right
+    elif (( try_right != 0 )); then
+        current_segment=candidate_right
+    else
+        # Fallback method
+        -zui_listin_search_for_hyperlink; return $?
+    fi
+
+    return 0
+}
+
 # Testable, searches for next (excluding current
 # one) hyperlink, returns 1 if not found, 0 if
 # found (this implies update of current_segment)
@@ -145,7 +236,9 @@ local buffer="$11"
 integer uniq_mode="$12"
 integer disable_search="$13"
 local list_var_current="${14}[\$current_idx]"
+local list_var_prev="${14}[\$prev_idx]"
 
+integer prev_idx="$current_idx"
 local text
 local -a wrk_reply
 
@@ -751,9 +844,9 @@ fi
 
 # Make current_segment point to hyperlink, if it exists in line
 if -zui_std_has_any_hyperlinks "${(P)list_var_current}"; then
-    [[ "${ZUI[text_mode]}" = (hyp|all) && "$search_for_hyperlink" = "0" ]] || -zui_listin_search_for_hyperlink
+    [[ "${ZUI[text_mode]}" = (hyp|all) && "$search_for_hyperlink" = "0" ]] || -zui_listin_search_for_hyperlink_graphical
 else
-    [[ "${ZUI[text_mode]}" = (nohyp|all) && "$search_for_hyperlink" = "0" ]] || -zui_listin_search_for_hyperlink
+    [[ "${ZUI[text_mode]}" = (nohyp|all) && "$search_for_hyperlink" = "0" ]] || -zui_listin_search_for_hyperlink_graphical
 fi
 
 reply[3]="$current_idx"
