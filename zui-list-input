@@ -119,7 +119,7 @@ setopt typesetsilent extendedglob
     for s in "${segments[@]}"; do
         candidate_idx+=1
 
-        if ! -zui_std_is_hyperlink "$s"; then
+        if ! -zui_std_is_any_hyperlink "$s"; then
             continue
         fi
 
