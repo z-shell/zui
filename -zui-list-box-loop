@@ -5,6 +5,9 @@ local __page_height="$1" __page_width="$2" __ypos="$3" __xpos="$4" __id="$5" __w
 # Get maximum width
 local -a options
 options=( "${(@Ps:;:)__opts_var}" )
+# Remove color marks
+# [all] [fg] [bg] TEXT
+options=( "${options[@]//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'])([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[FMT_END]}]#)${ZUI[FMT_END]}/$match[4]}" )
 
 # Compute window x-dimension and position
 local txt
