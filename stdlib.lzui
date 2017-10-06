@@ -102,9 +102,8 @@ function -zui_std_init2() {
 # Appends special-text into output array. The text can contain special
 # characters like ', `, (, [, space.
 #
-# $1 - ID
-# $2 - text
-# $3 - optional output array name
+# $1 - text
+# $2 - optional output array name
 #
 function -zui_std_special_text() {
     local __text="$1"
