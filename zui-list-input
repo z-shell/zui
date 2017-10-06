@@ -28,13 +28,13 @@ setopt typesetsilent extendedglob
 
 # Calling this function means passing information
 # that we move up in the list (to lower index)
-# This means we can move page start as few as 7
+# This means we can move page start as few as 3
 # elements up.
 -zui_listin_compute_first_to_show_idx_up_many() {
     if [[ "$current_idx" -lt "$from_what_idx_list_is_shown" ||
         "$current_idx" -gt "$(( from_what_idx_list_is_shown + page_height -1 ))" ]]
     then
-        from_what_idx_list_is_shown=from_what_idx_list_is_shown-7
+        from_what_idx_list_is_shown=from_what_idx_list_is_shown-3
         -zui_listin_compute_exact_page_if_needed
     fi
 }
@@ -44,7 +44,7 @@ setopt typesetsilent extendedglob
     if [[ "$current_idx" -lt "$from_what_idx_list_is_shown" ||
         "$current_idx" -gt "$(( from_what_idx_list_is_shown + page_height -1 ))" ]]
     then
-        from_what_idx_list_is_shown=from_what_idx_list_is_shown+7
+        from_what_idx_list_is_shown=from_what_idx_list_is_shown+3
         -zui_listin_compute_exact_page_if_needed
     fi
 }
