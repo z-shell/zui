@@ -11,10 +11,6 @@ setopt typesetsilent extendedglob
     # 1 - non-escaped text, 2 - first number in the escaped text, with ;
     # 3 - second number, 4 - text after whole escape text
 
-    # White is repeated, "default" conforms to ESC specs
-    typeset -a c
-    c=( black red green yellow blue magenta cyan white white default )
-
     while [[ -n "$text" && "$no_match" -eq 0 ]]; do
         # Example: \e[0;31m
         if [[ "$text" = (#b)([^$'\e']#)$'\e'\[([0-9](#c0,2))(#B)(\;|)(#b)([0-9](#c0,2))[mK](*) ]]; then
@@ -87,14 +83,14 @@ setopt typesetsilent extendedglob
             # Color code dominates - simplification
             # for performance
             if (( col >= 30 && col <= 39 )); then
-                (( bcol >= 40 && bcol <= 49 )) && currentb="${c[bcol-39]}"
-                current="${c[col-29]}"
+                (( bcol >= 40 && bcol <= 49 )) && currentb="${__c[bcol-39]}"
+                current="${__c[col-29]}"
                 # col, bcol, attr are currently
                 # not possible at the same time,
                 # but this code supports that
                 [[ "$attr" = "1" ]] && zcurses attr "$win" "$current/$currentb" +bold || zcurses attr "$win" "$current/$currentb"
             elif (( bcol >= 40 && bcol <= 49 )); then
-                currentb="${c[bcol-39]}"
+                currentb="${__c[bcol-39]}"
                 [[ "$attr" = "1" ]] && zcurses attr "$win" "$current/$currentb" +bold || zcurses attr "$win" "$current/$currentb"
             elif [[ "$attr" -eq 0 ]]; then
                 zcurses attr "$win" "$wrk_bold" "${ZUI[colorpair]}"

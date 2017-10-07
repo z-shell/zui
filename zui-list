@@ -423,6 +423,12 @@ local backuptheme stbackuptheme
 -zui_std_load_config s:log_time_format "[%H:%M] " 2 'ZUI[log_time_format]'
 -zui_std_load_config s:log_colors "white cyan yellow green cyan red magenta yellow blue" 2 'ZUI[log_colors]'
 -zui_std_load_config s:timeout "-1" 2 'ZUI[timeout]'
+-zui_std_load_config s:palette "black:red:green:yellow:blue:magenta:cyan:white" 2 'ZUI[palette]'
+
+# In the palette white is repeated, "default" (its
+# number in \e[3_m code) conforms to specifications
+local -a __c
+__c=( "${(@s;:;)ZUI[palette]}" "white" "default" )
 
 (( ZUI[timeout] != -1 )) && (( ZUI[timeout] = ZUI[timeout] < 200 ? 200 : ZUI[timeout] ))
 
