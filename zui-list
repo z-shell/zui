@@ -180,7 +180,8 @@ trap "REPLY=-2; reply=(); return" TERM INT QUIT
 -zui_list_replace_color_marks_with() {
     local buf="$1" target_mark="$2"
     # [all] [fg] [bg]
-    buf=${buf//[$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031']([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)/$target_mark}
+    #buf=${buf//[$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031']([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)/$target_mark}
+    buf=${buf//(#b)[$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031']([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[FMT_END]}]#)${ZUI[FMT_END]}/${target_mark}${match[3]}${ZUI[FMT_END]}}
 
     # No existing replaced marks – then just add the mark
     if [[ "${buf/$target_mark/}" = "$buf" ]]; then
@@ -433,7 +434,7 @@ __c=( "${(@s;:;)ZUI[palette]}" "white" "default" )
 (( ZUI[timeout] != -1 )) && (( ZUI[timeout] = ZUI[timeout] < 200 ? 200 : ZUI[timeout] ))
 
 local -a zui_log_colors
-zui_log_colors=( "${=ZUI[log_colors]}" )
+zui_log_colors=( "${(@s: :)ZUI[log_colors]}" )
 
 # Process configuration
 local MARK_CODES MARK_END_CODES MARK2_CODES MARK2_END_CODES __actv_text
