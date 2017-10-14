@@ -559,7 +559,7 @@ function -zui_std_strip_meta_data() {
 # FUNCTION: -zui_std_strip_color_codes {{{
 function -zui_std_strip_color_codes() {
     # [all] [fg] [bg] TEXT
-    REPLY="${1//(#b)([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'])([$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\017']|)([$'\020'-$'\030']|)([^${ZUI[FMT_END]}]#)${ZUI[FMT_END]}/$match[4]}"
+    REPLY="${1//[$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'\037']/}"
 } # }}}
 # FUNCTION: -zui_std_is_hyperlink {{{
 # Checks if given text is a button/anchor/raw hyperlink
