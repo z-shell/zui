@@ -111,6 +111,7 @@ setopt typesetsilent extendedglob
     prev_line="$REPLY"
 
     -zui_std_strip_meta_data "${prev_segments[current_segment]}"
+    -zui_std_strip_color_codes "$REPLY"
     target_size="${#REPLY}"
     REPLY="${REPLY//\[/\\[}"
     REPLY="${REPLY//\]/\\]}"
@@ -124,6 +125,7 @@ setopt typesetsilent extendedglob
         fi
 
         -zui_std_strip_meta_data "$s"
+        -zui_std_strip_color_codes "$REPLY"
         ss="$REPLY"
         REPLY="${REPLY//\[/\\[}"
         REPLY="${REPLY//\]/\\]}"
