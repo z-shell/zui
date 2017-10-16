@@ -937,6 +937,53 @@ function -zui_std_get_mod_factor() {
     : ${(P)__var_name::=${zuiel_module_hash[$__key]}}
 } # }}}
 
+# FUNCTION: -zui_std_set_mod_spacing {{{
+# It sets corresponding ZUI[SPACING_$mod_$ice] variable,
+# which then can be read in generator, and returned via
+# reply5, and from that point actually used in drawing,
+# either on-the-fly, or via restart to zui-event-loop.
+# So this is only a transport of data into generator, the
+# thing that directly sets spacing is reply5. Spacing is
+# the number of blank lines before the module's instance.
+#
+# TODO: on-the-fly regeneration ignores reply5
+#
+# $1 - module index
+# $2 - instance index
+# $3 - the spacing to set (i.e. number of blank lines)
+function -zui_std_set_mod_spacing() {
+    ZUI[SPACING_${1}_${2}]="$3"
+}
+# }}}
+
+# FUNCTION: -zui_std_get_mod_spacing {{{
+# Gets module's spacing, either from the transport place
+# - ZUI[SPACING_${mod}_${ice}] hash field, or from the
+# destination place - mod${1}_ice${2}_spacing parameter
+# directly used during on-the-fly generation or event-loop
+# generation.
+#
+# Testable, but errors will not happen.
+#
+# $1 - module index
+# $2 - instance index
+# $3 - "tra" or "dst" - transport or destination
+function -zui_std_get_mod_spacing() {
+    REPLY=1
+
+    if [[ "$3" = "tra" ]]; then
+        [[ "${+ZUI[SPACING_${1}_${2}]}" = "0" ]] && return 1
+        REPLY="${ZUI[SPACING_${1}_${2}]}"
+        return 0
+    fi
+
+    local __var_name="mod${1}_ice${2}_spacing"
+    [[ "${(P)+__var_name}" = "0" ]] && return 1
+    REPLY="${(P)var_name}"
+    return 0
+}
+# }}}
+
 # FUNCTION: -zui_std_load_global_index_and_size {{{
 # Use this to quickly load variables:
 #
@@ -975,18 +1022,18 @@ function -zui_std_load_global_index_and_size() {
 } # }}}
 
 # FUNCTION: -zui_std_reset_replies {{{
-# Resets parameters reply{,2..4}, i.e. sets them
-# to empty arrays
+# Resets parameters reply{,2..5}, i.e. sets them
+# to empty arrays or strings
 function -zui_std_reset_replies() {
-    reply=() reply2=() reply3=() reply4=()
+    reply=() reply2=() reply3=() reply4=() reply5=""
 } # }}}
 
 # FUNCTION: -zui_std_map_replies {{{
-# Maps reply{,2..4} parameters onto module
+# Maps reply{,2..5} parameters onto module
 # parameters:
-#    mod${midx}_ice${iidx}_output mod${midx}_ice${iidx}_nonselectables
-#    mod${midx}_ice${iidx}_hops mod${midx}_ice${iidx}_anchors
-#    mod${midx}_ice${iidx}_size
+#    mod${midx}_ice${iidx}_output mod${midx}_ice${iidx}_size
+#    mod${midx}_ice${iidx}_nonselectables mod${midx}_ice${iidx}_hops
+#    mod${midx}_ice${iidx}_lanchors mod${midx}_ice${iidx}_spacing
 #
 # $1 - module index
 # $2 - instance index
@@ -1002,6 +1049,8 @@ function -zui_std_map_replies() {
     : ${(PA)var_name::="${reply3[@]}"}
     var_name="mod${1}_ice${2}_lanchors"
     : ${(PA)var_name::="${reply4[@]}"}
+    var_name="mod${1}_ice${2}_spacing"
+    : ${(PA)var_name::=$reply5}
 } # }}}
 
 # FUNCTION: -zui_std_fly_mod_regen_ext {{{
