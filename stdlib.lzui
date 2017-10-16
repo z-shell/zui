@@ -975,16 +975,10 @@ function -zui_std_load_global_index_and_size() {
 } # }}}
 
 # FUNCTION: -zui_std_reset_replies {{{
-# Resets parameters reply{,2..5}
+# Resets parameters reply{,2..4}, i.e. sets them
+# to empty arrays
 function -zui_std_reset_replies() {
-    local var_name="reply"
-    : ${(PA)var_name::=}
-    var_name="reply2"
-    : ${(PA)var_name::=}
-    var_name="reply3"
-    : ${(PA)var_name::=}
-    var_name="reply4"
-    : ${(PA)var_name::=}
+    reply=() reply2=() reply3=() reply4=()
 } # }}}
 
 # FUNCTION: -zui_std_map_replies {{{
