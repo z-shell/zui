@@ -206,7 +206,7 @@ demo_generator_A() {
     # - maximum local line number
     # - remaining lines to reach next module
     local -a next
-    -zui_std_anchor "jumpA_$mod" "${#reply}+2" "" "" "" "[${ZUI[YELLOW]}NEXT${ZUI[FMT_END]}]" "" next
+    -zui_std_anchor "jumpA_$mod" "${#reply}+3" "" "" "" "[${ZUI[YELLOW]}NEXT${ZUI[FMT_END]}]" "" next
     reply[4]="${reply[4]/<NEXT>/${next[1]}}"
 
     # Non-selectables (:+ is "if not empty, then...")
@@ -265,8 +265,8 @@ demo_generator_B() {
             $mod2_ice1_extra_line
     )
 
-    # Non-selectables    Hops            Local anchors
-    reply2=( 4 ${mod2_ice1_extra_line:+6} )         reply3=( 1 )    reply4=( )
+    # Non-selectables                               Hops            Local anchors   # Spacing
+    reply2=( 4 ${mod2_ice1_extra_line:+6} )         reply3=( 1 )    reply4=( )      reply5=2
 }
 
 # Generator for module 2
@@ -310,9 +310,9 @@ demo_generator_C() {
         $append_third
     )
 
-    # Non-selectables             Hops              Local anchors (:+ - replace if not null)
+    # Non-selectables          Hops              Local anchors (:+ - replace if not null)
     # 1 is omitted
-    reply2=( $rand_line_nr )      reply3=( 1 )      reply4=( ${jump:+jumpB_${mod}_${ice}} ${append_third:+append_third_${mod}_${ice}} )
+    reply2=( $rand_line_nr )   reply3=( 1 )      reply4=( ${jump:+jumpB_${mod}_${ice}} ${append_third:+append_third_${mod}_${ice}} )
 }
 
 ##
