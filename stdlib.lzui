@@ -995,7 +995,7 @@ function -zui_std_map_replies() {
     var_name="mod${1}_ice${2}_output"
     : ${(PA)var_name::="${reply[@]}"}
     var_name="mod${1}_ice${2}_size"
-    : ${(PA)var_name::=${#reply}}
+    : ${(P)var_name::=${#reply}}
     var_name="mod${1}_ice${2}_nonselectables"
     : ${(PA)var_name::="${reply2[@]}"}
     var_name="mod${1}_ice${2}_hops"
