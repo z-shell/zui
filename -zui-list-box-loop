@@ -18,6 +18,14 @@ done
 
 if (( __ypos + size + 2 > __page_height + 1 )); then
     (( __ypos=__ypos-size-2 ))
+
+    if (( __ypos-size-2 < 0 )); then
+        ((__ypos+=size/2+2))
+    fi
+
+    if (( __ypos+size+2 > __page_height+1 )); then
+        (( __ypos = __ypos - size/4 ))
+    fi
 else
     (( __ypos+=1 ))
 fi
