@@ -28,7 +28,7 @@ if (( __xpos + width + 4 > __page_width )); then
 fi
 
 zcurses delwin lbox 2>/dev/null
-zcurses addwin lbox $(( size + 2 )) $(( width + 4 )) "$__ypos" "$__xpos"
+zcurses addwin lbox $(( size + 2 )) $(( width + 4 )) "$__ypos" "$__xpos" || return 1
 zcurses bg lbox "${ZUI[colorpair]}"
 
 # Clear input buffer
