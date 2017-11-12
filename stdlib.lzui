@@ -817,6 +817,16 @@ function -zui_std_store_default_app_config() {
 # from $ZUI global hash. To be called at
 # exit and at start of zui application
 function -zui_std_cleanup() {
+    # Optimization to not recreate windows on list
+    # restart - but yes here, on app restart
+    (( ${+builtins[zcurses]} )) && {
+        if [[ -n "${zcurses_windows[(r)main]}" || -n "${zcurses_windows[(r)status]}" ]]; then
+            zcurses delwin main 2>/dev/null
+            zcurses delwin status 2>/dev/null
+            zcurses end
+        fi
+    }
+
     local -a keys
     # Anchors, checkboxes, actions, internal actions
     keys=( ${ZUI[(I)zuianchor*]} ${ZUI[(I)zuieanchor*]} ${ZUI[(I)zuitfield*]} ${ZUI[(I)zuilbox*]}
