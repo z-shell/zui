@@ -311,7 +311,7 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
                     [[ "${+ZUI[zuieanchor$zuiel_a]}" = "1" ]] && zuiel_a="zuieanchor$zuiel_a"
                 }
                 # Possible + 1 for anchors at top; retain "+number" part
-                ZUI[$zuiel_a]=$(( ${ZUI[$zuiel_a]%[-+]*} + ZUIEL_LINE_COUNT + ZUI[top_anchors] ))"${ZUI[$zuiel_a]##[0-9]##}"
+                ZUI[$zuiel_a]=$(( ${ZUI[$zuiel_a]%%[-+]*} + ZUIEL_LINE_COUNT + ZUI[top_anchors] ))"${ZUI[$zuiel_a]##[0-9]##}"
             done
 
             # Remove from list of anchors needing to-global
@@ -345,7 +345,7 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
                     [[ "${zuiel_regen_lanchors[(r)${zuiel_a#zuianchor}]}" = ${zuiel_a#zuianchor} ||
                        "${zuiel_regen_lanchors[(r)${zuiel_a#zuieanchor}]}" = ${zuiel_a#zuieanchor} ]] && continue
 
-                    # Anchor after current module? The %[-+]* removes
+                    # Anchor after current module? The %%[-+]* removes
                     # "+number" part used to point to other modules
                     # while still using local anchors. This addition
                     # doesn't change the fact that the anchor belongs
@@ -353,9 +353,9 @@ for (( zel_mod=1; zel_mod <= 1000; ++ zel_mod )); do
                     #
                     # Possible + 1 for anchors at top, + 1 because we point at
                     # module, at next line after empty separator line
-                    if [[ "${ZUI[$zuiel_a]%[-+]*}" -gt $(( ZUIEL_LINE_COUNT + 1 + ZUI[top_anchors] + (zuiel_size - 1) )) ]]; then
+                    if [[ "${ZUI[$zuiel_a]%%[-+]*}" -gt $(( ZUIEL_LINE_COUNT + 1 + ZUI[top_anchors] + (zuiel_size - 1) )) ]]; then
                         # Retain "+number" part
-                        ZUI[$zuiel_a]=$(( ${ZUI[$zuiel_a]%[-+]*} + zuiel_size - zuiel_prev_size ))"${ZUI[$zuiel_a]##[0-9]##}"
+                        ZUI[$zuiel_a]=$(( ${ZUI[$zuiel_a]%%[-+]*} + zuiel_size - zuiel_prev_size ))"${ZUI[$zuiel_a]##[0-9]##}"
                     fi
                 done
             fi

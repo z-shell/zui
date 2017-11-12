@@ -1086,14 +1086,14 @@ while (( 1 )); do
             -zui_sys_decode_lanchors "${ZUI[fly_lanchors]}" lanchors
             for el in ${ZUI[(I)zuianchor*]} ${ZUI[(I)zuieanchor*]}; do
                 if [[ "${lanchors[(r)${el#zuianchor}]}" = ${el#zuianchor} ]]; then
-                    ZUI[$el]=$(( ${ZUI[$el]%[-+]*} + update_first - 1 ))"${ZUI[$el]##[0-9]##}"
+                    ZUI[$el]=$(( ${ZUI[$el]%%[-+]*} + update_first - 1 ))"${ZUI[$el]##[0-9]##}"
                 elif [[ "${lanchors[(r)${el#zuieanchor}]}" = ${el#zuieanchor} ]]; then
-                    ZUI[$el]=$(( ${ZUI[$el]%[-+]*} + update_first - 1 ))"${ZUI[$el]##[0-9]##}"
+                    ZUI[$el]=$(( ${ZUI[$el]%%[-+]*} + update_first - 1 ))"${ZUI[$el]##[0-9]##}"
                 else
                     # The $el anchor is after the replaced block?
                     # In this detection only "a" in "a+b" matters
-                    if [[ "${ZUI[$el]%[-+]*}" -gt $(( update_first + update_count - 1 )) ]]; then
-                        ZUI[$el]=$(( ${ZUI[$el]%[-+]*} + size_diff ))"${ZUI[$el]##[0-9]##}"
+                    if [[ "${ZUI[$el]%%[-+]*}" -gt $(( update_first + update_count - 1 )) ]]; then
+                        ZUI[$el]=$(( ${ZUI[$el]%%[-+]*} + size_diff ))"${ZUI[$el]##[0-9]##}"
                     fi
                 fi
             done
