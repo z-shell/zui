@@ -72,7 +72,6 @@ local internal
 -zui-standard-global-anchors-callback() {
     local id="$1" initial_line="$2" mod="$3" ice="$4"
 
-    echo "ID: $id" >> /tmp/reply
     if [[ "$mod" = "1" ]]; then
         -zui_util_has_default_color && {
             # Can reveal transparency, if terminal
