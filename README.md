@@ -1,4 +1,4 @@
-![ZUI logo](http://zdharma.org/static/img/zui_logo.png)
+![ZUI logo](https://raw.githubusercontent.com/wiki/zdharma/zui/img/zui_logo-fs8.png)
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=D6XDCHDSBDSDG)
 
@@ -8,7 +8,7 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
 ![ZSH 4.3.17](https://img.shields.io/badge/zsh-v4.3.17-orange.svg?style=flat-square)
 
-![Dharma logos](https://github.com/zdharma/zdharma.github.io/blob/master/static/img/logo_theme.png)
+![Dharma logos](https://raw.githubusercontent.com/wiki/zdharma/zui/img/logo_theme-fs8.png)
 
 This is a RAD (Rapid Application Development) textual user interface library for Zsh. It in many aspects resembles typical CGI+(D)HTML setup. There are:
 
@@ -48,7 +48,7 @@ zui-event-loop 1:demo_generator_A
 -zui_std_cleanup serialize
 ```
 
-![Hello World screenshot](https://github.com/zdharma/zdharma.github.io/blob/devel/src/static/img/scrsh/hello-world.png)
+![Hello World screenshot](https://raw.githubusercontent.com/wiki/zdharma/zui/img/hello-world-fs8.png)
 
 Other example which uses list-box: [zui-demo-list-box](https://github.com/zdharma/zui/blob/master/demos/zui-demo-list-boxes)
 
