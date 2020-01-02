@@ -9,6 +9,7 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 -zui_std_store_default_app_config s:select_mode "quit"   # Quit event loop on text-selection
 -zui_std_store_default_app_config s:text_mode "off"      # Select whole lines
 -zui_std_store_default_app_config b:text_select 1        # Allow selection of text
+-zui_std_store_default_app_config s:status_size 2       # The size of the status window
 
 # Generator for module 1
 demo_generator_A() {
