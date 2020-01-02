@@ -8,8 +8,8 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 -zui_std_init2 # after emulate -LR
 
 -zui_std_store_default_app_config b:border 1
--zui_std_store_default_app_config b:status_size 5
 -zui_std_store_default_app_config b:status_border 1
+-zui_std_store_default_app_config s:status_size 5
 -zui_std_store_default_app_config s:text_mode off
 
 local internal  # trick variable to make a handler no-restart
