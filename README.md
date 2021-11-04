@@ -55,7 +55,7 @@ zui-event-loop 1:demo_generator_A
 -zui_std_cleanup serialize
 ```
 
-Other example which uses list-box: [zui-demo-list-box](https://github.com/z-shell/zui/blob/master/demos/zui-demo-list-boxes)
+Other example which uses list-box: [zui-demo-list-box](https://github.com/z-shell/zui/blob/main/demos/zui-demo-list-boxes)
 
 The API is described at the [wiki](https://github.com/z-shell/zui/wiki). Checkout [screenshots](https://github.com/z-shell/zui/wiki/Screenshots)
 and [Asciinema recordings](https://github.com/z-shell/zui/wiki/Asciinema).
