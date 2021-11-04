@@ -1,7 +1,8 @@
+# `⬢ ZUI`
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [`⬢ ZUI`](#%E2%AC%A2-zui)
 - [ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses](#zui-%C2%A0cgidhtml-like-user-interface-library-for-zsh--zcurses)
   - [Hello World](#hello-world)
   - [Installation](#installation)
@@ -12,13 +13,9 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# `⬢ ZUI`
-
 [![License (GPL version 3)](https://img.shields.io/badge/license-GNU%20GPL%20version%203-blue.svg?style=flat-square)](./LICENSE)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
 ![ZSH 4.3.17](https://img.shields.io/badge/zsh-v4.3.17-orange.svg?style=flat-square)
-
----
 
 # ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses
 
