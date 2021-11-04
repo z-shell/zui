@@ -1,5 +1,12 @@
 # `⬢ ZUI`
 
+[![License (GPL version 3)](https://img.shields.io/badge/license-GNU%20GPL%20version%203-blue.svg?style=flat-square)](./LICENSE)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
+[![CodeFactor](https://www.codefactor.io/repository/github/z-shell/zui/badge)](https://www.codefactor.io/repository/github/z-shell/zui)
+![ZSH 4.3.17](https://img.shields.io/badge/zsh-v4.3.17-orange.svg?style=flat-square)
+
+---
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
@@ -12,10 +19,6 @@
     - [Zgen](#zgen)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-[![License (GPL version 3)](https://img.shields.io/badge/license-GNU%20GPL%20version%203-blue.svg?style=flat-square)](./LICENSE)
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
-![ZSH 4.3.17](https://img.shields.io/badge/zsh-v4.3.17-orange.svg?style=flat-square)
 
 # ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses
 
