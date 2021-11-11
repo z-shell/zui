@@ -8,8 +8,8 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [`⬢ ZUI` Introduction](#%E2%AC%A2-zui-introduction)
-    - [ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses](#zui-%C2%A0cgidhtml-like-user-interface-library-for-zsh--zcurses)
+- [`⬢ ZUI` Introduction](#-zui-introduction)
+  - [ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses](#zui-cgidhtml-like-user-interface-library-for-zsh--zcurses)
   - [Hello World](#hello-world)
   - [Installation](#installation)
     - [Zinit](#zinit)
@@ -32,6 +32,8 @@ This is a RAD (Rapid Application Development) textual user interface library for
 So, a Zshell code generates text. It is then turned into document with hyperlinks. DHTML-like calls are possible that will regenerate document parts on the fly. Page can be also reloaded with input data, just like an HTML page.
 
 A voiced [video tutorial](https://youtu.be/TfZ8b_RS_Bg) shows how to create an application – Nmap network scanner frontend.
+
+> See also [ZSTYLES](ZSTYLES.md)
 
 ## Hello World
 
