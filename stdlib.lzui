@@ -432,7 +432,7 @@ function -zui_std_decode_text_field() {
     local __var_name="${2:-reply}"
     : ${(PA)__var_name::=}
 
-    #                        id [1]              data1 [2]           data2 [3]           data3 [4]           width_var [5]       sidx_var [6]        text_var [7]            
+    #                        id [1]              data1 [2]           data2 [3]           data3 [4]           width_var [5]       sidx_var [6]        text_var [7]
     if [[ "$1" = (#b)*$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\02']#)$'\02'* ]]; then
         local __id="${match[1]}" __data1="${match[2]}" __data2="${match[3]}" __data3="${match[4]}" __width_var="${match[5]}" __sidx_var="${match[6]}" __param="${match[7]}"
         local assgn_str="${__var_name}[1]"
@@ -475,7 +475,7 @@ function -zui_std_decode_list_box() {
     local __var_name="${2:-reply}"
     : ${(PA)__var_name::=}
 
-    #                        id [1]              data1 [2]           data2 [3]           data3 [4]           width_var [5]       idx_var [6]        text_var [7]            
+    #                        id [1]              data1 [2]           data2 [3]           data3 [4]           width_var [5]       idx_var [6]        text_var [7]
     if [[ "$1" = (#b)*$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\02']#)$'\02'* ]]; then
         local __id="${match[1]}" __data1="${match[2]}" __data2="${match[3]}" __data3="${match[4]}" __width_var="${match[5]}" __idx_var="${match[6]}" __param="${match[7]}"
         local assgn_str="${__var_name}[1]"
@@ -540,9 +540,9 @@ function -zui_std_strip_meta_data() {
         local buf="$1"
         # Remove hyperlinks
         buf="${buf//(#b)$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'([^$'\02']#)$'\02'/${(Q)match[1]}}"
-        #                      id                data1             data2             data3              width               sidx                text                
+        #                      id                data1             data2             data3              width               sidx                text
         buf="${buf//(#b)$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'([^$'\032']#)$'\032'([^$'\032']#)$'\032'([^$'\02']#)$'\02'/${(mr:${(P)${(Q)match[1]}}::_:)${(P)${(Q)match[3]}}[${(P)${(Q)match[2]}},-1]}}"
-        #                      id                data1             data2             data3              width               idx                 options text        
+        #                      id                data1             data2             data3              width               idx                 options text
         buf="${buf//(#b)$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'([^$'\034']#)$'\034'([^$'\034']#)$'\034'([^$'\02']#)$'\02'/${(mr:${(P)${(Q)match[1]}}:: :)${(As:;:)${(P)${(Q)match[3]}}}[${(P)${(Q)match[2]}}]}}"
 
         # Remove color marks
@@ -576,14 +576,14 @@ function -zui_std_is_special_text() {
 # FUNCTION: -zui_std_is_text_field {{{
 # Checks if given text is a text field hyperlink
 function -zui_std_is_text_field() {
-    #                 id                data1             data2             data3             width_var         sidx_var          text_var             
+    #                 id                data1             data2             data3             width_var         sidx_var          text_var
     [[ "$1" = *$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\02']#$'\02'* ]]
 } # }}}
 
 # FUNCTION: -zui_std_is_list_box {{{
 # Checks if given text is a list box hyperlink
 function -zui_std_is_list_box() {
-    #                 id                data1             data2             data3             width_var         sidx_var          text_var             
+    #                 id                data1             data2             data3             width_var         sidx_var          text_var
     [[ "$1" = *$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\02']#$'\02'* ]]
 } # }}}
 
@@ -608,9 +608,9 @@ function -zui_std_is_any_hyperlink() {
 # text fields, list boxes)
 function -zui_std_has_any_hyperlinks() {
     [[ "$1" = *$'\01'[^$'\01']##$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\01']#$'\01'[^$'\02']#$'\02'[^$'\02']#$'\02'* ]] ||
-    #                 id                data1             data2             module index      width_var         sidx_var          text_var             
+    #                 id                data1             data2             module index      width_var         sidx_var          text_var
     [[ "$1" = *$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\032']#$'\032'[^$'\02']#$'\02'* ]] ||
-    #                 id                data1             data2             data3             width_var         sidx_var          text_var             
+    #                 id                data1             data2             data3             width_var         sidx_var          text_var
     [[ "$1" = *$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\034']#$'\034'[^$'\02']#$'\02'* ]]
 } # }}}
 
@@ -1246,5 +1246,3 @@ function -zui_std_submit_lanchors() {
 function -zui_std_stalog() {
     -zui_sys_add_message 1 ${EPOCHSECONDS:-0} "$@"
 } # }}}
-
-# vim:ft=zsh

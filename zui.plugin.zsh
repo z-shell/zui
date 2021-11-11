@@ -11,11 +11,11 @@ ZUI_CONFIG_DIR="$HOME/.config/zui"
 
 #
 # Update FPATH if:
-# 1. Not loading with Zplugin
+# 1. Not loading with Zinit
 # 2. Not having fpath already updated (that would equal: using other plugin manager)
 #
 
-if [[ -z "$ZPLG_CUR_PLUGIN" && "${fpath[(r)$ZUI_REPO_DIR]}" != $ZUI_REPO_DIR ]]; then
+if [[ -z "$ZINIT_CUR_PLUGIN" && "${fpath[(r)$ZUI_REPO_DIR]}" != $ZUI_REPO_DIR ]]; then
     fpath+=( "$ZUI_REPO_DIR" )
 fi
 
@@ -79,5 +79,5 @@ zmodload zsh/datetime && ZUI[datetime_available]="1" || ZUI[datetime_available]=
         -zui_std_init "$@"
     }
 }
-
-# vim:ft=zsh
+# !!! This file modified by automated tool by Z-Shell. This tool fix variables and URL for Zinit project.
+# For any queries please visit https://github.com/z-shell/zinit/issues

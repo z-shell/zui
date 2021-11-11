@@ -74,7 +74,7 @@ setopt typesetsilent extendedglob
                     to_chop_off_from_chunk=0+(text_len-text_offset)-max_text_len
                     Xout="${Xout[1,-to_chop_off_from_chunk-1]}"
                 fi
-                
+
                 [ -n "$Xout" ] && zcurses string "$win" "$Xout"
             fi
         fi
@@ -165,4 +165,3 @@ done
 (( end_idx < max_idx )) && { zcurses move "$win" "$y_offset" "$x_offset"; zcurses clear "$win" eol; }
 
 zcurses attr "$win" "${ZUI[colorpair]}"
-# vim: set filetype=zsh:

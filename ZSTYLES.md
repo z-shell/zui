@@ -1,3 +1,10 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Zstyles](#zstyles)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # Zstyles
 
 The values being set are the defaults:
@@ -54,18 +61,18 @@ zstyle ":plugin:zui" timeout "-1"               # No calls to -zui-standard-time
                                                 # Minimum value is 200. Time is counted when there is no user input.
 ```
 
-Each application can override those via "...:app:{name}" zstyles, e.g. for application "zplugin":
+Each application can override those via "...:app:{name}" zstyles, e.g. for application "zinit":
 
 ```zsh
-zstyle ":plugin:zui:app:zplugin" colorpair "250/17"              # 256 colors – zsh >= 5.3; "default" color also from this version
-zstyle ":plugin:zui:app:zplugin" border_cp "33/17"               # Border (and header) color
-zstyle ":plugin:zui:app:zplugin" border "yes"
-zstyle ":plugin:zui:app:zplugin" bold "yes"
-zstyle ":plugin:zui:app:zplugin" mark "blue WHITE reverse bold lineund"
-zstyle ":plugin:zui:app:zplugin" altmark "green CYAN bold reverse"
-zstyle ":plugin:zui:app:zplugin" status_size "4"                # More space for long messages
+zstyle ":plugin:zui:app:zinit" colorpair "250/17"              # 256 colors – zsh >= 5.3; "default" color also from this version
+zstyle ":plugin:zui:app:zinit" border_cp "33/17"               # Border (and header) color
+zstyle ":plugin:zui:app:zinit" border "yes"
+zstyle ":plugin:zui:app:zinit" bold "yes"
+zstyle ":plugin:zui:app:zinit" mark "blue WHITE reverse bold lineund"
+zstyle ":plugin:zui:app:zinit" altmark "green CYAN bold reverse"
+zstyle ":plugin:zui:app:zinit" status_size "4"                # More space for long messages
 
-zstyle ":plugin:zui:app:zplugin" text_mode "nohyp"              # Text-navigation when no hyperlinks
-zstyle ":plugin:zui:app:zplugin" text_select "false"
-zstyle ":plugin:zui:app:zplugin" log_time_format "[%H:%M:%S] "  # hour:minute:second time stamp of log messages
+zstyle ":plugin:zui:app:zinit" text_mode "nohyp"              # Text-navigation when no hyperlinks
+zstyle ":plugin:zui:app:zinit" text_select "false"
+zstyle ":plugin:zui:app:zinit" log_time_format "[%H:%M:%S] "  # hour:minute:second time stamp of log messages
 ```

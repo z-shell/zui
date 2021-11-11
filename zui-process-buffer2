@@ -78,7 +78,7 @@ for (( i=1; i<=nwords; i++ )); do
     buf="${buf[wordlen+1,-1]}"
 
     char_count=char_count+"$#word"
-done 
+done
 
 # What's left in $buf can be only white spaces
 char_count=char_count+"${#buf}"
@@ -87,5 +87,3 @@ ZUI_PB2_QSPACES[idx+1]="$buf"
 
 # This function should be tested
 return 0
-
-# vim:ft=zsh

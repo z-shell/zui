@@ -481,5 +481,3 @@ fi
 done
 
 return 0
-
-# vim:ft=zsh

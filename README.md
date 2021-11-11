@@ -1,5 +1,3 @@
-# `⬢ ZUI`
-
 [![License (GPL version 3)](https://img.shields.io/badge/license-GNU%20GPL%20version%203-blue.svg?style=flat-square)](./LICENSE)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
 [![CodeFactor](https://www.codefactor.io/repository/github/z-shell/zui/badge)](https://www.codefactor.io/repository/github/z-shell/zui)
@@ -10,17 +8,20 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses](#zui-%C2%A0cgidhtml-like-user-interface-library-for-zsh--zcurses)
+- [`⬢ ZUI` Introduction](#%E2%AC%A2-zui-introduction)
+    - [ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses](#zui-%C2%A0cgidhtml-like-user-interface-library-for-zsh--zcurses)
   - [Hello World](#hello-world)
   - [Installation](#installation)
-    - [Zplugin](#zplugin)
+    - [Zinit](#zinit)
     - [Antigen](#antigen)
     - [Oh-My-Zsh](#oh-my-zsh)
     - [Zgen](#zgen)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses
+# `⬢ ZUI` Introduction
+
+### ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses
 
 This is a RAD (Rapid Application Development) textual user interface library for Zsh. It in many aspects resembles typical CGI+(D)HTML setup. There are:
 
@@ -74,15 +75,15 @@ source {where-zui-is}/zui.plugin.zsh
 
 to `zshrc`.
 
-If using a plugin manager, then `Zplugin` is recommended, but you can use any
+If using a plugin manager, then `Zinit` is recommended, but you can use any
 other too, and also install with `Oh My Zsh` (by copying directory to
 `~/.oh-my-zsh/custom/plugins`).
 
-### Zplugin
+### [Zinit](https://github.com/z-shell/zinit)
 
-Add `zplugin load z-shell/zui` to your `.zshrc` file. Zplugin will handle
-cloning the plugin for you automatically the next time you start zsh. To update
-(i.e. to pull from origin) issue `zplugin update z-shell/zui`.
+Add `zinit load z-shell/zui` to your `.zshrc` file. Zinit will handle
+the rest automatically the next time you start zsh. To update
+(i.e. to pull from origin) issue `zinit update z-shell/zui`.
 
 ### Antigen
 
@@ -99,3 +100,5 @@ cloning the plugin for you automatically the next time you start zsh.
 
 Add `zgen load z-shell/zui` to your .zshrc file in the same place you're doing
 your other `zgen load` calls in.
+
+> Issues: [Z-Shell/zui](https://github.com/z-shell/zui/issues)

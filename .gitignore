@@ -1,3 +1,7 @@
+# Workspace
+.vscode
+.DS_Store
+
 # Zsh compiled script + zrecompile backup
 *.zwc
 *.zwc.old
@@ -9,10 +13,10 @@
 .zcalc_history
 
 # A popular plugin manager's files
-._zplugin
-.zplugin_lstupd
+._zinit
+.zinit_lstupd
 
-# zdharma/zshelldoc tool's files
+# z-shell/zshelldoc tool's files
 zsdoc/data
 
 # robbyrussell/oh-my-zsh/plugins/per-directory-history plugin's files

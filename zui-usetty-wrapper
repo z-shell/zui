@@ -36,5 +36,3 @@ fi
 # Restore FD state
 (( restore == 1 )) && exec <&-
 (( restore == 2 )) && exec <&$FD && exec {FD}<&-
-
-# vim: set filetype=zsh:

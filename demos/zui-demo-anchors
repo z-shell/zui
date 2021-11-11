@@ -47,5 +47,3 @@ zui-event-loop 1:demo_generator_A 1:demo_generator_B
 -zui_std_cleanup serialize
 
 return 0
-
-# vim:ft=zsh

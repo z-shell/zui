@@ -81,7 +81,7 @@ for (( i=1; i<=nwords; i++ )); do
     # Visual cursor right after letters (-ge) -> enough to select current word
     char_count=char_count+"$#word"
     [[ "$ZUI_PB_SELECTED_WORD" -eq "-1" && "$char_count" -ge "$cursor" ]] && ZUI_PB_SELECTED_WORD="$i"
-done 
+done
 
 # What's left in $buf can be only white spaces
 char_count=char_count+"$#buf"
@@ -98,5 +98,3 @@ ZUI_PB_RIGHT="${word[diff+1,-1]}"
 
 # This function should be tested
 return 0
-
-# vim:ft=zsh
