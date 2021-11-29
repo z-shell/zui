@@ -1,23 +1,11 @@
-[![License (GPL version 3)](https://img.shields.io/badge/license-GNU%20GPL%20version%203-blue.svg?style=flat-square)](./LICENSE)
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](./LICENSE)
-[![CodeFactor](https://www.codefactor.io/repository/github/z-shell/zui/badge)](https://www.codefactor.io/repository/github/z-shell/zui)
-![ZSH 4.3.17](https://img.shields.io/badge/zsh-v4.3.17-orange.svg?style=flat-square)
-
----
-
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 - [`⬢ ZUI` Introduction](#-zui-introduction)
-  - [ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses](#zui-cgidhtml-like-user-interface-library-for-zsh--zcurses)
+    - [ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses](#zui-cgidhtml-like-user-interface-library-for-zsh--zcurses)
   - [Hello World](#hello-world)
   - [Installation](#installation)
-    - [Zinit](#zinit)
+    - [ZI](#zi)
     - [Antigen](#antigen)
     - [Oh-My-Zsh](#oh-my-zsh)
     - [Zgen](#zgen)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # `⬢ ZUI` Introduction
 
@@ -77,15 +65,15 @@ source {where-zui-is}/zui.plugin.zsh
 
 to `zshrc`.
 
-If using a plugin manager, then `Zinit` is recommended, but you can use any
+If using a plugin manager, then `ZI` is recommended, but you can use any
 other too, and also install with `Oh My Zsh` (by copying directory to
 `~/.oh-my-zsh/custom/plugins`).
 
-### [Zinit](https://github.com/z-shell/zinit)
+### [ZI](https://github.com/z-shell/zi)
 
-Add `zinit load z-shell/zui` to your `.zshrc` file. Zinit will handle
+Add `zi load z-shell/zui` to your `.zshrc` file. ZI will handle
 the rest automatically the next time you start zsh. To update
-(i.e. to pull from origin) issue `zinit update z-shell/zui`.
+(i.e. to pull from origin) issue `zi update z-shell/zui`.
 
 ### Antigen
 

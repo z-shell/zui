@@ -13,8 +13,8 @@
 .zcalc_history
 
 # A popular plugin manager's files
-._zinit
-.zinit_lstupd
+._zi
+.zi_lstupd
 
 # z-shell/zshelldoc tool's files
 zsdoc/data

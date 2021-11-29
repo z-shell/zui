@@ -54,18 +54,18 @@ zstyle ":plugin:zui" timeout "-1"               # No calls to -zui-standard-time
                                                 # Minimum value is 200. Time is counted when there is no user input.
 ```
 
-Each application can override those via "...:app:{name}" zstyles, e.g. for application "zinit":
+Each application can override those via "...:app:{name}" zstyles, e.g. for application "zi":
 
 ```zsh
-zstyle ":plugin:zui:app:zinit" colorpair "250/17"              # 256 colors – zsh >= 5.3; "default" color also from this version
-zstyle ":plugin:zui:app:zinit" border_cp "33/17"               # Border (and header) color
-zstyle ":plugin:zui:app:zinit" border "yes"
-zstyle ":plugin:zui:app:zinit" bold "yes"
-zstyle ":plugin:zui:app:zinit" mark "blue WHITE reverse bold lineund"
-zstyle ":plugin:zui:app:zinit" altmark "green CYAN bold reverse"
-zstyle ":plugin:zui:app:zinit" status_size "4"                # More space for long messages
+zstyle ":plugin:zui:app:zi" colorpair "250/17"              # 256 colors – zsh >= 5.3; "default" color also from this version
+zstyle ":plugin:zui:app:zi" border_cp "33/17"               # Border (and header) color
+zstyle ":plugin:zui:app:zi" border "yes"
+zstyle ":plugin:zui:app:zi" bold "yes"
+zstyle ":plugin:zui:app:zi" mark "blue WHITE reverse bold lineund"
+zstyle ":plugin:zui:app:zi" altmark "green CYAN bold reverse"
+zstyle ":plugin:zui:app:zi" status_size "4"                # More space for long messages
 
-zstyle ":plugin:zui:app:zinit" text_mode "nohyp"              # Text-navigation when no hyperlinks
-zstyle ":plugin:zui:app:zinit" text_select "false"
-zstyle ":plugin:zui:app:zinit" log_time_format "[%H:%M:%S] "  # hour:minute:second time stamp of log messages
+zstyle ":plugin:zui:app:zi" text_mode "nohyp"              # Text-navigation when no hyperlinks
+zstyle ":plugin:zui:app:zi" text_select "false"
+zstyle ":plugin:zui:app:zi" log_time_format "[%H:%M:%S] "  # hour:minute:second time stamp of log messages
 ```
