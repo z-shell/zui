@@ -1,13 +1,15 @@
-- [`⬢ ZUI` Introduction](#-zui-introduction)
-    - [ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses](#zui-cgidhtml-like-user-interface-library-for-zsh--zcurses)
-  - [Hello World](#hello-world)
-  - [Installation](#installation)
-    - [ZI](#zi)
-    - [Antigen](#antigen)
-    - [Oh-My-Zsh](#oh-my-zsh)
-    - [Zgen](#zgen)
+<h1> ⬢ ZUI </h1>
 
-# `⬢ ZUI` Introduction
+- [Introduction](#introduction)
+  - [ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses](#zui-cgidhtml-like-user-interface-library-for-zsh--zcurses)
+- [Hello World](#hello-world)
+- [Installation](#installation)
+  - [ZI](#zi)
+  - [Antigen](#antigen)
+  - [Oh-My-Zsh](#oh-my-zsh)
+  - [Zgen](#zgen)
+
+## Introduction
 
 ### ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses
 
