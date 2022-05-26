@@ -1,3 +1,9 @@
+#  ============================================================================  #
+#  [ https://github.com/z-shell ] ❮ ZI ❯        [ (c) 2022 Z-SHELL COMMUNITY ]  #
+#  ============================================================================  #
+#
+# -*- mode: zsh; sh-indentation: 2; indent-tabs-mode: nil; sh-basic-offset: 2; -*-
+# vim: ft=zsh sw=2 ts=2 et
 #
 # No plugin manager is needed to use this file. All that is needed is adding:
 #   source {wherezui-is}/zui.plugin.zsh
@@ -7,18 +13,24 @@
 
 0="${(%):-%N}" # this gives immunity to functionargzero being unset
 ZUI_REPO_DIR="${0%/*}"
-ZUI_CONFIG_DIR="$HOME/.config/zui"
 
-#
+# Check if ZI config directory exist.
+if [[ -d $ZCDR ]]; then
+  # Use ZI default config directory.
+  ZUI_CONFIG_DIR="${ZCDR}/zui"
+else
+  # Use common values to set default working directory.
+  ZUI_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zi/zui"
+fi
+
 # Update FPATH if:
 # 1. Not loading with ZI
 # 2. Not having fpath already updated (that would equal: using other plugin manager)
-#
-
 if [[ -z "$ZI_CUR_PLUGIN" && "${fpath[(r)$ZUI_REPO_DIR]}" != $ZUI_REPO_DIR ]]; then
-    fpath+=( "$ZUI_REPO_DIR" )
+    fpath+=( "$ZUI_REPO_DIR/functions" )
 fi
 
+# Load colors
 [[ ${+fg_bold} = "0" || -z "${fg_bold[green]}" ]] && builtin autoload -Uz colors && colors
 
 #
@@ -63,9 +75,9 @@ zmodload zsh/datetime && ZUI[datetime_available]="1" || ZUI[datetime_available]=
 (( 0 == ${+functions[-zui_std_cleanup]} )) && {
     function -zui_std_cleanup() {
         unfunction -- -zui_std_cleanup
-        [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
-        [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/syslib.lzui"
-        [[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/utillib.lzui"
+        [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/stdlib.lzui"
+        [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/syslib.lzui"
+        [[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/utillib.lzui"
         -zui_std_cleanup "$@"
     }
 }
@@ -73,9 +85,9 @@ zmodload zsh/datetime && ZUI[datetime_available]="1" || ZUI[datetime_available]=
 (( 0 == ${+functions[-zui_std_init]} )) && {
     function -zui_std_init() {
         unfunction -- -zui_std_init
-        [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
-        [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/syslib.lzui"
-        [[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/utillib.lzui"
+        [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/stdlib.lzui"
+        [[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/syslib.lzui"
+        [[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/utillib.lzui"
         -zui_std_init "$@"
     }
 }

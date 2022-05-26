@@ -1,22 +1,11 @@
-<h2 align="center">
+<h1 align="center">
   <a href="https://github.com/z-shell/zi">
     <img src="https://github.com/z-shell/zi/raw/main/docs/images/logo.svg" alt="Logo" width="80" height="80" />
   </a>
 ❮ ZI ❯ - ⬢ ZUI
-</h2>
-  
-- [Introduction](#introduction)
-  - [ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses](#zui-cgidhtml-like-user-interface-library-for-zsh--zcurses)
-- [Hello World](#hello-world)
-- [Installation](#installation)
-  - [ZI](#zi)
-  - [Antigen](#antigen)
-  - [Oh-My-Zsh](#oh-my-zsh)
-  - [Zgen](#zgen)
+</h1>
 
-## Introduction
-
-### ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses
+## ZUI – CGI+DHTML-like User Interface Library for Zsh / ZCurses
 
 This is a RAD (Rapid Application Development) textual user interface library for Zsh. It in many aspects resembles typical CGI+(D)HTML setup. There are:
 
@@ -63,29 +52,21 @@ and [Asciinema recordings](https://github.com/z-shell/zui/wiki/Asciinema).
 
 ## Installation
 
-**The plugin is "standalone"**, which means that only sourcing it is needed. So to
-install, unpack `zui` somewhere and add
+**The plugin is "standalone"**, which means that only sourcing it is needed. To install, unpack `zui` somewhere and add to `zshrc`:
 
 ```zsh
 source {where-zui-is}/zui.plugin.zsh
 ```
 
-to `zshrc`.
-
-If using a plugin manager, then `ZI` is recommended, but you can use any
-other too, and also install with `Oh My Zsh` (by copying directory to
-`~/.oh-my-zsh/custom/plugins`).
+If using a plugin manager, then `ZI` is recommended, but you can use any other too, and also install with `Oh My Zsh` (by copying directory to `~/.oh-my-zsh/custom/plugins`).
 
 ### [ZI](https://github.com/z-shell/zi)
 
-Add `zi load z-shell/zui` to your `.zshrc` file. ZI will handle
-the rest automatically the next time you start zsh. To update
-(i.e. to pull from origin) issue `zi update z-shell/zui`.
+Add `zi load z-shell/zui` to your `.zshrc` file. ZI will handle the rest automatically the next time you start zsh. To update (i.e. to pull from origin) issue `zi update z-shell/zui`.
 
 ### Antigen
 
-Add `antigen bundle z-shell/zui` to your `.zshrc` file. Antigen will handle
-cloning the plugin for you automatically the next time you start zsh.
+Add `antigen bundle z-shell/zui` to your `.zshrc` file. Antigen will handle cloning the plugin for you automatically the next time you start zsh.
 
 ### Oh-My-Zsh
 
@@ -95,7 +76,6 @@ cloning the plugin for you automatically the next time you start zsh.
 
 ### Zgen
 
-Add `zgen load z-shell/zui` to your .zshrc file in the same place you're doing
-your other `zgen load` calls in.
+Add `zgen load z-shell/zui` to your .zshrc file in the same place you're doing your other `zgen load` calls in.
 
 > Issues: [Z-Shell/zui](https://github.com/z-shell/zui/issues)
