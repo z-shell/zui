@@ -1,4 +1,5 @@
-<table><tr><td>
+<div align="center" width="%100">
+<table width="%100"><tr><td align="center" width="%100">
 <h1 align="center">
   <a href="https://github.com/z-shell/zi" target="_blank">
     <img src="https://github.com/z-shell/zi/raw/main/docs/images/logo.svg" alt="Logo" width="60" height="60" />
@@ -14,7 +15,7 @@ CGI+DHTML-like User Interface Library for Zsh / ZCurses
   <img align="center" src="https://img.shields.io/badge/license-GNU%20GPL%20version%203-blue.svg?style=flat-square" alt="License (GPL version 3)">
 </a>
 <img align="center" src="https://img.shields.io/badge/zsh-v5.0.0-orange.svg?style=flat-square" alt="ZSH 5.0.0">
-</td></tr></table>
+</td></tr></table></div>
 
 This is a RAD (Rapid Application Development) textual user interface library for Zsh. It in many aspects resembles typical CGI+(D)HTML setup. There are:
 
