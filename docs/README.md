@@ -47,8 +47,7 @@ zui-event-loop 1:demo_generator_A
 
 Other example which uses list-box: [zui-demo-list-box](https://github.com/z-shell/zui/blob/main/demos/zui-demo-list-boxes)
 
-The API is described at the [wiki](https://github.com/z-shell/zui/wiki). Checkout [screenshots](https://github.com/z-shell/zui/wiki/Screenshots)
-and [Asciinema recordings](https://github.com/z-shell/zui/wiki/Asciinema).
+The API is described at the [wiki](https://wiki.zshell.dev/ecosystem/plugins/zui).
 
 ## Installation
 
@@ -77,5 +76,3 @@ Add `antigen bundle z-shell/zui` to your `.zshrc` file. Antigen will handle clon
 ### Zgen
 
 Add `zgen load z-shell/zui` to your .zshrc file in the same place you're doing your other `zgen load` calls in.
-
-> Issues: [Z-Shell/zui](https://github.com/z-shell/zui/issues)
