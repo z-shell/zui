@@ -31,7 +31,12 @@ trim_trailing_whitespace = true
 insert_final_newline = false
 trim_trailing_whitespace = false
 
-[*.{sh,bash,zsh,fish}]
+[*.{sh,bash,zsh,fish,lzui}]
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+[zui-*]
 indent_style = space
 indent_size = 2
 tab_width = 2

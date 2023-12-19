@@ -4,7 +4,7 @@
 
 -zui_std_cleanup deserialize:"zui-demo-append"
 -zui_std_init app:"zui-demo-append" app_name:"ZUI On-The-Fly Append"
-emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
+emulate -LR zsh -o extended_glob -o typeset_silent -o warn_create_global
 -zui_std_init2 # after emulate -LR
 
 -zui_std_store_default_app_config b:border 1

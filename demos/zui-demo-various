@@ -6,7 +6,7 @@
 -zui_std_cleanup deserialize:"zui-demo-various"
 # Initialize ZUI app
 -zui_std_init app:"zui-demo-various" app_name:"ZUI Large Demo"
-emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
+emulate -LR zsh -o extended_glob -o typeset_silent -o warn_create_global
 -zui_std_init2 # after emulate -LR
 
 -zui-standard-text-select-callback() {

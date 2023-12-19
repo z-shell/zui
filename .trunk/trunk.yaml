@@ -1,19 +1,34 @@
+# This file controls the behavior of Trunk: https://docs.trunk.io/cli
+# To learn more about the format of this file, see https://docs.trunk.io/reference/trunk-yaml
 version: 0.1
 cli:
-  version: 0.12.1-beta
-repo:
-  repo:
-    host: github.com
-    owner: z-shell
-    name: zui
-lint:
+  version: 1.18.1
+# Trunk provides extensibility via plugins. (https://docs.trunk.io/plugins)
+plugins:
+  sources:
+    - id: trunk
+      ref: v1.4.1
+      uri: https://github.com/trunk-io/plugins
+# Many linters and tools depend on runtimes - configure them here. (https://docs.trunk.io/runtimes)
+runtimes:
   enabled:
-    - actionlint@1.6.13
-    - gitleaks@8.8.5
-    - markdownlint@0.31.1
-    - prettier@2.6.2
-    - shfmt@3.4.0
-  linters:
-    - name: markdownlint
-      command: [markdownlint, -q, --config, .github/.markdownlint.yaml, "${target}"]
-      direct_configs: [.github/.markdownlint.yaml]
+    - node@18.12.1
+    - python@3.10.8
+# This is the section where you manage your linters. (https://docs.trunk.io/check/configuration)
+lint:
+  disabled:
+    - checkov
+    - yamllint
+  enabled:
+    - actionlint@1.6.26
+    - git-diff-check
+    - markdownlint@0.38.0
+    - prettier@3.1.1
+    - trivy@0.48.1
+    - trufflehog@3.63.4
+actions:
+  enabled:
+    - trunk-announce
+    - trunk-check-pre-push
+    - trunk-fmt-pre-commit
+    - trunk-upgrade-available

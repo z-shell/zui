@@ -1,21 +1,17 @@
-#  ============================================================================  #
-#  [ https://github.com/z-shell ] ❮ ZI ❯        [ (c) 2022 Z-SHELL COMMUNITY ]  #
-#  ============================================================================  #
-#
 # -*- mode: zsh; sh-indentation: 2; indent-tabs-mode: nil; sh-basic-offset: 2; -*-
 # vim: ft=zsh sw=2 ts=2 et
 #
 # Started from zle or from command line
 #
 
-[[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/stdlib.lzui"
-[[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/syslib.lzui"
-[[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/utillib.lzui"
+[[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${Plugins[ZUI_DIR]}/stdlib.lzui"
+[[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${Plugins[ZUI_DIR]}/syslib.lzui"
+[[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${Plugins[ZUI_DIR]}/utillib.lzui"
 
 emulate -LR zsh
-setopt extendedglob typesetsilent warncreateglobal
+setopt extended_glob typeset_silent warn_create_global
 
-[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
+[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt prompt_subst
 
 # Should provide the top anchors?
 -zui_std_load_config b:top_anchors 1 2 'ZUI[top_anchors]'

@@ -1,11 +1,7 @@
-#  ============================================================================  #
-#  [ https://github.com/z-shell ] ❮ ZI ❯        [ (c) 2022 Z-SHELL COMMUNITY ]  #
-#  ============================================================================  #
-#
 # -*- mode: zsh; sh-indentation: 2; indent-tabs-mode: nil; sh-basic-offset: 2; -*-
 # vim: ft=zsh sw=2 ts=2 et
 emulate -LR zsh
-setopt extendedglob warncreateglobal
+setopt extended_glob warn_create_global
 
 local _zui_wrapper_has_terminfo=0
 
@@ -111,9 +107,9 @@ ZUI[term_sread_ts]="$EPOCHSECONDS"
 }
 
 # Standard functions library
-[[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/stdlib.lzui"
-[[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/syslib.lzui"
-[[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${ZUI_REPO_DIR}/lib/utillib.lzui"
+[[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${Plugins[ZUI_DIR]}/lib/stdlib.lzui"
+[[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${Plugins[ZUI_DIR]}/lib/syslib.lzui"
+[[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${Plugins[ZUI_DIR]}/lib/utillib.lzui"
 
 # Configuration
 -zui_std_load_config s:select_mode "no-restart" 2 'ZUI[select_mode]'   # quit, restart or callback
