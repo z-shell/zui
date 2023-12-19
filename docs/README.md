@@ -49,7 +49,7 @@ zui-event-loop 1:demo_generator_A
 
 Other example which uses list-box: [zui-demo-list-box](https://github.com/z-shell/zui/blob/main/demos/zui-demo-list-boxes)
 
-The API is described in the [wiki](https://wiki.zshell.dev/ecosystem/plugins/zui)](https://wiki.zshell.dev/ecosystem/plugins/zui).
+The API is described in the [wiki](https://wiki.zshell.dev/ecosystem/plugins/zui).
 
 ## Installation
 
