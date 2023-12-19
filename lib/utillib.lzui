@@ -175,13 +175,13 @@ function -zui_util_to_cmd_line() {
 # $2 - maximum number of files in circular buffer
 #
 function -zui_util_circular_next() {
-    setopt localoptions extendedglob
+    setopt local_options extended_glob
 
     # Input data
     local base="$1" count="$2"
 
     # Circular buffers' directory
-    local circpath="$ZUI_CONFIG_DIR/var/circular_buffers"
+    local circpath="${Plugins[ZUI_CONFIG_DIR]}/var/circular_buffers"
     [[ ! -d "$circpath" ]] && command mkdir -p "$circpath"
 
     local -a circular_buffer
@@ -208,7 +208,7 @@ function -zui_util_circular_next() {
 # $1 - name of the circular buffer
 #
 function -zui_util_circular_paths() {
-    setopt localoptions extendedglob
+    setopt local_options extended_glob
 
     # Input data
     local base="$1"
@@ -217,7 +217,7 @@ function -zui_util_circular_paths() {
     reply=( )
 
     # Circular buffers' directory
-    local circpath="$ZUI_CONFIG_DIR/var/circular_buffers"
+    local circpath="${Plugins[ZUI_CONFIG_DIR]}/var/circular_buffers"
     [[ ! -d "$circpath" ]] && return 1
 
     reply=( "$circpath"/"$base".[[:digit:]]##(omN) )

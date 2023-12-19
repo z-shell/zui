@@ -1,7 +1,3 @@
-#  ============================================================================  #
-#  [ https://github.com/z-shell ] ❮ ZI ❯        [ (c) 2022 Z-SHELL COMMUNITY ]  #
-#  ============================================================================  #
-#
 # -*- mode: zsh; sh-indentation: 2; indent-tabs-mode: nil; sh-basic-offset: 2; -*-
 # vim: ft=zsh sw=2 ts=2 et
 #
@@ -79,7 +75,7 @@ ZUI[MARK_E]=$ZUI[FMT_END]
 # ZUI[app] or ZUI[app_name]
 function -zui_std_init() {
     [[ -o interactivecomments ]] && ZUI[INTERACTIVE_COMMENTS]="1" || ZUI[INTERACTIVE_COMMENTS]="0"
-    [[ -o promptsubst ]] && ZUI[PROMPT_SUBST]="1" || ZUI[PROMPT_SUBST]="0"
+    [[ -o prompt_subst ]] && ZUI[PROMPT_SUBST]="1" || ZUI[PROMPT_SUBST]="0"
 
     ZUI[FIRST]=1
 
@@ -93,8 +89,8 @@ function -zui_std_init() {
 # Initializes ZUI application. To
 # be called after any emulate -L
 function -zui_std_init2() {
-    unsetopt localoptions
-    [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
+    unsetopt local_options
+    [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt prompt_subst
     [[ "${ZUI[INTERACTIVE_COMMENTS]}" = "1" ]] && setopt interactivecomments
 
     [[ "${ZUI[app]}" != "${ZUI[messages_app]}" ]] && {
@@ -136,7 +132,7 @@ function -zui_std_special_text() {
 # $5 - data4, e.g. file path, file name, URL, other data
 # $6 - text
 # $7 - optional handler function name, can be empty text
-# $8 - optional output variable name (defualt: 'reply')
+# $8 - optional output variable name (default: 'reply')
 #
 # Output array is extended by hyperlink's text (one new element)
 #
@@ -251,7 +247,7 @@ function -zui_std_button() {
 # which the cursor will be placed.
 #
 function -zui_std_anchor() {
-    setopt localoptions extendedglob
+    setopt local_options extended_glob
 
     local __id="${(q)1}" __data1="${(q)2}" __data2="${(q)3}" __data3="${(q)4}" __data4="${(q)5}" __text="$6" __handler="$7"
     local __var_name="${8:-reply}"
