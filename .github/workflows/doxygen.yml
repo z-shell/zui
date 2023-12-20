@@ -1,0 +1,60 @@
+---
+name: 📖 Doxygen
+
+on:
+  push:
+    paths:
+      - "functions/**"
+      - "lib/**"
+  pull_request:
+    paths:
+      - "functions/**"
+      - "lib/**"
+  schedule:
+    - cron: "30 4 * * 4"
+  workflow_dispatch: {}
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.ref }}
+      - name: ⚡ Dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y zsh tree
+      - name: 📦 Install Doxygen
+        run: |
+          gh repo clone z-shell/zsdoc tmp/zsdoc
+          sudo make -C tmp/zsdoc install
+      - name: ♻️ Generate Codebase Documentation
+        run: make
+      - name: 🏗 Compress codebase documentation
+        run: tar cvzf docs.tar.gz docs
+      - name: 📤 Upload docs.tar.gz
+        uses: actions/upload-artifact@v4
+        with:
+          name: Codebase documentation
+          path: docs.tar.gz
+      - name: ♻️ Cleanup
+        run: |
+          rm -rf docs.tar.gz
+      - name: "🆗 Commit"
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: z-shell/.github/actions/commit@main
+        with:
+          commitMessage: Codebase ${{ github.sha }}
+          workDir: docs
+          commitUserName: digital-teams[bot]
+          commitUserEmail: actions@zshell.dev
