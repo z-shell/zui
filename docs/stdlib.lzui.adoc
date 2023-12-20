@@ -110,7 +110,6 @@ ____
  handler call, with $RANDOM as generator's third input
  - regeneration user-data. "4" is the line number on
  which the cursor will be placed.
- 
 ____
 
 Has 18 line(s). Doesn't call other functions.
@@ -124,12 +123,12 @@ Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
 
 ____
  
- Short button function - no user data
+ Short button - no user data
  
  $1 - action ID
  $2 - text
  $3 - optional handler function name, can be empty text
- $4 - optional output variable name (defualt: 'reply')
+ $4 - optional output variable name (default: 'reply')
 ____
 
 Has 2 line(s). Calls functions:
@@ -226,7 +225,6 @@ ____
  $reply[3] - data2
  $reply[4] - data3
  $reply[5] - data4
- 
 ____
 
 Has 19 line(s). Doesn't call other functions.
@@ -254,7 +252,6 @@ ____
  $reply[5] - data1
  $reply[6] - data2
  $reply[7] - data3
- 
 ____
 
 Has 22 line(s). Doesn't call other functions.
@@ -283,7 +280,6 @@ ____
  $reply[5] - data1
  $reply[6] - data2
  $reply[7] - data3
- 
 ____
 
 Has 22 line(s). Doesn't call other functions.
@@ -349,8 +345,7 @@ ____
  
  $1 - module's index
  $2 - instance index
- $3, $4, ... - additional arguments for
- the generator
+ $3, $4, ... - additional arguments for the generator
 ____
 
 Has 12 line(s). Calls functions:
@@ -377,8 +372,7 @@ ____
  $1 - name of generator function
  $2 - module's index
  $3 - instance index
- $4, $5, ... - additional arguments for
- the generator
+ $4, $5, ... - additional arguments for the generator
 ____
 
 Has 10 line(s). Calls functions:
@@ -606,7 +600,6 @@ ____
  $7 - data3
  $8 - handler (function name)
  $9 - optional output array name (default: reply)
- 
 ____
 
 Has 21 line(s). Doesn't call other functions.
@@ -709,7 +702,6 @@ ____
  $3 - hyperlink 1
  $4 - hyperlink 2
  $5 - ...
- 
 ____
 
 Has 44 line(s). Doesn't call other functions.
@@ -726,7 +718,7 @@ ____
  $1 - action ID
  $2 - text
  $3 - optional handler function name, can be empty text
- $4 - optional output variable name (defualt: 'reply')
+ $4 - optional output variable name (default: 'reply')
 ____
 
 Has 2 line(s). Calls functions:
@@ -857,7 +849,6 @@ ____
  
  $1 - text
  $2 - optional output array name
- 
 ____
 
 Has 9 line(s). Doesn't call other functions.
@@ -1044,7 +1035,6 @@ ____
  $7 - data3
  $8 - handler (function name)
  $9 - optional output array name (default: reply)
- 
 ____
 
 Has 21 line(s). Doesn't call other functions.
