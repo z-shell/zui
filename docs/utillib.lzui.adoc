@@ -1,0 +1,264 @@
+utillib.lzui(1)
+===============
+:compat-mode!:
+
+NAME
+----
+utillib.lzui - a shell script
+
+SYNOPSIS
+--------
+Documentation automatically generated with `zsdoc'
+
+FUNCTIONS
+---------
+
+ -zui_util_circular_next
+ -zui_util_circular_paths
+ -zui_util_get_datetime
+ -zui_util_get_segment
+ -zui_util_get_time
+ -zui_util_get_timestamp
+ -zui_util_has_default_color
+ -zui_util_map_bools
+ -zui_util_resolve_path
+ -zui_util_strip_codes
+ -zui_util_to_cmd_line
+AUTOLOAD is-at-least
+
+DETAILS
+-------
+
+Script Body
+~~~~~~~~~~~
+
+Has 3 line(s). No functions are called (may set up e.g. a hook, a Zle widget bound to a key, etc.).
+
+-zui_util_circular_next
+~~~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Returns next file to write to in circular buffer set
+ of file names <base>.1 <base>.2 ... <base>.<size>
+ 
+ The buffer is ordered according to modification time.
+ 
+ $1 - base of file names in circular buffer
+ $2 - maximum number of files in circular buffer
+ 
+____
+
+Has 16 line(s). Doesn't call other functions.
+
+Uses feature(s): _setopt_
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_util_circular_paths
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ 
+ Returns absolute file paths of given circular buffer.
+ They are ordered from most recent to least recent.
+ 
+ No count is obtained, so all files are returned, even
+ actually disabled by buffer limit.
+ 
+ $1 - name of the circular buffer
+ 
+____
+
+Has 7 line(s). Doesn't call other functions.
+
+Uses feature(s): _setopt_
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_util_get_datetime
+~~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Returns date and time. Uses datetime zsh module
+ or date command as fallback.
+ 
+ $REPLY - date and time string "Ymd_H.M.S"
+ 
+____
+
+Has 3 line(s). Doesn't call other functions.
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_util_get_segment
+~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Return n-th (z) segment of given text
+ $1 - text
+ $2 - segment (default is 1)
+ $3 - destination variable name (default is "REPLY")
+ 
+ Can use e.g. 'reply[1]' for $3
+____
+
+Has 5 line(s). Doesn't call other functions.
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_util_get_time
+~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ 
+ Returns time %H:%M, via datetime or `date` as fallback
+ 
+____
+
+Has 3 line(s). Doesn't call other functions.
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_util_get_timestamp
+~~~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Returns timestamp, via datetime or `date` as fallback
+ 
+____
+
+Has 2 line(s). Doesn't call other functions.
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_util_has_default_color
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Returns true if the "default" color
+ can be used with current Zsh/zcurses
+____
+
+Has 5 line(s). Calls functions:
+
+ -zui_util_has_default_color
+ `-- is-at-least
+
+Uses feature(s): _autoload_, _is-at-least_
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_util_map_bools
+~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Maps boolean values of expressions given in $1
+ (string separated by ';') to parameters given
+ via names in $2 (separated by ';'). For true,
+ $3 is assigned to corresponding parameter, $4
+ for false.
+ 
+ If $1 contains [[ or ((, it is evaluated. If
+ it is a positive number or zero, then it is
+ treated as direct bool value. Otherwise it's
+ treated as parameter name, and boolean value
+ of the parameter (it has to be positive number
+ or zero) is examined.
+ 
+ -zui_util_map_bools "1;[[ a = b ]];ZUI[text_select]" \
+ "color1;color2;color3" $red $white
+ 
+____
+
+Has 19 line(s). Doesn't call other functions.
+
+Uses feature(s): _eval_
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_util_resolve_path
+~~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Resolves absolute path from current working directory and file path
+ 
+ $1 - current working directory
+ 
+ $2 - file path
+ 
+ $reply[1] - dirname
+ 
+ $reply[2] - basename
+ 
+____
+
+Has 17 line(s). Doesn't call other functions.
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_util_strip_codes
+~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Strips formatting codes from text in
+ $1, saves result into parameter REPLY
+ 
+ $1 - text to strip codes from
+____
+
+Has 1 line(s). Doesn't call other functions.
+
+Called by:
+
+ syslib.lzui/-zui_sys_get_tfield_cursor_boundaries
+
+-zui_util_to_cmd_line
+~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Puts given text on command line – regardless if Zle is active or not
+ 
+ $1 - text to put on command line
+ 
+____
+
+Has 16 line(s). Doesn't call other functions.
+
+Uses feature(s): _zle_
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+is-at-least
+~~~~~~~~~~~
+
+____
+ 
+ 
+ Test whether $ZSH_VERSION (or some value of your choice, if a second argument
+ is provided) is greater than or equal to x.y.z-r (in argument one). In fact,
+ it'll accept any dot/dash-separated string of numbers as its second argument
+ and compare it to the dot/dash-separated first argument. Leading non-number
+ parts of a segment (such as the "zefram" in 3.1.2-zefram4) are not considered
+ when the comparison is done; only the numbers matter. Any left-out segments
+ in the first argument that are present in the version string compared are
+ considered as zeroes, eg 3 == 3.0 == 3.0.0 == 3.0.0.0 and so on.
+ 
+____
+
+Has 56 line(s). Doesn't call other functions.
+
+Called by:
+
+ -zui_util_has_default_color
+

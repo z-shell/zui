@@ -1,0 +1,218 @@
+syslib.lzui(1)
+==============
+:compat-mode!:
+
+NAME
+----
+syslib.lzui - a shell script
+
+SYNOPSIS
+--------
+Documentation automatically generated with `zsdoc'
+
+FUNCTIONS
+---------
+
+ -zui_sys_add_message
+ -zui_sys_decode_hops
+ -zui_sys_decode_lanchors
+ -zui_sys_decode_list_update
+ -zui_sys_decode_nonselectables
+ -zui_sys_gather_lanchors
+ -zui_sys_get_match_line
+ -zui_sys_get_tfield_cursor_boundaries
+ -zui_sys_index_tail_width
+ -zui_sys_map_cursor_on_string
+
+DETAILS
+-------
+
+Script Body
+~~~~~~~~~~~
+
+Has 3 line(s). No functions are called (may set up e.g. a hook, a Zle widget bound to a key, etc.).
+
+-zui_sys_add_message
+~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Appends given message to ZUI_MESSAGES
+ 
+ $1 - message type
+ $2 - timestamp
+ $3, $4, ... - message bits / lines
+____
+
+Has 19 line(s). Doesn't call other functions.
+
+Called by:
+
+ stdlib.lzui/-zui_std_stalog
+
+-zui_sys_decode_hops
+~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Deserializes on-the-fly hops substitution.
+ For internal usage.
+ 
+ $1 - the hops' package
+ $2 - optional target parameter name
+____
+
+Has 4 line(s). Doesn't call other functions.
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_sys_decode_lanchors
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Deserializes on-the-fly local anchors.
+ For internal usage.
+ 
+ $1 - the anchors' package
+ $2 - optional target parameter name
+____
+
+Has 4 line(s). Doesn't call other functions.
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_sys_decode_list_update
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Deserializes on-the-fly update package.
+ To be used rather only internally.
+ 
+ $1 - the package
+ $2 - optional target parameter name
+____
+
+Has 5 line(s). Doesn't call other functions.
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_sys_decode_nonselectables
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Deserializes on-the-fly nonselectables
+ substitution. For internal usage.
+ 
+ $1 - the nonselectables' package
+ $2 - optional target parameter name
+____
+
+Has 4 line(s). Doesn't call other functions.
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_sys_gather_lanchors
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Appends mod${1}_ice${2}_lanchors into array given by name
+ 
+ $1 - module index
+ $2 - instance index
+ $3 - target array name
+____
+
+Has 9 line(s). Doesn't call other functions.
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_sys_get_match_line
+~~~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Returns at which index in $__list the search
+ result that's currently highlighted is located.
+ 
+ Allows to jump to search result, not only see it.
+ 
+ $__slist - input variable with copy of $__list
+ $1 - output variable to hold the established target line number
+____
+
+Has 39 line(s). Doesn't call other functions.
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_sys_get_tfield_cursor_boundaries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Gets cursor minimum and maximum x position for
+ given line and given (via id) text field. Stores
+ them into two parameters given by name. Testable,
+ returns if the cursor positions could have been
+ established.
+ 
+ Example call:
+ -zui_sys_get_tfield_cursor_boundaries "cidx_start" "cidx_end" "${list[10]}" "${reply[@]}"
+ 
+ $1 - output parameter name - cursor start index
+ $2 - output parameter name - cursor end index
+ $3 - current $list (zui-list working variable) element
+ $4, ..., $11 - decoded __text field
+____
+
+Has 63 line(s). Calls functions:
+
+ -zui_sys_get_tfield_cursor_boundaries
+ |-- stdlib.lzui/-zui_std_decode_list_box
+ |-- stdlib.lzui/-zui_std_decode_text_field
+ |-- stdlib.lzui/-zui_std_get_stext
+ |-- stdlib.lzui/-zui_std_is_hyperlink
+ `-- utillib.lzui/-zui_util_strip_codes
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_sys_index_tail_width
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Returns index in given string that results
+ in given width, when displaying the string
+ starting from that index
+ 
+ $1 - string
+ $2 - expected width
+ $3 - output parameter name for the index
+____
+
+Has 13 line(s). Doesn't call other functions.
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
+-zui_sys_map_cursor_on_string
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+____
+ 
+ Maps visual cursor position onto in-string cursor
+ position. Supports characters with double and greater
+ width
+ 
+ $1 - string start display index
+ $2 - string
+ $3 - cursor position
+ $4 - output parameter name
+____
+
+Has 15 line(s). Doesn't call other functions.
+
+Not called by script or any function (may be e.g. a hook, a Zle widget, etc.).
+
