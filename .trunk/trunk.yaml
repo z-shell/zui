@@ -25,7 +25,7 @@ lint:
     - markdownlint@0.38.0
     - prettier@3.1.1
     - trivy@0.48.1
-    - trufflehog@3.63.4
+    - trufflehog@3.63.5
 actions:
   enabled:
     - trunk-announce
