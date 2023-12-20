@@ -69,7 +69,7 @@ zmodload zsh/datetime && ZUI[datetime_available]="1" || ZUI[datetime_available]=
 # functions called, sourcing the libraries
 
 (( 0 == ${+functions[-zui_std_cleanup]} )) && {
-  function -zui_std_cleanup() {
+  -zui_std_cleanup() {
     unfunction -- -zui_std_cleanup
 
     [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${Plugins[ZUI_DIR]}/lib/stdlib.lzui"
@@ -81,7 +81,7 @@ zmodload zsh/datetime && ZUI[datetime_available]="1" || ZUI[datetime_available]=
 }
 
 (( 0 == ${+functions[-zui_std_init]} )) && {
-  function -zui_std_init() {
+  -zui_std_init() {
     unfunction -- -zui_std_init
 
     [[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${Plugins[ZUI_DIR]}/lib/stdlib.lzui"

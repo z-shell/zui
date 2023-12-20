@@ -1,7 +1,3 @@
-#  ============================================================================  #
-#  [ https://github.com/z-shell ] ❮ ZI ❯        [ (c) 2022 Z-SHELL COMMUNITY ]  #
-#  ============================================================================  #
-#
 # -*- mode: zsh; sh-indentation: 2; indent-tabs-mode: nil; sh-basic-offset: 2; -*-
 # vim: ft=zsh sw=2 ts=2 et
 #
@@ -29,26 +25,26 @@ ZUI[utillib_sourced]="1"
 # -zui_util_map_bools "1;[[ a = b ]];ZUI[text_select]" \
 #                       "color1;color2;color3" $red $white
 #
-function -zui_util_map_bools() {
-    local __exp="$1" __pm="$2" __tre="$3" __fse="$4"
+-zui_util_map_bools() {
+  local __exp="$1" __pm="$2" __tre="$3" __fse="$4"
 
-    local -a __exps __pms
-    __exps=( "${(@s:;:)__exp}" )
-    __pms=( "${(@s:;:)__pm}" )
+  local -a __exps __pms
+  __exps=( "${(@s:;:)__exp}" )
+  __pms=( "${(@s:;:)__pm}" )
 
-    integer __index __size=${#__pms}
-    for (( __index=1; __index <= __size; ++ __index )); do
-        __exp="${__exps[__index]}"
-        __pm="${__pms[__index]}"
-        [[ -z "${__exp##[[:space:]]##}" || -z "${__pm##[[:space:]]##}" ]] && continue
-        if [[ "$__exp" = <-> ]] then
-            (( $__exp )) && : ${(P)__pm::=$__tre} || : ${(P)__pm::=$__fse}
-        elif [[ "$__exp" != *\[\[* && "$__exp" != *\(\(* ]]; then
-            [[ "${(P)__exp}" != <-> || "${(P)__exp}" = 0## ]] && : ${(P)__pm::=$__fse} || : ${(P)__pm::=$__tre}
-        else
-            eval "$__exp" && : ${(P)__pm::=$__tre} || : ${(P)__pm::=$__fse}
-        fi
-    done
+  integer __index __size=${#__pms}
+  for (( __index=1; __index <= __size; ++ __index )); do
+    __exp="${__exps[__index]}"
+    __pm="${__pms[__index]}"
+    [[ -z "${__exp##[[:space:]]##}" || -z "${__pm##[[:space:]]##}" ]] && continue
+    if [[ "$__exp" = <-> ]] then
+      (( $__exp )) && : ${(P)__pm::=$__tre} || : ${(P)__pm::=$__fse}
+    elif [[ "$__exp" != *\[\[* && "$__exp" != *\(\(* ]]; then
+      [[ "${(P)__exp}" != <-> || "${(P)__exp}" = 0## ]] && : ${(P)__pm::=$__fse} || : ${(P)__pm::=$__tre}
+    else
+      eval "$__exp" && : ${(P)__pm::=$__tre} || : ${(P)__pm::=$__fse}
+    fi
+  done
 } # }}}
 
 # FUNCTION: -zui_util_strip_codes {{{
@@ -56,8 +52,8 @@ function -zui_util_map_bools() {
 # $1, saves result into parameter REPLY
 #
 # $1 - text to strip codes from
-function -zui_util_strip_codes() {
-    REPLY="${1//[$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'\037']/}"
+-zui_util_strip_codes() {
+  REPLY="${1//[$'\03'-$'\07'$'\013'-$'\014'$'\016'-$'\031'$'\037']/}"
 } # }}}
 
 # FUNCTION: -zui_util_get_segment {{{
@@ -67,22 +63,22 @@ function -zui_util_strip_codes() {
 # $3 - destination variable name (default is "REPLY")
 #
 # Can use e.g. 'reply[1]' for $3
-function -zui_util_get_segment() {
-    local -a segs
-    segs=( "${(z@)1}" )
-    local varname="${3:-REPLY}"
-    local index="${2:-1}"
-    : ${(P)varname::=${segs[index]}}
+-zui_util_get_segment() {
+  local -a segs
+  segs=( "${(z@)1}" )
+  local varname="${3:-REPLY}"
+  local index="${2:-1}"
+  : ${(P)varname::=${segs[index]}}
 } # }}}
 
 # FUNCTION: -zui_util_get_time {{{
 #
 # Returns time %H:%M, via datetime or `date` as fallback
 #
-function -zui_util_get_time() {
-    local ts
-    ts="$EPOCHSECONDS"
-    [[ -z "$ts" || "$ts" = "0" ]] && REPLY="$(date '+%H:%M')" || strftime -s REPLY '%H:%M' "$ts"
+-zui_util_get_time() {
+  local ts
+  ts="$EPOCHSECONDS"
+  [[ -z "$ts" || "$ts" = "0" ]] && REPLY="$(date '+%H:%M')" || strftime -s REPLY '%H:%M' "$ts"
 } # }}}
 
 # FUNCTION: -zui_util_get_datetime {{{
@@ -91,29 +87,29 @@ function -zui_util_get_time() {
 #
 # $REPLY - date and time string "Ymd_H.M.S"
 #
-function -zui_util_get_datetime() {
-    local ts
-    ts="$EPOCHSECONDS"
-    [[ -z "$ts" || "$ts" = "0" ]] && REPLY="$(date '+%Y%m%d_%H.%M.%S')" || strftime -s REPLY '%Y%m%d_%H.%M.%S' "$ts"
+-zui_util_get_datetime() {
+  local ts
+  ts="$EPOCHSECONDS"
+  [[ -z "$ts" || "$ts" = "0" ]] && REPLY="$(date '+%Y%m%d_%H.%M.%S')" || strftime -s REPLY '%Y%m%d_%H.%M.%S' "$ts"
 } # }}}
 
 # FUNCTION: -zui_util_get_timestamp {{{
 # Returns timestamp, via datetime or `date` as fallback
 #
-function -zui_util_get_timestamp() {
-    REPLY="$EPOCHSECONDS"
-    [[ -z "$REPLY" ]] && REPLY="$(date +%s)"
+-zui_util_get_timestamp() {
+  REPLY="$EPOCHSECONDS"
+  [[ -z "$REPLY" ]] && REPLY="$(date +%s)"
 } # }}}
 
 # FUNCTION: -zui_util_has_default_color {{{
 # Returns true if the "default" color
 # can be used with current Zsh/zcurses
-function -zui_util_has_default_color() {
-    (( ${+zcurses_colors} )) || return 2
-    [[ -z "${zcurses_colors[(r)default]}" ]] && return 1
-    autoload is-at-least
-    is-at-least 2>/dev/null 5.3 && return 0
-    return 1
+-zui_util_has_default_color() {
+  (( ${+zcurses_colors} )) || return 2
+  [[ -z "${zcurses_colors[(r)default]}" ]] && return 1
+  autoload is-at-least
+  is-at-least 2>/dev/null 5.3 && return 0
+  return 1
 } # }}}
 
 # FUNCTION: -zui_util_resolve_path {{{
@@ -127,25 +123,25 @@ function -zui_util_has_default_color() {
 #
 # $reply[2] - basename
 #
-function -zui_util_resolve_path() {
-    local dirpath="$1" filepath="$2"
+-zui_util_resolve_path() {
+  local dirpath="$1" filepath="$2"
 
-    local dirpath2="${dirpath/#\~/$HOME}"
-    # :a behaves weird, prepends paths, which are not CWD
-    [ "${dirpath2[1]}" = "/" ] && dirpath2="${dirpath2:a}"
-    local filepath2="${filepath/#\~/$HOME}"
-    [ "${filepath2[1]}" = "/" ] && filepath2="${filepath2:a}"
+  local dirpath2="${dirpath/#\~/$HOME}"
+  # :a behaves weird, prepends paths, which are not CWD
+  [ "${dirpath2[1]}" = "/" ] && dirpath2="${dirpath2:a}"
+  local filepath2="${filepath/#\~/$HOME}"
+  [ "${filepath2[1]}" = "/" ] && filepath2="${filepath2:a}"
 
-    reply=()
-    if [ "${filepath2[1]}" = "/" ]; then
-        reply[1]="${filepath2:h}"
-        reply[2]="${filepath2:t}"
-    else
-        local p="$dirpath2/$filepath2"
-        [ "${p[1]}" = "/" ] && p="${p:a}"
-        reply[1]="${p:h}"
-        reply[2]="${p:t}"
-    fi
+  reply=()
+  if [ "${filepath2[1]}" = "/" ]; then
+    reply[1]="${filepath2:h}"
+    reply[2]="${filepath2:t}"
+  else
+    local p="$dirpath2/$filepath2"
+    [ "${p[1]}" = "/" ] && p="${p:a}"
+    reply[1]="${p:h}"
+    reply[2]="${p:t}"
+  fi
 } # }}}
 
 # FUNCTION: -zui_util_to_cmd_line {{{
@@ -154,15 +150,15 @@ function -zui_util_resolve_path() {
 #
 # $1 - text to put on command line
 #
-function -zui_util_to_cmd_line() {
-    if zle; then
-        zle .kill-buffer
-        BUFFER="$1"
-        zle .redisplay
-        zle .beginning-of-line
-    else
-        print -zr "$1"
-    fi
+-zui_util_to_cmd_line() {
+  if zle; then
+    zle .kill-buffer
+    BUFFER="$1"
+    zle .redisplay
+    zle .beginning-of-line
+  else
+    print -zr "$1"
+  fi
 } # }}}
 
 # FUNCTION: -zui_util_circular_next {{{
@@ -174,27 +170,27 @@ function -zui_util_to_cmd_line() {
 # $1 - base of file names in circular buffer
 # $2 - maximum number of files in circular buffer
 #
-function -zui_util_circular_next() {
-    setopt local_options extended_glob
+-zui_util_circular_next() {
+  setopt local_options extended_glob
 
-    # Input data
-    local base="$1" count="$2"
+  # Input data
+  local base="$1" count="$2"
 
-    # Circular buffers' directory
-    local circpath="${Plugins[ZUI_CONFIG_DIR]}/var/circular_buffers"
-    [[ ! -d "$circpath" ]] && command mkdir -p "$circpath"
+  # Circular buffers' directory
+  local circpath="${Plugins[ZUI_CONFIG_DIR]}/var/circular_buffers"
+  [[ ! -d "$circpath" ]] && command mkdir -p "$circpath"
 
-    local -a circular_buffer
-    circular_buffer=( "$circpath"/"$base".[[:digit:]]##(OmN) )
+  local -a circular_buffer
+  circular_buffer=( "${circpath}"/"${base}".[[:digit:]]##(OmN) )
 
-    if [[ "$count" -gt "${#circular_buffer}" ]]; then
-        integer next_index=$(( ${#circular_buffer} + 1 ))
-        REPLY="$circpath/${base}.${next_index}"
-    else
-        REPLY="${circular_buffer[1]}"
-    fi
+  if [[ "$count" -gt "${#circular_buffer}" ]]; then
+    integer next_index=$(( ${#circular_buffer} + 1 ))
+    REPLY="${circpath}/${base}.${next_index}"
+  else
+    REPLY="${circular_buffer[1]}"
+  fi
 
-    return 0
+  return 0
 } # }}}
 
 # FUNCTION: -zui_util_circular_paths {{{
@@ -207,20 +203,20 @@ function -zui_util_circular_next() {
 #
 # $1 - name of the circular buffer
 #
-function -zui_util_circular_paths() {
-    setopt local_options extended_glob
+-zui_util_circular_paths() {
+  setopt local_options extended_glob
 
-    # Input data
-    local base="$1"
+  # Input data
+  local base="$1"
 
-    # Output array
-    reply=( )
+  # Output array
+  reply=( )
 
-    # Circular buffers' directory
-    local circpath="${Plugins[ZUI_CONFIG_DIR]}/var/circular_buffers"
-    [[ ! -d "$circpath" ]] && return 1
+  # Circular buffers' directory
+  local circpath="${Plugins[ZUI_CONFIG_DIR]}/var/circular_buffers"
+  [[ ! -d "$circpath" ]] && return 1
 
-    reply=( "$circpath"/"$base".[[:digit:]]##(omN) )
+  reply=( "$circpath"/"$base".[[:digit:]]##(omN) )
 } # }}}
 
 # FUNCTION: -zui_util_to_cmd_line {{{
@@ -228,13 +224,13 @@ function -zui_util_circular_paths() {
 #
 # $1 - text to put on command line
 #
-function -zui_util_to_cmd_line() {
-    if zle; then
-        zle .kill-buffer
-        BUFFER="$1"
-        zle .redisplay
-        zle .beginning-of-line
-    else
-        print -zr "$1"
-    fi
+-zui_util_to_cmd_line() {
+  if zle; then
+    zle .kill-buffer
+    BUFFER="$1"
+    zle .redisplay
+    zle .beginning-of-line
+  else
+    print -zr "$1"
+  fi
 } # }}}
