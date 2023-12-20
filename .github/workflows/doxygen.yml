@@ -30,24 +30,24 @@ jobs:
           submodules: recursive
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.ref }}
-      - name: ⚡ Dependencies
+      - name: "⚡ Dependencies"
         run: |
           sudo apt-get update -y
           sudo apt-get install -y zsh tree
-      - name: 📦 Install Doxygen
+      - name: "📦 Install Doxygen"
         run: |
-          gh repo clone z-shell/zsdoc tmp/zsdoc
-          sudo make -C tmp/zsdoc install
-      - name: ♻️ Generate Codebase Documentation
+          gh repo clone z-shell/zsdoc /tmp/zsdoc
+          sudo make -C /tmp/zsdoc install
+      - name: "♻️ Generate codebase documentation"
         run: make
-      - name: 🏗 Compress codebase documentation
+      - name: "🏗 Compress codebase documentation"
         run: tar cvzf docs.tar.gz docs
-      - name: 📤 Upload docs.tar.gz
+      - name: "📤 Upload docs.tar.gz"
         uses: actions/upload-artifact@v4
         with:
           name: Codebase documentation
           path: docs.tar.gz
-      - name: ♻️ Cleanup
+      - name: "♻️ Cleanup"
         run: |
           rm -rf docs.tar.gz
       - name: "🆗 Commit"
