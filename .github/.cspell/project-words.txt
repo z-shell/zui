@@ -1,0 +1,10 @@
+EPOCHSECONDS
+FPATH
+mbegin
+PMSPEC
+setopt
+subshell
+unsetopt
+zcompile
+Zshell
+ZSTYLES

@@ -1,5 +1,5 @@
 ---
-name: "♻️ Sync Labels"
+name: ♻️ Sync Labels
 
 on:
   schedule:
@@ -8,5 +8,5 @@ on:
 
 jobs:
   labels:
-    name: "♻️ Sync labels"
+    name: ♻️ Sync labels
     uses: z-shell/.github/.github/workflows/sync-labels.yml@main

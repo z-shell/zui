@@ -1,7 +1,3 @@
-#  ============================================================================  #
-#  [ https://github.com/z-shell ] ❮ ZI ❯        [ (c) 2022 Z-SHELL COMMUNITY ]  #
-#  ============================================================================  #
-#
 # -*- mode: zsh; sh-indentation: 2; indent-tabs-mode: nil; sh-basic-offset: 2; -*-
 # vim: ft=zsh sw=2 ts=2 et
 #
@@ -20,10 +16,10 @@
 # Besides vertical navigation, it does horizontal navigation over elements of line.
 # Uses curses library.
 
-emulate -LR zsh
+builtin emulate -LR zsh
+builtin setopt typeset_silent extended_glob no_short_loops
 
-setopt typesetsilent extendedglob noshortloops
-[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt promptsubst
+[[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt prompt_subst
 
 zmodload zsh/curses
 zmodload zsh/terminfo 2>/dev/null

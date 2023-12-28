@@ -3,10 +3,12 @@ name: 📖 Doxygen
 
 on:
   push:
+    branches: [main]
     paths:
       - "functions/**"
       - "lib/**"
   pull_request:
+    branches: [main]
     paths:
       - "functions/**"
       - "lib/**"

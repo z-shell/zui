@@ -1,20 +1,28 @@
+# -*- mode: zsh; sh-indentation: 2; indent-tabs-mode: nil; sh-basic-offset: 2; -*-
+# vim: ft=zsh sw=2 ts=2 et
+#
+# ZUI demo: timeout
+#
 # Started from Zle or from command line
 
 -zui_std_cleanup deserialize:"zui-demo-timeout"
 -zui_std_init app:"zui-demo-timeout" app_name:"ZUI Timeout Demo"
-emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
+
+builtin emulate -LR zsh
+builtin setopt extended_glob typeset_silent warn_create_global
+
 -zui_std_init2 # after emulate -LR
 
 -zui_std_store_default_app_config s:timeout 500
 
 demo_generator_A() {
-    local mod="$1" ice="$2"
+  local mod="$1" ice="$2"
 
-    # Content
-    reply=( "${ZUI[YELLOW]}ZUI${ZUI[FMT_END]} can invoke timeout-callback when no input - random number: $RANDOM" )
+  # Content
+  reply=( "${ZUI[YELLOW]}ZUI${ZUI[FMT_END]} can invoke timeout-callback when no input - random number: $RANDOM" )
 
-    # Non-selectable lines  Hops to jump with [ and ]   Local anchors
-    reply2=( 2 )            reply3=( 1 )                reply4=( )
+  # Non-selectable lines  Hops to jump with [ and ]   Local anchors
+  reply2=( 2 )            reply3=( 1 )                reply4=( )
 }
 
 -zui-standard-timeout-callback() { -zui_std_fly_mod_regen 1 1; }
@@ -26,5 +34,3 @@ zui-event-loop 1:demo_generator_A
 -zui_std_cleanup serialize
 
 return 0
-
-# vim:ft=zsh

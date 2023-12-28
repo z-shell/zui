@@ -1,14 +1,11 @@
-#  ============================================================================  #
-#  [ https://github.com/z-shell ] ❮ ZI ❯        [ (c) 2022 Z-SHELL COMMUNITY ]  #
-#  ============================================================================  #
-#
 # -*- mode: zsh; sh-indentation: 2; indent-tabs-mode: nil; sh-basic-offset: 2; -*-
 # vim: ft=zsh sw=2 ts=2 et
-emulate -L zsh
+
+builtin emulate -L zsh
 
 zmodload zsh/curses
 
-setopt typesetsilent extendedglob
+builtin setopt typeset_silent extended_glob
 
 -zui_list_print_with_ansi() {
     local win="$1" text="$2" out col bcol attr chunk Xout
