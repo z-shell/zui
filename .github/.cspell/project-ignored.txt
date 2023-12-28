@@ -35,6 +35,7 @@ nonselectables
 obal
 regen
 Regen
+runtimes
 SBUFFER
 segs
 sidx
@@ -49,6 +50,8 @@ syslib
 tfield
 THEWORD
 timestr
+trivy
+trufflehog
 unfunction
 usetty
 utillib

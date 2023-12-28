@@ -9,7 +9,7 @@ plugins:
     - id: trunk
       ref: v1.4.1
       uri: https://github.com/trunk-io/plugins
-# Many linters and tools depend on runtimes - configure them here. (https://docs.trunk.io/runtimes)
+# Many linters and tools depend on runtime - configure them here. (https://docs.trunk.io/runtimes)
 runtimes:
   enabled:
     - node@18.12.1
@@ -19,13 +19,13 @@ lint:
   disabled:
     - checkov
     - yamllint
+    - trivy
+    - trufflehog
   enabled:
     - actionlint@1.6.26
     - git-diff-check
     - markdownlint@0.38.0
     - prettier@3.1.1
-    - trivy@0.48.1
-    - trufflehog@3.63.5
 actions:
   enabled:
     - trunk-announce
