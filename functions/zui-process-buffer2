@@ -13,8 +13,8 @@
 # ZUI_PB2_QSPACES - the same, but in ZUI_PB2_QWORDS
 #
 
-emulate -LR zsh
-setopt typeset_silent extended_glob no_short_loops
+builtin emulate -LR zsh
+builtin setopt typeset_silent extended_glob no_short_loops
 
 local MBEGIN MEND MATCH mbegin mend match
 

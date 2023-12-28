@@ -4,12 +4,12 @@
 # Started from zle or from command line
 #
 
-[[ "${ZUI[stdlib_sourced]}" != "1" ]] && source "${Plugins[ZUI_DIR]}/stdlib.lzui"
-[[ "${ZUI[syslib_sourced]}" != "1" ]] && source "${Plugins[ZUI_DIR]}/syslib.lzui"
-[[ "${ZUI[utillib_sourced]}" != "1" ]] && source "${Plugins[ZUI_DIR]}/utillib.lzui"
+[[ "${ZUI[stdlib_sourced]}" != "1" ]] && builtin source "${Plugins[ZUI_DIR]}/stdlib.lzui"
+[[ "${ZUI[syslib_sourced]}" != "1" ]] && builtin source "${Plugins[ZUI_DIR]}/syslib.lzui"
+[[ "${ZUI[utillib_sourced]}" != "1" ]] && builtin source "${Plugins[ZUI_DIR]}/utillib.lzui"
 
-emulate -LR zsh
-setopt extended_glob typeset_silent warn_create_global
+builtin emulate -LR zsh
+builtin setopt extended_glob typeset_silent warn_create_global
 
 [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt prompt_subst
 

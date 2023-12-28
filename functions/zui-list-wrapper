@@ -1,7 +1,8 @@
 # -*- mode: zsh; sh-indentation: 2; indent-tabs-mode: nil; sh-basic-offset: 2; -*-
 # vim: ft=zsh sw=2 ts=2 et
-emulate -LR zsh
-setopt extended_glob warn_create_global
+
+builtin emulate -LR zsh
+builtin setopt extended_glob warn_create_global
 
 local _zui_wrapper_has_terminfo=0
 

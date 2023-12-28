@@ -16,9 +16,9 @@
 # Besides vertical navigation, it does horizontal navigation over elements of line.
 # Uses curses library.
 
-emulate -LR zsh
+builtin emulate -LR zsh
+builtin setopt typeset_silent extended_glob no_short_loops
 
-setopt typeset_silent extended_glob no_short_loops
 [[ "${ZUI[PROMPT_SUBST]}" = "1" ]] && setopt prompt_subst
 
 zmodload zsh/curses
