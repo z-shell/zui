@@ -21,51 +21,42 @@ So, a Zshell code generates text. It is then turned into a document with hyperli
 
 A voiced [video tutorial](https://youtu.be/TfZ8b_RS_Bg) shows how to create an application – Nmap network scanner frontend.
 
-> More: [zstyles](ZSTYLES.md), [demos](https://github.com/z-shell/zui/blob/main/demos/zui-demo-list-boxes)
-
 The API is described in the [wiki](https://wiki.zshell.dev/ecosystem/plugins/zui).
 
-## Hello World
+## Demo Applications
 
-Enable demo functions before loading the plugin:
-
-```zsh
-typeset -A ZUI
-ZUI[DEMOS]=1
-```
-
-Started from Zle or the command line:
+Enable:
 
 ```zsh
--zui_std_cleanup deserialize:"zui-demo-hello-world"
--zui_std_init app:"zui-demo-hello-world" app_name:"ZUI Hello World"
-
-emulate -LR zsh
-setopt extended_glob typeset_silent warn_create_global
-
--zui_std_init2 # after emulate -LR
--zui_std_store_default_app_config b:border 1
-
-demo_generator_A() {
-  local mod="$1" ice="$2"
-  # Content, no hyper-links
-  reply=( "Hello World from ${ZUI[YELLOW]}ZUI${ZUI[FMT_END]}! Module $mod, instance $ice." )
-  # Non-selectable lines   Hops to jump with [ and ]   Local anchors
-  reply2=( )               reply3=( 1 )                reply4=( )
-}
+typeset -A ZUI; ZUI[DEMOS]=1
 ```
 
-Start application:
+> **Note**:
+>
+> - The above must be set before loading ZUI.
 
-```zsh
-zui-event-loop 1:demo_generator_A
+Available:
 
--zui_std_cleanup serialize
-```
+- [zui-demo-anchors](/demos/zui-demo-anchors)
+- [zui-demo-buttons](/demos/zui-demo-buttons)
+- [zui-demo-edit](/demos/zui-demo-edit)
+- [zui-demo-ganchors](/demos/zui-demo-ganchors)
+- [zui-demo-history](/demos/zui-demo-history)
+- [zui-demo-nmap](/demos/zui-demo-nmap)
+- [zui-demo-text-fields](/demos/zui-demo-text-fields)
+- [zui-demo-toggles](/demos/zui-demo-toggles)
+- [zui-demo-append](/demos/zui-demo-append)
+- [zui-demo-configure](/demos/zui-demo-configure)
+- [zui-demo-fly](/demos/zui-demo-fly)
+- [zui-demo-hello-world](/demos/zui-demo-hello-world)
+- [zui-demo-list-boxes](/demos/zui-demo-list-boxes)
+- [zui-demo-special-text](/demos/zui-demo-special-text)
+- [zui-demo-timeout](/demos/zui-demo-timeout)
+- [zui-demo-various](/demos/zui-demo-various)
 
 ## Installation
 
-**The plugin is "standalone"**, which means that only sourcing it is needed. To install, unpack <samp>zui</samp> and load from <samp>.zshrc</samp>:
+**The plugin is "standalone"**, which means that only sourcing it is needed. To install, unpack <kbd>zui</kbd> and load from <kbd>.zshrc</kbd>:
 
 ```zsh
 source {where-zui-is}/zui.plugin.zsh
@@ -73,18 +64,18 @@ source {where-zui-is}/zui.plugin.zsh
 
 ### [Zi](https://github.com/z-shell/zi)
 
-Add <samp>zi load z-shell/zui</samp> to your <samp>.zshrc</samp> file. ZI will handle the rest automatically the next time you start zsh. To update (i.e. to pull from origin) issue <samp>zi update z-shell/zui</samp>.
+Add <kbd>zi load z-shell/zui</kbd> to your <kbd>.zshrc</kbd> file. ZI will handle the rest automatically the next time you start zsh. To update (i.e. to pull from origin) issue <kbd>zi update z-shell/zui</kbd>.
 
 ### Antigen
 
-Add <samp>antigen bundle z-shell/zui</samp> to your <samp>.zshrc</samp> file. Antigen will handle cloning the plugin for you automatically the next time you start zsh.
+Add <kbd>antigen bundle z-shell/zui</kbd> to your <kbd>.zshrc</kbd> file. Antigen will handle cloning the plugin for you automatically the next time you start zsh.
 
 ### Oh-My-Zsh
 
-1. <samp>cd ~/.oh-my-zsh/custom/plugins</samp>
-2. <samp>git clone https://github.com/z-shell/zui.git</samp>
-3. Add <samp>zui</samp> to your plugin list
+1. <kbd>cd ~/.oh-my-zsh/custom/plugins</kbd>
+2. <kbd>git clone https://github.com/z-shell/zui.git</kbd>
+3. Add <kbd>zui</kbd> to your plugin list
 
 ### Zgen
 
-Add <samp>zgen load z-shell/zui</samp> to your .zshrc file in the same place you're doing your other <samp>zgen load</samp> calls in.
+Add <kbd>zgen load z-shell/zui</kbd> to your .zshrc file in the same place you're doing your other <kbd>zgen load</kbd> calls in.

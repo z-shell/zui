@@ -1,3 +1,8 @@
+# -*- mode: zsh; sh-indentation: 2; indent-tabs-mode: nil; sh-basic-offset: 2; -*-
+# vim: ft=zsh sw=2 ts=2 et
+#
+# ZUI demo: anchors
+#
 # Started from Zle or from command line
 #
 # Shows all types of anchors: external/regenerating, internal,
@@ -5,7 +10,10 @@
 
 -zui_std_cleanup deserialize:"zui-demo-anchors"
 -zui_std_init app:"zui-demo-anchors" app_name:"ZUI Anchors"
-emulate -LR zsh -o extended_glob -o typeset_silent -o warn_create_global
+
+builtin emulate -LR zsh
+builtin setopt extended_glob typeset_silent warn_create_global
+
 -zui_std_init2 # after emulate -LR
 
 -zui_std_store_default_app_config b:border 1

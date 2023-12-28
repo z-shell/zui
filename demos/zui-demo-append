@@ -1,10 +1,18 @@
+# -*- mode: zsh; sh-indentation: 2; indent-tabs-mode: nil; sh-basic-offset: 2; -*-
+# vim: ft=zsh sw=2 ts=2 et
+#
+# ZUI demo: append
+#
 # Started from Zle or from command line
 #
 # A demo showing how to add module instances to already generated document
 
 -zui_std_cleanup deserialize:"zui-demo-append"
 -zui_std_init app:"zui-demo-append" app_name:"ZUI On-The-Fly Append"
-emulate -LR zsh -o extended_glob -o typeset_silent -o warn_create_global
+
+builtin emulate -LR zsh
+builtin setopt extended_glob typeset_silent warn_create_global
+
 -zui_std_init2 # after emulate -LR
 
 -zui_std_store_default_app_config b:border 1
@@ -13,22 +21,22 @@ emulate -LR zsh -o extended_glob -o typeset_silent -o warn_create_global
 
 # Generator for module 1
 demo_generator_A() {
-    local mod="$1" ice="$2"
+  local mod="$1" ice="$2"
 
-    # Anchor only in last instance
-    -zui_std_get_mod_factor "$mod"
-    if [[ "$ice" = "$REPLY" ]]; then
-        # 1+2 - from 1st line of this module, jump 2 beyond this module
-        # Regenerate $mod/$ice, and $mod/$ice+1, first running handler
-        local -a output
-        -zui_std_anchor "append_next" "1+2" "" ",mod${mod}_ice${ice},mod${mod}_ice$(( ice + 1 ))," "" "${ZUI[MAGENTA]}Append next!${ZUI[FMT_END]}" "-zui_std_set_mod_factor $mod $(( REPLY + 1 ))" output
-    fi
+  # Anchor only in last instance
+  -zui_std_get_mod_factor "$mod"
+  if [[ "$ice" = "$REPLY" ]]; then
+    # 1+2 - from 1st line of this module, jump 2 beyond this module
+    # Regenerate $mod/$ice, and $mod/$ice+1, first running handler
+    local -a output
+    -zui_std_anchor "append_next" "1+2" "" ",mod${mod}_ice${ice},mod${mod}_ice$(( ice + 1 ))," "" "${ZUI[MAGENTA]}Append next!${ZUI[FMT_END]}" "-zui_std_set_mod_factor $mod $(( REPLY + 1 ))" output
+  fi
 
-    # Content
-    reply=( "This is module $mod, instance $ice" ${output[1]} )
+  # Content
+  reply=( "This is module $mod, instance $ice" ${output[1]} )
 
-    # Non-selectable lines  Hops to jump with [ and ]   Local anchors (if output[1] not empty ...)
-    reply2=( 1 )            reply3=( 1 )                reply4=( ${output[1]:+append_next} )
+  # Non-selectable lines  Hops to jump with [ and ]   Local anchors (if output[1] not empty ...)
+  reply2=( 1 )            reply3=( 1 )                reply4=( ${output[1]:+append_next} )
 }
 
 ## Start application ##
