@@ -1,0 +1,30 @@
+---
+name: Trunk Code Quality
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*.*.*"]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  schedule:
+    - cron: "0 07 * * 5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Trunk Code Quality
+    permissions:
+      actions: read
+      checks: write
+      contents: read
+    uses: z-shell/.github/.github/workflows/trunk.yml@main
+    with:
+      arguments: --no-progress
